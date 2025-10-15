@@ -134,7 +134,7 @@ The platform is based on the original game at **codingforkids.io**.
 
 ## Recent Changes
 
-- **2025-10-15**: SVG-Based Map Tile System
+- **2025-10-15**: SVG-Based Map Tile System & Graphic Map Support
   - **Created Map Asset Structure**: New `assets/map/` folder with subdirectories for tiles, objects, special items, and collectibles
   - **Designed SVG Graphics**: Created high-quality SVG tiles for grass, path, water, rock, trees, bushes, flowers, and the goal star
   - **Implemented SVG Rendering**: Modified game engine to load and render SVG images instead of programmatically drawn rectangles
@@ -144,6 +144,13 @@ The platform is based on the original game at **codingforkids.io**.
   - **Easy Customization**: Artists/educators can now modify map graphics by simply editing SVG files without touching code
   - **Organized Collectibles Folder**: Created dedicated `assets/map/collectibles/` folder with multiple collectible types (coin, gem, key, heart, star, apple)
   - **Fixed Performance Bug**: Prevented network spam from repeated SVG load attempts by caching failed loads
+  - **Full Graphic Map Support**: Added ability to use pre-drawn full PNG/SVG backgrounds instead of tiles
+    - New `assets/map/graphic-maps/` folder for full background images
+    - Lesson markdown supports `graphic:` field to specify background image URL
+    - Character and collectibles render on top of the background
+    - Tiles marked as 0 become transparent when graphic background is used
+    - Created sample castle garden map demonstrating the feature
+    - Perfect for advanced levels with complex visuals like castles and landscapes
 
 - **2025-10-13**: Blockly Visual Coding Integration
   - **Modular Architecture**: Created blockly-integration/ folder with isolated code
