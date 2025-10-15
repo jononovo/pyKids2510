@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Water at top half -->
+  <rect x="0" y="0" width="32" height="16" fill="#4a7aaa"/>
+  <!-- Water ripples -->
+  <rect x="0" y="4" width="32" height="2" fill="#5a8aba" opacity="0.4"/>
+  <rect x="0" y="10" width="32" height="2" fill="#5a8aba" opacity="0.4"/>
+  
+  <!-- Sand at bottom half -->
+  <rect x="0" y="16" width="32" height="16" fill="#f4d4a4"/>
+  
+  <!-- Transition/foam line -->
+  <rect x="0" y="14" width="32" height="2" fill="#e6c494"/>
+  <rect x="0" y="15" width="32" height="2" fill="#fde4b4" opacity="0.6"/>
+  
+  <!-- Wave foam details -->
+  <rect x="2" y="14" width="4" height="1" fill="#ffffff" opacity="0.3"/>
+  <rect x="10" y="15" width="3" height="1" fill="#ffffff" opacity="0.3"/>
+  <rect x="18" y="14" width="4" height="1" fill="#ffffff" opacity="0.3"/>
+  <rect x="26" y="15" width="3" height="1" fill="#ffffff" opacity="0.3"/>
+  
+  <!-- Sand texture in bottom -->
+  <circle cx="8" cy="22" r="0.8" fill="#e6c494" opacity="0.4"/>
+  <circle cx="16" cy="24" r="1" fill="#fde4b4" opacity="0.3"/>
+  <circle cx="24" cy="23" r="0.8" fill="#e6c494" opacity="0.4"/>
+  <circle cx="12" cy="28" r="0.8" fill="#fde4b4" opacity="0.3"/>
+  <circle cx="20" cy="29" r="0.8" fill="#e6c494" opacity="0.4"/>
+</svg>
