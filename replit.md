@@ -134,6 +134,21 @@ The platform is based on the original game at **codingforkids.io**.
 
 ## Recent Changes
 
+- **2025-10-15**: Modular Beach/Island Tile System
+  - **Created Complete Beach Tile Set**: New modular tiles for creating any island or water-based map
+    - `sand.svg` - Sandy beach base tile with texture
+    - `beach-edge-top/bottom/left/right.svg` - Beach edges where sand meets water
+    - `beach-corner-*.svg` - Smooth corner transitions for natural coastlines
+  - **Built Island House Map**: New 24x24 tile island graphic map featuring:
+    - Cozy house with top-down perspective
+    - Tropical island surrounded by water
+    - Beach transitions using the new modular tiles
+    - Trees, bushes, flowers from existing assets
+    - Stone paths, pond, and dock
+  - **Added Level 5**: Island Adventure level using the new graphic map
+  - **True Top-Down Perspective**: All elements designed for overhead view like classic SNES games
+  - **Reusable Components**: Beach tiles can be used to create any water/island configuration
+
 - **2025-10-15**: SVG-Based Map Tile System & Graphic Map Support
   - **Created Map Asset Structure**: New `assets/map/` folder with subdirectories for tiles, objects, special items, and collectibles
   - **Designed SVG Graphics**: Created high-quality SVG tiles for grass, path, water, rock, trees, bushes, flowers, and the goal star
