@@ -135,13 +135,15 @@ The platform is based on the original game at **codingforkids.io**.
 ## Recent Changes
 
 - **2025-10-15**: SVG-Based Map Tile System
-  - **Created Map Asset Structure**: New `assets/map/` folder with subdirectories for tiles, objects, and special items
+  - **Created Map Asset Structure**: New `assets/map/` folder with subdirectories for tiles, objects, special items, and collectibles
   - **Designed SVG Graphics**: Created high-quality SVG tiles for grass, path, water, rock, trees, bushes, flowers, and the goal star
   - **Implemented SVG Rendering**: Modified game engine to load and render SVG images instead of programmatically drawn rectangles
   - **Performance Optimization**: Added Map-based caching system for loaded SVG images with preloading on startup
   - **Automatic Fallback**: Preserves backward compatibility with fallback to colored rectangles if SVGs fail to load
   - **Visual Improvements**: Much more appealing graphics with textured tiles, layered trees, and glowing star effects
   - **Easy Customization**: Artists/educators can now modify map graphics by simply editing SVG files without touching code
+  - **Organized Collectibles Folder**: Created dedicated `assets/map/collectibles/` folder with multiple collectible types (coin, gem, key, heart, star, apple)
+  - **Fixed Performance Bug**: Prevented network spam from repeated SVG load attempts by caching failed loads
 
 - **2025-10-13**: Blockly Visual Coding Integration
   - **Modular Architecture**: Created blockly-integration/ folder with isolated code
