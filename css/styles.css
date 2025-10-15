@@ -51,6 +51,8 @@ body {
     border-right: 4px solid #1a1a1a;
     overflow-y: auto;
     padding-bottom: 40px;  /* Perfect space at the bottom of the panel */
+    /* Add dark shadow at bottom to create the appearance of dark padding */
+    box-shadow: inset 0 -40px 0 0 #1a1a1a;  /* Dark gray shadow at bottom */
     /* Remove CSS resize - will use custom handle instead */
 }
 
