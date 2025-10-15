@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Tree trunk -->
+  <rect x="13" y="20" width="6" height="10" fill="#654321" rx="1"/>
+  <!-- Trunk texture -->
+  <rect x="14.5" y="21" width="1" height="8" fill="#543210" opacity="0.6"/>
+  <rect x="16.5" y="22" width="1" height="6" fill="#543210" opacity="0.6"/>
+  
+  <!-- Tree foliage (layered for depth) -->
+  <!-- Bottom layer -->
+  <ellipse cx="16" cy="18" rx="10" ry="8" fill="#2d5016"/>
+  <!-- Middle layer -->
+  <ellipse cx="16" cy="14" rx="8" ry="7" fill="#3a6020"/>
+  <!-- Top layer -->
+  <ellipse cx="16" cy="10" rx="6" ry="5" fill="#4a7c2e"/>
+  
+  <!-- Highlight spots -->
+  <circle cx="12" cy="12" r="1.5" fill="#5a8c3e" opacity="0.6"/>
+  <circle cx="20" cy="14" r="1.5" fill="#5a8c3e" opacity="0.6"/>
+  <circle cx="16" cy="9" r="1.2" fill="#6a9c4e" opacity="0.5"/>
+  
+  <!-- Shadow at base -->
+  <ellipse cx="16" cy="29" rx="5" ry="1" fill="#000000" opacity="0.2"/>
+</svg>
