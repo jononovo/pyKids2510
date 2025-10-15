@@ -303,18 +303,16 @@ player.move_forward()
 ```
 import player
 
-# Simple path straight up from dock to house
-player.move_forward()  # Step onto the island
-player.move_forward()  # Move toward bridge
+# Simple path straight up from dock to house door
 player.move_forward()  # Step onto bridge
 player.move_forward()  # Cross bridge
 player.move_forward()  # Keep crossing
-player.move_forward()  # Exit bridge north island
+player.move_forward()  # Exit bridge to north island
 player.move_forward()  # Move through island
 player.move_forward()  # Keep going north
 player.move_forward()  # Getting closer
 player.move_forward()  # Almost there
-player.move_forward()  # Reach the house!
+player.move_forward()  # Reach the house door!
 ```
 
 <!-- Map -->
@@ -334,7 +332,7 @@ graphic: assets/map/graphic-maps/2-islands.png
 [3,0,0,0,0,0,0,0,0,0,0,0,0,3],
 [3,3,3,3,0,2,2,2,2,0,3,3,3,3],
 [3,3,3,3,3,3,2,2,3,3,3,3,3,3]
-startPos: 6, 13
-goalPos: 6, 2
+startPos: 7, 12
+goalPos: 7, 3
 ```
 ---
