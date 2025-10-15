@@ -50,7 +50,7 @@ body {
     flex-direction: column;
     border-right: 4px solid #1a1a1a;
     overflow-y: auto;
-    padding-bottom: 64px;  /* Balanced space at the bottom of the panel */
+    padding-bottom: 40px;  /* Perfect space at the bottom of the panel */
     /* Remove CSS resize - will use custom handle instead */
 }
 
