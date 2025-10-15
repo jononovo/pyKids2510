@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Transparent background -->
+  
+  <!-- Heart shadow -->
+  <ellipse cx="16" cy="26" rx="5" ry="1.5" fill="#000000" opacity="0.15"/>
+  
+  <!-- Heart shape -->
+  <path d="M16,9 C16,9 12,5 8,8 C4,11 4,15 8,19 L16,27 L24,19 C28,15 28,11 24,8 C20,5 16,9 16,9 Z" 
+        fill="#e74c3c"/>
+  
+  <!-- Inner heart gradient for depth -->
+  <path d="M16,10 C16,10 13,7 10,9 C7,11 7,14 10,17 L16,24 L22,17 C25,14 25,11 22,9 C19,7 16,10 16,10 Z" 
+        fill="#ff6b6b" opacity="0.8"/>
+  
+  <!-- Highlight on left lobe -->
+  <ellipse cx="11" cy="11" rx="2.5" ry="3" fill="#ff9999" opacity="0.6"/>
+  
+  <!-- Highlight on right lobe -->
+  <ellipse cx="21" cy="11" rx="2.5" ry="3" fill="#ff9999" opacity="0.6"/>
+  
+  <!-- Center shine -->
+  <circle cx="14" cy="12" r="1.5" fill="#ffffff" opacity="0.4"/>
+  
+  <!-- Small sparkles -->
+  <circle cx="10" cy="10" r="0.8" fill="#ffffff" opacity="0.7"/>
+  <circle cx="19" cy="13" r="0.6" fill="#ffffff" opacity="0.5"/>
+</svg>

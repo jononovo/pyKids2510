@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Transparent background -->
+  
+  <!-- Apple shadow -->
+  <ellipse cx="16" cy="27" rx="5" ry="1.5" fill="#000000" opacity="0.15"/>
+  
+  <!-- Apple body -->
+  <ellipse cx="16" cy="18" rx="8" ry="9" fill="#dc143c"/>
+  
+  <!-- Apple top indent -->
+  <ellipse cx="16" cy="11" rx="3" ry="2" fill="#dc143c"/>
+  <ellipse cx="13" cy="10" rx="2" ry="1.5" fill="#dc143c"/>
+  <ellipse cx="19" cy="10" rx="2" ry="1.5" fill="#dc143c"/>
+  
+  <!-- Apple stem -->
+  <rect x="15" y="6" width="2" height="5" fill="#8b4513" rx="0.5"/>
+  
+  <!-- Apple leaf -->
+  <ellipse cx="18" cy="8" rx="3" ry="1.5" fill="#4caf50" transform="rotate(30 18 8)"/>
+  <path d="M18,8 Q19,8 20,7" stroke="#3d8b3d" stroke-width="0.5" fill="none"/>
+  
+  <!-- Shine on apple -->
+  <ellipse cx="12" cy="15" rx="2" ry="4" fill="#ff6b6b" opacity="0.4" transform="rotate(-15 12 15)"/>
+  <circle cx="11" cy="13" r="1.5" fill="#ffffff" opacity="0.3"/>
+  
+  <!-- Small highlight -->
+  <ellipse cx="19" cy="17" rx="1" ry="2" fill="#ff9999" opacity="0.3"/>
+</svg>

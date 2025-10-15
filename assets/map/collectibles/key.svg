@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Transparent background -->
+  
+  <!-- Key shadow -->
+  <ellipse cx="16" cy="26" rx="4" ry="1.5" fill="#000000" opacity="0.2"/>
+  
+  <!-- Key body -->
+  <g transform="rotate(45 16 16)">
+    <!-- Key shaft -->
+    <rect x="14" y="11" width="4" height="14" fill="#ffd700" rx="0.5"/>
+    <!-- Key teeth -->
+    <rect x="14" y="23" width="2" height="2" fill="#ffd700"/>
+    <rect x="17" y="22" width="1" height="3" fill="#ffd700"/>
+    <rect x="14.5" y="21" width="1.5" height="1" fill="#ffd700"/>
+    
+    <!-- Key handle (circular) -->
+    <circle cx="16" cy="9" r="5" fill="#ffd700"/>
+    <circle cx="16" cy="9" r="3" fill="none" stroke="#ffed4e" stroke-width="1"/>
+    <!-- Key hole in handle -->
+    <circle cx="16" cy="9" r="1.5" fill="#b8860b"/>
+    
+    <!-- Shine on handle -->
+    <ellipse cx="14.5" cy="7" rx="1.5" ry="1" fill="#ffed4e" opacity="0.6"/>
+  </g>
+  
+  <!-- Extra sparkle -->
+  <circle cx="11" cy="11" r="1" fill="#ffffff" opacity="0.7"/>
+  <circle cx="21" cy="21" r="0.8" fill="#ffffff" opacity="0.5"/>
+</svg>
