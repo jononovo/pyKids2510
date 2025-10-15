@@ -2,19 +2,94 @@
 // GAME ENGINE - Rendering & Movement
 // ============================================
 
+// SVG tile cache to store loaded images
+const svgTileCache = new Map();
+const svgLoadPromises = new Map();
+
+// SVG tile mapping
+const SVG_TILES = {
+    [TILES.GRASS]: 'assets/map/tiles/grass.svg',
+    [TILES.GRASS_DARK]: 'assets/map/tiles/grass-dark.svg',
+    [TILES.PATH]: 'assets/map/tiles/path.svg',
+    [TILES.WATER]: 'assets/map/tiles/water.svg',
+    [TILES.ROCK]: 'assets/map/tiles/rock.svg',
+    [TILES.TREE]: 'assets/map/objects/tree.svg',
+    [TILES.BUSH]: 'assets/map/objects/bush.svg',
+    [TILES.FLOWER]: 'assets/map/objects/flower.svg'
+};
+
+// Special item SVGs
+const SPECIAL_SVGS = {
+    star: 'assets/map/special/star-goal.svg',
+    gem: 'assets/map/special/collectible-gem.svg',
+    coin: 'assets/map/special/collectible-coin.svg'
+};
+
+// Load SVG as Image
+async function loadSVGImage(path) {
+    if (svgTileCache.has(path)) {
+        return svgTileCache.get(path);
+    }
+    
+    if (svgLoadPromises.has(path)) {
+        return svgLoadPromises.get(path);
+    }
+    
+    const loadPromise = new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+            svgTileCache.set(path, img);
+            svgLoadPromises.delete(path);
+            resolve(img);
+        };
+        img.onerror = () => {
+            console.warn(`Failed to load SVG: ${path}`);
+            svgLoadPromises.delete(path);
+            resolve(null);
+        };
+        img.src = path;
+    });
+    
+    svgLoadPromises.set(path, loadPromise);
+    return loadPromise;
+}
+
+// Preload all SVG tiles for better performance
+async function preloadSVGTiles() {
+    const tilesToLoad = [
+        ...Object.values(SVG_TILES),
+        ...Object.values(SPECIAL_SVGS)
+    ];
+    
+    await Promise.all(tilesToLoad.map(path => loadSVGImage(path)));
+    console.log('SVG tiles preloaded');
+}
+
 // Drawing functions
-function drawTile(x, y, type) {
+async function drawTile(x, y, type) {
     const px = x * TILE_SIZE;
     const py = y * TILE_SIZE;
     
+    // Try to use SVG first
+    const svgPath = SVG_TILES[type];
+    if (svgPath) {
+        const img = await loadSVGImage(svgPath);
+        if (img) {
+            ctx.drawImage(img, px, py, TILE_SIZE, TILE_SIZE);
+            return;
+        }
+    }
+    
+    // Fallback to original colored rectangle rendering
     ctx.fillStyle = tileColors[type] || '#333';
     ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
     
-    if (type === TILES.TREE) {
+    // Fallback for objects if SVG fails
+    if (type === TILES.TREE && !svgPath) {
         drawTree(px + TILE_SIZE/2, py + TILE_SIZE/2);
-    } else if (type === TILES.BUSH) {
+    } else if (type === TILES.BUSH && !svgPath) {
         drawBush(px + TILE_SIZE/2, py + TILE_SIZE/2);
-    } else if (type === TILES.FLOWER) {
+    } else if (type === TILES.FLOWER && !svgPath) {
         ctx.fillStyle = '#ff69b4';
         ctx.fillRect(px + 10, py + 10, 4, 4);
         ctx.fillRect(px + 18, py + 18, 4, 4);
@@ -37,11 +112,19 @@ function drawBush(x, y) {
     ctx.fillRect(x - 10, y - 2, 20, 8);
 }
 
-function drawStar(x, y) {
-    ctx.fillStyle = '#ffd700';
-    ctx.fillRect(x - 2, y - 8, 4, 16);
-    ctx.fillRect(x - 8, y - 2, 16, 4);
-    ctx.fillRect(x - 6, y - 6, 12, 12);
+async function drawStar(x, y) {
+    // Try to use SVG star first
+    const img = await loadSVGImage(SPECIAL_SVGS.star);
+    if (img) {
+        // Draw centered on the position
+        ctx.drawImage(img, x - TILE_SIZE/2, y - TILE_SIZE/2, TILE_SIZE, TILE_SIZE);
+    } else {
+        // Fallback to original star drawing
+        ctx.fillStyle = '#ffd700';
+        ctx.fillRect(x - 2, y - 8, 4, 16);
+        ctx.fillRect(x - 8, y - 2, 16, 4);
+        ctx.fillRect(x - 6, y - 6, 12, 12);
+    }
 }
 
 function drawCharacter(x, y, direction) {
@@ -169,7 +252,7 @@ function drawCharacterWithHop(x, y, direction, hopHeight) {
     }
 }
 
-function render() {
+async function render() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
     // Draw placeholder if no level loaded
@@ -183,16 +266,19 @@ function render() {
         return;
     }
     
+    // Draw all tiles (can be done in parallel)
+    const tilePromises = [];
     for (let y = 0; y < gameState.mapHeight; y++) {
         for (let x = 0; x < gameState.mapWidth; x++) {
             if (gameState.mapData[y] && gameState.mapData[y][x] !== undefined) {
-                drawTile(x, y, gameState.mapData[y][x]);
+                tilePromises.push(drawTile(x, y, gameState.mapData[y][x]));
             }
         }
     }
+    await Promise.all(tilePromises);
     
-    drawStar(gameState.goalPos.x * TILE_SIZE + TILE_SIZE/2, 
-            gameState.goalPos.y * TILE_SIZE + TILE_SIZE/2);
+    await drawStar(gameState.goalPos.x * TILE_SIZE + TILE_SIZE/2, 
+                  gameState.goalPos.y * TILE_SIZE + TILE_SIZE/2);
     
     drawCharacter(gameState.playerPos.x, gameState.playerPos.y, gameState.playerDirection);
     
@@ -217,7 +303,7 @@ function animateMove(fromX, fromY, toX, toY, direction) {
             gameState.currentSpriteFrame = 0;
         }
         
-        function animate() {
+        async function animate() {
             const elapsed = Date.now() - startTime;
             const progress = Math.min(elapsed / moveDuration, 1);
             const easeProgress = 1 - Math.pow(1 - progress, 3);
@@ -250,27 +336,29 @@ function animateMove(fromX, fromY, toX, toY, direction) {
             // Clear and redraw everything
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // Draw tiles
+            // Draw tiles (can be done in parallel)
+            const tilePromises = [];
             for (let y = 0; y < gameState.mapHeight; y++) {
                 for (let x = 0; x < gameState.mapWidth; x++) {
                     if (gameState.mapData[y] && gameState.mapData[y][x] !== undefined) {
-                        drawTile(x, y, gameState.mapData[y][x]);
+                        tilePromises.push(drawTile(x, y, gameState.mapData[y][x]));
                     }
                 }
             }
+            await Promise.all(tilePromises);
             
             // Draw goal star
-            drawStar(gameState.goalPos.x * TILE_SIZE + TILE_SIZE/2, 
-                    gameState.goalPos.y * TILE_SIZE + TILE_SIZE/2);
+            await drawStar(gameState.goalPos.x * TILE_SIZE + TILE_SIZE/2, 
+                          gameState.goalPos.y * TILE_SIZE + TILE_SIZE/2);
             
             // Draw character with animation
             drawCharacterWithHop(gameState.playerPos.x, gameState.playerPos.y, 
                                gameState.playerDirection, hopHeight);
             
             if (progress < 1) {
-                requestAnimationFrame(animate);
+                requestAnimationFrame(() => animate());
             } else {
-                render();
+                await render();
                 resolve();
             }
         }

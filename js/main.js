@@ -669,9 +669,21 @@ fetch('assets/python-course-chapter1.md')
         console.log('Default chapter not found, waiting for user to load one');
     });
 
+// Preload SVG tiles before starting
+if (typeof preloadSVGTiles === 'function') {
+    preloadSVGTiles().then(() => {
+        console.log('SVG tiles loaded, starting game');
+        render();
+    }).catch(error => {
+        console.warn('Failed to preload some SVGs, using fallback rendering:', error);
+        render();
+    });
+} else {
+    render();
+}
+
 // Start animation loop
 requestAnimationFrame(animationLoop);
-render();
 
 // Update viewport when window/panels resize
 window.addEventListener('resize', () => {
