@@ -2,6 +2,30 @@
 // GAME ENGINE - Rendering & Movement
 // ============================================
 
+// Tile type constants
+const TILES = {
+    GRASS: 0,
+    GRASS_DARK: 1,
+    PATH: 2,
+    TREE: 3,
+    BUSH: 4,
+    WATER: 5,
+    ROCK: 6,
+    FLOWER: 7
+};
+
+// Tile colors (fallback when SVGs not available)
+const tileColors = {
+    [TILES.GRASS]: '#7fc97f',
+    [TILES.GRASS_DARK]: '#6fb96f',
+    [TILES.PATH]: '#d4b896',
+    [TILES.TREE]: '#4a7c4e',
+    [TILES.BUSH]: '#5a8c5e',
+    [TILES.WATER]: '#6fa8dc',
+    [TILES.ROCK]: '#888',
+    [TILES.FLOWER]: '#7fc97f'
+};
+
 // SVG tile cache to store loaded images
 const svgTileCache = new Map();
 const svgLoadPromises = new Map();
