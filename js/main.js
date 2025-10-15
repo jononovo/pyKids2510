@@ -7,7 +7,7 @@ let courseData = null;
 let currentLevel = 0;
 let jar = null;
 
-const TILE_SIZE = 32;
+const TILE_SIZE = 20; // Changed to 20x20 for smaller, more detailed maps
 const MOVE_DURATION = 400;
 
 // Speed settings

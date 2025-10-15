@@ -295,8 +295,7 @@ Navigate from the bottom dock, cross the wooden bridges, and find your way to th
 import player
 
 # Start your island adventure!
-player.move_forward(2)
-player.turn_left()
+# You're at the dock - reach the house!
 player.move_forward()
 ```
 
@@ -304,32 +303,38 @@ player.move_forward()
 ```
 import player
 
-# Move up from dock
-player.move_forward(2)
-player.turn_left()
-player.move_forward(2)
-player.turn_right()
-player.move_forward(3)
-player.turn_left()
-player.move_forward(2)
+# Simple path straight up from dock to house
+player.move_forward()  # Step onto the island
+player.move_forward()  # Move toward bridge
+player.move_forward()  # Step onto bridge
+player.move_forward()  # Cross bridge
+player.move_forward()  # Keep crossing
+player.move_forward()  # Exit bridge north island
+player.move_forward()  # Move through island
+player.move_forward()  # Keep going north
+player.move_forward()  # Getting closer
+player.move_forward()  # Almost there
+player.move_forward()  # Reach the house!
 ```
 
 <!-- Map -->
 ```
 graphic: assets/map/graphic-maps/2-islands.png
-[3,3,3,3,3,3,3,3,3,3],
-[3,1,0,0,0,0,0,0,1,3],
-[3,1,0,0,1,1,0,0,1,3],
-[3,0,0,0,2,2,0,0,0,3],
-[3,0,1,0,2,2,0,1,0,3],
-[3,3,3,0,2,2,0,3,3,3],
-[3,3,3,0,2,2,0,3,3,3],
-[3,0,0,0,2,2,0,0,0,3],
-[3,0,1,0,0,0,0,1,0,3],
-[3,1,0,0,0,0,0,0,1,3],
-[3,3,3,2,2,2,2,3,3,3],
-[3,3,3,3,2,2,3,3,3,3]
-startPos: 4, 11
-goalPos: 4, 2
+[3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+[3,3,3,0,0,0,0,0,0,0,0,3,3,3],
+[3,3,0,0,0,1,1,1,1,0,0,0,3,3],
+[3,0,0,0,0,0,0,0,0,0,0,0,0,3],
+[3,0,1,0,0,0,0,0,0,0,0,1,0,3],
+[3,0,0,0,0,0,2,2,0,0,0,0,0,3],
+[3,0,1,0,0,0,2,2,0,0,0,1,0,3],
+[3,3,3,3,0,0,2,2,0,0,3,3,3,3],
+[3,3,3,3,0,0,2,2,0,0,3,3,3,3],
+[3,3,0,0,0,0,2,2,0,0,0,0,3,3],
+[3,0,0,1,0,0,0,0,0,0,1,0,0,3],
+[3,0,0,0,0,0,0,0,0,0,0,0,0,3],
+[3,3,3,3,0,2,2,2,2,0,3,3,3,3],
+[3,3,3,3,3,3,2,2,3,3,3,3,3,3]
+startPos: 6, 13
+goalPos: 6, 2
 ```
 ---
