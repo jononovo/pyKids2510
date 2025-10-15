@@ -276,3 +276,73 @@ goalPos: 12, 14
 collectibles: [[7, 10], [10, 12], [12, 12]]
 ```
 ---
+
+--- <!-- Level 5 - Island House -->
+## ISLAND ADVENTURE
+
+### OBJECTIVE
+> Explore the tropical island and find your way to the cozy house!
+
+Welcome to your own private island! 🏝️ You've just arrived at the dock and need to make your way to your beach house.
+
+This level uses our new modular island tile system - notice how the beach edges smoothly transition from sand to water!
+
+### CHALLENGE
+Navigate from the dock to reach the front door of your island house. Take the scenic path through the garden!
+
+**Tip:** The island has a nice stone path - follow it to find your way home!
+
+<!-- Starter Code -->
+```
+import player
+
+# Start your island adventure!
+player.move_forward(2)
+player.turn_left()
+player.move_forward()
+```
+
+<!-- Solution -->
+```
+import player
+
+player.move_forward(3)
+player.turn_left()
+player.move_forward(3)
+player.turn_right()
+player.move_forward(2)
+player.turn_left()
+player.move_forward(2)
+```
+
+<!-- Map -->
+```
+graphic: assets/map/graphic-maps/island-house.svg
+[3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+[3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+[3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+[3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+[3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+[3,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,3,3],
+[3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,3],
+[3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3],
+[3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3],
+[3,3,3,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,3,3,3],
+[3,3,0,0,0,0,0,0,0,0,2,2,2,0,0,0,0,0,0,0,0,0,3,3],
+[3,3,0,0,0,0,0,4,0,0,2,0,2,0,0,4,0,0,0,0,0,0,3,3],
+[3,3,0,0,0,0,0,0,0,0,2,0,2,0,0,0,0,0,0,0,0,0,3,3],
+[3,3,0,0,0,0,2,2,2,2,2,0,2,2,2,2,2,0,0,0,0,0,3,3],
+[3,3,0,0,0,0,2,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,3,3],
+[3,3,0,0,0,0,2,2,2,2,2,0,2,2,2,2,2,0,0,0,0,0,3,3],
+[3,3,0,0,0,0,0,0,0,0,2,0,2,0,0,0,0,0,0,0,0,0,3,3],
+[3,3,0,0,0,0,0,0,0,0,2,2,2,0,0,0,0,0,0,0,0,0,3,3],
+[3,3,3,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,3,3,3],
+[3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3],
+[3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,3],
+[3,3,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,3,3,3,3,3,3,3],
+[3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+[3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3]
+startPos: 11, 18
+goalPos: 11, 10
+```
+---
