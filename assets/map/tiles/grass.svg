@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Grass base -->
+  <rect width="32" height="32" fill="#7fc97f"/>
+  <!-- Grass texture -->
+  <path d="M8,28 Q7,26 8,24" stroke="#6fb96f" stroke-width="1" fill="none" opacity="0.6"/>
+  <path d="M16,29 Q15,27 16,25" stroke="#6fb96f" stroke-width="1" fill="none" opacity="0.6"/>
+  <path d="M24,28 Q23,26 24,24" stroke="#6fb96f" stroke-width="1" fill="none" opacity="0.6"/>
+  <path d="M12,30 Q11,28 12,26" stroke="#89d189" stroke-width="1" fill="none" opacity="0.5"/>
+  <path d="M20,30 Q19,28 20,26" stroke="#89d189" stroke-width="1" fill="none" opacity="0.5"/>
+  <!-- Small grass blades -->
+  <circle cx="6" cy="8" r="1" fill="#6fb96f" opacity="0.3"/>
+  <circle cx="26" cy="12" r="1" fill="#6fb96f" opacity="0.3"/>
+  <circle cx="14" cy="6" r="1" fill="#89d189" opacity="0.25"/>
+  <circle cx="22" cy="18" r="1" fill="#89d189" opacity="0.25"/>
+</svg>

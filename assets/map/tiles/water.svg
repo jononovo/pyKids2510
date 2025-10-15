@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Water base -->
+  <rect width="32" height="32" fill="#6fa8dc"/>
+  <!-- Animated wave pattern effect -->
+  <path d="M0,8 Q8,6 16,8 T32,8" stroke="#5f98cc" stroke-width="1.5" fill="none" opacity="0.6"/>
+  <path d="M0,16 Q8,14 16,16 T32,16" stroke="#5f98cc" stroke-width="1.5" fill="none" opacity="0.6"/>
+  <path d="M0,24 Q8,22 16,24 T32,24" stroke="#5f98cc" stroke-width="1.5" fill="none" opacity="0.6"/>
+  <!-- Light reflections -->
+  <ellipse cx="10" cy="12" rx="3" ry="1" fill="#8fbfef" opacity="0.4"/>
+  <ellipse cx="22" cy="20" rx="2" ry="0.8" fill="#8fbfef" opacity="0.4"/>
+  <ellipse cx="16" cy="6" rx="2.5" ry="0.6" fill="#8fbfef" opacity="0.3"/>
+  <!-- Subtle ripples -->
+  <circle cx="8" cy="18" r="3" stroke="#5f98cc" stroke-width="0.5" fill="none" opacity="0.3"/>
+  <circle cx="24" cy="10" r="2" stroke="#5f98cc" stroke-width="0.5" fill="none" opacity="0.3"/>
+</svg>
