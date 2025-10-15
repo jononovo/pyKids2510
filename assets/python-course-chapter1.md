@@ -281,16 +281,14 @@ collectibles: [[7, 10], [10, 12], [12, 12]]
 ## ISLAND ADVENTURE
 
 ### OBJECTIVE
-> Explore the tropical island and find your way to the cozy house!
+> Explore the twin islands and reach the cozy house!
 
-Welcome to your own private island! 🏝️ You've just arrived at the dock and need to make your way to your beach house.
-
-This level uses our new modular island tile system - notice how the beach edges smoothly transition from sand to water!
+Welcome to the Twin Islands! 🏝️ You've arrived at the southern dock and need to navigate across the bridges to reach the house on the northern island.
 
 ### CHALLENGE
-Navigate from the dock to reach the front door of your island house. Take the scenic path through the garden!
+Navigate from the bottom dock, cross the wooden bridges, and find your way to the house entrance. Watch out for trees and rocks blocking your path!
 
-**Tip:** The island has a nice stone path - follow it to find your way home!
+**Tip:** Follow the wooden bridges to move between islands!
 
 <!-- Starter Code -->
 ```
@@ -306,43 +304,32 @@ player.move_forward()
 ```
 import player
 
-player.move_forward(3)
-player.turn_left()
-player.move_forward(3)
-player.turn_right()
+# Move up from dock
 player.move_forward(2)
+player.turn_left()
+player.move_forward(2)
+player.turn_right()
+player.move_forward(3)
 player.turn_left()
 player.move_forward(2)
 ```
 
 <!-- Map -->
 ```
-graphic: assets/map/graphic-maps/island-house.svg
-[3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
-[3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
-[3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
-[3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
-[3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
-[3,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,3,3],
-[3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,3],
-[3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3],
-[3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3],
-[3,3,3,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,3,3,3],
-[3,3,0,0,0,0,0,0,0,0,2,2,2,0,0,0,0,0,0,0,0,0,3,3],
-[3,3,0,0,0,0,0,4,0,0,2,0,2,0,0,4,0,0,0,0,0,0,3,3],
-[3,3,0,0,0,0,0,0,0,0,2,0,2,0,0,0,0,0,0,0,0,0,3,3],
-[3,3,0,0,0,0,2,2,2,2,2,0,2,2,2,2,2,0,0,0,0,0,3,3],
-[3,3,0,0,0,0,2,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,3,3],
-[3,3,0,0,0,0,2,2,2,2,2,0,2,2,2,2,2,0,0,0,0,0,3,3],
-[3,3,0,0,0,0,0,0,0,0,2,0,2,0,0,0,0,0,0,0,0,0,3,3],
-[3,3,0,0,0,0,0,0,0,0,2,2,2,0,0,0,0,0,0,0,0,0,3,3],
-[3,3,3,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,3,3,3],
-[3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3],
-[3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,3],
-[3,3,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,3,3,3,3,3,3,3],
-[3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
-[3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3]
-startPos: 11, 18
-goalPos: 11, 10
+graphic: assets/map/graphic-maps/2-islands.png
+[3,3,3,3,3,3,3,3,3,3],
+[3,1,0,0,0,0,0,0,1,3],
+[3,1,0,0,1,1,0,0,1,3],
+[3,0,0,0,2,2,0,0,0,3],
+[3,0,1,0,2,2,0,1,0,3],
+[3,3,3,0,2,2,0,3,3,3],
+[3,3,3,0,2,2,0,3,3,3],
+[3,0,0,0,2,2,0,0,0,3],
+[3,0,1,0,0,0,0,1,0,3],
+[3,1,0,0,0,0,0,0,1,3],
+[3,3,3,2,2,2,2,3,3,3],
+[3,3,3,3,2,2,3,3,3,3]
+startPos: 4, 11
+goalPos: 4, 2
 ```
 ---
