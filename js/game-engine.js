@@ -114,12 +114,51 @@ async function drawTile(x, y, type) {
     const px = x * TILE_SIZE;
     const py = y * TILE_SIZE;
     
-    // Try to use SVG first
+    // Special handling for flowers and bushes - draw them as overlays on grass
+    if (type === TILES.FLOWER || type === TILES.BUSH) {
+        // First draw grass underneath
+        const grassImg = await loadSVGImage(SVG_TILES[TILES.GRASS]);
+        if (grassImg) {
+            ctx.drawImage(grassImg, px, py, TILE_SIZE, TILE_SIZE);
+        } else {
+            // Fallback grass
+            ctx.fillStyle = tileColors[TILES.GRASS];
+            ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+        }
+        
+        // Then draw the flower/bush overlay
+        const overlayPath = SVG_TILES[type];
+        if (overlayPath) {
+            const overlayImg = await loadSVGImage(overlayPath);
+            if (overlayImg) {
+                ctx.drawImage(overlayImg, px, py, TILE_SIZE, TILE_SIZE);
+            } else {
+                // Fallback drawing for flower/bush
+                if (type === TILES.FLOWER) {
+                    ctx.fillStyle = '#ff69b4';
+                    ctx.fillRect(px + 10, py + 10, 4, 4);
+                    ctx.fillRect(px + 18, py + 18, 4, 4);
+                } else if (type === TILES.BUSH) {
+                    drawBush(px + TILE_SIZE/2, py + TILE_SIZE/2);
+                }
+            }
+        }
+        
+        // Grid lines
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.05)';
+        ctx.strokeRect(px, py, TILE_SIZE, TILE_SIZE);
+        return;
+    }
+    
+    // Normal tile rendering for everything else
     const svgPath = SVG_TILES[type];
     if (svgPath) {
         const img = await loadSVGImage(svgPath);
         if (img) {
             ctx.drawImage(img, px, py, TILE_SIZE, TILE_SIZE);
+            // Grid lines
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.strokeRect(px, py, TILE_SIZE, TILE_SIZE);
             return;
         }
     }
@@ -128,15 +167,9 @@ async function drawTile(x, y, type) {
     ctx.fillStyle = tileColors[type] || '#333';
     ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
     
-    // Fallback for objects if SVG fails
+    // Fallback for trees if SVG fails (trees still replace the tile)
     if (type === TILES.TREE && !svgPath) {
         drawTree(px + TILE_SIZE/2, py + TILE_SIZE/2);
-    } else if (type === TILES.BUSH && !svgPath) {
-        drawBush(px + TILE_SIZE/2, py + TILE_SIZE/2);
-    } else if (type === TILES.FLOWER && !svgPath) {
-        ctx.fillStyle = '#ff69b4';
-        ctx.fillRect(px + 10, py + 10, 4, 4);
-        ctx.fillRect(px + 18, py + 18, 4, 4);
     }
     
     ctx.strokeStyle = 'rgba(0, 0, 0, 0.05)';
