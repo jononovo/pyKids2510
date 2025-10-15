@@ -42,7 +42,8 @@ function parseCourseLevels(markdown) {
                 layout: [],
                 startPos: {x: 0, y: 0},
                 goalPos: {x: 0, y: 0},
-                collectibles: []
+                collectibles: [],
+                graphic: null  // Optional background graphic URL
             }
         };
 
@@ -95,6 +96,11 @@ function parseCourseLevels(markdown) {
                     } catch (e) {
                         console.log('Could not parse collectibles:', line);
                     }
+                } else if (line.includes('graphic:')) {
+                    // Extract the graphic URL
+                    const graphicUrl = line.split('graphic:')[1].trim();
+                    // Remove any quotes if present
+                    level.map.graphic = graphicUrl.replace(/^["']|["']$/g, '');
                 }
             }
         }
