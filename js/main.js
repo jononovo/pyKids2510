@@ -186,11 +186,8 @@ function loadLevel(levelIndex) {
     if (!hasEditorInfrastructure) {
         // First time - create the full structure
         let htmlContent = '';
-        if (courseData.categoryName) {
-            htmlContent = `<h1>${courseData.categoryName}</h1>`;
-        }
         
-        // Convert markdown to HTML
+        // Convert markdown to HTML (no need for chapter title since it's in the header)
         htmlContent += `<div id="lesson-content">${markdownToHTML(level.markdown)}</div>`;
         
         // Add the embedded editor controls and code editor
