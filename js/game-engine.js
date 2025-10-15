@@ -213,6 +213,32 @@ async function drawStar(x, y) {
     }
 }
 
+function drawTileHover(x, y) {
+    // Draw corner brackets on the hovered tile
+    const px = x * TILE_SIZE;
+    const py = y * TILE_SIZE;
+    const cornerLength = 4; // Length of each corner bracket line
+    const thickness = 2; // Thickness of the lines
+    
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+    
+    // Top-left corner
+    ctx.fillRect(px, py, cornerLength, thickness); // Horizontal
+    ctx.fillRect(px, py, thickness, cornerLength); // Vertical
+    
+    // Top-right corner
+    ctx.fillRect(px + TILE_SIZE - cornerLength, py, cornerLength, thickness); // Horizontal
+    ctx.fillRect(px + TILE_SIZE - thickness, py, thickness, cornerLength); // Vertical
+    
+    // Bottom-left corner
+    ctx.fillRect(px, py + TILE_SIZE - thickness, cornerLength, thickness); // Horizontal
+    ctx.fillRect(px, py + TILE_SIZE - cornerLength, thickness, cornerLength); // Vertical
+    
+    // Bottom-right corner
+    ctx.fillRect(px + TILE_SIZE - cornerLength, py + TILE_SIZE - thickness, cornerLength, thickness); // Horizontal
+    ctx.fillRect(px + TILE_SIZE - thickness, py + TILE_SIZE - cornerLength, thickness, cornerLength); // Vertical
+}
+
 function drawCharacter(x, y, direction) {
     const cx = x * TILE_SIZE + TILE_SIZE / 2;
     const cy = y * TILE_SIZE + TILE_SIZE / 2;
@@ -384,6 +410,11 @@ async function render() {
     
     drawCharacter(gameState.playerPos.x, gameState.playerPos.y, gameState.playerDirection);
     
+    // Draw tile hover highlight
+    if (gameState.hoveredTile.x >= 0 && gameState.hoveredTile.y >= 0) {
+        drawTileHover(gameState.hoveredTile.x, gameState.hoveredTile.y);
+    }
+    
     // Update viewport to follow player
     updateViewport();
 }
@@ -471,6 +502,11 @@ function animateMove(fromX, fromY, toX, toY, direction) {
             // Draw character with animation
             drawCharacterWithHop(gameState.playerPos.x, gameState.playerPos.y, 
                                gameState.playerDirection, hopHeight);
+            
+            // Draw tile hover highlight during animation too
+            if (gameState.hoveredTile.x >= 0 && gameState.hoveredTile.y >= 0) {
+                drawTileHover(gameState.hoveredTile.x, gameState.hoveredTile.y);
+            }
             
             if (progress < 1) {
                 requestAnimationFrame(() => animate());

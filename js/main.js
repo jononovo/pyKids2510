@@ -43,7 +43,9 @@ let gameState = {
     currentSpriteFrame: 0,
     spriteAnimationCounter: 0,
     // Background graphic for the level
-    backgroundImage: null
+    backgroundImage: null,
+    // Mouse hover tile
+    hoveredTile: {x: -1, y: -1}
 };
 
 const canvas = document.getElementById('game-canvas');
@@ -686,6 +688,39 @@ if (typeof preloadSVGTiles === 'function') {
 
 // Start animation loop
 requestAnimationFrame(animationLoop);
+
+// Add mouse hover tracking for tile highlight
+canvas.addEventListener('mousemove', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    // Calculate which tile the mouse is over
+    const tileX = Math.floor(x / TILE_SIZE);
+    const tileY = Math.floor(y / TILE_SIZE);
+    
+    // Only update if we're hovering over a different tile
+    if (gameState.hoveredTile.x !== tileX || gameState.hoveredTile.y !== tileY) {
+        // Check if tile is within bounds
+        if (tileX >= 0 && tileX < gameState.mapWidth && 
+            tileY >= 0 && tileY < gameState.mapHeight) {
+            gameState.hoveredTile.x = tileX;
+            gameState.hoveredTile.y = tileY;
+        } else {
+            gameState.hoveredTile.x = -1;
+            gameState.hoveredTile.y = -1;
+        }
+        // Re-render to show the hover effect
+        render();
+    }
+});
+
+// Clear hover when mouse leaves canvas
+canvas.addEventListener('mouseleave', () => {
+    gameState.hoveredTile.x = -1;
+    gameState.hoveredTile.y = -1;
+    render();
+});
 
 // Update viewport when window/panels resize
 window.addEventListener('resize', () => {
