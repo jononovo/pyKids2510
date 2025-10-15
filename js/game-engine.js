@@ -44,9 +44,17 @@ const SVG_TILES = {
 
 // Special item SVGs
 const SPECIAL_SVGS = {
-    star: 'assets/map/special/star-goal.svg',
-    gem: 'assets/map/special/collectible-gem.svg',
-    coin: 'assets/map/special/collectible-coin.svg'
+    star: 'assets/map/special/star-goal.svg'
+};
+
+// Collectible SVGs - organized in their own folder for easy expansion
+const COLLECTIBLE_SVGS = {
+    gem: 'assets/map/collectibles/collectible-gem.svg',
+    coin: 'assets/map/collectibles/collectible-coin.svg',
+    key: 'assets/map/collectibles/key.svg',
+    heart: 'assets/map/collectibles/heart.svg',
+    star_collectible: 'assets/map/collectibles/star.svg',
+    apple: 'assets/map/collectibles/apple.svg'
 };
 
 // Track failed SVG loads to avoid repeated attempts
@@ -102,7 +110,8 @@ async function loadSVGImage(path) {
 async function preloadSVGTiles() {
     const tilesToLoad = [
         ...Object.values(SVG_TILES),
-        ...Object.values(SPECIAL_SVGS)
+        ...Object.values(SPECIAL_SVGS),
+        ...Object.values(COLLECTIBLE_SVGS)
     ];
     
     await Promise.all(tilesToLoad.map(path => loadSVGImage(path)));
