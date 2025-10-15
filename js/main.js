@@ -168,8 +168,8 @@ function loadLevel(levelIndex) {
     // Store the current level's starter code globally for Blockly to access
     window.currentLessonStarterCode = level.starterCode;
     
-    // Update header UI
-    document.getElementById('chapter-title').textContent = courseData.chapterName;
+    // Update header UI - show category name (e.g., "INTRODUCTION TO PYTHON") instead of course name
+    document.getElementById('chapter-title').textContent = courseData.categoryName || courseData.chapterName;
     document.getElementById('level-info').textContent = `CHAPTER ${courseData.chapterNumber} • LEVEL ${levelIndex + 1}`;
     document.getElementById('victory-level-text').textContent = `LEVEL ${levelIndex + 1}`;
     
