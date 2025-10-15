@@ -212,3 +212,67 @@ goalPos: 10,7
 collectibles: [[5,2],[9,2],[5,5],[9,5]]
 ```
 ---
+
+--- <!-- Level 4 of 4 in Chapter-->
+## CASTLE GARDEN ADVENTURE
+
+### OBJECTIVE
+> Navigate through the beautiful castle garden using everything you've learned!
+
+Welcome to the Castle Garden! 🏰 This special level features a stunning visual background instead of tiles. The paths are already drawn in the scenery, making it feel like a real adventure!
+
+Notice how the garden has fountains, trees, and hedges creating a maze-like path. You'll need to use all your skills - `move_forward()`, `turn_left()`, and `turn_right()` - to navigate through the garden paths.
+
+### CHALLENGE
+Guide your character from the castle entrance through the winding garden paths to reach the golden star. Collect the magical gems along the way!
+
+**Tip:** Use the argument in `move_forward()` to take multiple steps when the path is straight!
+
+<!-- Starter Code -->
+```
+import player
+
+# Start your castle garden adventure!
+player.move_forward(2)
+player.turn_right()
+player.move_forward()
+```
+
+<!-- Solution -->
+```
+import player
+
+player.move_forward(3)
+player.turn_right()
+player.move_forward(5)
+player.turn_left()
+player.move_forward(2)
+player.turn_left()
+player.move_forward(4)
+player.turn_right()
+player.move_forward(2)
+```
+
+<!-- Map -->
+```
+graphic: assets/map/graphic-maps/castle-garden.svg
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,2,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,2,2,2,2,2,0,0,0,0,0,0,0]
+startPos: 4, 12
+goalPos: 12, 14
+collectibles: [[7, 10], [10, 12], [12, 12]]
+```
+---
