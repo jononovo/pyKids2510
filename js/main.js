@@ -1,0 +1,693 @@
+// ============================================
+// MAIN - Initialization & UI Controls  
+// ============================================
+
+// Global variables
+let courseData = null;
+let currentLevel = 0;
+let jar = null;
+
+const TILE_SIZE = 32;
+const MOVE_DURATION = 400;
+
+// Speed settings
+const SPEED_SETTINGS = {
+    normal: { duration: 400, label: 'Normal', icon: '🐢' },
+    fast: { duration: 200, label: 'Fast', icon: '🐇' },
+    turbo: { duration: 100, label: 'Turbo', icon: '⚡' }
+};
+
+let currentSpeed = 'normal';
+
+const TILES = {
+    GRASS: 0,
+    GRASS_DARK: 1,
+    PATH: 2,
+    TREE: 3,
+    BUSH: 4,
+    WATER: 5,
+    ROCK: 6,
+    FLOWER: 7
+};
+
+// Tile colors
+const tileColors = {
+    [TILES.GRASS]: '#7fc97f',
+    [TILES.GRASS_DARK]: '#6fb96f',
+    [TILES.PATH]: '#d4b896',
+    [TILES.TREE]: '#4a7c4e',
+    [TILES.BUSH]: '#5a8c5e',
+    [TILES.WATER]: '#6fa8dc',
+    [TILES.ROCK]: '#888',
+    [TILES.FLOWER]: '#7fc97f'
+};
+
+let gameState = {
+    playerPos: {x: 0, y: 0},
+    startPos: {x: 0, y: 0},
+    goalPos: {x: 0, y: 0},
+    playerDirection: 'right',
+    isRunning: false,
+    moveQueue: [],
+    mapData: [],
+    mapWidth: 0,
+    mapHeight: 0,
+    levelCompleted: [],
+    idleAnimation: 0,  // For floating animation
+    idlePhase: 0,      // 0 = pause, 1 = animate
+    idlePauseTime: 0,   // Counter for pause duration
+    idlePauseDuration: 120, // Frames to pause (2 seconds at 60fps)
+    // Sprite system
+    spriteImage: null,
+    spriteFrameWidth: 0,
+    spriteFrameHeight: 0,
+    currentSpriteFrame: 0,
+    spriteAnimationCounter: 0
+};
+
+const canvas = document.getElementById('game-canvas');
+const ctx = canvas.getContext('2d');
+ctx.imageSmoothingEnabled = false;
+
+// Create audio context for sound effects
+let audioContext = null;
+
+function initAudio() {
+    if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+}
+
+// Simple step sound generator
+function playStepSound() {
+    if (!audioContext) initAudio();
+    
+    // Create a simple shuffling sound
+    const duration = 0.08;
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    // Use noise-like frequency for shuffling effect
+    oscillator.frequency.value = 100 + Math.random() * 50;
+    oscillator.type = 'square';
+    
+    // Quick envelope for shuffling sound
+    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.02, audioContext.currentTime + 0.01);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + duration);
+}
+
+// ============================================
+// FILE LOADING
+// ============================================
+
+function loadMarkdownFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const markdown = e.target.result;
+        courseData = parseCourseLevels(markdown);
+        
+        if (courseData && courseData.levels.length > 0) {
+            // Show header info
+            document.getElementById('header-info').style.display = 'block';
+            
+            // Enable navigation buttons
+            updateNavigationButtons();
+            
+            // Load first level
+            loadLevel(0);
+        } else {
+            alert('Could not parse the markdown file. Please check the format.');
+        }
+    };
+    reader.readAsText(file);
+}
+
+function loadSpriteFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+            // Store the sprite image
+            gameState.spriteImage = img;
+            // Calculate frame dimensions (6 columns, 2 rows)
+            gameState.spriteFrameWidth = Math.floor(img.width / 6);
+            gameState.spriteFrameHeight = Math.floor(img.height / 2);
+            gameState.currentSpriteFrame = 0;
+            
+            // Re-render to show the new sprite
+            render();
+            
+            console.log(`Sprite loaded: ${img.width}x${img.height}, Frame size: ${gameState.spriteFrameWidth}x${gameState.spriteFrameHeight}`);
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
+// ============================================
+// LEVEL MANAGEMENT
+// ============================================
+
+// Load a level
+function loadLevel(levelIndex) {
+    if (!courseData || levelIndex < 0 || levelIndex >= courseData.levels.length) return;
+    
+    currentLevel = levelIndex;
+    const level = courseData.levels[levelIndex];
+    
+    // Store the current level's starter code globally for Blockly to access
+    window.currentLessonStarterCode = level.starterCode;
+    
+    // Update header UI
+    document.getElementById('chapter-title').textContent = courseData.chapterName;
+    document.getElementById('level-info').textContent = `CHAPTER ${courseData.chapterNumber} • LEVEL ${levelIndex + 1}`;
+    document.getElementById('victory-level-text').textContent = `LEVEL ${levelIndex + 1}`;
+    
+    // Update navigation buttons
+    updateNavigationButtons();
+    
+    // Update progress indicators
+    updateProgressIndicators();
+    
+    // Check if we need to create the editor infrastructure for the first time
+    const contentContainer = document.getElementById('content');
+    const hasEditorInfrastructure = document.querySelector('.embedded-editor-container');
+    
+    if (!hasEditorInfrastructure) {
+        // First time - create the full structure
+        let htmlContent = '';
+        if (courseData.categoryName) {
+            htmlContent = `<h1>${courseData.categoryName}</h1>`;
+        }
+        
+        // Convert markdown to HTML
+        htmlContent += `<div id="lesson-content">${markdownToHTML(level.markdown)}</div>`;
+        
+        // Add the embedded editor controls and code editor
+        htmlContent += `
+            <div class="embedded-editor-container full-width">
+                <div class="controls">
+                    <div class="controls-top">
+                        <button class="btn run-btn" id="run-btn">
+                            <span class="btn-icon">▶</span> <span class="btn-text">RUN CODE</span>
+                        </button>
+                        <span class="infinity-symbol">∞</span>
+                    </div>
+                    <div class="controls-bottom">
+                        <button class="btn secondary-btn" id="reset-btn">
+                            <span class="btn-icon">↺</span> <span class="btn-text">RESET</span>
+                        </button>
+                        <button class="btn secondary-btn">
+                            <span class="btn-icon">?</span> <span class="btn-text">HELP</span>
+                        </button>
+                        <button class="tutor-toggle" id="tutor-toggle">
+                            <span class="toggle-text">ON</span>
+                            <span class="toggle-icon">🐶</span>
+                        </button>
+                        <div class="coin-display">
+                            <span>💰</span>
+                            <span id="coin-count">5/5</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="code-editor-container">
+                    <div class="editor-wrapper">
+                        <div class="line-numbers" id="line-numbers">1</div>
+                        <div class="editor" id="editor">${level.starterCode}</div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        contentContainer.innerHTML = htmlContent;
+    } else {
+        // Infrastructure exists - just update the lesson content
+        const lessonContentElement = document.getElementById('lesson-content');
+        if (lessonContentElement) {
+            lessonContentElement.innerHTML = markdownToHTML(level.markdown);
+        }
+        
+        // Update category title if it exists
+        const categoryTitle = contentContainer.querySelector('h1');
+        if (courseData.categoryName && categoryTitle) {
+            categoryTitle.textContent = courseData.categoryName;
+        }
+    }
+    
+    // Update editors and controls
+    setTimeout(() => {
+        const isFirstLoad = !hasEditorInfrastructure;
+        
+        if (isFirstLoad) {
+            // First time - initialize everything
+            initializeEditorInfrastructure();
+            updateEditorContent(level.starterCode);
+            
+            // Load CSS for Blockly if needed
+            if (window.BlocklyModeSwitcher) {
+                if (!document.querySelector('link[href*="blockly-integration/ui/styles.css"]')) {
+                    const link = document.createElement('link');
+                    link.rel = 'stylesheet';
+                    link.href = 'blockly-integration/ui/styles.css';
+                    document.head.appendChild(link);
+                }
+                
+                if (!document.querySelector('link[href*="blockly-integration/ui/settings-dialog.css"]')) {
+                    const link = document.createElement('link');
+                    link.rel = 'stylesheet';
+                    link.href = 'blockly-integration/ui/settings-dialog.css';
+                    document.head.appendChild(link);
+                }
+                
+                // Add toggle buttons
+                const controlsTop = document.querySelector('.controls-top');
+                if (controlsTop) {
+                    window.BlocklyModeSwitcher.addToggleButtons(controlsTop);
+                }
+                
+                // Initialize settings
+                if (window.BlocklySettings && !window.BlocklySettings.initialized) {
+                    window.BlocklySettings.init();
+                    window.BlocklySettings.initialized = true;
+                }
+            }
+            
+            // Attach event listeners
+            document.getElementById('run-btn').addEventListener('click', runCode);
+            document.getElementById('reset-btn').addEventListener('click', resetGame);
+            
+            // Initialize tutor toggle button
+            const tutorToggle = document.getElementById('tutor-toggle');
+            if (tutorToggle && window.toggleTutor) {
+                tutorToggle.addEventListener('click', window.toggleTutor);
+                const toggleText = tutorToggle.querySelector('.toggle-text');
+                // Ensure the dog emoji icon is present
+                const toggleIcon = tutorToggle.querySelector('.toggle-icon');
+                if (!toggleIcon) {
+                    const icon = document.createElement('span');
+                    icon.className = 'toggle-icon';
+                    icon.textContent = '🐶';
+                    tutorToggle.appendChild(icon);  // Add after the text
+                }
+                if (window.tutorEnabled) {
+                    tutorToggle.classList.remove('off');
+                    if (toggleText) toggleText.textContent = 'ON';
+                } else {
+                    tutorToggle.classList.add('off');
+                    if (toggleText) toggleText.textContent = 'OFF';
+                }
+            }
+        } else {
+            // Infrastructure exists - just update content
+            updateEditorContent(level.starterCode);
+            
+            // Handle Blockly mode persistence
+            if (window.BlocklyModeSwitcher) {
+                const wasInBlockMode = window.BlocklyModeSwitcher.isBlockMode();
+                
+                if (wasInBlockMode) {
+                    // Clear blocks but keep workspace
+                    if (window.BlocklyWorkspace && window.BlocklyWorkspace.workspace) {
+                        window.BlocklyWorkspace.workspace.clear();
+                        // Load new starter code into existing workspace
+                        if (window.BlocklyIntegration && level.starterCode) {
+                            setTimeout(() => {
+                                window.BlocklyIntegration.convertFromText(level.starterCode);
+                            }, 100);
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Check for auto-start in blocks mode (only on first load)
+        if (isFirstLoad && window.BlocklySettings && window.BlocklySettings.getSetting('startInBlocksMode')) {
+            setTimeout(() => {
+                console.log('Auto-switching to Blockly mode (Start in Blocks Mode is ON)');
+                window.BlocklyModeSwitcher.switchToBlockMode();
+            }, 300);
+        }
+    }, 0);
+    
+    // Load map
+    gameState.mapData = level.map.layout;
+    gameState.mapHeight = level.map.layout.length;
+    gameState.mapWidth = level.map.layout[0] ? level.map.layout[0].length : 0;
+    gameState.startPos = {...level.map.startPos};
+    gameState.goalPos = {...level.map.goalPos};
+    gameState.playerPos = {...level.map.startPos};
+    gameState.playerDirection = 'right';
+    
+    // Resize canvas if needed
+    const canvasWidth = gameState.mapWidth * TILE_SIZE;
+    const canvasHeight = gameState.mapHeight * TILE_SIZE;
+    if (canvas.width !== canvasWidth || canvas.height !== canvasHeight) {
+        canvas.width = canvasWidth;
+        canvas.height = canvasHeight;
+    }
+    
+    // Render the game
+    render();
+    
+    // Initialize viewport position
+    updateViewport();
+}
+
+// Initialize editor infrastructure (called once)
+function initializeEditorInfrastructure() {
+    const editorElement = document.getElementById('editor');
+    if (!editorElement) return false;
+    
+    // Check if already initialized
+    if (window.jar) return true;
+    
+    // Check if CodeJar is loaded
+    if (!window.CodeJar) {
+        console.error('CodeJar library not loaded');
+        return false;
+    }
+    
+    const highlight = editor => {
+        const code = editor.textContent;
+        editor.innerHTML = PythonHighlighter.highlight(code);
+    };
+    
+    // Force CodeJar to use regular contenteditable mode to support HTML highlighting
+    editorElement.setAttribute('contenteditable', 'true');
+    
+    jar = CodeJar(editorElement, highlight, {
+        tab: '    ',
+        indentOn: /:$/,
+        addClosing: false,
+        spellcheck: false
+    });
+    
+    jar.onUpdate(() => {
+        updateLineNumbers();
+    });
+    
+    return true;
+}
+
+// Update editor content (called on level change)
+function updateEditorContent(starterCode) {
+    if (!window.jar) {
+        // Editor not initialized, try to initialize it first
+        const editorElement = document.getElementById('editor');
+        if (!editorElement) return;
+        
+        if (!initializeEditorInfrastructure()) return;
+    }
+    
+    // Just update the code, don't rebuild
+    jar.updateCode(starterCode);
+    updateLineNumbers();
+}
+
+// Update line numbers
+function updateLineNumbers() {
+    const editor = document.getElementById('editor');
+    const lineNumbers = document.getElementById('line-numbers');
+    if (!editor || !lineNumbers) return;
+    
+    const lines = editor.textContent.split('\n');
+    const numbers = [];
+    for (let i = 1; i <= lines.length; i++) {
+        numbers.push(i);
+    }
+    lineNumbers.textContent = numbers.join('\n');
+}
+
+// ============================================
+// UI FUNCTIONS
+// ============================================
+
+// Update navigation buttons
+function updateNavigationButtons() {
+    if (!courseData) return;
+    
+    const backBtn = document.getElementById('back-btn');
+    const nextBtn = document.getElementById('next-btn');
+    
+    backBtn.disabled = currentLevel <= 0;
+    nextBtn.disabled = currentLevel >= courseData.levels.length - 1;
+}
+
+// Update progress indicators
+function updateProgressIndicators() {
+    if (!courseData) return;
+    
+    const container = document.getElementById('level-progress');
+    const victoryContainer = document.getElementById('victory-progress');
+    
+    container.innerHTML = '';
+    victoryContainer.innerHTML = '';
+    
+    for (let i = 0; i < courseData.levels.length; i++) {
+        const box = document.createElement('div');
+        box.className = 'level-box';
+        if (gameState.levelCompleted[i]) {
+            box.classList.add('completed');
+        }
+        container.appendChild(box);
+        
+        const victoryBox = box.cloneNode(true);
+        victoryBox.className = 'star-box';
+        if (gameState.levelCompleted[i] || i === currentLevel) {
+            victoryBox.classList.add('earned');
+        }
+        victoryContainer.appendChild(victoryBox);
+    }
+}
+
+// Navigation functions
+function nextLevel() {
+    if (courseData && currentLevel < courseData.levels.length - 1) {
+        loadLevel(currentLevel + 1);
+    }
+}
+
+function previousLevel() {
+    if (courseData && currentLevel > 0) {
+        loadLevel(currentLevel - 1);
+    }
+}
+
+function continueToNext() {
+    document.getElementById('victory-modal').classList.remove('show');
+    gameState.levelCompleted[currentLevel] = true;
+    nextLevel();
+}
+
+function replayLevel() {
+    document.getElementById('victory-modal').classList.remove('show');
+    resetGame();
+}
+
+// Modal and UI functions
+function showMapInfo() {
+    document.getElementById('map-info-modal').classList.add('show');
+}
+
+function closeMapInfo() {
+    document.getElementById('map-info-modal').classList.remove('show');
+}
+
+function toggleSpeedDropdown() {
+    const menu = document.getElementById('speed-menu');
+    menu.classList.toggle('show');
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function closeDropdown(e) {
+        if (!e.target.closest('.speed-dropdown')) {
+            menu.classList.remove('show');
+            document.removeEventListener('click', closeDropdown);
+        }
+    });
+}
+
+function setSpeed(speed) {
+    currentSpeed = speed;
+    const setting = SPEED_SETTINGS[speed];
+    
+    // Update button display
+    const btn = document.getElementById('speed-btn');
+    const icon = document.getElementById('speed-icon');
+    btn.innerHTML = `<span id="speed-icon">${setting.icon}</span> <span class="btn-text">${setting.label.toUpperCase()}</span> <span class="dropdown-arrow">⇅</span>`;
+    
+    // Close dropdown
+    document.getElementById('speed-menu').classList.remove('show');
+}
+
+// ============================================
+// SPRITE DROPDOWN
+// ============================================
+
+function toggleSpriteDropdown() {
+    const menu = document.getElementById('sprite-menu');
+    menu.classList.toggle('show');
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function closeDropdown(e) {
+        if (!e.target.closest('.sprite-dropdown')) {
+            menu.classList.remove('show');
+            document.removeEventListener('click', closeDropdown);
+        }
+    });
+}
+
+function loadSpriteFromPath(spritePath, spriteName) {
+    // Load sprite from server path
+    const img = new Image();
+    img.onload = function() {
+        gameState.spriteImage = img;
+        gameState.spriteFrameWidth = img.width / 6;
+        gameState.spriteFrameHeight = img.height / 2;
+        
+        // Reset animation
+        gameState.currentSpriteFrame = 0;
+        gameState.spriteAnimationCounter = 0;
+        
+        // Update button display
+        const nameSpan = document.getElementById('sprite-name');
+        if (nameSpan) {
+            nameSpan.textContent = spriteName.toUpperCase();
+        }
+        
+        // Close dropdown
+        document.getElementById('sprite-menu').classList.remove('show');
+        
+        // Redraw the game
+        render();
+    };
+    img.src = spritePath;
+}
+
+function loadAvailableSprites() {
+    // Fetch list of sprites from server
+    fetch('/sprites.json')
+        .then(response => response.json())
+        .then(sprites => {
+            const menu = document.getElementById('sprite-menu');
+            if (!menu) return;
+            
+            // Clear existing items
+            menu.innerHTML = '';
+            
+            // Add sprite options
+            sprites.forEach(sprite => {
+                const item = document.createElement('div');
+                item.className = 'dropdown-item';
+                item.innerHTML = `<span class="sprite-icon">🐔</span> ${sprite.name}`;
+                item.onclick = () => loadSpriteFromPath(sprite.path, sprite.name);
+                menu.appendChild(item);
+            });
+            
+            // Load the first sprite (Chicken) as default if sprites exist
+            if (sprites.length > 0 && !gameState.spriteImage) {
+                const defaultSprite = sprites[0];
+                loadSpriteFromPath(defaultSprite.path, defaultSprite.name);
+            }
+            
+            // Add separator
+            if (sprites.length > 0) {
+                const separator = document.createElement('div');
+                separator.style.borderTop = '1px solid #444';
+                separator.style.margin = '5px 0';
+                menu.appendChild(separator);
+            }
+            
+            // Add upload option
+            const uploadItem = document.createElement('div');
+            uploadItem.className = 'dropdown-item';
+            uploadItem.innerHTML = `<span class="sprite-icon">📁</span> Upload Custom...`;
+            uploadItem.onclick = () => {
+                document.getElementById('sprite-input').click();
+                document.getElementById('sprite-menu').classList.remove('show');
+            };
+            menu.appendChild(uploadItem);
+        })
+        .catch(error => {
+            console.warn('Could not load sprites list:', error);
+            // Fallback: just show upload option
+            const menu = document.getElementById('sprite-menu');
+            if (menu) {
+                menu.innerHTML = `
+                    <div class="dropdown-item" onclick="document.getElementById('sprite-input').click(); document.getElementById('sprite-menu').classList.remove('show');">
+                        <span class="sprite-icon">📁</span> Upload Custom...
+                    </div>
+                `;
+            }
+        });
+}
+
+// ============================================
+// INITIALIZATION
+// ============================================
+
+// Load OpenAI API key from server
+fetch('/api/config')
+    .then(response => response.json())
+    .then(config => {
+        if (config.apiKey) {
+            window.OPENAI_API_KEY = config.apiKey;
+            console.log('AI tutor capabilities enabled');
+        }
+    })
+    .catch(error => {
+        console.log('AI tutor running without OpenAI integration');
+    });
+
+// Load available sprites on startup
+loadAvailableSprites();
+
+// Auto-load the default chapter on startup
+fetch('assets/python-course-chapter1.md')
+    .then(response => response.text())
+    .then(markdown => {
+        courseData = parseCourseLevels(markdown);
+        if (courseData && courseData.levels.length > 0) {
+            document.getElementById('header-info').style.display = 'block';
+            updateNavigationButtons();
+            loadLevel(0);
+        }
+    })
+    .catch(error => {
+        console.log('Default chapter not found, waiting for user to load one');
+    });
+
+// Start animation loop
+requestAnimationFrame(animationLoop);
+render();
+
+// Update viewport when window/panels resize
+window.addEventListener('resize', () => {
+    if (typeof updateViewport === 'function') {
+        updateViewport();
+    }
+});
+
+// Also update viewport when panels are resized using CSS resize
+// Use ResizeObserver for better performance with panel resizing
+const viewport = document.getElementById('game-viewport');
+if (viewport && typeof ResizeObserver !== 'undefined') {
+    const resizeObserver = new ResizeObserver(() => {
+        if (typeof updateViewport === 'function') {
+            updateViewport();
+        }
+    });
+    resizeObserver.observe(viewport);
+}

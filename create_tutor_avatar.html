@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Tutor Avatar</title>
+    <style>
+        canvas {
+            image-rendering: pixelated;
+            zoom: 10;
+            border: 1px solid #ccc;
+            display: block;
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="32" height="32"></canvas>
+    <button onclick="download()">Download</button>
+    
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Background transparent
+        ctx.clearRect(0, 0, 32, 32);
+        
+        // Color palette
+        const skin = '#f4c2a1';
+        const hair = '#3e2825';
+        const glasses = '#333333';
+        const shirt = '#6a5496';
+        const glassesLens = '#89c9e3';
+        const outline = '#2a1f1d';
+        
+        // Helper function to draw pixel
+        function pixel(x, y, color) {
+            ctx.fillStyle = color;
+            ctx.fillRect(x, y, 1, 1);
+        }
+        
+        // Draw tutor
+        // Hair (top)
+        for (let x = 11; x <= 20; x++) {
+            pixel(x, 6, hair);
+            pixel(x, 7, hair);
+        }
+        for (let x = 10; x <= 21; x++) {
+            pixel(x, 8, hair);
+        }
+        
+        // Face outline
+        for (let x = 10; x <= 21; x++) {
+            pixel(x, 9, skin);
+            pixel(x, 10, skin);
+            pixel(x, 11, skin);
+            pixel(x, 12, skin);
+            pixel(x, 13, skin);
+            pixel(x, 14, skin);
+            pixel(x, 15, skin);
+        }
+        
+        // Glasses frames
+        for (let x = 11; x <= 14; x++) {
+            pixel(x, 11, glasses);
+            pixel(x, 13, glasses);
+        }
+        for (let x = 17; x <= 20; x++) {
+            pixel(x, 11, glasses);
+            pixel(x, 13, glasses);
+        }
+        pixel(10, 12, glasses);
+        pixel(15, 12, glasses);
+        pixel(16, 12, glasses);
+        pixel(21, 12, glasses);
+        
+        // Glasses lenses
+        for (let x = 11; x <= 14; x++) {
+            pixel(x, 12, glassesLens);
+        }
+        for (let x = 17; x <= 20; x++) {
+            pixel(x, 12, glassesLens);
+        }
+        
+        // Eyes behind glasses
+        pixel(12, 12, outline);
+        pixel(13, 12, outline);
+        pixel(18, 12, outline);
+        pixel(19, 12, outline);
+        
+        // Nose
+        pixel(15, 14, outline);
+        pixel(16, 14, outline);
+        
+        // Mouth (smile)
+        pixel(14, 16, outline);
+        pixel(15, 17, outline);
+        pixel(16, 17, outline);
+        pixel(17, 16, outline);
+        
+        // Shirt collar
+        for (let x = 10; x <= 21; x++) {
+            pixel(x, 19, shirt);
+            pixel(x, 20, shirt);
+        }
+        for (let x = 9; x <= 22; x++) {
+            pixel(x, 21, shirt);
+            pixel(x, 22, shirt);
+            pixel(x, 23, shirt);
+            pixel(x, 24, shirt);
+            pixel(x, 25, shirt);
+        }
+        
+        // Add outline
+        pixel(9, 9, outline);
+        pixel(22, 9, outline);
+        pixel(9, 15, outline);
+        pixel(22, 15, outline);
+        
+        function download() {
+            canvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'tutor-avatar.png';
+                a.click();
+            });
+        }
+    </script>
+</body>
+</html>

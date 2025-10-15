@@ -1,0 +1,12 @@
+{
+  "name": "workspace",
+  "version": "1.0.0",
+  "description": "This project is an interactive Python programming education platform that combines a tile-based game engine with a real-time code execution environment. The system consists of a web-based framework built with vanilla JavaScript and HTML5 Canvas that renders a 2D game world where learners control a character through Python commands. The architecture features a markdown-based lesson authoring system that defines instructional content, starter code, and tile-map layouts, which are dynamically parsed to generate progressive coding challenges. The integrated CodeJar editor provides syntax-highlighted Python editing with custom parsing logic that translates player commands (move_forward, turn_left, turn_right) into animated character movements on a 32x32 pixel tile grid.",
+  "main": "test_tutor.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

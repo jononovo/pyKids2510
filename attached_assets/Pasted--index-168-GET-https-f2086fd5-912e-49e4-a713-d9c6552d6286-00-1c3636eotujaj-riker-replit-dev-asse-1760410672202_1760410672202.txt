@@ -1,0 +1,63 @@
+(index):168  GET https://f2086fd5-912e-49e4-a713-d9c6552d6286-00-1c3636eotujaj.riker.replit.dev/assets/sprites/tutor-avatar.png 404 (Not Found)
+code-book.js:187 Code Book button initialized
+main.js:554 AI tutor capabilities enabled
+python.js:4 Uncaught ReferenceError: require is not defined
+(anonymous) @ python.js:4
+index.js:53 Blockly resources loaded successfully
+workspace.js:28 Blockly container dimensions: DOMRect {x: 0.5555555820465088, y: 540.3038330078125, width: 639.670166015625, height: 398.888916015625, top: 540.3038330078125, …}
+generator.js:9 Blockly Python generator not loaded
+init @ generator.js:9
+initialize @ workspace.js:47
+initialize @ index.js:97
+await in initialize
+switchToBlockMode @ mode-switcher.js:127
+await in switchToBlockMode
+blockBtn.onclick @ mode-switcher.js:42
+math.ts:181 [Violation] Added non-passive event listener to a scroll-blocking 'wheel' event. Consider marking event handler as 'passive' to make the page more responsive. See https://www.chromestatus.com/feature/5745543795965952
+conditionalBind$$module$build$src$core$browser_events @ math.ts:181
+createDom @ javascript.ts:31
+createMainWorkspace$$module$build$src$core$inject @ javascript.ts:31
+inject$$module$build$src$core$inject @ javascript.ts:31
+initialize @ workspace.js:80
+initialize @ index.js:97
+await in initialize
+switchToBlockMode @ mode-switcher.js:127
+await in switchToBlockMode
+blockBtn.onclick @ mode-switcher.js:42
+math.ts:181 [Violation] Added non-passive event listener to a scroll-blocking 'wheel' event. Consider marking event handler as 'passive' to make the page more responsive. See https://www.chromestatus.com/feature/5745543795965952
+conditionalBind$$module$build$src$core$browser_events @ math.ts:181
+init @ javascript.ts:31
+init @ javascript.ts:31
+init$$module$build$src$core$inject @ javascript.ts:31
+inject$$module$build$src$core$inject @ javascript.ts:31
+initialize @ workspace.js:80
+initialize @ index.js:97
+await in initialize
+switchToBlockMode @ mode-switcher.js:127
+await in switchToBlockMode
+blockBtn.onclick @ mode-switcher.js:42
+math.ts:181 [Violation] Added non-passive event listener to a scroll-blocking 'wheel' event. Consider marking event handler as 'passive' to make the page more responsive. See https://www.chromestatus.com/feature/5745543795965952
+conditionalBind$$module$build$src$core$browser_events @ math.ts:181
+init @ javascript.ts:31
+init @ javascript.ts:31
+init$$module$build$src$core$inject @ javascript.ts:31
+inject$$module$build$src$core$inject @ javascript.ts:31
+initialize @ workspace.js:80
+initialize @ index.js:97
+await in initialize
+switchToBlockMode @ mode-switcher.js:127
+await in switchToBlockMode
+blockBtn.onclick @ mode-switcher.js:42
+workspace.js:88 Blockly workspace initialized
+favicon.ico:1  GET https://f2086fd5-912e-49e4-a713-d9c6552d6286-00-1c3636eotujaj.riker.replit.dev/favicon.ico 404 (Not Found)
+generator.js:55 Error generating code: TypeError: Cannot read properties of undefined (reading 'workspaceToCode')
+    at Object.generateCode (generator.js:52:41)
+    at Object.getCode (workspace.js:100:33)
+    at Object.getCode (index.js:111:40)
+    at Object.getCode (mode-switcher.js:216:74)
+    at HTMLButtonElement.runCode (python-parser.js:78:43)
+generateCode @ generator.js:55
+getCode @ workspace.js:100
+getCode @ index.js:111
+getCode @ mode-switcher.js:216
+runCode @ python-parser.js:78

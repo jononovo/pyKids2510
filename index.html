@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Development Course - Interactive Tutorial</title>
+    
+    <!-- External CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/editor.css">
+    <link rel="stylesheet" href="css/tutor.css">
+    <link rel="stylesheet" href="css/code-book.css">
+    
+</head>
+<body>
+    <div id="app-wrapper">
+        <div class="container">
+        <div class="left-panel">
+            <div class="resize-handle">
+                <span class="dot"></span>
+            </div>
+            <div class="header">
+                <div class="header-left">
+                    <button class="nav-btn" id="back-btn" onclick="previousLevel()" disabled><span class="btn-icon">←</span> <span class="btn-text">BACK</span></button>
+                    <div id="header-info" style="display: none;">
+                        <div class="chapter-title" id="chapter-title">PYTHON DEVELOPMENT COURSE</div>
+                        <div class="level-info" id="level-info">CHAPTER 1 • LEVEL 1</div>
+                        <div class="level-progress" id="level-progress">
+                            <!-- Progress boxes will be generated dynamically -->
+                        </div>
+                    </div>
+                </div>
+                <button class="nav-btn" id="next-btn" onclick="nextLevel()" disabled><span class="btn-text">NEXT</span> <span class="btn-icon">→</span></button>
+            </div>
+
+            <div class="content-scroll">
+                <div class="content" id="content">
+                    <div class="load-chapter-container">
+                        <div class="load-info">
+                            Welcome to the Python Development Course!<br><br>
+                            Load a chapter markdown file to begin learning Python through interactive gameplay.
+                        </div>
+                        <button class="load-chapter-btn" onclick="document.getElementById('file-input').click()">
+                            📁 LOAD CHAPTER FILE
+                        </button>
+                        <input type="file" id="file-input" accept=".md" onchange="loadMarkdownFile(event)">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <input type="file" id="sprite-input" accept="image/*" onchange="loadSpriteFile(event)" style="display: none;">
+            <div class="top-bar">
+                <div class="sprite-dropdown">
+                    <button class="top-btn" id="sprite-btn" onclick="toggleSpriteDropdown()">
+                        <span id="sprite-icon">🎮</span> <span class="btn-text" id="sprite-name">CHICKEN</span> <span class="dropdown-arrow">⇅</span>
+                    </button>
+                    <div class="dropdown-menu" id="sprite-menu">
+                        <!-- Populated dynamically from assets/sprites/ -->
+                    </div>
+                </div>
+                <div class="speed-dropdown">
+                    <button class="top-btn" id="speed-btn" onclick="toggleSpeedDropdown()">
+                        <span id="speed-icon">🐢</span> <span class="btn-text">NORMAL</span> <span class="dropdown-arrow">⇅</span>
+                    </button>
+                    <div class="dropdown-menu" id="speed-menu">
+                        <div class="dropdown-item" onclick="setSpeed('normal')">
+                            <span class="speed-icon">🐢</span> Normal
+                        </div>
+                        <div class="dropdown-item" onclick="setSpeed('fast')">
+                            <span class="speed-icon">🐇</span> Fast
+                        </div>
+                        <div class="dropdown-item" onclick="setSpeed('turbo')">
+                            <span class="speed-icon">⚡</span> Turbo
+                        </div>
+                    </div>
+                </div>
+                <button class="top-btn" onclick="showMapInfo()">🗺️ <span class="btn-text">MAP INFO</span></button>
+                <button class="top-btn" onclick="toggleCodeBook()">📖 <span class="btn-text">CODE BOOK</span></button>
+            </div>
+            <div id="game-viewport">
+                <canvas id="game-canvas" width="512" height="352"></canvas>
+            </div>
+        </div>
+    </div>
+    </div><!-- End app-wrapper -->
+
+    <!-- Victory Modal -->
+    <div id="victory-modal" class="modal-overlay">
+        <div class="victory-modal">
+            <div class="victory-ribbon">YOU MADE IT!</div>
+            <div class="level-complete-text" id="victory-level-text">LEVEL 1</div>
+            <div class="complete-text">COMPLETE</div>
+            <div class="star-progress" id="victory-progress">
+                <!-- Will be filled dynamically -->
+            </div>
+            <div class="modal-buttons">
+                <button class="replay-btn" onclick="replayLevel()">↺ REPLAY</button>
+                <button class="continue-btn" onclick="continueToNext()">CONTINUE ≫</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Map Info Modal -->
+    <div id="map-info-modal" class="modal-overlay">
+        <div class="info-modal">
+            <h2 class="info-title">MAP NAVIGATION INSTRUCTIONS</h2>
+            
+            <div class="info-section">
+                <h3>🖱️ MOUSE CONTROLS</h3>
+                <ul>
+                    <li>Click and drag to pan around the map</li>
+                    <li>Mouse wheel to zoom in and out</li>
+                </ul>
+            </div>
+            
+            <div class="info-section">
+                <h3>📱 TOUCH CONTROLS</h3>
+                <ul>
+                    <li>Drag with two fingers to pan around the map</li>
+                    <li>Pinch with two fingers to zoom in and out</li>
+                </ul>
+            </div>
+            
+            <div class="info-section">
+                <h3>💡 TIPS</h3>
+                <ul>
+                    <li>The camera automatically follows your character during gameplay</li>
+                    <li>You can manually control the camera by clicking and dragging</li>
+                    <li>The camera will return to following your character when you move</li>
+                </ul>
+            </div>
+            
+            <button class="got-it-btn" onclick="closeMapInfo()">GOT IT!</button>
+        </div>
+    </div>
+
+    <!-- Code Book Panel -->
+    <div id="codeBookPanel" class="code-book-panel">
+        <div class="code-book-header">
+            <h2 class="code-book-title">📖 CODE BOOK</h2>
+            <button class="code-book-close" onclick="toggleCodeBook()">
+                <span>×</span>
+                <span>CLOSE</span>
+            </button>
+        </div>
+        
+        <div class="code-book-content">
+            <div class="code-book-intro">
+                <p>Learn how to control your character with these Python commands!</p>
+            </div>
+            
+            <div class="code-book-sections" id="codeBookSections">
+                <!-- Content will be populated by JavaScript -->
+            </div>
+        </div>
+        
+        <div class="code-book-footer">
+            <p>Keep learning and have fun coding! 🎮</p>
+        </div>
+    </div>
+
+    <!-- Coding Tutor Dialog (moved to end of body) -->
+    <div class="tutor-overlay" id="tutorOverlay">
+        <div class="tutor-dialog">
+            <button class="tutor-close" onclick="closeTutorDialog()">✕</button>
+            <div class="tutor-message" id="tutorMessage">
+                <!-- Markdown-rendered message goes here -->
+            </div>
+            <div class="tutor-interaction">
+                <img class="tutor-avatar" src="assets/sprites/tutor-avatar.png" alt="Tutor">
+                <div class="tutor-code-box" id="tutorCodeBox">
+                    <!-- Recommended code with syntax highlighting -->
+                </div>
+                <button class="tutor-apply-btn" onclick="applyTutorRecommendation()">APPLY</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Code Book Panel -->
+    <div class="code-book-panel" id="codeBookPanel">
+        <button class="code-book-close" onclick="closeCodeBook()">
+            ← CLOSE
+        </button>
+        
+        <div class="code-book-content">
+            <h1 class="code-book-title">
+                📖 CODE BOOK
+            </h1>
+            
+            <p class="code-book-intro">
+                Here are all the functions you can use in the game. Feel free to experiment with them and try to complete the level by learning how to use these functions!
+            </p>
+            
+            <div class="code-book-sections">
+                <!-- move_forward() -->
+                <div class="function-section">
+                    <h2 class="function-title">MOVE_FORWARD()</h2>
+                    
+                    <div class="function-syntax">
+                        <h3>Syntax</h3>
+                        <code>player.move_forward([number of steps])</code>
+                    </div>
+                    
+                    <div class="function-description">
+                        <p>This function is used to have player move forward in the direction they're facing provided there is not a collision blocking the player's trajectory. You can assign the amount of steps you would like for this function to repeat or you can leave it blank and it will execute the action only once.</p>
+                        
+                        <p>If the function is not provided with any arguments, then it will move the player forward by one step.</p>
+                    </div>
+                    
+                    <div class="function-example">
+                        <h3>Example</h3>
+                        <code class="code-example">player.move_forward(3)</code>
+                        <p>This code will have player move three steps forward in the map.</p>
+                    </div>
+                </div>
+                
+                <!-- turn_left() -->
+                <div class="function-section">
+                    <h2 class="function-title">TURN_LEFT()</h2>
+                    
+                    <div class="function-syntax">
+                        <h3>Syntax</h3>
+                        <code>player.turn_left()</code>
+                    </div>
+                    
+                    <div class="function-description">
+                        <p>This function rotates the player 90 degrees counter-clockwise. Use this to change the direction your character is facing before moving forward.</p>
+                    </div>
+                    
+                    <div class="function-example">
+                        <h3>Example</h3>
+                        <code class="code-example">player.turn_left()</code>
+                        <p>This will rotate your character to face left from their current direction.</p>
+                    </div>
+                </div>
+                
+                <!-- turn_right() -->
+                <div class="function-section">
+                    <h2 class="function-title">TURN_RIGHT()</h2>
+                    
+                    <div class="function-syntax">
+                        <h3>Syntax</h3>
+                        <code>player.turn_right()</code>
+                    </div>
+                    
+                    <div class="function-description">
+                        <p>This function rotates the player 90 degrees clockwise. Use this to change the direction your character is facing before moving forward.</p>
+                    </div>
+                    
+                    <div class="function-example">
+                        <h3>Example</h3>
+                        <code class="code-example">player.turn_right()</code>
+                        <p>This will rotate your character to face right from their current direction.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="js/codejar.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="js/syntax-highlighter.js"></script>
+    <script src="js/lesson-parser.js"></script>
+    <script src="js/python-parser.js"></script>
+    <script src="js/game-engine.js"></script>
+    <script src="js/coding-tutor.js"></script>
+    <script src="js/code-book.js"></script>
+    <!-- Blockly integration - single entry point, loads everything else on demand -->
+    <script src="blockly-integration/index.js"></script>
+    <!-- Load mode-switcher immediately so toggle buttons appear -->
+    <script src="blockly-integration/ui/mode-switcher.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/panel-resizer.js"></script>
+</body>
+</html>

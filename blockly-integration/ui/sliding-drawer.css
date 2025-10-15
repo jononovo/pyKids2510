@@ -1,0 +1,73 @@
+/* ============================================
+   SLIDING DRAWER STYLES FOR BLOCKLY TOOLBOX
+============================================ */
+
+/* Toolbox drawer animation and positioning */
+.blocklyToolboxDiv {
+    transition: transform 0.3s ease-out, width 0.3s ease-out !important;
+    position: relative !important;
+    left: 0 !important;
+    z-index: 100 !important;
+}
+
+/* Collapsed state - shows only 35px */
+.blocklyToolboxDiv.drawer-collapsed {
+    transform: translateX(-45px) !important;  /* 80px - 35px = 45px hidden */
+    pointer-events: all !important;
+}
+
+/* Expanded state on hover */
+.blocklyToolboxDiv.drawer-collapsed:hover {
+    transform: translateX(0) !important;
+}
+
+/* Visual indicator on the edge */
+.drawer-handle {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 6px;
+    height: 60px;
+    background: rgba(127, 197, 66, 0.3);
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    z-index: 101;
+}
+
+.drawer-handle:hover {
+    background: rgba(127, 197, 66, 0.5);
+}
+
+/* Arrow indicator */
+.drawer-handle::after {
+    content: '▶';
+    position: absolute;
+    left: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #7fc542;
+    font-size: 10px;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+}
+
+.blocklyToolboxDiv.drawer-collapsed:hover .drawer-handle::after {
+    opacity: 0;
+}
+
+/* Ensure flyout still works properly */
+.blocklyFlyout {
+    transition: none !important;  /* Don't animate the flyout */
+}
+
+/* Override to ensure proper interaction */
+.blocklyToolboxDiv.drawer-collapsed .blocklyTreeRow {
+    pointer-events: all !important;
+}
+
+/* Smooth workspace adjustment */
+.blocklyMainBackground {
+    transition: transform 0.3s ease-out !important;
+}

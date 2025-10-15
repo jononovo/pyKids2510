@@ -1,0 +1,355 @@
+/* ========================================
+   CODE BOOK PANEL STYLES
+   ======================================== */
+
+/* Main Code Book Panel */
+.code-book-panel {
+    position: fixed;
+    top: 0;
+    right: -600px; /* Start hidden off-screen */
+    width: 600px;
+    height: 100vh;
+    background: #3a3a3a;
+    border-left: 3px solid #555;
+    z-index: 9998;
+    transition: right 0.3s ease-in-out;
+    overflow-y: auto;
+    overflow-x: hidden;
+    font-family: 'Courier New', monospace;
+}
+
+.code-book-panel.show {
+    right: 0; /* Slide in from right */
+}
+
+/* Code Book Header */
+.code-book-header {
+    position: sticky;
+    top: 0;
+    background: #2a2a2a;
+    border-bottom: 2px solid #555;
+    padding: 20px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 10;
+}
+
+/* Close Button */
+.code-book-close {
+    background: #1a1a1a;
+    border: 2px solid #7fc542;
+    color: #7fc542;
+    padding: 10px 20px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.code-book-close span:first-child {
+    font-size: 20px;
+    line-height: 0.8;
+}
+
+.code-book-close:hover {
+    background: #7fc542;
+    color: #000;
+    transform: scale(1.05);
+}
+
+/* Content Container */
+.code-book-content {
+    padding: 30px 40px 40px 40px;
+    color: #fff;
+}
+
+/* Title */
+.code-book-title {
+    font-size: 24px;
+    color: #fff;
+    margin: 0;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+/* Introduction Text */
+.code-book-intro {
+    color: #ccc;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #444;
+}
+
+/* Function Sections */
+.code-book-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.function-section {
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin-bottom: 40px;
+}
+
+/* Function Title */
+.function-title {
+    font-size: 20px;
+    color: #7fc542;
+    margin-bottom: 20px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* Syntax Section */
+.function-syntax {
+    margin-bottom: 20px;
+}
+
+.function-syntax h3,
+.function-example h3 {
+    color: #fff;
+    font-size: 14px;
+    margin-bottom: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.function-syntax code {
+    display: block;
+    background: #0d0d0d;
+    border: 1px solid #444;
+    padding: 12px 16px;
+    border-radius: 4px;
+    color: #7fc542;
+    font-size: 14px;
+    margin-top: 8px;
+    font-family: 'Courier New', monospace;
+}
+
+/* Description Section */
+.function-description {
+    margin-bottom: 20px;
+}
+
+.function-description p {
+    color: #ddd;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 12px;
+}
+
+.function-description p:last-child {
+    margin-bottom: 0;
+}
+
+/* Example Section */
+.function-example {
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin-top: 20px;
+}
+
+.function-example .code-example {
+    display: block;
+    background: #0d0d0d;
+    border: 1px solid #555;
+    padding: 12px 16px;
+    border-radius: 4px;
+    color: #7fc542;
+    font-size: 14px;
+    margin: 10px 0;
+    font-family: 'Courier New', monospace;
+}
+
+.function-example p {
+    color: #aaa;
+    font-size: 13px;
+    line-height: 1.5;
+    margin-top: 10px;
+}
+
+/* Scrollbar Styling for Code Book */
+.code-book-panel::-webkit-scrollbar {
+    width: 8px;
+}
+
+.code-book-panel::-webkit-scrollbar-track {
+    background: #1a1a1a;
+}
+
+.code-book-panel::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 4px;
+}
+
+.code-book-panel::-webkit-scrollbar-thumb:hover {
+    background: #666;
+}
+
+/* Markdown-rendered Content Styles */
+.codebook-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    background: #1a1a1a;
+    border: 1px solid #444;
+}
+
+.codebook-table th {
+    background: #2a2a2a;
+    color: #7fc542;
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #444;
+    font-weight: bold;
+}
+
+.codebook-table td {
+    padding: 10px;
+    border: 1px solid #444;
+    color: #ccc;
+}
+
+.codebook-table tr:hover {
+    background: #252525;
+}
+
+.codebook-image {
+    max-width: 100%;
+    height: auto;
+    border: 2px solid #444;
+    border-radius: 4px;
+    margin: 15px 0;
+    display: block;
+}
+
+.image-placeholder {
+    padding: 20px;
+    background: #1a1a1a;
+    border: 2px dashed #444;
+    color: #666;
+    text-align: center;
+    margin: 15px 0;
+    border-radius: 4px;
+}
+
+.section-divider {
+    border: none;
+    border-top: 2px solid #444;
+    margin: 30px 0;
+}
+
+.subsection-title {
+    color: #7fc542;
+    font-size: 18px;
+    margin: 20px 0 10px 0;
+}
+
+/* Syntax Highlighting for Code */
+.code-example .keyword {
+    color: #ff79c6;
+    font-weight: bold;
+}
+
+.code-example .string {
+    color: #f1fa8c;
+}
+
+.code-example .comment {
+    color: #6272a4;
+    font-style: italic;
+}
+
+.code-example .number {
+    color: #bd93f9;
+}
+
+.code-example .function {
+    color: #50fa7b;
+}
+
+.inline-code {
+    background: #1a1a1a;
+    padding: 2px 6px;
+    border: 1px solid #444;
+    border-radius: 3px;
+    color: #7fc542;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .code-book-panel {
+        width: 100%;
+        right: -100%;
+    }
+    
+    .code-book-content {
+        padding: 80px 20px 20px 20px;
+    }
+}
+
+/* Fade overlay when Code Book is open */
+.code-book-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    z-index: 9997;
+}
+
+.code-book-overlay.show {
+    display: block;
+}
+
+/* Feedback Button (optional green highlight) */
+.feedback-button {
+    position: fixed;
+    bottom: 20px;
+    right: 620px;
+    background: #7fc542;
+    color: #000;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 24px;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s;
+    transform: rotate(-90deg);
+    transform-origin: right center;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: none;
+}
+
+.code-book-panel.show ~ .feedback-button {
+    display: block;
+}
+
+.feedback-button:hover {
+    background: #8fd550;
+    transform: rotate(-90deg) scale(1.05);
+}

@@ -1,0 +1,333 @@
+/* ============================================
+   BLOCKLY INTEGRATION STYLES
+   ============================================ */
+
+/* Mode toggle buttons */
+.mode-toggle {
+    display: flex;
+    gap: 0;
+    margin-left: auto;
+}
+
+.mode-btn {
+    background: transparent;
+    color: #888;
+    border: 1px solid #555;  /* Light gray default border */
+    padding: 6px 16px;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: bold;
+    transition: all 0.2s;
+    border-radius: 0;
+}
+
+.mode-btn:first-child {
+    border-radius: 3px 0 0 3px;
+    border-right: 1px solid #888;  /* Single pixel border between buttons */
+}
+
+.mode-btn:last-child {
+    border-radius: 0 3px 3px 0;
+}
+
+.mode-btn.active {
+    background: transparent;
+    color: #7fc542;
+    border-color: #888;  /* Light gray border for active button - less prominent */
+    /* Removed green bottom border */
+}
+
+.mode-btn:hover:not(.active) {
+    background: #3a3a3a;
+    color: #7fc542;
+    border-color: #888;  /* Light gray border on hover - less prominent */
+}
+
+.mode-btn.loading {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+/* Make icons larger in mode buttons */
+.mode-btn .btn-icon {
+    font-size: 18px;  /* Increased for better visibility */
+    vertical-align: middle;
+}
+
+/* Blockly container */
+.blockly-container {
+    background: #0d1117;
+    border: 1px solid #444;
+    min-height: 400px;
+    position: relative;
+    width: 100%;
+    /* Display is controlled by JavaScript */
+}
+
+#blockly-workspace {
+    width: 100%;
+    height: 100%;
+    position: relative; /* Make this the positioning context for absolute children */
+}
+
+/* Override Blockly's default styles to match our theme */
+.blocklyToolboxDiv {
+    background: #1a1f2e !important;
+    /* Let Blockly determine width, we'll measure it dynamically */
+}
+
+/* Ensure the flyout background is dark */
+.blocklyFlyoutBackground {
+    fill: #161b22 !important;  /* Dark background */
+}
+
+/* Create a blue border line at the right edge using a pseudo-element on the workspace */
+#blockly-workspace.toolbox-visible::after {
+    content: '';
+    position: absolute;
+    left: 193px;  /* Position at right edge of toolbox */
+    top: 0;  /* Straight to the top */
+    bottom: 0;  /* Straight to the bottom */
+    width: 1px;  /* 1px thin line */
+    background: #4a9eff;
+    z-index: 50;  /* Below buttons but above workspace */
+    pointer-events: none;  /* Don't interfere with interactions */
+}
+
+.blocklyTreeRow {
+    padding: 6px 2px 6px 2px !important;  /* Even less padding */
+    margin: 2px 1px !important;  /* Smaller margins */
+    border-radius: 4px !important;
+    cursor: pointer !important;
+    display: flex !important;  /* Use flexbox for proper alignment */
+    align-items: center !important;  /* Vertically center the content */
+}
+
+.blocklyTreeRow:hover {
+    background-color: rgba(127, 197, 66, 0.1) !important;
+}
+
+.blocklyTreeSelected {
+    background-color: rgba(127, 197, 66, 0.2) !important;
+}
+
+/* Add Blocks button - Smaller and more subtle */
+.add-blocks-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 100;
+    background: transparent;
+    color: #4a9eff;
+    border: 1px solid #4a9eff;
+    padding: 8px 14px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    font-weight: normal;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.add-blocks-btn:hover {
+    background: rgba(74, 158, 255, 0.1);
+    border-color: #6ab0ff;
+    color: #6ab0ff;
+    transform: translateY(-1px);
+}
+
+.add-blocks-btn.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.9);
+}
+
+.add-blocks-btn .plus-icon {
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 1;
+}
+
+.add-blocks-btn .button-text {
+    letter-spacing: 0.5px;
+}
+
+.blocklyTreeIcon {
+    margin-right: 3px !important;  /* Minimal space between icon and label */
+    display: inline-flex !important;
+    align-items: center !important;
+    font-size: 13px !important;  /* Slightly smaller icon */
+}
+
+.blocklyTreeLabel {
+    font-family: 'Courier New', monospace !important;
+    font-size: 11px !important;  /* Smaller font to fit better */
+    font-weight: bold !important;
+    color: #e6e6e6 !important;
+    line-height: 1.2 !important;  /* Proper line height */
+    display: inline-flex !important;
+    align-items: center !important;
+    white-space: nowrap !important;  /* Prevent wrapping */
+}
+
+.blocklyTreeSelected .blocklyTreeLabel {
+    color: #7fc542 !important;
+}
+
+/* Blockly workspace background */
+.blocklyMainBackground {
+    stroke: none !important;
+}
+
+.blocklyBlockCanvas {
+    cursor: default !important;
+}
+
+/* Make editor area full width */
+.embedded-editor-container.full-width {
+    margin: 0;
+    padding: 0;
+}
+
+.content.full-width {
+    padding: 0;
+}
+
+.instructions-section {
+    padding: 20px;
+}
+
+/* Loading indicator */
+.blockly-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #7fc542;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.blockly-loading::after {
+    content: '...';
+    animation: dots 1.5s steps(4, end) infinite;
+}
+
+@keyframes dots {
+    0%, 20% { content: ''; }
+    40% { content: '.'; }
+    60% { content: '..'; }
+    80%, 100% { content: '...'; }
+}
+
+/* Blockly control panel styles */
+#blockly-control-panel {
+    display: none;
+    gap: 10px;
+    padding: 10px;
+    background: #1a1f2e;
+    border-bottom: 1px solid #444;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+#blockly-control-panel button {
+    padding: 8px 15px;
+    background: #2a3142;
+    border: 1px solid #444;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+    border-radius: 4px;
+}
+
+#blockly-control-panel button:hover {
+    background: #3a4152;
+    border-color: #7fc542;
+}
+
+#blockly-control-panel .run-btn {
+    background: #7fc542;
+    color: #0a0e1b;
+    font-weight: bold;
+    border: 1px solid #6fb432;
+}
+
+#blockly-control-panel .run-btn:hover {
+    background: #8fd552;
+}
+
+#blockly-control-panel .mode-toggle-container {
+    display: flex;
+    gap: 5px;
+    margin-left: auto;
+}
+
+#blockly-control-panel .mode-btn {
+    padding: 5px 10px;
+    font-size: 12px;
+    text-align: center;
+    min-width: 60px;
+}
+
+#blockly-control-panel .mode-btn.active {
+    background: transparent;
+    color: #7fc542;
+    border-bottom: 3px solid white;  /* White bottom border instead of green */
+}
+
+#blockly-control-panel .coin-display {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #ffd700;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* Toolbox Collapse Button - matches Add Blocks button styling */
+.toolbox-collapse-btn {
+    /* Size - use padding like Add Blocks button */
+    padding: 8px 6px;  /* Same vertical padding, narrower horizontal */
+    width: auto;
+    height: auto;
+    
+    /* Blue styling to match Add Blocks button */
+    background: transparent;
+    border: 1px solid #4a9eff;
+    border-left: none;  /* No left border since it's against toolbox */
+    border-radius: 0 4px 4px 0;  /* Rounded on right side only */
+    color: #4a9eff;
+    
+    /* Font matching Add Blocks */
+    font-size: 12px;
+    font-family: 'Courier New', monospace;
+    font-weight: normal;
+    
+    cursor: pointer;
+    /* Smooth transitions like Add Blocks button */
+    transition: all 0.2s ease;
+    box-shadow: none;  /* Remove shadow for cleaner look */
+    
+    /* Ensure visibility */
+    pointer-events: all;
+    opacity: 1;
+}
+
+.toolbox-collapse-btn:hover {
+    /* Match Add Blocks hover effect */
+    background: rgba(74, 158, 255, 0.1);
+    border-color: #6ab0ff;
+    color: #6ab0ff;
+    transform: translateY(-1px);  /* Same upward movement as Add Blocks button */
+}
+

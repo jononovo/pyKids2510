@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script>
+        // Open the page and trigger the dialog
+        window.onload = function() {
+            // Navigate to main page
+            window.location = 'http://localhost:5000';
+            
+            // After a delay, trigger the tutor
+            setTimeout(() => {
+                if (window.testTutorDialog) {
+                    window.testTutorDialog();
+                }
+            }, 1000);
+        };
+    </script>
+</head>
+<body>
+    <p>Testing tutor dialog...</p>
+</body>
+</html>

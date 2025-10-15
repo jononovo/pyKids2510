@@ -1,0 +1,315 @@
+/* ========================================
+   CODE EDITOR STYLES
+   ======================================== */
+   
+/* Editor Container */
+.embedded-editor-container {
+    margin: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 300px;
+    margin-bottom: 30px;  /* Add space below the editor */
+}
+
+/* Full width mode for editor */
+.embedded-editor-container.full-width {
+    margin: 0;
+    margin-bottom: 30px;  /* Keep bottom margin in full width mode */
+    padding: 0;
+}
+
+/* Editor Controls */
+.controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 15px 20px;
+    background: #1a1a1a;
+    border-top: 1px solid #444;
+    border-left: 1px solid #444;
+    border-right: 1px solid #444;
+}
+
+.controls-top {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.controls-bottom {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    width: 100%;  /* Ensure full width for proper alignment */
+}
+
+/* Button Styles */
+.btn {
+    border: none;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    text-transform: uppercase;
+    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+    letter-spacing: 1px;
+    white-space: nowrap;
+}
+
+/* Make icons larger in all editor buttons */
+.btn .btn-icon,
+.run-btn .btn-icon,
+.secondary-btn .btn-icon,
+.save-btn .btn-icon,
+.load-btn .btn-icon {
+    font-size: 18px;  /* Increased for better visibility */
+}
+
+/* Make HTML character icons even larger for better visibility */
+#run-btn .btn-icon,
+#blockly-run-btn .btn-icon {
+    font-size: 22px !important;
+}
+
+.run-btn {
+    background: #7fc542;
+    color: #000;
+    box-shadow: 0 3px 0 #5da030;
+    padding: 11px 20px 8px 20px;  /* Added 1px more to top padding */
+    position: relative;
+    border-radius: 3px;
+    font-size: 15px;  /* Increased font size for better visibility */
+    display: inline-flex;
+    align-items: center;  /* Ensure vertical centering */
+    line-height: 1;  /* Normalize line height */
+}
+
+.run-btn:hover:not(:disabled) {
+    transform: translateY(1px);
+    box-shadow: 0 2px 0 #5da030;
+}
+
+.run-btn:active:not(:disabled) {
+    transform: translateY(3px);
+    box-shadow: none;
+}
+
+.run-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.secondary-btn {
+    background: transparent;
+    color: #555;  /* Changed from green to gray to match border */
+    border: 1px solid #555;  /* Reduced from 2px to match top buttons */
+    padding: 6px 16px;
+    border-radius: 3px;
+}
+
+/* Ensure icons and text in secondary buttons are gray by default */
+.secondary-btn .btn-icon,
+.secondary-btn .btn-text {
+    color: #555 !important;  /* Force gray color */
+}
+
+/* Make the reset button icon slightly smaller to match help button size */
+#reset-btn .btn-icon {
+    font-size: 16px !important;  /* Slightly smaller than standard 18px */
+}
+
+.secondary-btn:hover {
+    background: #3a3a3a;
+    border-color: #7fc542;
+    color: #7fc542;  /* Turn green on hover */
+}
+
+/* Ensure icons and text also turn green on hover */
+.secondary-btn:hover .btn-icon,
+.secondary-btn:hover .btn-text {
+    color: #7fc542 !important;  /* Force green color on hover */
+}
+
+/* Editor Display Elements */
+.infinity-symbol {
+    color: #fff;
+    font-size: 20px;
+    margin-left: 10px;
+}
+
+/* Status display removed - coin display now standalone */
+
+.status-text {
+    font-size: 12px;
+    text-transform: uppercase;
+    color: #7fc542;
+    font-weight: bold;
+}
+
+.coin-display {
+    margin-left: 8px;  /* Close to tutor toggle */
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #ffd700;
+    font-size: 13px;
+}
+
+/* Code Editor Container */
+.code-editor-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #0d1117;
+    border: 1px solid #444;
+    min-height: 300px;
+    position: relative;
+}
+
+.editor-wrapper {
+    position: relative;
+    flex: 1;
+    display: flex;
+    background: #0d1117;
+}
+
+/* Line Numbers */
+.line-numbers {
+    width: 30px;  /* Reduced from 50px to fix double-digit display */
+    padding: 15px 5px;  /* Adjusted padding for narrower width */
+    background: #090b0f;
+    color: #4a5568;
+    text-align: right;
+    font-size: 14px;
+    line-height: 22px;
+    user-select: none;
+    border-right: 1px solid #1a1f2e;
+    white-space: pre;  /* Preserve newlines to display numbers vertically */
+    overflow: hidden;  /* Hide any overflow */
+}
+
+/* Main Editor */
+.editor {
+    flex: 1;
+    padding: 15px;
+    font-family: 'Courier New', monospace;
+    font-size: 15px;
+    line-height: 22px;
+    background: #0d1117;
+    color: #e6e6e6;
+    outline: none;
+    overflow: auto;
+    white-space: pre;
+}
+
+/* ========================================
+   DROPDOWN MENUS (SPRITE & SPEED)
+   ======================================== */
+.sprite-dropdown,
+.speed-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-arrow {
+    font-size: 10px;
+    margin-left: 5px;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: #2a2a2a;
+    border: none;
+    border-radius: 3px;
+    margin-top: 5px;
+    min-width: 150px;
+    z-index: 100;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.dropdown-menu.show {
+    display: block;
+}
+
+.dropdown-item {
+    padding: 10px 15px;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: bold;
+    transition: all 0.2s;
+}
+
+.dropdown-item:hover {
+    background: rgba(127, 197, 66, 0.2);
+    color: #7fc542;
+}
+
+.dropdown-item:not(:last-child) {
+    border-bottom: 1px solid #444;
+}
+
+.speed-icon {
+    font-size: 16px;
+}
+
+#speed-icon {
+    margin-right: 5px;
+}
+
+/* ========================================
+   RESPONSIVE EDITOR BUTTON STYLES
+   ======================================== */
+/* Hide button text on smaller screens to prevent wrapping */
+@media (max-width: 900px) {
+    .btn .btn-text,
+    .secondary-btn .btn-text,
+    .run-btn .btn-text,
+    .reset-btn .btn-text,
+    .save-btn .btn-text,
+    .load-btn .btn-text,
+    .mode-btn .btn-text {
+        display: none;
+    }
+    
+    .btn,
+    .secondary-btn {
+        padding: 6px 10px;  /* Reduce padding for icon-only buttons */
+        min-width: 36px;
+        justify-content: center;
+    }
+    
+    .run-btn {
+        padding: 10px 12px;  /* Slightly larger for primary button */
+    }
+    
+    /* Reduce gaps in control areas */
+    .controls-top,
+    .controls-bottom {
+        gap: 5px;
+    }
+}
+
+/* For very small screens, further optimize space */
+@media (max-width: 600px) {
+    .controls {
+        padding: 10px 15px;
+    }
+    
+    .controls-top,
+    .controls-bottom {
+        gap: 3px;
+    }
+}
