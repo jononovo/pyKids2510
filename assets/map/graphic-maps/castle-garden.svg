@@ -1,261 +1,292 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" width="640" height="480">
   <defs>
-    <!-- Pixelated grass pattern matching existing tiles -->
-    <pattern id="grassPixel" x="0" y="0" width="32" height="32" patternUnits="userSpaceOnUse">
-      <rect width="32" height="32" fill="#7fc97f"/>
-      <!-- Grass texture from existing tile -->
-      <rect x="8" y="24" width="2" height="4" fill="#6fb96f" opacity="0.6"/>
-      <rect x="16" y="25" width="2" height="4" fill="#6fb96f" opacity="0.6"/>
-      <rect x="24" y="24" width="2" height="4" fill="#6fb96f" opacity="0.6"/>
-      <rect x="12" y="26" width="2" height="4" fill="#89d189" opacity="0.5"/>
-      <rect x="20" y="26" width="2" height="4" fill="#89d189" opacity="0.5"/>
-      <!-- Small grass dots -->
-      <rect x="6" y="8" width="2" height="2" fill="#6fb96f" opacity="0.3"/>
-      <rect x="26" y="12" width="2" height="2" fill="#6fb96f" opacity="0.3"/>
-      <rect x="14" y="6" width="2" height="2" fill="#89d189" opacity="0.25"/>
-      <rect x="22" y="18" width="2" height="2" fill="#89d189" opacity="0.25"/>
+    <!-- SNES-style limited color palette -->
+    <!-- Grass base pattern -->
+    <pattern id="grassTile" x="0" y="0" width="16" height="16" patternUnits="userSpaceOnUse">
+      <rect width="16" height="16" fill="#4a8c4a"/>
+      <rect x="0" y="0" width="8" height="8" fill="#5a9c5a"/>
+      <rect x="8" y="8" width="8" height="8" fill="#5a9c5a"/>
+      <rect x="2" y="2" width="2" height="2" fill="#6aac6a" opacity="0.5"/>
+      <rect x="10" y="10" width="2" height="2" fill="#6aac6a" opacity="0.5"/>
+      <rect x="6" y="10" width="2" height="2" fill="#3a7c3a" opacity="0.5"/>
+      <rect x="12" y="4" width="2" height="2" fill="#3a7c3a" opacity="0.5"/>
     </pattern>
     
-    <!-- Pixelated stone blocks for castle -->
-    <pattern id="pixelStone" x="0" y="0" width="32" height="32" patternUnits="userSpaceOnUse">
-      <rect width="32" height="32" fill="#8b8680"/>
-      <!-- Stone blocks -->
-      <rect x="0" y="0" width="15" height="15" fill="#9b9690"/>
-      <rect x="16" y="0" width="15" height="15" fill="#a5a09a"/>
-      <rect x="0" y="16" width="15" height="15" fill="#a5a09a"/>
-      <rect x="16" y="16" width="15" height="15" fill="#9b9690"/>
-      <!-- Mortar lines -->
-      <rect x="15" y="0" width="2" height="32" fill="#7b7670"/>
-      <rect x="0" y="15" width="32" height="2" fill="#7b7670"/>
+    <!-- Castle floor/roof pattern -->
+    <pattern id="castleRoof" x="0" y="0" width="16" height="16" patternUnits="userSpaceOnUse">
+      <rect width="16" height="16" fill="#7a6a5a"/>
+      <rect x="0" y="0" width="16" height="1" fill="#6a5a4a"/>
+      <rect x="0" y="8" width="16" height="1" fill="#6a5a4a"/>
+      <rect x="0" y="0" width="1" height="16" fill="#6a5a4a"/>
+      <rect x="8" y="0" width="1" height="16" fill="#6a5a4a"/>
+      <rect x="2" y="2" width="4" height="4" fill="#8a7a6a"/>
+      <rect x="10" y="2" width="4" height="4" fill="#8a7a6a"/>
+      <rect x="2" y="10" width="4" height="4" fill="#8a7a6a"/>
+      <rect x="10" y="10" width="4" height="4" fill="#8a7a6a"/>
     </pattern>
     
-    <!-- Path tile pattern -->
-    <pattern id="pathPixel" x="0" y="0" width="32" height="32" patternUnits="userSpaceOnUse">
-      <rect width="32" height="32" fill="#d4b896"/>
-      <!-- Stone texture -->
-      <rect x="2" y="2" width="12" height="12" fill="#c4a886" opacity="0.8"/>
-      <rect x="18" y="2" width="12" height="12" fill="#c4a886" opacity="0.8"/>
-      <rect x="2" y="18" width="12" height="12" fill="#c4a886" opacity="0.8"/>
-      <rect x="18" y="18" width="12" height="12" fill="#c4a886" opacity="0.8"/>
-      <!-- Gaps -->
-      <rect x="14" y="0" width="4" height="32" fill="#b49876" opacity="0.6"/>
-      <rect x="0" y="14" width="32" height="4" fill="#b49876" opacity="0.6"/>
+    <!-- Cobblestone path pattern -->
+    <pattern id="pathStone" x="0" y="0" width="32" height="32" patternUnits="userSpaceOnUse">
+      <rect width="32" height="32" fill="#b4a494"/>
+      <!-- Individual stones -->
+      <rect x="1" y="1" width="14" height="14" fill="#c4b4a4"/>
+      <rect x="17" y="1" width="14" height="14" fill="#c4b4a4"/>
+      <rect x="1" y="17" width="14" height="14" fill="#c4b4a4"/>
+      <rect x="17" y="17" width="14" height="14" fill="#c4b4a4"/>
+      <!-- Stone highlights -->
+      <rect x="2" y="2" width="12" height="1" fill="#d4c4b4" opacity="0.6"/>
+      <rect x="2" y="2" width="1" height="12" fill="#d4c4b4" opacity="0.6"/>
+      <rect x="18" y="2" width="12" height="1" fill="#d4c4b4" opacity="0.6"/>
+      <rect x="18" y="2" width="1" height="12" fill="#d4c4b4" opacity="0.6"/>
+      <rect x="2" y="18" width="12" height="1" fill="#d4c4b4" opacity="0.6"/>
+      <rect x="2" y="18" width="1" height="12" fill="#d4c4b4" opacity="0.6"/>
+      <rect x="18" y="18" width="12" height="1" fill="#d4c4b4" opacity="0.6"/>
+      <rect x="18" y="18" width="1" height="12" fill="#d4c4b4" opacity="0.6"/>
+    </pattern>
+    
+    <!-- Water pattern -->
+    <pattern id="waterTile" x="0" y="0" width="32" height="32" patternUnits="userSpaceOnUse">
+      <rect width="32" height="32" fill="#4a7aaa"/>
+      <rect x="0" y="4" width="32" height="2" fill="#5a8aba" opacity="0.6"/>
+      <rect x="0" y="12" width="32" height="2" fill="#5a8aba" opacity="0.6"/>
+      <rect x="0" y="20" width="32" height="2" fill="#5a8aba" opacity="0.6"/>
+      <rect x="0" y="28" width="32" height="2" fill="#5a8aba" opacity="0.6"/>
+      <rect x="4" y="8" width="4" height="2" fill="#6a9aca" opacity="0.4"/>
+      <rect x="16" y="16" width="4" height="2" fill="#6a9aca" opacity="0.4"/>
+      <rect x="24" y="24" width="4" height="2" fill="#6a9aca" opacity="0.4"/>
     </pattern>
   </defs>
   
-  <!-- Sky - simple gradient blocks -->
-  <rect width="640" height="160" fill="#87ceeb"/>
-  <rect x="0" y="160" width="640" height="80" fill="#a7deeb"/>
-  <rect x="0" y="240" width="640" height="80" fill="#c7eefb"/>
+  <!-- Base grass layer -->
+  <rect width="640" height="480" fill="url(#grassTile)"/>
   
-  <!-- Pixelated mountains in background -->
-  <rect x="0" y="200" width="160" height="40" fill="#a8b8d8" opacity="0.6"/>
-  <rect x="80" y="180" width="160" height="60" fill="#a8b8d8" opacity="0.6"/>
-  <rect x="160" y="160" width="160" height="80" fill="#a8b8d8" opacity="0.6"/>
-  <rect x="320" y="180" width="160" height="60" fill="#a8b8d8" opacity="0.6"/>
-  <rect x="480" y="200" width="160" height="40" fill="#a8b8d8" opacity="0.6"/>
-  
-  <!-- Pixelated Castle (blocky 64-bit style) -->
+  <!-- TOP-DOWN CASTLE (looking from above) -->
   <g id="castle">
-    <!-- Left tower -->
-    <rect x="32" y="128" width="64" height="192" fill="url(#pixelStone)"/>
-    <!-- Right tower -->
-    <rect x="192" y="128" width="64" height="192" fill="url(#pixelStone)"/>
-    <!-- Main castle body -->
-    <rect x="64" y="160" width="160" height="160" fill="url(#pixelStone)"/>
+    <!-- Castle shadow (offset for depth) -->
+    <rect x="162" y="34" width="316" height="188" fill="#2a4a2a" opacity="0.3"/>
     
-    <!-- Crenellations (castle top blocks) -->
-    <rect x="32" y="112" width="16" height="16" fill="#9b9690"/>
-    <rect x="56" y="112" width="16" height="16" fill="#9b9690"/>
-    <rect x="80" y="112" width="16" height="16" fill="#9b9690"/>
-    <rect x="192" y="112" width="16" height="16" fill="#9b9690"/>
-    <rect x="216" y="112" width="16" height="16" fill="#9b9690"/>
-    <rect x="240" y="112" width="16" height="16" fill="#9b9690"/>
+    <!-- Outer walls -->
+    <rect x="160" y="32" width="320" height="192" fill="#8a7a6a"/>
+    <!-- Wall top pattern (battlements from above) -->
+    <rect x="160" y="32" width="320" height="8" fill="#9a8a7a"/>
+    <rect x="160" y="216" width="320" height="8" fill="#9a8a7a"/>
+    <rect x="160" y="32" width="8" height="192" fill="#9a8a7a"/>
+    <rect x="472" y="32" width="8" height="192" fill="#9a8a7a"/>
     
-    <!-- Castle door (pixelated arch) -->
-    <rect x="128" y="256" width="32" height="64" fill="#4a3c28"/>
-    <rect x="120" y="248" width="48" height="8" fill="#4a3c28"/>
-    <rect x="124" y="244" width="40" height="4" fill="#4a3c28"/>
-    <!-- Door details -->
-    <rect x="132" y="264" width="24" height="52" fill="#5a4c38"/>
-    <rect x="136" y="268" width="4" height="44" fill="#3a2c18" opacity="0.5"/>
-    <rect x="148" y="268" width="4" height="44" fill="#3a2c18" opacity="0.5"/>
+    <!-- Corner towers (circular from above) -->
+    <!-- Top-left tower -->
+    <circle cx="176" cy="48" r="24" fill="#7a6a5a"/>
+    <circle cx="176" cy="48" r="20" fill="#8a7a6a"/>
+    <circle cx="176" cy="48" r="16" fill="url(#castleRoof)"/>
+    <!-- Top-right tower -->
+    <circle cx="464" cy="48" r="24" fill="#7a6a5a"/>
+    <circle cx="464" cy="48" r="20" fill="#8a7a6a"/>
+    <circle cx="464" cy="48" r="16" fill="url(#castleRoof)"/>
+    <!-- Bottom-left tower -->
+    <circle cx="176" cy="208" r="24" fill="#7a6a5a"/>
+    <circle cx="176" cy="208" r="20" fill="#8a7a6a"/>
+    <circle cx="176" cy="208" r="16" fill="url(#castleRoof)"/>
+    <!-- Bottom-right tower -->
+    <circle cx="464" cy="208" r="24" fill="#7a6a5a"/>
+    <circle cx="464" cy="208" r="20" fill="#8a7a6a"/>
+    <circle cx="464" cy="208" r="16" fill="url(#castleRoof)"/>
     
-    <!-- Windows (simple rectangles) -->
-    <rect x="80" y="176" width="24" height="32" fill="#2b3e50"/>
-    <rect x="184" y="176" width="24" height="32" fill="#2b3e50"/>
-    <!-- Window cross bars -->
-    <rect x="90" y="176" width="4" height="32" fill="#1b2e40"/>
-    <rect x="80" y="190" width="24" height="4" fill="#1b2e40"/>
-    <rect x="194" y="176" width="4" height="32" fill="#1b2e40"/>
-    <rect x="184" y="190" width="24" height="4" fill="#1b2e40"/>
+    <!-- Central keep (main building from above) -->
+    <rect x="240" y="80" width="160" height="96" fill="#6a5a4a"/>
+    <rect x="244" y="84" width="152" height="88" fill="url(#castleRoof)"/>
     
-    <!-- Flag (pixelated) -->
-    <rect x="54" y="96" width="4" height="32" fill="#333333"/>
-    <rect x="58" y="96" width="32" height="4" fill="#dc143c"/>
-    <rect x="58" y="100" width="28" height="4" fill="#dc143c"/>
-    <rect x="58" y="104" width="24" height="4" fill="#dc143c"/>
-    <rect x="58" y="108" width="20" height="4" fill="#dc143c"/>
-    <rect x="58" y="112" width="16" height="4" fill="#dc143c"/>
+    <!-- Keep details (roof divisions) -->
+    <rect x="244" y="84" width="152" height="4" fill="#5a4a3a"/>
+    <rect x="244" y="168" width="152" height="4" fill="#5a4a3a"/>
+    <rect x="244" y="84" width="4" height="88" fill="#5a4a3a"/>
+    <rect x="392" y="84" width="4" height="88" fill="#5a4a3a"/>
+    
+    <!-- Central courtyard (open from above) -->
+    <rect x="280" y="112" width="80" height="32" fill="url(#pathStone)"/>
+    
+    <!-- Castle entrance (main gate from above) -->
+    <rect x="304" y="216" width="32" height="16" fill="#3a2a1a"/>
+    <rect x="308" y="220" width="24" height="8" fill="#4a3a2a"/>
+    
+    <!-- Small windows/details on keep -->
+    <rect x="256" y="96" width="8" height="8" fill="#2a3a4a"/>
+    <rect x="376" y="96" width="8" height="8" fill="#2a3a4a"/>
+    <rect x="256" y="152" width="8" height="8" fill="#2a3a4a"/>
+    <rect x="376" y="152" width="8" height="8" fill="#2a3a4a"/>
   </g>
   
-  <!-- Ground with grass pattern -->
-  <rect x="0" y="320" width="640" height="160" fill="url(#grassPixel)"/>
-  
-  <!-- Garden paths (aligned to 32px grid) using path pattern -->
+  <!-- GARDEN PATHS (cobblestone) -->
   <g id="paths">
-    <!-- Vertical path from castle -->
-    <rect x="128" y="320" width="32" height="160" fill="url(#pathPixel)"/>
+    <!-- Main entrance path -->
+    <rect x="304" y="232" width="32" height="128" fill="url(#pathStone)"/>
     
-    <!-- Horizontal main path -->
-    <rect x="128" y="384" width="384" height="32" fill="url(#pathPixel)"/>
+    <!-- Cross paths forming garden squares -->
+    <rect x="224" y="328" width="192" height="32" fill="url(#pathStone)"/>
+    <rect x="304" y="264" width="32" height="160" fill="url(#pathStone)"/>
     
-    <!-- Branch paths -->
-    <rect x="256" y="320" width="32" height="64" fill="url(#pathPixel)"/>
-    <rect x="384" y="320" width="32" height="64" fill="url(#pathPixel)"/>
-    <rect x="512" y="320" width="32" height="96" fill="url(#pathPixel)"/>
+    <!-- Side paths -->
+    <rect x="128" y="328" width="96" height="32" fill="url(#pathStone)"/>
+    <rect x="416" y="328" width="96" height="32" fill="url(#pathStone)"/>
+    
+    <!-- Decorative circular path around fountain -->
+    <rect x="272" y="296" width="96" height="8" fill="url(#pathStone)"/>
+    <rect x="272" y="384" width="96" height="8" fill="url(#pathStone)"/>
+    <rect x="272" y="296" width="8" height="96" fill="url(#pathStone)"/>
+    <rect x="360" y="296" width="8" height="96" fill="url(#pathStone)"/>
   </g>
   
-  <!-- Pixelated fountain -->
-  <g id="fountain">
-    <!-- Base -->
-    <rect x="268" y="348" width="40" height="8" fill="#888888"/>
-    <rect x="264" y="356" width="48" height="4" fill="#888888"/>
-    <!-- Water basin -->
-    <rect x="268" y="340" width="40" height="8" fill="#6fa8dc"/>
-    <rect x="272" y="338" width="32" height="2" fill="#6fa8dc"/>
-    <!-- Center pillar -->
-    <rect x="284" y="334" width="8" height="12" fill="#999999"/>
-    <!-- Water spray (pixelated) -->
-    <rect x="286" y="328" width="4" height="4" fill="#8fb8ec" opacity="0.8"/>
-    <rect x="286" y="324" width="4" height="4" fill="#8fb8ec" opacity="0.6"/>
-    <rect x="286" y="320" width="4" height="4" fill="#8fb8ec" opacity="0.4"/>
+  <!-- WATER FEATURES -->
+  <g id="water">
+    <!-- Small moat sections -->
+    <rect x="96" y="240" width="64" height="32" fill="url(#waterTile)"/>
+    <rect x="480" y="240" width="64" height="32" fill="url(#waterTile)"/>
+    
+    <!-- Decorative pond -->
+    <ellipse cx="160" cy="416" rx="48" ry="32" fill="#3a6a9a"/>
+    <ellipse cx="160" cy="416" rx="40" ry="24" fill="url(#waterTile)"/>
+    
+    <!-- Bridge over left moat -->
+    <rect x="120" y="248" width="16" height="16" fill="#8a6a4a"/>
+    <rect x="122" y="250" width="12" height="12" fill="#9a7a5a"/>
   </g>
   
-  <!-- Trees matching existing tree.svg style -->
-  <g id="trees">
-    <!-- Large tree right side (using the exact style from tree.svg) -->
-    <g transform="translate(448, 256) scale(2)">
-      <!-- Tree trunk -->
-      <rect x="13" y="20" width="6" height="10" fill="#654321"/>
-      <rect x="14.5" y="21" width="1" height="8" fill="#543210" opacity="0.6"/>
-      <rect x="16.5" y="22" width="1" height="6" fill="#543210" opacity="0.6"/>
-      <!-- Tree foliage -->
-      <ellipse cx="16" cy="18" rx="10" ry="8" fill="#2d5016"/>
-      <ellipse cx="16" cy="14" rx="8" ry="7" fill="#3a6020"/>
-      <ellipse cx="16" cy="10" rx="6" ry="5" fill="#4a7c2e"/>
-      <!-- Highlights -->
-      <circle cx="12" cy="12" r="1.5" fill="#5a8c3e" opacity="0.6"/>
-      <circle cx="20" cy="14" r="1.5" fill="#5a8c3e" opacity="0.6"/>
+  <!-- GARDEN DECORATIONS -->
+  <g id="decorations">
+    <!-- Central fountain (top-down view) -->
+    <g id="fountain">
+      <!-- Fountain base -->
+      <circle cx="320" cy="344" r="20" fill="#7a7a7a"/>
+      <circle cx="320" cy="344" r="18" fill="#8a8a8a"/>
+      <!-- Water -->
+      <circle cx="320" cy="344" r="16" fill="#5a8aba"/>
+      <circle cx="320" cy="344" r="12" fill="#6a9aca"/>
+      <!-- Center pillar -->
+      <circle cx="320" cy="344" r="4" fill="#9a9a9a"/>
+      <!-- Water spray effect -->
+      <circle cx="320" cy="344" r="8" fill="#7aAAda" opacity="0.4"/>
     </g>
     
-    <!-- Medium tree left of fountain -->
-    <g transform="translate(320, 280) scale(1.5)">
-      <rect x="13" y="20" width="6" height="10" fill="#654321"/>
-      <rect x="14.5" y="21" width="1" height="8" fill="#543210" opacity="0.6"/>
-      <ellipse cx="16" cy="18" rx="10" ry="8" fill="#2d5016"/>
-      <ellipse cx="16" cy="14" rx="8" ry="7" fill="#3a6020"/>
-      <ellipse cx="16" cy="10" rx="6" ry="5" fill="#4a7c2e"/>
-      <circle cx="12" cy="12" r="1.5" fill="#5a8c3e" opacity="0.6"/>
+    <!-- Knight statues (simple top-down) -->
+    <g id="statues">
+      <!-- Left entrance statue -->
+      <rect x="280" y="236" width="12" height="12" fill="#6a6a6a"/>
+      <rect x="282" y="238" width="8" height="8" fill="#7a7a7a"/>
+      <rect x="284" y="240" width="4" height="4" fill="#8a8a8a"/>
+      
+      <!-- Right entrance statue -->
+      <rect x="348" y="236" width="12" height="12" fill="#6a6a6a"/>
+      <rect x="350" y="238" width="8" height="8" fill="#7a7a7a"/>
+      <rect x="352" y="240" width="4" height="4" fill="#8a8a8a"/>
+      
+      <!-- Garden statues -->
+      <rect x="248" y="304" width="12" height="12" fill="#6a6a6a"/>
+      <rect x="380" y="304" width="12" height="12" fill="#6a6a6a"/>
+      <rect x="248" y="372" width="12" height="12" fill="#6a6a6a"/>
+      <rect x="380" y="372" width="12" height="12" fill="#6a6a6a"/>
     </g>
     
-    <!-- Small tree far right -->
-    <g transform="translate(544, 288)">
-      <rect x="13" y="20" width="6" height="10" fill="#654321"/>
-      <ellipse cx="16" cy="18" rx="10" ry="8" fill="#2d5016"/>
-      <ellipse cx="16" cy="14" rx="8" ry="7" fill="#3a6020"/>
-      <ellipse cx="16" cy="10" rx="6" ry="5" fill="#4a7c2e"/>
+    <!-- Trees (top-down view) -->
+    <g id="trees">
+      <!-- Tree shadows first -->
+      <ellipse cx="102" cy="298" rx="18" ry="10" fill="#2a4a2a" opacity="0.3"/>
+      <ellipse cx="538" cy="298" rx="18" ry="10" fill="#2a4a2a" opacity="0.3"/>
+      <ellipse cx="198" cy="394" rx="18" ry="10" fill="#2a4a2a" opacity="0.3"/>
+      <ellipse cx="442" cy="394" rx="18" ry="10" fill="#2a4a2a" opacity="0.3"/>
+      
+      <!-- Trees (circular canopy from above) -->
+      <circle cx="100" cy="296" r="20" fill="#2a5a2a"/>
+      <circle cx="100" cy="296" r="18" fill="#3a6a3a"/>
+      <circle cx="100" cy="296" r="14" fill="#4a7a4a"/>
+      <circle cx="96" cy="292" r="6" fill="#5a8a5a" opacity="0.6"/>
+      
+      <circle cx="536" cy="296" r="20" fill="#2a5a2a"/>
+      <circle cx="536" cy="296" r="18" fill="#3a6a3a"/>
+      <circle cx="536" cy="296" r="14" fill="#4a7a4a"/>
+      <circle cx="532" cy="292" r="6" fill="#5a8a5a" opacity="0.6"/>
+      
+      <circle cx="196" cy="392" r="20" fill="#2a5a2a"/>
+      <circle cx="196" cy="392" r="18" fill="#3a6a3a"/>
+      <circle cx="196" cy="392" r="14" fill="#4a7a4a"/>
+      <circle cx="192" cy="388" r="6" fill="#5a8a5a" opacity="0.6"/>
+      
+      <circle cx="440" cy="392" r="20" fill="#2a5a2a"/>
+      <circle cx="440" cy="392" r="18" fill="#3a6a3a"/>
+      <circle cx="440" cy="392" r="14" fill="#4a7a4a"/>
+      <circle cx="436" cy="388" r="6" fill="#5a8a5a" opacity="0.6"/>
     </g>
+    
+    <!-- Hedges (rectangular from above) -->
+    <g id="hedges">
+      <!-- Left garden hedges -->
+      <rect x="232" y="268" width="64" height="16" fill="#2a5a2a"/>
+      <rect x="234" y="270" width="60" height="12" fill="#3a6a3a"/>
+      <rect x="236" y="272" width="56" height="8" fill="#4a7a4a"/>
+      
+      <!-- Right garden hedges -->
+      <rect x="344" y="268" width="64" height="16" fill="#2a5a2a"/>
+      <rect x="346" y="270" width="60" height="12" fill="#3a6a3a"/>
+      <rect x="348" y="272" width="56" height="8" fill="#4a7a4a"/>
+      
+      <!-- Bottom hedges -->
+      <rect x="232" y="404" width="64" height="16" fill="#2a5a2a"/>
+      <rect x="234" y="406" width="60" height="12" fill="#3a6a3a"/>
+      <rect x="236" y="408" width="56" height="8" fill="#4a7a4a"/>
+      
+      <rect x="344" y="404" width="64" height="16" fill="#2a5a2a"/>
+      <rect x="346" y="406" width="60" height="12" fill="#3a6a3a"/>
+      <rect x="348" y="408" width="56" height="8" fill="#4a7a4a"/>
+    </g>
+    
+    <!-- Flower beds (geometric patterns) -->
+    <g id="flowers">
+      <!-- Left flower bed -->
+      <rect x="120" y="368" width="48" height="32" fill="#3a6a3a"/>
+      <rect x="122" y="370" width="44" height="28" fill="#4a7a4a"/>
+      <!-- Flower dots -->
+      <rect x="128" y="376" width="4" height="4" fill="#da5a5a"/>
+      <rect x="136" y="380" width="4" height="4" fill="#dada5a"/>
+      <rect x="144" y="376" width="4" height="4" fill="#da5a5a"/>
+      <rect x="152" y="380" width="4" height="4" fill="#da5ada"/>
+      <rect x="132" y="388" width="4" height="4" fill="#dada5a"/>
+      <rect x="148" y="388" width="4" height="4" fill="#da5ada"/>
+      
+      <!-- Right flower bed -->
+      <rect x="472" y="368" width="48" height="32" fill="#3a6a3a"/>
+      <rect x="474" y="370" width="44" height="28" fill="#4a7a4a"/>
+      <!-- Flower dots -->
+      <rect x="480" y="376" width="4" height="4" fill="#da5a5a"/>
+      <rect x="488" y="380" width="4" height="4" fill="#dada5a"/>
+      <rect x="496" y="376" width="4" height="4" fill="#da5a5a"/>
+      <rect x="504" y="380" width="4" height="4" fill="#da5ada"/>
+      <rect x="484" y="388" width="4" height="4" fill="#dada5a"/>
+      <rect x="500" y="388" width="4" height="4" fill="#da5ada"/>
+    </g>
+    
+    <!-- Benches (simple rectangles from above) -->
+    <rect x="96" y="344" width="24" height="8" fill="#6a4a2a"/>
+    <rect x="520" y="344" width="24" height="8" fill="#6a4a2a"/>
+    
+    <!-- Lamp posts (circles from above) -->
+    <circle cx="280" cy="328" r="4" fill="#4a4a4a"/>
+    <circle cx="280" cy="328" r="2" fill="#dada7a"/>
+    
+    <circle cx="360" cy="328" r="4" fill="#4a4a4a"/>
+    <circle cx="360" cy="328" r="2" fill="#dada7a"/>
+    
+    <circle cx="320" cy="392" r="4" fill="#4a4a4a"/>
+    <circle cx="320" cy="392" r="2" fill="#dada7a"/>
+    
+    <circle cx="320" cy="296" r="4" fill="#4a4a4a"/>
+    <circle cx="320" cy="296" r="2" fill="#dada7a"/>
   </g>
   
-  <!-- Bushes matching existing bush.svg style (aligned to grid) -->
-  <g id="bushes">
-    <!-- Bush near castle -->
-    <g transform="translate(176, 336)">
-      <circle cx="10" cy="20" r="6" fill="#3a6c3e" opacity="0.9"/>
-      <circle cx="22" cy="20" r="6" fill="#3a6c3e" opacity="0.9"/>
-      <circle cx="16" cy="19" r="7" fill="#4a7c4e" opacity="0.95"/>
-      <circle cx="12" cy="17" r="5.5" fill="#5a8c5e"/>
-      <circle cx="20" cy="17" r="5.5" fill="#5a8c5e"/>
-      <circle cx="16" cy="16" r="6" fill="#5a8c5e"/>
-      <!-- Berries -->
-      <circle cx="11" cy="18" r="1" fill="#e74c3c" opacity="0.9"/>
-      <circle cx="19" cy="16" r="1" fill="#c0392b" opacity="0.9"/>
-      <circle cx="15" cy="20" r="1" fill="#e74c3c" opacity="0.9"/>
-    </g>
-    
-    <!-- Bush center right -->
-    <g transform="translate(336, 336)">
-      <circle cx="10" cy="20" r="6" fill="#3a6c3e" opacity="0.9"/>
-      <circle cx="22" cy="20" r="6" fill="#3a6c3e" opacity="0.9"/>
-      <circle cx="16" cy="19" r="7" fill="#4a7c4e" opacity="0.95"/>
-      <circle cx="12" cy="17" r="5.5" fill="#5a8c5e"/>
-      <circle cx="20" cy="17" r="5.5" fill="#5a8c5e"/>
-      <circle cx="16" cy="16" r="6" fill="#5a8c5e"/>
-      <circle cx="13" cy="15" r="0.8" fill="#c0392b" opacity="0.8"/>
-    </g>
-    
-    <!-- Bush far right -->
-    <g transform="translate(432, 336)">
-      <circle cx="10" cy="20" r="6" fill="#3a6c3e" opacity="0.9"/>
-      <circle cx="22" cy="20" r="6" fill="#3a6c3e" opacity="0.9"/>
-      <circle cx="16" cy="19" r="7" fill="#4a7c4e" opacity="0.95"/>
-      <circle cx="12" cy="17" r="5.5" fill="#5a8c5e"/>
-      <circle cx="20" cy="17" r="5.5" fill="#5a8c5e"/>
-    </g>
-    
-    <!-- Bush bottom path -->
-    <g transform="translate(272, 400)">
-      <circle cx="10" cy="20" r="6" fill="#3a6c3e" opacity="0.9"/>
-      <circle cx="22" cy="20" r="6" fill="#3a6c3e" opacity="0.9"/>
-      <circle cx="16" cy="19" r="7" fill="#4a7c4e" opacity="0.95"/>
-      <circle cx="12" cy="17" r="5.5" fill="#5a8c5e"/>
-      <circle cx="20" cy="17" r="5.5" fill="#5a8c5e"/>
-    </g>
-    
-    <!-- Bush bottom right -->
-    <g transform="translate(368, 400)">
-      <circle cx="10" cy="20" r="6" fill="#3a6c3e" opacity="0.9"/>
-      <circle cx="22" cy="20" r="6" fill="#3a6c3e" opacity="0.9"/>
-      <circle cx="16" cy="19" r="7" fill="#4a7c4e" opacity="0.95"/>
-      <circle cx="12" cy="17" r="5.5" fill="#5a8c5e"/>
-      <circle cx="20" cy="17" r="5.5" fill="#5a8c5e"/>
-    </g>
-  </g>
-  
-  <!-- Pixelated flower beds -->
-  <g id="flowers">
-    <!-- Left flower bed -->
-    <rect x="48" y="352" width="48" height="16" fill="#5a8c5e" opacity="0.8"/>
-    <!-- Pixelated flowers -->
-    <rect x="54" y="354" width="6" height="6" fill="#ff69b4"/>
-    <rect x="66" y="356" width="6" height="6" fill="#ffd700"/>
-    <rect x="78" y="354" width="6" height="6" fill="#ff69b4"/>
-    <rect x="60" y="360" width="6" height="6" fill="#9370db"/>
-    <rect x="72" y="359" width="6" height="6" fill="#ffd700"/>
-    <rect x="84" y="358" width="6" height="6" fill="#ff69b4"/>
-    
-    <!-- Right flower bed -->
-    <rect x="544" y="368" width="48" height="16" fill="#5a8c5e" opacity="0.8"/>
-    <!-- Pixelated flowers -->
-    <rect x="550" y="370" width="6" height="6" fill="#ff69b4"/>
-    <rect x="562" y="372" width="6" height="6" fill="#ffd700"/>
-    <rect x="574" y="370" width="6" height="6" fill="#ff69b4"/>
-    <rect x="556" y="376" width="6" height="6" fill="#9370db"/>
-    <rect x="568" y="375" width="6" height="6" fill="#ffd700"/>
-    <rect x="580" y="374" width="6" height="6" fill="#9370db"/>
-  </g>
-  
-  <!-- Pixelated clouds -->
-  <g id="clouds">
-    <!-- Cloud 1 -->
-    <rect x="480" y="56" width="80" height="16" fill="white" opacity="0.8"/>
-    <rect x="472" y="64" width="96" height="16" fill="white" opacity="0.8"/>
-    <rect x="488" y="48" width="64" height="8" fill="white" opacity="0.8"/>
-    
-    <!-- Cloud 2 -->
-    <rect x="128" y="80" width="64" height="16" fill="white" opacity="0.8"/>
-    <rect x="120" y="88" width="80" height="16" fill="white" opacity="0.8"/>
-    <rect x="136" y="72" width="48" height="8" fill="white" opacity="0.8"/>
+  <!-- Grid overlay for tile alignment (very subtle) -->
+  <g id="grid" opacity="0.02">
+    <defs>
+      <pattern id="gridPattern" x="0" y="0" width="32" height="32" patternUnits="userSpaceOnUse">
+        <path d="M 32 0 L 0 0 0 32" fill="none" stroke="black" stroke-width="0.5"/>
+      </pattern>
+    </defs>
+    <rect width="640" height="480" fill="url(#gridPattern)"/>
   </g>
 </svg>
