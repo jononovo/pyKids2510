@@ -49,12 +49,23 @@ const SPECIAL_SVGS = {
     coin: 'assets/map/special/collectible-coin.svg'
 };
 
+// Track failed SVG loads to avoid repeated attempts
+const svgFailedLoads = new Set();
+let svgFailureWarned = false;
+
 // Load SVG as Image
 async function loadSVGImage(path) {
+    // Check cache first (includes both successful and failed loads)
     if (svgTileCache.has(path)) {
         return svgTileCache.get(path);
     }
     
+    // Check if we already know this SVG failed to load
+    if (svgFailedLoads.has(path)) {
+        return null;
+    }
+    
+    // Check if already loading
     if (svgLoadPromises.has(path)) {
         return svgLoadPromises.get(path);
     }
@@ -67,8 +78,17 @@ async function loadSVGImage(path) {
             resolve(img);
         };
         img.onerror = () => {
-            console.warn(`Failed to load SVG: ${path}`);
+            // Cache the failure to prevent repeated load attempts
+            svgFailedLoads.add(path);
+            svgTileCache.set(path, null);  // Cache null result
             svgLoadPromises.delete(path);
+            
+            // Only warn once about SVG failures
+            if (!svgFailureWarned) {
+                console.warn(`Some SVG tiles failed to load, using fallback rendering`);
+                svgFailureWarned = true;
+            }
+            
             resolve(null);
         };
         img.src = path;
