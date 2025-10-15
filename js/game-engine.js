@@ -433,12 +433,22 @@ function animateMove(fromX, fromY, toX, toY, direction) {
             // Clear and redraw everything
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
+            // Draw background graphic if available (MUST be before tiles!)
+            if (gameState.backgroundImage) {
+                ctx.drawImage(gameState.backgroundImage, 0, 0, canvas.width, canvas.height);
+            }
+            
             // Draw tiles (can be done in parallel)
             const tilePromises = [];
             for (let y = 0; y < gameState.mapHeight; y++) {
                 for (let x = 0; x < gameState.mapWidth; x++) {
                     if (gameState.mapData[y] && gameState.mapData[y][x] !== undefined) {
-                        tilePromises.push(drawTile(x, y, gameState.mapData[y][x]));
+                        const tileType = gameState.mapData[y][x];
+                        // Skip drawing empty tiles (0 or null) when we have a background graphic
+                        if (gameState.backgroundImage && (tileType === 0 || tileType === null)) {
+                            continue;
+                        }
+                        tilePromises.push(drawTile(x, y, tileType));
                     }
                 }
             }
