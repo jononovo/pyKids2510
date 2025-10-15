@@ -1,0 +1,185 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" width="640" height="480">
+  <!-- Sky gradient background -->
+  <defs>
+    <linearGradient id="sky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#87ceeb;stop-opacity:1" />
+      <stop offset="70%" style="stop-color:#b0e0f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e0f4fc;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Stone pattern for castle walls -->
+    <pattern id="stone" x="0" y="0" width="32" height="32" patternUnits="userSpaceOnUse">
+      <rect width="32" height="32" fill="#8b8680"/>
+      <rect x="0" y="0" width="30" height="15" fill="#9b9690" rx="1"/>
+      <rect x="0" y="16" width="15" height="15" fill="#9b9690" rx="1"/>
+      <rect x="16" y="16" width="15" height="15" fill="#9b9690" rx="1"/>
+    </pattern>
+    
+    <!-- Grass pattern -->
+    <pattern id="grassPattern" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
+      <rect width="4" height="4" fill="#7fc97f"/>
+      <circle cx="1" cy="1" r="0.5" fill="#6fb96f"/>
+      <circle cx="3" cy="2" r="0.3" fill="#8fd98f"/>
+      <circle cx="2" cy="3" r="0.4" fill="#6fb96f"/>
+    </pattern>
+  </defs>
+  
+  <!-- Sky -->
+  <rect width="640" height="320" fill="url(#sky)"/>
+  
+  <!-- Distant mountains -->
+  <polygon points="0,240 160,160 320,200 480,140 640,200 640,320 0,320" fill="#a8b8d8" opacity="0.5"/>
+  
+  <!-- Castle background (left side) -->
+  <g id="castle">
+    <!-- Main castle body -->
+    <rect x="40" y="160" width="200" height="160" fill="url(#stone)"/>
+    
+    <!-- Castle towers -->
+    <rect x="20" y="140" width="40" height="180" fill="url(#stone)"/>
+    <rect x="220" y="140" width="40" height="180" fill="url(#stone)"/>
+    
+    <!-- Tower tops (crenellations) -->
+    <rect x="20" y="130" width="10" height="15" fill="url(#stone)"/>
+    <rect x="35" y="130" width="10" height="15" fill="url(#stone)"/>
+    <rect x="50" y="130" width="10" height="15" fill="url(#stone)"/>
+    
+    <rect x="220" y="130" width="10" height="15" fill="url(#stone)"/>
+    <rect x="235" y="130" width="10" height="15" fill="url(#stone)"/>
+    <rect x="250" y="130" width="10" height="15" fill="url(#stone)"/>
+    
+    <!-- Castle gate -->
+    <rect x="120" y="240" width="40" height="80" fill="#4a3c28" rx="20" ry="20"/>
+    <rect x="130" y="250" width="20" height="70" fill="#5a4c38"/>
+    
+    <!-- Windows -->
+    <rect x="80" y="180" width="20" height="30" fill="#2b3e50" rx="10" ry="10"/>
+    <rect x="180" y="180" width="20" height="30" fill="#2b3e50" rx="10" ry="10"/>
+    
+    <!-- Flag on tower -->
+    <line x1="40" y1="130" x2="40" y2="100" stroke="#333" stroke-width="2"/>
+    <polygon points="42,100 42,115 65,107" fill="#dc143c"/>
+  </g>
+  
+  <!-- Ground/Garden area -->
+  <rect x="0" y="320" width="640" height="160" fill="url(#grassPattern)"/>
+  
+  <!-- Garden path (aligned to 32px grid) -->
+  <g id="path">
+    <!-- Vertical path from castle -->
+    <rect x="128" y="320" width="32" height="160" fill="#d4b896"/>
+    
+    <!-- Horizontal main path -->
+    <rect x="128" y="384" width="384" height="32" fill="#d4b896"/>
+    
+    <!-- Branch paths -->
+    <rect x="256" y="320" width="32" height="64" fill="#d4b896"/>
+    <rect x="384" y="320" width="32" height="64" fill="#d4b896"/>
+    <rect x="512" y="320" width="32" height="96" fill="#d4b896"/>
+  </g>
+  
+  <!-- Garden features -->
+  <!-- Fountain in center -->
+  <g id="fountain">
+    <ellipse cx="288" cy="352" rx="25" ry="8" fill="#6fa8dc"/>
+    <rect x="283" y="340" width="10" height="15" fill="#888"/>
+    <ellipse cx="288" cy="340" rx="12" ry="4" fill="#6fa8dc"/>
+    <!-- Water spray -->
+    <line x1="288" y1="340" x2="288" y2="325" stroke="#6fa8dc" stroke-width="2" opacity="0.6"/>
+    <circle cx="288" cy="323" r="2" fill="#6fa8dc" opacity="0.4"/>
+  </g>
+  
+  <!-- Trees and bushes -->
+  <g id="trees">
+    <!-- Large tree right side -->
+    <rect x="470" y="280" width="12" height="40" fill="#654321"/>
+    <ellipse cx="476" cy="270" rx="35" ry="40" fill="#2d5016"/>
+    <ellipse cx="465" cy="260" rx="25" ry="30" fill="#3d6026"/>
+    
+    <!-- Small trees -->
+    <rect x="350" y="300" width="8" height="20" fill="#654321"/>
+    <ellipse cx="354" cy="290" rx="20" ry="25" fill="#2d5016"/>
+    
+    <rect x="550" y="295" width="8" height="25" fill="#654321"/>
+    <ellipse cx="554" cy="285" rx="18" ry="22" fill="#2d5016"/>
+  </g>
+  
+  <!-- Decorative hedges (aligned to grid) -->
+  <g id="hedges">
+    <rect x="192" y="352" width="32" height="16" fill="#4a7c4e" rx="8"/>
+    <rect x="352" y="352" width="32" height="16" fill="#4a7c4e" rx="8"/>
+    <rect x="448" y="352" width="32" height="16" fill="#4a7c4e" rx="8"/>
+    
+    <rect x="288" y="416" width="32" height="16" fill="#4a7c4e" rx="8"/>
+    <rect x="384" y="416" width="32" height="16" fill="#4a7c4e" rx="8"/>
+  </g>
+  
+  <!-- Flower beds -->
+  <g id="flowers">
+    <!-- Left flower bed -->
+    <ellipse cx="70" cy="360" rx="30" ry="12" fill="#5a8c5e"/>
+    <circle cx="60" cy="358" r="4" fill="#ff69b4"/>
+    <circle cx="70" cy="356" r="4" fill="#ffd700"/>
+    <circle cx="80" cy="358" r="4" fill="#ff69b4"/>
+    <circle cx="65" cy="362" r="4" fill="#9370db"/>
+    <circle cx="75" cy="361" r="4" fill="#ffd700"/>
+    
+    <!-- Right flower bed -->
+    <ellipse cx="570" cy="380" rx="30" ry="12" fill="#5a8c5e"/>
+    <circle cx="560" cy="378" r="4" fill="#ff69b4"/>
+    <circle cx="570" cy="376" r="4" fill="#ffd700"/>
+    <circle cx="580" cy="378" r="4" fill="#ff69b4"/>
+    <circle cx="565" cy="382" r="4" fill="#9370db"/>
+    <circle cx="575" cy="381" r="4" fill="#ffd700"/>
+  </g>
+  
+  <!-- Clouds -->
+  <g id="clouds" opacity="0.7">
+    <ellipse cx="500" cy="60" rx="40" ry="20" fill="white"/>
+    <ellipse cx="520" cy="65" rx="35" ry="18" fill="white"/>
+    <ellipse cx="480" cy="63" rx="30" ry="15" fill="white"/>
+    
+    <ellipse cx="150" cy="90" rx="35" ry="18" fill="white"/>
+    <ellipse cx="170" cy="93" rx="30" ry="15" fill="white"/>
+  </g>
+  
+  <!-- Grid overlay (very subtle) for alignment reference -->
+  <g id="grid" opacity="0.05">
+    <!-- Vertical lines every 32px -->
+    <line x1="32" y1="0" x2="32" y2="480" stroke="black" stroke-width="0.5"/>
+    <line x1="64" y1="0" x2="64" y2="480" stroke="black" stroke-width="0.5"/>
+    <line x1="96" y1="0" x2="96" y2="480" stroke="black" stroke-width="0.5"/>
+    <line x1="128" y1="0" x2="128" y2="480" stroke="black" stroke-width="0.5"/>
+    <line x1="160" y1="0" x2="160" y2="480" stroke="black" stroke-width="0.5"/>
+    <line x1="192" y1="0" x2="192" y2="480" stroke="black" stroke-width="0.5"/>
+    <line x1="224" y1="0" x2="224" y2="480" stroke="black" stroke-width="0.5"/>
+    <line x1="256" y1="0" x2="256" y2="480" stroke="black" stroke-width="0.5"/>
+    <line x1="288" y1="0" x2="288" y2="480" stroke="black" stroke-width="0.5"/>
+    <line x1="320" y1="0" x2="320" y2="480" stroke="black" stroke-width="0.5"/>
+    <line x1="352" y1="0" x2="352" y2="480" stroke="black" stroke-width="0.5"/>
+    <line x1="384" y1="0" x2="384" y2="480" stroke="black" stroke-width="0.5"/>
+    <line x1="416" y1="0" x2="416" y2="480" stroke="black" stroke-width="0.5"/>
+    <line x1="448" y1="0" x2="448" y2="480" stroke="black" stroke-width="0.5"/>
+    <line x1="480" y1="0" x2="480" y2="480" stroke="black" stroke-width="0.5"/>
+    <line x1="512" y1="0" x2="512" y2="480" stroke="black" stroke-width="0.5"/>
+    <line x1="544" y1="0" x2="544" y2="480" stroke="black" stroke-width="0.5"/>
+    <line x1="576" y1="0" x2="576" y2="480" stroke="black" stroke-width="0.5"/>
+    <line x1="608" y1="0" x2="608" y2="480" stroke="black" stroke-width="0.5"/>
+    
+    <!-- Horizontal lines every 32px -->
+    <line x1="0" y1="32" x2="640" y2="32" stroke="black" stroke-width="0.5"/>
+    <line x1="0" y1="64" x2="640" y2="64" stroke="black" stroke-width="0.5"/>
+    <line x1="0" y1="96" x2="640" y2="96" stroke="black" stroke-width="0.5"/>
+    <line x1="0" y1="128" x2="640" y2="128" stroke="black" stroke-width="0.5"/>
+    <line x1="0" y1="160" x2="640" y2="160" stroke="black" stroke-width="0.5"/>
+    <line x1="0" y1="192" x2="640" y2="192" stroke="black" stroke-width="0.5"/>
+    <line x1="0" y1="224" x2="640" y2="224" stroke="black" stroke-width="0.5"/>
+    <line x1="0" y1="256" x2="640" y2="256" stroke="black" stroke-width="0.5"/>
+    <line x1="0" y1="288" x2="640" y2="288" stroke="black" stroke-width="0.5"/>
+    <line x1="0" y1="320" x2="640" y2="320" stroke="black" stroke-width="0.5"/>
+    <line x1="0" y1="352" x2="640" y2="352" stroke="black" stroke-width="0.5"/>
+    <line x1="0" y1="384" x2="640" y2="384" stroke="black" stroke-width="0.5"/>
+    <line x1="0" y1="416" x2="640" y2="416" stroke="black" stroke-width="0.5"/>
+    <line x1="0" y1="448" x2="640" y2="448" stroke="black" stroke-width="0.5"/>
+  </g>
+</svg>
