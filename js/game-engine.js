@@ -358,16 +358,21 @@ async function render() {
         ctx.drawImage(gameState.backgroundImage, 0, 0, canvas.width, canvas.height);
     }
     
-    // Draw all tiles (can be done in parallel)
+    // Draw tiles (or just collectibles if using background image)
     const tilePromises = [];
     for (let y = 0; y < gameState.mapHeight; y++) {
         for (let x = 0; x < gameState.mapWidth; x++) {
             if (gameState.mapData[y] && gameState.mapData[y][x] !== undefined) {
                 const tileType = gameState.mapData[y][x];
-                // Skip drawing empty tiles (0 or null) when we have a background graphic
-                if (gameState.backgroundImage && (tileType === 0 || tileType === null)) {
-                    continue;
+                
+                // If we have a background image, only render collectibles (value 7)
+                // Everything else is invisible collision data
+                if (gameState.backgroundImage) {
+                    if (tileType !== 7) {
+                        continue; // Skip all non-collectible tiles
+                    }
                 }
+                
                 tilePromises.push(drawTile(x, y, tileType));
             }
         }
@@ -438,16 +443,21 @@ function animateMove(fromX, fromY, toX, toY, direction) {
                 ctx.drawImage(gameState.backgroundImage, 0, 0, canvas.width, canvas.height);
             }
             
-            // Draw tiles (can be done in parallel)
+            // Draw tiles (or just collectibles if using background image)
             const tilePromises = [];
             for (let y = 0; y < gameState.mapHeight; y++) {
                 for (let x = 0; x < gameState.mapWidth; x++) {
                     if (gameState.mapData[y] && gameState.mapData[y][x] !== undefined) {
                         const tileType = gameState.mapData[y][x];
-                        // Skip drawing empty tiles (0 or null) when we have a background graphic
-                        if (gameState.backgroundImage && (tileType === 0 || tileType === null)) {
-                            continue;
+                        
+                        // If we have a background image, only render collectibles (value 7)
+                        // Everything else is invisible collision data
+                        if (gameState.backgroundImage) {
+                            if (tileType !== 7) {
+                                continue; // Skip all non-collectible tiles
+                            }
                         }
+                        
                         tilePromises.push(drawTile(x, y, tileType));
                     }
                 }
