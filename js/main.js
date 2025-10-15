@@ -41,7 +41,9 @@ let gameState = {
     spriteFrameWidth: 0,
     spriteFrameHeight: 0,
     currentSpriteFrame: 0,
-    spriteAnimationCounter: 0
+    spriteAnimationCounter: 0,
+    // Background graphic for the level
+    backgroundImage: null
 };
 
 const canvas = document.getElementById('game-canvas');
@@ -85,6 +87,20 @@ function playStepSound() {
 // ============================================
 // FILE LOADING
 // ============================================
+
+// Load background graphic for the level
+function loadBackgroundGraphic(graphicUrl) {
+    const img = new Image();
+    img.onload = function() {
+        gameState.backgroundImage = img;
+        render();  // Re-render with the background
+    };
+    img.onerror = function() {
+        console.warn('Failed to load background graphic:', graphicUrl);
+        gameState.backgroundImage = null;
+    };
+    img.src = graphicUrl;
+}
 
 function loadMarkdownFile(event) {
     const file = event.target.files[0];
@@ -329,6 +345,13 @@ function loadLevel(levelIndex) {
     gameState.goalPos = {...level.map.goalPos};
     gameState.playerPos = {...level.map.startPos};
     gameState.playerDirection = 'right';
+    
+    // Load background graphic if specified
+    if (level.map.graphic) {
+        loadBackgroundGraphic(level.map.graphic);
+    } else {
+        gameState.backgroundImage = null;
+    }
     
     // Resize canvas if needed
     const canvasWidth = gameState.mapWidth * TILE_SIZE;
