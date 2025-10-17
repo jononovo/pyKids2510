@@ -811,3 +811,98 @@ body {
     font-size: 16px;  /* Emoji size */
     display: inline-block;
 }
+
+
+/* FILE SELECTOR DROPDOWN */
+.file-selector-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.file-selector-btn {
+    background: transparent;
+    border: 1px solid #4a4a4a;
+    color: #888;
+    padding: 4px 8px;
+    font-size: 12px;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.2s;
+}
+
+.file-selector-btn:hover {
+    border-color: #7fc542;
+    color: #7fc542;
+}
+
+.file-selector-icon {
+    display: inline-block;
+    transition: transform 0.2s;
+}
+
+.file-selector-dropdown.open .file-selector-icon {
+    transform: rotate(180deg);
+}
+
+.file-selector-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: #2a2a2a;
+    border: 1px solid #4a4a4a;
+    border-radius: 5px;
+    min-width: 250px;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+    margin-top: 5px;
+}
+
+.file-selector-dropdown.open .file-selector-menu {
+    display: block;
+}
+
+.file-selector-item {
+    padding: 10px 15px;
+    color: #bbb;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-size: 13px;
+    border-bottom: 1px solid #333;
+}
+
+.file-selector-item:hover {
+    background: #3a3a3a;
+    color: #7fc542;
+}
+
+.file-selector-item:last-child {
+    border-bottom: none;
+}
+
+.file-selector-item.upload-option {
+    background: #333;
+    color: #7fc542;
+    font-weight: bold;
+}
+
+.file-selector-divider {
+    height: 1px;
+    background: #4a4a4a;
+    margin: 5px 0;
+}
+
+
+/* Update the file selector button to be more visible */
+.file-selector-btn {
+    background: #3a3a3a;
+    border: 1px solid #5a5a5a;
+    color: #bbb;
+    padding: 6px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.2s;
+    margin-left: 10px;
+}

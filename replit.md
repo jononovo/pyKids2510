@@ -134,6 +134,17 @@ The platform is based on the original game at **codingforkids.io**.
 
 ## Recent Changes
 
+- **2025-10-17**: File Selector Dropdown Implementation
+  - **Added File Selector UI**: Dropdown button next to chapter title for easy lesson switching
+  - **Quick Access to Lessons**: Predefined list of available lessons in dropdown menu
+  - **Upload Option**: "Upload Custom File" option integrated in dropdown
+  - **Seamless Switching**: Load different lessons without page reload
+  - **Styled Interface**: Dark theme dropdown matching game aesthetic
+  - **Available Lessons**: 
+    - Introduction to Python (Chapter 1)
+    - Interactive Demo (Actions Engine showcase)
+    - Graphic Map Demo (Castle Garden level)
+
 - **2025-10-15**: Modular Beach/Island Tile System
   - **Created Complete Beach Tile Set**: New modular tiles for creating any island or water-based map
     - `sand.svg` - Sandy beach base tile with texture

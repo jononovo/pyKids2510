@@ -23,7 +23,17 @@
                 <div class="header-left">
                     <button class="nav-btn" id="back-btn" onclick="previousLevel()" disabled><span class="btn-icon">←</span> <span class="btn-text">BACK</span></button>
                     <div id="header-info" style="display: none;">
-                        <div class="chapter-title" id="chapter-title"></div>
+                        <div class="chapter-header">
+                            <div class="chapter-title" id="chapter-title"></div>
+                            <div class="file-selector-dropdown">
+                                <button class="file-selector-btn" onclick="toggleFileSelector()" title="Load a different lesson">
+                                    <span class="file-selector-icon">▼</span>
+                                </button>
+                                <div class="file-selector-menu" id="file-selector-menu">
+                                    <!-- Will be populated with available files -->
+                                </div>
+                            </div>
+                        </div>
                         <div class="level-info" id="level-info">CHAPTER 1 • LEVEL 1</div>
                         <div class="level-progress" id="level-progress">
                             <!-- Progress boxes will be generated dynamically -->
@@ -275,6 +285,7 @@
     <!-- Other systems -->
     <script src="js/coding-tutor.js"></script>
     <script src="js/code-book.js"></script>
+    <script src="js/file-selector.js"></script>
     <!-- Blockly integration - single entry point, loads everything else on demand -->
     <script src="blockly-integration/index.js"></script>
     <!-- Load mode-switcher immediately so toggle buttons appear -->
