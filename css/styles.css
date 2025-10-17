@@ -190,18 +190,11 @@ body {
     cursor: not-allowed;
 }
 
-.chapter-header {
-    display: inline-flex;
-    align-items: center;
-    vertical-align: middle;
-}
-
 .chapter-title {
     font-size: 14px;
     text-transform: uppercase;
     letter-spacing: 2px;
     color: #fff;
-    display: inline-block;
 }
 
 .level-info {
@@ -818,91 +811,3 @@ body {
     font-size: 16px;  /* Emoji size */
     display: inline-block;
 }
-
-
-/* FILE SELECTOR DROPDOWN */
-.file-selector-dropdown {
-    position: relative;
-    display: inline-block;
-    margin-left: 6px;
-    vertical-align: middle;
-}
-
-.file-selector-btn {
-    background: transparent;
-    border: 1px solid #444;
-    color: #666;
-    padding: 1px 4px;
-    font-size: 10px;
-    cursor: pointer;
-    transition: all 0.2s;
-    line-height: 1;
-    vertical-align: middle;
-    border-radius: 2px;
-}
-
-.file-selector-btn:hover {
-    color: #7fc542;
-}
-
-.file-selector-icon {
-    display: inline-block;
-    transition: transform 0.2s;
-    font-size: 9px;
-}
-
-.file-selector-dropdown.open .file-selector-icon {
-    transform: rotate(180deg);
-}
-
-.file-selector-menu {
-    position: absolute;
-    top: 100%;
-    right: -50px;
-    background: #2a2a2a;
-    border: 1px solid #4a4a4a;
-    border-radius: 5px;
-    min-width: 250px;
-    max-height: 300px;
-    overflow-y: auto;
-    z-index: 1000;
-    display: none;
-    margin-top: 5px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-}
-
-.file-selector-dropdown.open .file-selector-menu {
-    display: block;
-}
-
-.file-selector-item {
-    padding: 10px 15px;
-    color: #bbb;
-    cursor: pointer;
-    transition: background 0.2s;
-    font-size: 13px;
-    border-bottom: 1px solid #333;
-}
-
-.file-selector-item:hover {
-    background: #3a3a3a;
-    color: #7fc542;
-}
-
-.file-selector-item:last-child {
-    border-bottom: none;
-}
-
-.file-selector-item.upload-option {
-    background: #333;
-    color: #7fc542;
-    font-weight: bold;
-}
-
-.file-selector-divider {
-    height: 1px;
-    background: #4a4a4a;
-    margin: 5px 0;
-}
-
-

@@ -352,18 +352,6 @@ function loadLevel(levelIndex) {
         gameState.backgroundImage = null;
     }
     
-    // Load interactive objects into Actions Engine
-    if (window.gameActionsEngine && level.map.objects) {
-        // Clear existing objects
-        window.gameActionsEngine.worldState.objects.clear();
-        window.gameActionsEngine.worldState.inventory.clear();
-        
-        // Add new objects from level data
-        for (const obj of level.map.objects) {
-            window.gameActionsEngine.worldState.addObject(obj);
-        }
-    }
-    
     // Resize canvas if needed
     const canvasWidth = gameState.mapWidth * TILE_SIZE;
     const canvasHeight = gameState.mapHeight * TILE_SIZE;
