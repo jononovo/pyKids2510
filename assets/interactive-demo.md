@@ -122,10 +122,10 @@ player.speak("Victory!")
 <!-- Map -->
 ```
 [3,3,3,3,3,3,3,3,3,3,3,3],
-[3,2,2,2,0,0,0,0,4,0,0,3],
-[3,2,0,2,0,0,0,0,0,0,0,3],
-[3,2,2,2,2,2,2,0,2,2,2,3],
-[3,0,0,0,0,7,0,0,0,0,2,3],
+[3,0,0,0,0,0,0,0,4,0,0,3],
+[3,0,0,0,0,0,0,0,0,0,0,3],
+[3,0,0,0,2,2,2,0,2,2,2,3],
+[3,0,0,0,0,0,0,0,0,0,2,3],
 [3,0,0,0,0,0,0,0,0,0,2,3],
 [5,5,5,5,5,5,5,5,0,0,0,3],
 [3,0,0,0,0,0,0,0,0,0,2,3],
@@ -135,5 +135,14 @@ player.speak("Victory!")
 [3,3,3,3,3,3,3,3,3,3,3,3]
 startPos: 1,1
 goalPos: 10,10
+objects: [
+  {"id": "box1", "type": "box", "x": 3, "y": 3, "pushable": true},
+  {"id": "switch1", "type": "switch", "x": 5, "y": 4, "activated": false},
+  {"id": "door1", "type": "door", "x": 7, "y": 3, "isOpen": false, "requiresKey": false},
+  {"id": "key1", "type": "key", "x": 1, "y": 8, "color": "gold", "collectable": true},
+  {"id": "door2", "type": "door", "x": 10, "y": 6, "isOpen": false, "isLocked": true, "requiresKey": true, "keyId": "key1"},
+  {"id": "gem1", "type": "gem", "x": 8, "y": 8, "color": "blue", "collectable": true},
+  {"id": "gem2", "type": "gem", "x": 9, "y": 9, "color": "green", "collectable": true}
+]
 ```
 ---

@@ -101,6 +101,15 @@ function parseCourseLevels(markdown) {
                     const graphicUrl = line.split('graphic:')[1].trim();
                     // Remove any quotes if present
                     level.map.graphic = graphicUrl.replace(/^["']|["']$/g, '');
+                } else if (line.includes('objects:')) {
+                    // Parse interactive objects for the Actions Engine
+                    try {
+                        const objectsStr = line.split('objects:')[1].trim();
+                        const objectsArray = JSON.parse(objectsStr);
+                        level.map.objects = objectsArray;
+                    } catch (e) {
+                        console.log('Could not parse objects:', line);
+                    }
                 }
             }
         }
