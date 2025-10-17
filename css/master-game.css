@@ -1,0 +1,435 @@
+/* ============================================
+   MASTER GAME UI STYLES
+   ============================================ */
+
+/* Resource Counter Panel */
+.resource-counter {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: linear-gradient(135deg, #2a3f2a, #1a2f1a);
+    border: 2px solid #7fc542;
+    border-radius: 10px;
+    padding: 15px;
+    min-width: 200px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    z-index: 100;
+    display: none; /* Hidden by default, shown in mission mode */
+}
+
+.resource-counter.active {
+    display: block;
+}
+
+.resource-counter h3 {
+    color: #7fc542;
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    text-transform: uppercase;
+    border-bottom: 1px solid #4a6f4a;
+    padding-bottom: 5px;
+}
+
+.resource-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 8px 0;
+    color: #fff;
+    font-family: 'Courier New', monospace;
+}
+
+.resource-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    display: inline-block;
+}
+
+.resource-name {
+    flex: 1;
+    font-size: 14px;
+}
+
+.resource-amount {
+    font-size: 16px;
+    font-weight: bold;
+    color: #ffd700;
+    min-width: 40px;
+    text-align: right;
+}
+
+/* Mission Mode Layout */
+body.mission-mode {
+    overflow: hidden;
+}
+
+.mission-container {
+    display: none;
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+}
+
+.mission-container.active {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Mission Header */
+.mission-header {
+    background: linear-gradient(180deg, #1a2f1a, #2a3f2a);
+    border-bottom: 2px solid #7fc542;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mission-title {
+    color: #7fc542;
+    font-size: 20px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.mission-objective {
+    color: #fff;
+    font-size: 14px;
+    margin: 5px 0 0 0;
+}
+
+.mission-controls {
+    display: flex;
+    gap: 10px;
+}
+
+/* Collapsible Code Panel */
+.code-panel-wrapper {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #1a1a1a;
+    border-top: 2px solid #7fc542;
+    transition: height 0.3s ease;
+    z-index: 50;
+}
+
+.code-panel-wrapper.collapsed {
+    height: 40px;
+}
+
+.code-panel-wrapper.expanded {
+    height: 300px;
+}
+
+.code-panel-toggle {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    background: #7fc542;
+    color: #1a1a1a;
+    border: none;
+    padding: 5px 15px;
+    cursor: pointer;
+    border-radius: 3px;
+    font-weight: bold;
+    z-index: 51;
+}
+
+.code-panel-toggle:hover {
+    background: #9fd662;
+}
+
+.mission-code-editor {
+    height: calc(100% - 40px);
+    margin-top: 40px;
+    padding: 10px;
+    overflow-y: auto;
+}
+
+/* Expanded Map View */
+.mission-map-container {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    background: #0a1f0a;
+}
+
+.mission-game-viewport {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Mission HUD Elements */
+.mission-hud {
+    position: absolute;
+    top: 60px;
+    left: 10px;
+    background: rgba(26, 47, 26, 0.9);
+    border: 1px solid #7fc542;
+    border-radius: 5px;
+    padding: 10px;
+    color: #fff;
+    font-size: 14px;
+    max-width: 250px;
+}
+
+.mission-requirements {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 0 0;
+}
+
+.mission-requirements li {
+    padding: 5px 0;
+    border-bottom: 1px solid #4a6f4a;
+}
+
+.mission-requirements li.completed {
+    color: #7fc542;
+    text-decoration: line-through;
+}
+
+.mission-requirements li.completed::before {
+    content: "✓ ";
+    color: #7fc542;
+    font-weight: bold;
+}
+
+/* Timer for timed events */
+.mission-timer {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 0, 0, 0.2);
+    border: 2px solid #ff4444;
+    border-radius: 5px;
+    padding: 10px 20px;
+    color: #fff;
+    font-size: 18px;
+    font-weight: bold;
+    display: none;
+}
+
+.mission-timer.active {
+    display: block;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: translateX(-50%) scale(1); }
+    50% { transform: translateX(-50%) scale(1.05); }
+    100% { transform: translateX(-50%) scale(1); }
+}
+
+.mission-timer.urgent {
+    background: rgba(255, 0, 0, 0.5);
+    animation: pulse 0.5s infinite;
+}
+
+/* Building/Action Menu */
+.action-menu {
+    position: absolute;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(26, 47, 26, 0.95);
+    border: 2px solid #7fc542;
+    border-radius: 10px;
+    padding: 10px;
+    display: none;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.action-menu.active {
+    display: flex;
+}
+
+.action-button {
+    background: #2a3f2a;
+    border: 1px solid #7fc542;
+    color: #fff;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.action-button:hover {
+    background: #3a4f3a;
+    transform: translateY(-2px);
+}
+
+.action-button.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.action-button .cost {
+    display: block;
+    font-size: 11px;
+    color: #ffd700;
+    margin-top: 3px;
+}
+
+/* Success/Failure Modals */
+.mission-complete-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, #2a3f2a, #1a2f1a);
+    border: 3px solid #7fc542;
+    border-radius: 15px;
+    padding: 30px;
+    text-align: center;
+    z-index: 200;
+    display: none;
+    min-width: 400px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+}
+
+.mission-complete-modal.show {
+    display: block;
+    animation: zoomIn 0.5s ease;
+}
+
+@keyframes zoomIn {
+    from {
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 0;
+    }
+    to {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+}
+
+.mission-complete-modal h2 {
+    color: #7fc542;
+    font-size: 28px;
+    margin: 0 0 20px 0;
+}
+
+.mission-rewards {
+    background: rgba(0,0,0,0.3);
+    border-radius: 10px;
+    padding: 15px;
+    margin: 20px 0;
+}
+
+.mission-rewards h3 {
+    color: #ffd700;
+    font-size: 16px;
+    margin: 0 0 10px 0;
+}
+
+.reward-item {
+    color: #fff;
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+.mission-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.mission-btn {
+    background: #7fc542;
+    color: #1a1a1a;
+    border: none;
+    padding: 10px 25px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.mission-btn:hover {
+    background: #9fd662;
+    transform: scale(1.05);
+}
+
+.mission-btn.secondary {
+    background: #4a6f4a;
+    color: #fff;
+}
+
+/* Quest Mode Specific */
+.quest-mode .mission-hud {
+    max-width: 350px;
+}
+
+.quest-objectives {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.quest-objective-card {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid #4a6f4a;
+    border-radius: 5px;
+    padding: 8px;
+    font-size: 12px;
+}
+
+.quest-objective-card.completed {
+    border-color: #7fc542;
+    background: rgba(127, 197, 66, 0.1);
+}
+
+.quest-score {
+    position: absolute;
+    top: 10px;
+    right: 220px; /* Next to resource counter */
+    background: linear-gradient(135deg, #4a1f4a, #2a1f3a);
+    border: 2px solid #d4af37;
+    border-radius: 10px;
+    padding: 15px;
+    color: #fff;
+}
+
+.quest-score-value {
+    font-size: 24px;
+    color: #ffd700;
+    font-weight: bold;
+    text-align: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .resource-counter {
+        right: 5px;
+        top: 5px;
+        min-width: 150px;
+        padding: 10px;
+    }
+    
+    .mission-header {
+        padding: 8px 15px;
+    }
+    
+    .mission-title {
+        font-size: 16px;
+    }
+    
+    .code-panel-wrapper.expanded {
+        height: 200px;
+    }
+}
