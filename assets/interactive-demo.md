@@ -1,127 +1,139 @@
-# Interactive Actions Demo
+# INTERACTIVE ACTIONS DEMO
+## CHAPTER 1
+## GAME ACTIONS ENGINE
 
-## Introduction
-This level demonstrates the new Game Actions Engine capabilities! You can now interact with objects on the map beyond just movement.
+--- <!-- Level 1 of 1 in Chapter-->
+## PUSH PUZZLES & INTERACTIVE OBJECTS
 
-## Objectives
-- Push the box onto the switch to open the door
-- Collect the key to unlock the treasure room
-- Build a bridge to cross the water
-- Reach the goal!
+### OBJECTIVE
+> Test the new Game Actions Engine capabilities! Push boxes, collect keys, open doors, and build bridges!
 
-## Starting Code
+This level demonstrates all the new interactive features of the enhanced game engine. You'll need to use various actions beyond just movement to complete the challenge.
+
+### FEATURES
+- **Push objects**: Move boxes onto switches to trigger doors
+- **Collect items**: Pick up keys, gems, and other collectibles
+- **Open doors**: Some doors require keys, others are activated by switches
+- **Build structures**: Create bridges to cross water
+- **Display messages**: Use speak() to show custom messages
+
+### AVAILABLE ACTIONS
 ```python
-import player
-
 # Basic movement
 player.move_forward()
 player.turn_left()
 player.turn_right()
 
 # New actions!
-player.push()           # Push objects
-player.open()          # Open doors
-player.collect()       # Collect items
+player.push()           # Push objects in front of you
+player.open()          # Open doors (may require key)
+player.collect()       # Collect items (automatic when walking over)
 player.build("bridge") # Build structures
 player.speak("Hello!") # Display messages
 ```
 
-## Instructions
-1. **Push the Box**: Use `player.push()` when facing a box to move it
-2. **Activate Switch**: Push the box onto the red switch to open the first door
-3. **Collect Key**: Walk over the golden key to collect it
-4. **Unlock Door**: Use `player.open()` when facing the locked door (requires key)
-5. **Build Bridge**: Use `player.build("bridge")` when facing water to create a path
-6. **Reach Goal**: Navigate to the star to complete the level!
+### CHALLENGE
+1. Push the box onto the switch to open the first door
+2. Collect the golden key
+3. Use the key to open the locked door
+4. Build a bridge to cross the water
+5. Reach the goal star!
 
-## Tips
-- Some doors require keys to open
-- Boxes can only be pushed if there's empty space behind them
-- Building requires resources (collected automatically in this demo)
-- Try using `player.speak()` to display custom messages!
+<!-- Starter Code -->
+```
+import player
 
-<!-- Map -->
-```javascript
-[0,0,0,3,3,3,0,0,0,0,0,0],
-[0,2,2,2,0,0,0,0,4,0,0,0],
-[0,2,0,2,0,0,0,0,0,0,0,0],
-[0,2,2,2,2,2,2,2,2,2,2,0],
-[0,0,0,0,0,6,0,0,0,0,2,0],
-[0,0,0,0,0,0,0,0,0,0,2,0],
-[5,5,5,5,5,5,5,5,0,0,2,0],
-[0,0,0,0,0,0,0,0,0,0,2,0],
-[0,7,0,0,0,0,0,0,0,0,2,0],
-[0,0,0,0,0,0,0,0,0,0,2,0],
-[0,0,0,0,0,0,0,0,0,0,2,0],
-[0,0,0,0,0,0,0,0,0,0,0,0]
+# Movement commands
+player.move_forward()
+player.turn_left()
+player.turn_right()
 
-startPos: 1,1
-goalPos: 10,10
-
-objects: [
-  {id: "box1", type: "box", x: 3, y: 3, pushable: true},
-  {id: "switch1", type: "switch", x: 5, y: 4, activated: false},
-  {id: "door1", type: "door", x: 7, y: 3, isOpen: false, requiresKey: false},
-  {id: "key1", type: "key", x: 1, y: 8, collectable: true, color: "gold"},
-  {id: "door2", type: "door", x: 9, y: 6, isOpen: false, isLocked: true, requiresKey: true, keyId: "key1"},
-  {id: "gem1", type: "gem", x: 8, y: 8, collectable: true, color: "blue"},
-  {id: "gem2", type: "gem", x: 9, y: 9, collectable: true, color: "green"}
-]
+# Action commands
+player.push()
+player.open()
+player.build("bridge")
+player.speak("Let's go!")
 ```
 
-## Solution Hints
-<details>
-<summary>Hint 1</summary>
-Start by moving to the box and pushing it onto the switch.
-</details>
-
-<details>
-<summary>Hint 2</summary>
-Remember to collect the key before trying to open the locked door!
-</details>
-
-<details>
-<summary>Hint 3</summary>
-You'll need to build a bridge to cross the water (row 6).
-</details>
-
-<details>
-<summary>Full Solution</summary>
-
-```python
+<!-- Solution -->
+```
 import player
 
 # Move to the box
-player.move_forward(2)
+player.move_forward()
+player.move_forward()
 player.turn_right()
-player.move_forward(2)
-
-# Push box onto switch
-player.push()
+player.move_forward()
 player.move_forward()
 
-# Move through first door
-player.turn_left()
-player.move_forward(3)
+# Push box onto switch (this opens door at 7,3)
+player.push()
 
-# Collect the key
+# Go through opened door
 player.turn_left()
-player.move_forward(5)
-
-# Go to locked door
+player.move_forward()
+player.move_forward()
+player.move_forward()
 player.turn_right()
-player.move_forward(8)
-player.turn_right()
-player.move_forward(2)
+player.move_forward()
 
-# Open locked door
+# Collect the key (at position 1,8) 
 player.turn_left()
+player.turn_left()
+player.move_forward()
+player.move_forward()
+player.move_forward()
+player.move_forward()
+player.move_forward()
+
+# Head to the locked door
+player.turn_left()
+player.turn_left()
+player.move_forward()
+player.move_forward()
+player.move_forward()
+player.move_forward()
+player.move_forward()
+player.turn_right()
+player.move_forward()
+player.move_forward()
+player.move_forward()
+player.move_forward()
+player.move_forward()
+player.move_forward()
+player.move_forward()
+player.move_forward()
+
+# Open the locked door with key
+player.turn_right()
 player.open()
 player.move_forward()
 
-# Collect gems and reach goal
-player.move_forward(2)
+# Collect gems and reach the goal
+player.move_forward()
+player.move_forward()
 player.turn_right()
-player.move_forward(3)
+player.move_forward()
+player.move_forward()
+
+player.speak("Victory!")
 ```
-</details>
+
+<!-- Map -->
+```
+[3,3,3,3,3,3,3,3,3,3,3,3],
+[3,2,2,2,0,0,0,0,4,0,0,3],
+[3,2,0,2,0,0,0,0,0,0,0,3],
+[3,2,2,2,2,2,2,0,2,2,2,3],
+[3,0,0,0,0,7,0,0,0,0,2,3],
+[3,0,0,0,0,0,0,0,0,0,2,3],
+[5,5,5,5,5,5,5,5,0,0,0,3],
+[3,0,0,0,0,0,0,0,0,0,2,3],
+[3,0,0,0,0,0,0,0,0,0,2,3],
+[3,0,0,0,0,0,0,0,0,0,2,3],
+[3,0,0,0,0,0,0,0,0,0,0,3],
+[3,3,3,3,3,3,3,3,3,3,3,3]
+startPos: 1,1
+goalPos: 10,10
+```
+---
