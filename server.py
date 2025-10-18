@@ -17,9 +17,6 @@ class NoCacheHTTPRequestHandler(SimpleHTTPRequestHandler):
         # Handle markdown files list endpoint  
         elif self.path == '/markdown-files.json':
             self.send_markdown_files_json()
-        # Handle API config endpoint
-        elif self.path == '/api/config':
-            self.send_api_config()
         else:
             # Default file serving
             super().do_GET()
@@ -46,19 +43,6 @@ class NoCacheHTTPRequestHandler(SimpleHTTPRequestHandler):
         self.send_header('Content-Type', 'application/json')
         self.end_headers()
         self.wfile.write(json.dumps(sprites).encode())
-    
-    def send_api_config(self):
-        """Send API configuration including OpenAI key to frontend"""
-        api_key = os.environ.get('OPENAI_API_KEY', '')
-        config = {
-            'hasOpenAIKey': bool(api_key),
-            'apiKey': api_key  # Send actual key for browser usage
-        }
-        
-        self.send_response(200)
-        self.send_header('Content-Type', 'application/json')
-        self.end_headers()
-        self.wfile.write(json.dumps(config).encode())
     
     def send_markdown_files_json(self):
         """Return JSON array of markdown files in assets/ folder"""
