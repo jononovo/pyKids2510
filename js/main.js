@@ -886,8 +886,8 @@ async function loadMarkdownFilesList() {
     if (!menu) return;
     
     try {
-        // Fetch list of markdown files from the server
-        const response = await fetch('/api/markdown-files');
+        // Fetch list of markdown files from the server - same pattern as sprites.json
+        const response = await fetch('/markdown-files.json');
         let files = [];
         
         if (response.ok) {

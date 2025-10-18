@@ -14,12 +14,12 @@ class NoCacheHTTPRequestHandler(SimpleHTTPRequestHandler):
         # Handle sprites.json endpoint
         if self.path == '/sprites.json':
             self.send_sprites_json()
+        # Handle markdown files list endpoint  
+        elif self.path == '/markdown-files.json':
+            self.send_markdown_files_json()
         # Handle API config endpoint
         elif self.path == '/api/config':
             self.send_api_config()
-        # Handle markdown files list endpoint
-        elif self.path == '/api/markdown-files':
-            self.send_markdown_files_list()
         else:
             # Default file serving
             super().do_GET()
@@ -60,7 +60,7 @@ class NoCacheHTTPRequestHandler(SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(json.dumps(config).encode())
     
-    def send_markdown_files_list(self):
+    def send_markdown_files_json(self):
         """Return JSON array of markdown files in assets/ folder"""
         assets_dir = Path('assets')
         markdown_files = []
