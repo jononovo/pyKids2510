@@ -45,7 +45,15 @@ let gameState = {
     // Background graphic for the level
     backgroundImage: null,
     // Mouse hover tile
-    hoveredTile: {x: -1, y: -1}
+    hoveredTile: {x: -1, y: -1},
+    // Collectibles tracking (for collect() function)
+    collectibles: [],
+    // Interactive objects (doors, chests, crops, pushable objects)
+    objects: [],
+    // Player inventory
+    inventory: {},
+    // Message log (for speak() function)
+    messageLog: []
 };
 
 const canvas = document.getElementById('game-canvas');
@@ -344,6 +352,28 @@ function loadLevel(levelIndex) {
     gameState.goalPos = {...level.map.goalPos};
     gameState.playerPos = {...level.map.startPos};
     gameState.playerDirection = 'right';
+    
+    // Initialize collectibles from map data
+    gameState.collectibles = (level.map.collectibles || []).map(c => ({
+        x: c.x !== undefined ? c.x : c[0],
+        y: c.y !== undefined ? c.y : c[1],
+        collected: false
+    }));
+    
+    // Reset objects and inventory for new level
+    gameState.objects = [];
+    gameState.inventory = {};
+    gameState.messageLog = [];
+    
+    // Clear UI panels
+    const inventoryPanel = document.getElementById('inventory-panel');
+    if (inventoryPanel) {
+        inventoryPanel.innerHTML = '<strong>Inventory:</strong>';
+    }
+    const messagePanel = document.getElementById('message-panel');
+    if (messagePanel) {
+        messagePanel.innerHTML = '';
+    }
     
     // Load background graphic if specified
     if (level.map.graphic) {
