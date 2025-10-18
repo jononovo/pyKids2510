@@ -590,12 +590,60 @@ function checkWinCondition() {
     const gx = gameState.goalPos.x;
     const gy = gameState.goalPos.y;
     
+    // Check for resource collection in mission mode
+    if (typeof missionMode !== 'undefined' && missionMode && missionMode.currentMode === 'mission') {
+        checkResourceCollection(px, py);
+    }
+    
     if (px === gx && py === gy) {
         gameState.levelCompleted[currentLevel] = true;
         
         // Show victory modal
         updateProgressIndicators();
         document.getElementById('victory-modal').classList.add('show');
+    }
+}
+
+// Check if player collected a resource
+function checkResourceCollection(x, y) {
+    // Check if there's a collectible at this position
+    if (gameState.mapData[y] && gameState.mapData[y][x] === 7) {
+        // Remove the collectible from the map
+        gameState.mapData[y][x] = 0;
+        
+        // Add to mission mode resources
+        if (missionMode && missionMode.currentMission) {
+            // Check mission-specific resources
+            const mission = missionMode.currentMission;
+            if (mission.map && mission.map.resourcesToCollect) {
+                // Find what type of resource this is
+                for (let resourceDef of mission.map.resourcesToCollect) {
+                    for (let pos of resourceDef.positions) {
+                        if (pos[0] === x && pos[1] === y) {
+                            // Found the resource type
+                            missionMode.addResource(resourceDef.type, 1);
+                            console.log(`Collected ${resourceDef.type}!`);
+                            
+                            // Show collection notification
+                            if (missionMode.showNotification) {
+                                missionMode.showNotification(`+1 ${resourceDef.type}!`, 'success');
+                            }
+                            
+                            // Check mission completion
+                            missionMode.checkMissionCompletion();
+                            
+                            // Re-render to remove the collectible
+                            render();
+                            return;
+                        }
+                    }
+                }
+            }
+            
+            // Default resource collection if not specified
+            missionMode.addResource('food', 1);
+            render();
+        }
     }
 }
 
