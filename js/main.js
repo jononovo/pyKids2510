@@ -123,6 +123,9 @@ function loadMarkdownFile(event) {
             
             // Load first level
             loadLevel(0);
+            
+            // Load master game data for this chapter
+            loadMasterGameData();
         } else {
             alert('Could not parse the markdown file. Please check the format.');
         }
@@ -746,8 +749,9 @@ if (viewport && typeof ResizeObserver !== 'undefined') {
 // Load master game data when chapter is loaded
 function loadMasterGameData() {
     // Try to load the corresponding master game file
-    if (courseData && courseData.metadata && courseData.metadata.chapter) {
-        const chapterNum = courseData.metadata.chapter;
+    // Use chapter number from courseData, default to 1 if not found
+    if (courseData) {
+        const chapterNum = courseData.chapterNumber || 1;
         const masterGamePath = `assets/master-game-chapter${chapterNum}.md`;
         
         fetch(masterGamePath)
@@ -834,19 +838,4 @@ window.loadLevel = function(levelIndex) {
     checkMissionButtonVisibility();
 }
 
-// Hook into load markdown file to load master game data
-const originalLoadMarkdownFile = window.loadMarkdownFile;
-window.loadMarkdownFile = function(event) {
-    // Get the original return value if any
-    let result;
-    if (typeof originalLoadMarkdownFile === 'function') {
-        result = originalLoadMarkdownFile(event);
-    }
-    
-    // Load master game data after course is loaded
-    setTimeout(() => {
-        loadMasterGameData();
-    }, 100);
-    
-    return result;
-}
+// Master game data is now loaded directly in loadMarkdownFile function
