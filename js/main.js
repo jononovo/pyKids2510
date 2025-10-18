@@ -950,13 +950,14 @@ async function loadMarkdownFromDropdown(filename) {
         
         const content = await response.text();
         
-        // Create a fake file event to reuse existing loadMarkdownFile function
+        // Create a proper Blob/File object that FileReader can work with
+        const blob = new Blob([content], { type: 'text/markdown' });
+        const file = new File([blob], filename, { type: 'text/markdown' });
+        
+        // Create event structure that loadMarkdownFile expects
         const fakeEvent = {
             target: {
-                files: [{
-                    name: filename,
-                    text: async () => content
-                }]
+                files: [file]
             }
         };
         
