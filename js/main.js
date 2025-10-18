@@ -839,3 +839,139 @@ window.loadLevel = function(levelIndex) {
 }
 
 // Master game data is now loaded directly in loadMarkdownFile function
+
+// ============================================
+// CHAPTER DROPDOWN FUNCTIONALITY
+// ============================================
+
+let currentLoadedFile = null;
+let chapterDropdownOpen = false;
+
+// Toggle the chapter dropdown menu
+function toggleChapterDropdown() {
+    const menu = document.getElementById('chapter-dropdown-menu');
+    const button = document.getElementById('chapter-dropdown-btn');
+    
+    if (!menu || !button) return;
+    
+    chapterDropdownOpen = !chapterDropdownOpen;
+    
+    if (chapterDropdownOpen) {
+        menu.classList.add('show');
+        button.classList.add('active');
+        loadMarkdownFilesList();
+    } else {
+        menu.classList.remove('show');
+        button.classList.remove('active');
+    }
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(event) {
+    const container = document.querySelector('.chapter-dropdown-container');
+    if (container && !container.contains(event.target)) {
+        const menu = document.getElementById('chapter-dropdown-menu');
+        const button = document.getElementById('chapter-dropdown-btn');
+        if (menu && button) {
+            menu.classList.remove('show');
+            button.classList.remove('active');
+            chapterDropdownOpen = false;
+        }
+    }
+});
+
+// Load list of markdown files from assets folder
+async function loadMarkdownFilesList() {
+    const menu = document.getElementById('chapter-dropdown-menu');
+    if (!menu) return;
+    
+    try {
+        // Fetch list of markdown files from the server
+        const response = await fetch('/api/markdown-files');
+        let files = [];
+        
+        if (response.ok) {
+            files = await response.json();
+        } else {
+            // Fallback: manually list known files
+            files = [
+                'python-course-chapter1.md',
+                'master-game-chapter1.md'
+            ];
+        }
+        
+        // Clear existing items
+        menu.innerHTML = '';
+        
+        // Add each file as a dropdown item
+        files.forEach(file => {
+            const item = document.createElement('div');
+            item.className = 'chapter-dropdown-item';
+            if (currentLoadedFile === file) {
+                item.classList.add('current');
+            }
+            
+            // Add file icon and name
+            item.innerHTML = `<span class="file-icon">📄</span>${file}`;
+            
+            // Add click handler
+            item.addEventListener('click', function() {
+                loadMarkdownFromDropdown(file);
+                toggleChapterDropdown(); // Close dropdown after selection
+            });
+            
+            menu.appendChild(item);
+        });
+        
+        // If no files found, show a message
+        if (files.length === 0) {
+            const item = document.createElement('div');
+            item.className = 'chapter-dropdown-item';
+            item.style.color = '#666';
+            item.style.pointerEvents = 'none';
+            item.innerHTML = 'No markdown files found in assets folder';
+            menu.appendChild(item);
+        }
+    } catch (error) {
+        console.error('Error loading markdown files list:', error);
+        
+        // Show error message
+        menu.innerHTML = '<div class="chapter-dropdown-item" style="color: #666; pointer-events: none;">Error loading files</div>';
+    }
+}
+
+// Load a markdown file from the dropdown selection
+async function loadMarkdownFromDropdown(filename) {
+    try {
+        const response = await fetch(`/assets/${filename}`);
+        if (!response.ok) {
+            throw new Error(`Failed to load ${filename}`);
+        }
+        
+        const content = await response.text();
+        
+        // Create a fake file event to reuse existing loadMarkdownFile function
+        const fakeEvent = {
+            target: {
+                files: [{
+                    name: filename,
+                    text: async () => content
+                }]
+            }
+        };
+        
+        // Store the current file name
+        currentLoadedFile = filename;
+        
+        // Load the file using the existing function
+        await loadMarkdownFile(fakeEvent);
+        
+    } catch (error) {
+        console.error(`Error loading ${filename}:`, error);
+        alert(`Failed to load ${filename}: ${error.message}`);
+    }
+}
+
+// Make functions globally available
+window.toggleChapterDropdown = toggleChapterDropdown;
+window.loadMarkdownFromDropdown = loadMarkdownFromDropdown;

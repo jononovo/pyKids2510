@@ -17,6 +17,9 @@ class NoCacheHTTPRequestHandler(SimpleHTTPRequestHandler):
         # Handle API config endpoint
         elif self.path == '/api/config':
             self.send_api_config()
+        # Handle markdown files list endpoint
+        elif self.path == '/api/markdown-files':
+            self.send_markdown_files_list()
         else:
             # Default file serving
             super().do_GET()
@@ -56,6 +59,25 @@ class NoCacheHTTPRequestHandler(SimpleHTTPRequestHandler):
         self.send_header('Content-Type', 'application/json')
         self.end_headers()
         self.wfile.write(json.dumps(config).encode())
+    
+    def send_markdown_files_list(self):
+        """Return JSON array of markdown files in assets/ folder"""
+        assets_dir = Path('assets')
+        markdown_files = []
+        
+        if assets_dir.exists() and assets_dir.is_dir():
+            # Get all .md files in the assets directory (root level only)
+            for file in assets_dir.glob('*.md'):
+                markdown_files.append(file.name)
+        
+        # Sort files alphabetically
+        markdown_files.sort()
+        
+        # Send JSON response
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/json')
+        self.end_headers()
+        self.wfile.write(json.dumps(markdown_files).encode())
     
     def end_headers(self):
         self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
