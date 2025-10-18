@@ -687,7 +687,7 @@ fetch('/api/config')
 loadAvailableSprites();
 
 // Auto-load the default chapter on startup
-fetch('assets/python-course-chapter1.md')
+fetch('assets/chapter1-master-map.md')
     .then(response => response.text())
     .then(markdown => {
         courseData = parseCourseLevels(markdown);
