@@ -792,13 +792,9 @@ function checkMissionButtonVisibility() {
     const missionBtn = document.getElementById('mission-mode-btn');
     if (!missionBtn) return;
     
-    // Show button if:
-    // 1. Master game data is loaded
-    // 2. Current level has been completed at least once
-    // 3. There's a corresponding mission for this level
-    if (masterGameData && 
-        gameState.levelCompleted[currentLevel] && 
-        masterGameData.missions[currentLevel]) {
+    // TESTING MODE: Always show button if master game data is loaded
+    // In production, would check if level is completed first
+    if (masterGameData && masterGameData.missions[currentLevel]) {
         missionBtn.style.display = 'inline-block';
     } else {
         missionBtn.style.display = 'none';
