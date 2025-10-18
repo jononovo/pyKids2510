@@ -357,6 +357,7 @@ function loadLevel(levelIndex) {
     gameState.collectibles = (level.map.collectibles || []).map(c => ({
         x: c.x !== undefined ? c.x : c[0],
         y: c.y !== undefined ? c.y : c[1],
+        type: c.type || 'gem',  // Store the collectible type
         collected: false
     }));
     
@@ -686,7 +687,7 @@ fetch('/api/config')
 loadAvailableSprites();
 
 // Auto-load the default chapter on startup
-fetch('assets/chapter1-master-map.md')
+fetch('assets/python-course-chapter1.md')
     .then(response => response.text())
     .then(markdown => {
         courseData = parseCourseLevels(markdown);

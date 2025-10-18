@@ -14,6 +14,9 @@ class NoCacheHTTPRequestHandler(SimpleHTTPRequestHandler):
         # Handle sprites.json endpoint
         if self.path == '/sprites.json':
             self.send_sprites_json()
+        # Handle collectibles.json endpoint
+        elif self.path == '/collectibles.json':
+            self.send_collectibles_json()
         # Handle API config endpoint
         elif self.path == '/api/config':
             self.send_api_config()
@@ -43,6 +46,24 @@ class NoCacheHTTPRequestHandler(SimpleHTTPRequestHandler):
         self.send_header('Content-Type', 'application/json')
         self.end_headers()
         self.wfile.write(json.dumps(sprites).encode())
+    
+    def send_collectibles_json(self):
+        """Return JSON object mapping collectible types to SVG paths"""
+        collectibles_dir = Path('assets/map/collectibles')
+        collectibles = {}
+        
+        if collectibles_dir.exists() and collectibles_dir.is_dir():
+            # Get all SVG files in the collectibles directory
+            for file in collectibles_dir.glob('*.svg'):
+                # Use the filename (without extension) as the collectible type key
+                collectible_type = file.stem.replace('collectible-', '').replace('-', '_')
+                collectibles[collectible_type] = f'assets/map/collectibles/{file.name}'
+        
+        # Send JSON response
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/json')
+        self.end_headers()
+        self.wfile.write(json.dumps(collectibles).encode())
     
     def send_api_config(self):
         """Send API configuration including OpenAI key to frontend"""

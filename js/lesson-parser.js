@@ -112,7 +112,11 @@ function parseCourseLevels(markdown) {
                     try {
                         const collectiblesStr = line.split(':')[1].trim();
                         const collectiblesArray = JSON.parse(collectiblesStr);
-                        level.map.collectibles = collectiblesArray.map(c => ({x: c[0], y: c[1]}));
+                        level.map.collectibles = collectiblesArray.map(c => ({
+                            x: c[0], 
+                            y: c[1],
+                            type: c[2] || 'gem'  // Default to 'gem' if no type specified
+                        }));
                     } catch (e) {
                         console.log('Could not parse collectibles:', line);
                     }

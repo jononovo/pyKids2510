@@ -66,7 +66,7 @@ player.move_forward(7)
 [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3]
 startPos: 7,9
 goalPos: 7,9
-collectibles: [[14,3],[8,7],[10,12]]
+collectibles: [[14,3,"wood"],[8,7,"wood"],[10,12,"wood"]]
 ```
 ---
 
