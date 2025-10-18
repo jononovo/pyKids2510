@@ -145,9 +145,11 @@ function parseMissionOrQuest(section, isQuest = false) {
             if (line.startsWith('graphic:')) {
                 data.map.graphic = line.split('graphic:')[1].trim();
             } else if (line.startsWith('[')) {
-                // Parse array row
+                // Parse array row - clean up special tokens like 1* first
                 try {
-                    const row = JSON.parse(line.replace(/,$/, ''));
+                    // Remove asterisks and other decorators from tile values
+                    const cleanedLine = line.replace(/(\d+)\*/g, '$1').replace(/,$/, '');
+                    const row = JSON.parse(cleanedLine);
                     data.map.layout.push(row);
                 } catch (e) {
                     console.log('Could not parse map row:', line);

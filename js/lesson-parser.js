@@ -71,7 +71,9 @@ function parseCourseLevels(markdown) {
                 if (line.startsWith('[')) {
                     // Parse array row
                     try {
-                        const row = JSON.parse(line.replace(/,$/, ''));
+                        // Remove asterisks and other decorators from tile values (like 1*)
+                        const cleanedLine = line.replace(/(\d+)\*/g, '$1').replace(/,$/, '');
+                        const row = JSON.parse(cleanedLine);
                         level.map.layout.push(row);
                     } catch (e) {
                         console.log('Could not parse map row:', line);
