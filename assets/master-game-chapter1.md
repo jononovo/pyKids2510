@@ -42,7 +42,7 @@ import player
 
 <!-- Map -->
 ```
-graphic: assets/map/master-maps/island-settlement.svg
+graphic: assets/map/graphic-maps/island-house.svg
 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
 [0,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
 [0,2,H,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -88,7 +88,7 @@ import player
 
 <!-- Map -->
 ```
-graphic: assets/map/master-maps/island-settlement.svg
+graphic: assets/map/graphic-maps/island-house.svg
 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
 [0,0,0,6,6,6,6,0,0,0,0,0,0,0,0,0,0,0,0,0],
 [0,0,0,6,7,2,6,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -289,7 +289,7 @@ rescue_targets: [
 
 <!-- Map -->
 ```
-graphic: assets/map/master-maps/island-settlement-full.svg
+graphic: assets/map/graphic-maps/island-house.svg
 [Full 30x30 island map with all zones unlocked]
 startPos: 10,15
 storm_timer: 50
