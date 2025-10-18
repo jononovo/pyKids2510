@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="css/editor.css">
     <link rel="stylesheet" href="css/tutor.css">
     <link rel="stylesheet" href="css/code-book.css">
+    <link rel="stylesheet" href="css/master-game.css">
     
 </head>
 <body>
@@ -78,6 +79,9 @@
                 </div>
                 <button class="top-btn" onclick="showMapInfo()">🗺️ <span class="btn-text">MAP INFO</span></button>
                 <button class="top-btn" onclick="toggleCodeBook()">📖 <span class="btn-text">CODE BOOK</span></button>
+                <button class="top-btn" id="mission-mode-btn" onclick="toggleMissionMode()" style="display: none;">
+                    ⚔️ <span class="btn-text">MISSION MODE</span>
+                </button>
             </div>
             <div id="game-viewport">
                 <canvas id="game-canvas" width="512" height="352"></canvas>
@@ -268,6 +272,9 @@
     <script src="js/game-engine.js"></script>
     <script src="js/coding-tutor.js"></script>
     <script src="js/code-book.js"></script>
+    <!-- Master Game Mode -->
+    <script src="js/master-game-parser.js"></script>
+    <script src="js/mission-mode.js"></script>
     <!-- Blockly integration - single entry point, loads everything else on demand -->
     <script src="blockly-integration/index.js"></script>
     <!-- Load mode-switcher immediately so toggle buttons appear -->

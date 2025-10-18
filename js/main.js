@@ -6,6 +6,7 @@
 let courseData = null;
 let currentLevel = 0;
 let jar = null;
+let masterGameData = null;
 
 const TILE_SIZE = 32; // Standard tile size (image will stretch to fit)
 const MOVE_DURATION = 400;
@@ -736,4 +737,120 @@ if (viewport && typeof ResizeObserver !== 'undefined') {
         }
     });
     resizeObserver.observe(viewport);
+}
+
+// ============================================
+// MASTER GAME MODE INTEGRATION
+// ============================================
+
+// Load master game data when chapter is loaded
+function loadMasterGameData() {
+    // Try to load the corresponding master game file
+    if (courseData && courseData.metadata && courseData.metadata.chapter) {
+        const chapterNum = courseData.metadata.chapter;
+        const masterGamePath = `assets/master-game-chapter${chapterNum}.md`;
+        
+        fetch(masterGamePath)
+            .then(response => response.text())
+            .then(markdown => {
+                masterGameData = parseMasterGameData(markdown);
+                console.log('Master game data loaded:', masterGameData);
+                
+                // Show mission mode button after first lesson is completed
+                checkMissionButtonVisibility();
+            })
+            .catch(error => {
+                console.log('No master game file found for this chapter:', error);
+                masterGameData = null;
+            });
+    }
+}
+
+// Toggle between lesson and mission mode
+function toggleMissionMode() {
+    if (!missionMode) {
+        console.error('Mission mode not initialized');
+        return;
+    }
+    
+    if (missionMode.currentMode === 'lesson') {
+        // Enter mission mode with current level's mission
+        const missionIndex = currentLevel;
+        if (masterGameData && masterGameData.missions[missionIndex]) {
+            missionMode.enterMissionMode(masterGameData.missions[missionIndex]);
+        } else {
+            console.log('No mission available for this level');
+        }
+    } else {
+        // Return to lesson mode
+        missionMode.exitMission();
+    }
+}
+
+// Check if mission button should be visible
+function checkMissionButtonVisibility() {
+    const missionBtn = document.getElementById('mission-mode-btn');
+    if (!missionBtn) return;
+    
+    // Show button if:
+    // 1. Master game data is loaded
+    // 2. Current level has been completed at least once
+    // 3. There's a corresponding mission for this level
+    if (masterGameData && 
+        gameState.levelCompleted[currentLevel] && 
+        masterGameData.missions[currentLevel]) {
+        missionBtn.style.display = 'inline-block';
+    } else {
+        missionBtn.style.display = 'none';
+    }
+}
+
+// Hook into level completion to unlock missions
+const originalOnLevelComplete = window.onLevelComplete;
+window.onLevelComplete = function() {
+    // Call original function if it exists
+    if (typeof originalOnLevelComplete === 'function') {
+        originalOnLevelComplete();
+    }
+    
+    // Check if mission should be unlocked
+    checkMissionButtonVisibility();
+    
+    // Show notification about mission being available
+    if (masterGameData && masterGameData.missions[currentLevel]) {
+        setTimeout(() => {
+            if (missionMode) {
+                missionMode.showNotification('🎯 Mission unlocked! Click MISSION MODE to play!', 'success');
+            }
+        }, 2000);
+    }
+}
+
+// Hook into load level to update mission button
+const originalLoadLevel = window.loadLevel;
+window.loadLevel = function(levelIndex) {
+    // Call original function
+    if (typeof originalLoadLevel === 'function') {
+        originalLoadLevel(levelIndex);
+    }
+    
+    // Update mission button visibility
+    checkMissionButtonVisibility();
+}
+
+// Hook into load markdown file to load master game data
+const originalLoadMarkdownFile = window.loadMarkdownFile;
+window.loadMarkdownFile = function(event) {
+    // Get the original return value if any
+    let result;
+    if (typeof originalLoadMarkdownFile === 'function') {
+        result = originalLoadMarkdownFile(event);
+    }
+    
+    // Load master game data after course is loaded
+    setTimeout(() => {
+        loadMasterGameData();
+    }, 100);
+    
+    return result;
 }
