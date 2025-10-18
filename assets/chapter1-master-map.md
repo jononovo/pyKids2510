@@ -34,14 +34,32 @@ player.move_forward()
 ```
 import player
 
-# Collect first wood (east)
-player.move_forward(4)
-player.move_forward(3)
+# Collect wood 2 at (8, 7) - go right 1, up 2
+player.move_forward(1)
+player.turn_left()
+player.move_forward(2)
+player.collect()
 
-# Return home
+# Collect wood 1 at (14, 3) - go right 6, up 4  
+player.turn_right()
+player.move_forward(6)
+player.turn_left()
+player.move_forward(4)
+player.collect()
+
+# Collect wood 3 at (10, 12) - go left 4, down 9
 player.turn_left()
 player.turn_left()
-player.move_forward(7)
+player.move_forward(4)
+player.turn_left()
+player.move_forward(9)
+player.collect()
+
+# Return home at (7, 9) - go left 3, up 3
+player.turn_right()
+player.move_forward(3)
+player.turn_right()
+player.move_forward(3)
 ```
 
 <!-- Map -->
