@@ -204,7 +204,7 @@ body {
 }
 
 .level-progress {
-    display: inline-flex;
+    display: flex;
     gap: 5px;
     margin-top: 10px;
 }
