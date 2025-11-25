@@ -207,6 +207,8 @@ body {
     display: flex;
     gap: 5px;
     margin-top: 10px;
+    align-items: center;
+    flex-wrap: nowrap;
 }
 
 .level-box {
@@ -860,23 +862,25 @@ body {
    ======================================== */
 .chapter-dropdown-container {
     position: relative;
-    display: inline-block;
-    margin-left: 10px;
+    display: flex;
+    align-items: center;
+    margin-left: 5px;
 }
 
 .chapter-dropdown-btn {
-    background: transparent;
-    border: none;
-    color: #888;
-    font-size: 14px;
-    padding: 4px 8px;
+    background: #444;
+    border: 1px solid #666;
+    border-radius: 3px;
+    color: #aaa;
+    font-size: 10px;
+    padding: 2px 6px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
     outline: none;
-    margin-top: -2px;
+    height: 18px;
 }
 
 .chapter-dropdown-btn:hover {
