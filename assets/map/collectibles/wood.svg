@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Wood log -->
+  <defs>
+    <radialGradient id="woodGradient" cx="50%" cy="50%">
+      <stop offset="0%" style="stop-color:#8B4513;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#654321;stop-opacity:1" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Main log body -->
+  <rect x="8" y="24" width="48" height="16" rx="4" fill="url(#woodGradient)"/>
+  
+  <!-- Wood grain lines -->
+  <line x1="12" y1="28" x2="52" y2="28" stroke="#654321" stroke-width="0.5" opacity="0.5"/>
+  <line x1="12" y1="32" x2="52" y2="32" stroke="#654321" stroke-width="0.5" opacity="0.5"/>
+  <line x1="12" y1="36" x2="52" y2="36" stroke="#654321" stroke-width="0.5" opacity="0.5"/>
+  
+  <!-- End rings -->
+  <ellipse cx="11" cy="32" rx="3" ry="8" fill="#654321"/>
+  <ellipse cx="11" cy="32" rx="2" ry="6" fill="#8B4513"/>
+  <ellipse cx="53" cy="32" rx="3" ry="8" fill="#654321"/>
+  <ellipse cx="53" cy="32" rx="2" ry="6" fill="#8B4513"/>
+  
+  <!-- Highlight for 3D effect -->
+  <rect x="8" y="24" width="48" height="4" rx="4" fill="white" opacity="0.2"/>
+</svg>

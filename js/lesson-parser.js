@@ -69,12 +69,32 @@ function parseCourseLevels(markdown) {
             
             for (let line of mapLines) {
                 if (line.startsWith('[')) {
-                    // Parse array row
+                    // Parse array row, handling tile annotations like 1* for interactive objects
                     try {
-                        const row = JSON.parse(line.replace(/,$/, ''));
+                        // Remove annotations (asterisks) from the line for parsing
+                        const cleanLine = line.replace(/(\d+)\*/g, '$1');
+                        const row = JSON.parse(cleanLine.replace(/,$/, ''));
                         level.map.layout.push(row);
+                        
+                        // Extract annotations to create interactive objects
+                        const annotationMatches = line.matchAll(/(\d+)\*/g);
+                        const rowIndex = level.map.layout.length - 1;
+                        let colIndex = 0;
+                        
+                        // Parse the original line to find positions of annotated tiles
+                        const originalRow = line.match(/\[(.*)\]/)[1].split(',');
+                        for (let i = 0; i < originalRow.length; i++) {
+                            const tile = originalRow[i].trim();
+                            if (tile.includes('*')) {
+                                // This tile has an annotation - it's interactive
+                                const tileValue = parseInt(tile.replace('*', ''));
+                                // Add to collectibles or objects based on tile type
+                                // For now, treat annotated tiles as collectibles
+                                level.map.collectibles.push({x: i, y: rowIndex});
+                            }
+                        }
                     } catch (e) {
-                        console.log('Could not parse map row:', line);
+                        console.log('Could not parse map row:', line, e);
                     }
                 } else if (line.includes('startPos:')) {
                     const coords = line.split(':')[1].trim().split(',');
@@ -92,7 +112,11 @@ function parseCourseLevels(markdown) {
                     try {
                         const collectiblesStr = line.split(':')[1].trim();
                         const collectiblesArray = JSON.parse(collectiblesStr);
-                        level.map.collectibles = collectiblesArray.map(c => ({x: c[0], y: c[1]}));
+                        level.map.collectibles = collectiblesArray.map(c => ({
+                            x: c[0], 
+                            y: c[1],
+                            type: c[2] || 'gem'  // Default to 'gem' if no type specified
+                        }));
                     } catch (e) {
                         console.log('Could not parse collectibles:', line);
                     }

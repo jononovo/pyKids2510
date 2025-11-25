@@ -47,19 +47,27 @@ const SPECIAL_SVGS = {
     star: 'assets/map/special/star-goal.svg'
 };
 
-// Collectible SVGs - organized in their own folder for easy expansion
-const COLLECTIBLE_SVGS = {
-    gem: 'assets/map/collectibles/collectible-gem.svg',
-    coin: 'assets/map/collectibles/collectible-coin.svg',
-    key: 'assets/map/collectibles/key.svg',
-    heart: 'assets/map/collectibles/heart.svg',
-    star_collectible: 'assets/map/collectibles/star.svg',
-    apple: 'assets/map/collectibles/apple.svg'
-};
+// Collectible SVGs - loaded dynamically from server
+let COLLECTIBLE_SVGS = {};
 
 // Track failed SVG loads to avoid repeated attempts
 const svgFailedLoads = new Set();
 let svgFailureWarned = false;
+
+// Load collectibles manifest from server
+async function loadCollectiblesManifest() {
+    try {
+        const response = await fetch('/collectibles.json');
+        COLLECTIBLE_SVGS = await response.json();
+        console.log('Collectibles loaded:', Object.keys(COLLECTIBLE_SVGS));
+    } catch (error) {
+        console.warn('Could not load collectibles manifest, using defaults');
+        COLLECTIBLE_SVGS = {
+            gem: 'assets/map/collectibles/collectible-gem.svg',
+            coin: 'assets/map/collectibles/collectible-coin.svg'
+        };
+    }
+}
 
 // Load SVG as Image
 async function loadSVGImage(path) {
@@ -108,6 +116,9 @@ async function loadSVGImage(path) {
 
 // Preload all SVG tiles for better performance
 async function preloadSVGTiles() {
+    // Load collectibles manifest first
+    await loadCollectiblesManifest();
+    
     const tilesToLoad = [
         ...Object.values(SVG_TILES),
         ...Object.values(SPECIAL_SVGS),
@@ -119,6 +130,37 @@ async function preloadSVGTiles() {
 }
 
 // Drawing functions
+async function drawCollectibles() {
+    if (!gameState.collectibles) return;
+    
+    const collectiblePromises = gameState.collectibles
+        .filter(c => !c.collected)
+        .map(async (collectible) => {
+            const px = collectible.x * TILE_SIZE;
+            const py = collectible.y * TILE_SIZE;
+            
+            // Get the SVG path for this collectible type
+            const svgPath = COLLECTIBLE_SVGS[collectible.type];
+            
+            if (svgPath) {
+                const img = await loadSVGImage(svgPath);
+                if (img) {
+                    // Draw grass underneath
+                    const grassImg = await loadSVGImage(SVG_TILES[TILES.GRASS]);
+                    if (grassImg) {
+                        ctx.drawImage(grassImg, px, py, TILE_SIZE, TILE_SIZE);
+                    }
+                    // Draw collectible on top
+                    ctx.drawImage(img, px, py, TILE_SIZE, TILE_SIZE);
+                } else {
+                    console.warn(`Collectible type "${collectible.type}" not found in manifest`);
+                }
+            }
+        });
+    
+    await Promise.all(collectiblePromises);
+}
+
 async function drawTile(x, y, type) {
     const px = x * TILE_SIZE;
     const py = y * TILE_SIZE;
@@ -405,6 +447,9 @@ async function render() {
     }
     await Promise.all(tilePromises);
     
+    // Draw collectibles using their types
+    await drawCollectibles();
+    
     await drawStar(gameState.goalPos.x * TILE_SIZE + TILE_SIZE/2, 
                   gameState.goalPos.y * TILE_SIZE + TILE_SIZE/2);
     
@@ -494,6 +539,9 @@ function animateMove(fromX, fromY, toX, toY, direction) {
                 }
             }
             await Promise.all(tilePromises);
+            
+            // Draw collectibles using their types
+            await drawCollectibles();
             
             // Draw goal star
             await drawStar(gameState.goalPos.x * TILE_SIZE + TILE_SIZE/2, 
