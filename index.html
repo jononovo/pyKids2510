@@ -25,9 +25,21 @@
                     <div id="header-info" style="display: none;">
                         <div class="chapter-title" id="chapter-title"></div>
                         <div class="level-info" id="level-info">CHAPTER 1 • LEVEL 1</div>
-                        <div class="level-progress" id="level-progress">
-                            <!-- Progress boxes will be generated dynamically -->
+                        <div style="display: flex; align-items: flex-end;">
+                            <div class="level-progress" id="level-progress">
+                                <!-- Progress boxes will be generated dynamically -->
+                            </div>
+                            <!-- Chapter dropdown button -->
+                            <div class="chapter-dropdown-container">
+                                <button class="chapter-dropdown-btn" id="chapter-dropdown-btn" onclick="toggleChapterDropdown()">
+                                    <span class="chevron-down">&#9660;</span>
+                                </button>
+                                <div class="chapter-dropdown-menu" id="chapter-dropdown-menu">
+                                    <!-- Populated dynamically with markdown files -->
+                                </div>
+                            </div>
                         </div>
+
                     </div>
                 </div>
                 <button class="nav-btn" id="next-btn" onclick="nextLevel()" disabled><span class="btn-text">NEXT</span> <span class="btn-icon">→</span></button>
@@ -267,11 +279,17 @@
     </div>
     
     <!-- Scripts -->
+    <!-- Skulpt Python Interpreter -->
+    <script src="https://skulpt.org/js/skulpt.min.js"></script>
+    <script src="https://skulpt.org/js/skulpt-stdlib.js"></script>
+    
     <script src="js/codejar.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="js/syntax-highlighter.js"></script>
     <script src="js/lesson-parser.js"></script>
     <script src="js/python-parser.js"></script>
+    <script src="js/player-module.js"></script>
+    <script src="js/skulpt-runtime.js"></script>
     <script src="js/game-engine.js"></script>
     <script src="js/coding-tutor.js"></script>
     <script src="js/code-book.js"></script>

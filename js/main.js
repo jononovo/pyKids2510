@@ -768,3 +768,129 @@ if (viewport && typeof ResizeObserver !== 'undefined') {
     });
     resizeObserver.observe(viewport);
 }
+
+// ============================================
+// CHAPTER DROPDOWN FUNCTIONALITY
+// ============================================
+
+let currentLoadedFile = null;
+let chapterDropdownOpen = false;
+
+function toggleChapterDropdown() {
+    const menu = document.getElementById('chapter-dropdown-menu');
+    const button = document.getElementById('chapter-dropdown-btn');
+    
+    if (!menu || !button) return;
+    
+    chapterDropdownOpen = !chapterDropdownOpen;
+    
+    if (chapterDropdownOpen) {
+        menu.classList.add('show');
+        button.classList.add('active');
+        loadMarkdownFilesList();
+    } else {
+        menu.classList.remove('show');
+        button.classList.remove('active');
+    }
+}
+
+document.addEventListener('click', function(event) {
+    const container = document.querySelector('.chapter-dropdown-container');
+    if (container && !container.contains(event.target)) {
+        const menu = document.getElementById('chapter-dropdown-menu');
+        const button = document.getElementById('chapter-dropdown-btn');
+        if (menu && button) {
+            menu.classList.remove('show');
+            button.classList.remove('active');
+            chapterDropdownOpen = false;
+        }
+    }
+});
+
+async function loadMarkdownFilesList() {
+    const menu = document.getElementById('chapter-dropdown-menu');
+    if (!menu) return;
+    
+    try {
+        const response = await fetch('/markdown-files.json');
+        let files = [];
+        
+        if (response.ok) {
+            files = await response.json();
+        } else {
+            files = [
+                'python-course-chapter1.md',
+                'chapter1-master-map.md'
+            ];
+        }
+        
+        menu.innerHTML = '';
+        
+        files.forEach(file => {
+            const item = document.createElement('div');
+            item.className = 'chapter-dropdown-item';
+            if (currentLoadedFile === file) {
+                item.classList.add('current');
+            }
+            
+            item.innerHTML = `<span class="file-icon">📄</span>${file}`;
+            
+            item.addEventListener('click', function() {
+                loadMarkdownFromDropdown(file);
+                // Close dropdown directly without re-fetching
+                const menu = document.getElementById('chapter-dropdown-menu');
+                const button = document.getElementById('chapter-dropdown-btn');
+                if (menu && button) {
+                    menu.classList.remove('show');
+                    button.classList.remove('active');
+                    chapterDropdownOpen = false;
+                }
+            });
+            
+            menu.appendChild(item);
+        });
+        
+        if (files.length === 0) {
+            const item = document.createElement('div');
+            item.className = 'chapter-dropdown-item';
+            item.style.color = '#666';
+            item.style.pointerEvents = 'none';
+            item.innerHTML = 'No markdown files found in assets folder';
+            menu.appendChild(item);
+        }
+    } catch (error) {
+        console.error('Error loading markdown files list:', error);
+        menu.innerHTML = '<div class="chapter-dropdown-item" style="color: #666; pointer-events: none;">Error loading files</div>';
+    }
+}
+
+async function loadMarkdownFromDropdown(filename) {
+    try {
+        const response = await fetch(`/assets/${filename}`);
+        if (!response.ok) {
+            throw new Error(`Failed to load ${filename}`);
+        }
+        
+        const content = await response.text();
+        
+        const blob = new Blob([content], { type: 'text/markdown' });
+        const file = new File([blob], filename, { type: 'text/markdown' });
+        
+        const fakeEvent = {
+            target: {
+                files: [file]
+            }
+        };
+        
+        currentLoadedFile = filename;
+        
+        loadMarkdownFile(fakeEvent);
+        
+    } catch (error) {
+        console.error(`Error loading ${filename}:`, error);
+        alert(`Failed to load ${filename}: ${error.message}`);
+    }
+}
+
+window.toggleChapterDropdown = toggleChapterDropdown;
+window.loadMarkdownFromDropdown = loadMarkdownFromDropdown;

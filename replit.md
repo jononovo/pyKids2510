@@ -134,6 +134,12 @@ The platform is based on the original game at **codingforkids.io**.
 
 ## Recent Changes
 
+- **2025-11-25**: Chapter Dropdown for Developers
+  - **Added dropdown button** in header area (▼ chevron) to switch between lesson files
+  - **Dynamic file discovery**: Server endpoint `/markdown-files.json` lists all `.md` files in `assets/` folder
+  - **Quick switching**: Click any file to load it immediately without using file picker
+  - **Auto-close**: Dropdown closes automatically after selecting a file
+
 - **2025-10-15**: Modular Beach/Island Tile System
   - **Created Complete Beach Tile Set**: New modular tiles for creating any island or water-based map
     - `sand.svg` - Sandy beach base tile with texture
