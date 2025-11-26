@@ -56,6 +56,11 @@ SVG-based tile rendering system with assets organized in `assets/map/` (tiles, o
   - **Map Inheritance**: Exercises use most recent map layout; missions prefer the last mission's map (via `lastMapCache`/`lastMissionMapCache`)
   - **Collect Command Integration**: `collect()` records items to MissionState inventory for mission levels, filtering already-collected positions
   - **chapterState Format**: `{chapter: 1, inventory: {}, collectedItems: [], structures: []}`
+  - **Level Entry Snapshot** (`window.levelEntrySnapshot`): Reset functionality preserves the state when first entering a level:
+    - `starterCode`: The code loaded when entering the level (saved code if available, otherwise starter code)
+    - `missionState`: Deep copy of MissionState at level entry (inventory, collectedItems, structures)
+    - `levelIndex`: Tracks which level the snapshot belongs to (prevents overwriting on same-level reloads)
+    - Reset button restores code editor, MissionState, inventory UI, and collectible states to entry snapshot
 
 ## External Dependencies
 
