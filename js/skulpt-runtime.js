@@ -67,6 +67,8 @@
         return { line: lineNum, error: errorMsg };
     }
 
+    var CODE_PRELUDE = 'from player import *\nimport player\n';
+
     async function executePythonCode(code) {
         configureSkulpt();
         
@@ -79,11 +81,12 @@
             if (typeof updateViewport === 'function') updateViewport();
         }
 
+        var fullCode = CODE_PRELUDE + code;
         var executionError = null;
 
         try {
             await Sk.misceval.asyncToPromise(function() {
-                return Sk.importMainWithBody("<stdin>", false, code, true);
+                return Sk.importMainWithBody("<stdin>", false, fullCode, true);
             });
         } catch (error) {
             executionError = formatSkulptError(error);

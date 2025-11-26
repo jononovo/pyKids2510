@@ -129,6 +129,30 @@
             }
         },
 
+        // ========== SIMPLIFIED ALIASES ==========
+        // Short command names for beginners
+        
+        forward: {
+            args: ['steps'],
+            defaults: { steps: 1 },
+            countsAsMultiple: true,
+            aliasOf: 'move_forward'
+        },
+
+        left: {
+            args: ['times'],
+            defaults: { times: 1 },
+            countsAsMultiple: true,
+            aliasOf: 'turn_left'
+        },
+
+        right: {
+            args: ['times'],
+            defaults: { times: 1 },
+            countsAsMultiple: true,
+            aliasOf: 'turn_right'
+        },
+
         push: {
             execute: async function() {
                 var pos = getTargetPosition();
@@ -289,8 +313,12 @@
     
     for (var cmdName in GameCommands) {
         (function(name, cmd) {
+            var targetCmd = cmd;
+            if (cmd.aliasOf) {
+                targetCmd = GameCommands[cmd.aliasOf];
+            }
             window['gameCommand_' + name] = function() {
-                return cmd.execute.apply(null, arguments);
+                return targetCmd.execute.apply(null, arguments);
             };
         })(cmdName, GameCommands[cmdName]);
     }
