@@ -222,12 +222,14 @@
                     if (!gameState.inventory) gameState.inventory = {};
                     var resourceType = collectible.type || resource || 'item';
                     gameState.inventory[resourceType] = (gameState.inventory[resourceType] || 0) + 1;
+                    console.log('[collect] Collected', resourceType, 'at', collectible.x, collectible.y);
                     updateInventoryDisplay();
                     
                     // Record in MissionState if this is a mission level
                     if (window.MissionState && MissionState.isInitialized()) {
                         var currentLevelData = window.courseData && window.courseData.levels && 
                                               window.courseData.levels[window.currentLevel];
+                        console.log('[collect] Level type:', currentLevelData ? currentLevelData.type : 'no level data');
                         if (currentLevelData && (currentLevelData.type === 'mission' || currentLevelData.type === 'quest')) {
                             MissionState.recordCollectible(collectible.x, collectible.y, resourceType);
                             MissionState.addToInventory(resourceType, 1);
