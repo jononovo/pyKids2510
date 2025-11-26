@@ -67,13 +67,14 @@ const MissionState = (function() {
             currentChapter = state.chapter;
         }
         
-        inventory = state.inventory || {};
+        // Make deep copies to avoid modifying the original state object (e.g., snapshot)
+        inventory = { ...(state.inventory || {}) };
         collectedItems = (state.collectedItems || []).map(item => ({
             x: item.x,
             y: item.y,
             type: item.type || 'unknown'
         }));
-        structures = state.structures || [];
+        structures = (state.structures || []).map(s => ({ ...s }));
         initialized = true;
         
         saveToStorage();
