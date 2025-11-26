@@ -1,0 +1,80 @@
+ ———    <!-- Code Book Panel -->
+    <div class="code-book-panel" id="codeBookPanel">
+        <button class="code-book-close" onclick="closeCodeBook()">
+            ← CLOSE
+        </button>
+        
+        <div class="code-book-content">
+            <h1 class="code-book-title">
+                📖 CODE BOOK
+            </h1>
+            
+            <p class="code-book-intro">
+                Here are all the functions you can use in the game. Feel free to experiment with them and try to complete the level by learning how to use these functions!
+            </p>
+            
+            <div class="code-book-sections">
+                <!-- move_forward() -->
+                <div class="function-section">
+                    <h2 class="function-title">MOVE_FORWARD()</h2>
+                    
+                    <div class="function-syntax">
+                        <h3>Syntax</h3>
+                        <code>player.move_forward([number of steps])</code>
+                    </div>
+                    
+                    <div class="function-description">
+                        <p>This function is used to have player move forward in the direction they're facing provided there is not a collision blocking the player's trajectory. You can assign the amount of steps you would like for this function to repeat or you can leave it blank and it will execute the action only once.</p>
+                        
+                        <p>If the function is not provided with any arguments, then it will move the player forward by one step.</p>
+                    </div>
+                    
+                    <div class="function-example">
+                        <h3>Example</h3>
+                        <code class="code-example">player.move_forward(3)</code>
+                        <p>This code will have player move three steps forward in the map.</p>
+                    </div>
+                </div>
+                
+                <!-- turn_left() -->
+                <div class="function-section">
+                    <h2 class="function-title">TURN_LEFT()</h2>
+                    
+                    <div class="function-syntax">
+                        <h3>Syntax</h3>
+                        <code>player.turn_left()</code>
+                    </div>
+                    
+                    <div class="function-description">
+                        <p>This function rotates the player 90 degrees counter-clockwise. Use this to change the direction your character is facing before moving forward.</p>
+                    </div>
+                    
+                    <div class="function-example">
+                        <h3>Example</h3>
+                        <code class="code-example">player.turn_left()</code>
+                        <p>This will rotate your character to face left from their current direction.</p>
+                    </div>
+                </div>
+                
+                <!-- turn_right() -->
+                <div class="function-section">
+                    <h2 class="function-title">TURN_RIGHT()</h2>
+                    
+                    <div class="function-syntax">
+                        <h3>Syntax</h3>
+                        <code>player.turn_right()</code>
+                    </div>
+                    
+                    <div class="function-description">
+                        <p>This function rotates the player 90 degrees clockwise. Use this to change the direction your character is facing before moving forward.</p>
+                    </div>
+                    
+                    <div class="function-example">
+                        <h3>Example</h3>
+                        <code class="code-example">player.turn_right()</code>
+                        <p>This will rotate your character to face right from their current direction.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
