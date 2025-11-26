@@ -729,12 +729,21 @@ if (typeof preloadSVGTiles === 'function') {
     preloadSVGTiles().then(() => {
         console.log('SVG tiles loaded, starting game');
         render();
+        if (window.UserProgressManager) {
+            window.UserProgressManager.sendReady();
+        }
     }).catch(error => {
         console.warn('Failed to preload some SVGs, using fallback rendering:', error);
         render();
+        if (window.UserProgressManager) {
+            window.UserProgressManager.sendReady();
+        }
     });
 } else {
     render();
+    if (window.UserProgressManager) {
+        window.UserProgressManager.sendReady();
+    }
 }
 
 // Start animation loop

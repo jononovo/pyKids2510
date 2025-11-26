@@ -22,10 +22,77 @@ const UserProgressManager = (function() {
     
     function handleParentMessage(event) {
         const data = event.data;
+        if (!data || !data.type) return;
         
-        if (data.type === 'load-all-progress') {
-            const allProgress = data.progress || {};
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(allProgress));
+        switch (data.type) {
+            case 'load-all-progress':
+                const allProgress = data.progress || {};
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(allProgress));
+                break;
+                
+            case 'load-progress':
+                loadProgressFromParent(data);
+                break;
+        }
+    }
+    
+    function loadProgressFromParent(data) {
+        const levelId = data.levelId;
+        const code = data.code;
+        const completed = data.completed;
+        
+        if (levelId) {
+            const all = getAllProgress();
+            const existing = all[levelId] || {};
+            
+            if (code !== undefined) {
+                existing.code = code;
+            }
+            if (completed !== undefined) {
+                existing.completed = completed;
+            }
+            
+            all[levelId] = existing;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+        }
+        
+        if (code !== undefined && levelId === currentLevelId) {
+            updateEditorWithCode(code);
+        }
+        
+        if (completed && levelId) {
+            completedThisSession[levelId] = true;
+        }
+    }
+    
+    function updateEditorWithCode(code) {
+        const editorElement = document.getElementById('editor');
+        if (editorElement && window.jar) {
+            window.jar.updateCode(code);
+        } else if (editorElement) {
+            editorElement.textContent = code;
+        }
+        
+        window.currentLessonStarterCode = code;
+        
+        if (window.BlocklyModeSwitcher && window.BlocklyModeSwitcher.isBlockMode()) {
+            if (window.BlocklyWorkspace && window.BlocklyWorkspace.workspace) {
+                window.BlocklyWorkspace.workspace.clear();
+                if (window.BlocklyIntegration) {
+                    setTimeout(() => {
+                        window.BlocklyIntegration.convertFromText(code);
+                    }, 100);
+                }
+            }
+        }
+    }
+    
+    function sendReady() {
+        if (isEmbedded) {
+            window.parent.postMessage({
+                type: 'app-ready',
+                currentLevelId: currentLevelId
+            }, '*');
         }
     }
     
@@ -166,7 +233,9 @@ const UserProgressManager = (function() {
         registerLessonType: registerLessonType,
         getLessonTypeHandlers: getLessonTypeHandlers,
         getAllProgress: getAllProgress,
-        getLevelProgress: getLevelProgress
+        getLevelProgress: getLevelProgress,
+        sendReady: sendReady,
+        updateEditorWithCode: updateEditorWithCode
     };
 })();
 

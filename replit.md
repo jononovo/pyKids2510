@@ -38,7 +38,14 @@ SVG-based tile rendering system with assets organized in `assets/map/` (tiles, o
 - **Code Book**: A slide-out panel provides documentation and examples for in-game functions.
 - **Sprite Selection**: A dropdown allows dynamic selection of character sprites from the `assets/sprites/` folder.
 - **Integration**: Designed for embedding, the application communicates with parent platforms via `window.parent.postMessage` for code progress and level completion tracking, using `localStorage` for session caching.
-- **User Progress System**: `js/user-progress.js` provides a UserProgressManager that auto-saves code with 500ms debounce, sends `checker-validation` messages on level completion (with duplicate guards), and restores saved code when returning to levels. Messages use format `{type: 'checker-validation', checkerId: 'level 1', valid: true}`.
+- **User Progress System**: `js/user-progress.js` provides a UserProgressManager with two-way communication:
+  - **Outbound Messages** (App → Host):
+    - `{type: 'app-ready', currentLevelId: '...'}` - Sent when app is ready to receive data
+    - `{type: 'save-progress', levelId: '...', data: {code, completed}}` - Sent when student saves code
+    - `{type: 'checker-validation', checkerId: 'level 1', valid: true}` - Sent on level completion
+  - **Inbound Messages** (Host → App):
+    - `{type: 'load-progress', levelId: '...', code: '...', completed: true}` - Load saved progress into editor
+    - `{type: 'load-all-progress', progress: {...}}` - Load all progress data at once
 
 ## External Dependencies
 
