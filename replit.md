@@ -142,6 +142,8 @@ The platform is based on the original game at **codingforkids.io**.
   - **Multi-Arg Support**: All arguments properly forwarded to command functions
   - **Command Counter**: Accurate tracking via `countsAsMultiple` for multi-step commands
   - **Repetition for Turn Commands**: `turn_left(3)` and `turn_right(2)` now repeat N times
+  - **Simplified Command Aliases**: Added `forward()`, `left()`, `right()` as shortcuts
+  - **Auto-Import Prelude**: Students no longer need `import player` - commands work directly
   - **Deleted Files**: Removed `js/python-parser.js` and `js/player-module.js`
 
 - **2025-11-25**: Chapter Dropdown for Developers
