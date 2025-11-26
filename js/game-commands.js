@@ -1,7 +1,7 @@
 // ============================================
 // GAME COMMANDS - Single Source of Truth
-// All game commands are defined here once.
-// Skulpt wrappers are auto-generated.
+// All game commands defined here once.
+// Skulpt module source is generated at load time.
 // ============================================
 
 (function() {
@@ -11,26 +11,28 @@
     
     function findObjectAt(x, y, type) {
         if (!gameState.objects) return null;
-        return gameState.objects.find(obj => obj.x === x && obj.y === y && obj.type === type);
+        return gameState.objects.find(function(obj) { 
+            return obj.x === x && obj.y === y && obj.type === type; 
+        });
     }
 
     function updateInventoryDisplay() {
-        const inventoryPanel = document.getElementById('inventory-panel');
+        var inventoryPanel = document.getElementById('inventory-panel');
         if (inventoryPanel && gameState.inventory) {
             inventoryPanel.innerHTML = '<strong>Inventory:</strong><br>';
-            for (const [item, count] of Object.entries(gameState.inventory)) {
-                const itemDiv = document.createElement('div');
-                itemDiv.textContent = `${item}: ${count}`;
+            for (var item in gameState.inventory) {
+                var itemDiv = document.createElement('div');
+                itemDiv.textContent = item + ': ' + gameState.inventory[item];
                 inventoryPanel.appendChild(itemDiv);
             }
         }
     }
 
     function getTargetPosition() {
-        const { x, y } = gameState.playerPos;
-        const px = Math.floor(x);
-        const py = Math.floor(y);
-        let targetX = px, targetY = py;
+        var pos = gameState.playerPos;
+        var px = Math.floor(pos.x);
+        var py = Math.floor(pos.y);
+        var targetX = px, targetY = py;
         
         switch (gameState.playerDirection) {
             case 'up': targetY--; break;
@@ -38,29 +40,32 @@
             case 'left': targetX--; break;
             case 'right': targetX++; break;
         }
-        return { px, py, targetX, targetY };
+        return { px: px, py: py, targetX: targetX, targetY: targetY };
     }
 
-    function getAnimationDuration(fraction = 1) {
+    function getAnimationDuration(fraction) {
+        fraction = fraction || 1;
         return SPEED_SETTINGS[currentSpeed].duration * fraction;
     }
 
     // ========== COMMAND DEFINITIONS ==========
-    // Add new commands here - they will automatically be available in Python
+    // Single source of truth: metadata + execute function
+    // Both JS callers and Skulpt use these definitions
     
-    const GameCommands = {
+    var GameCommands = {
         move_forward: {
             args: ['steps'],
             defaults: { steps: 1 },
             countsAsMultiple: true,
             execute: async function(steps) {
                 steps = parseInt(steps) || 1;
-                let moved = 0;
+                var moved = 0;
                 
-                for (let i = 0; i < steps; i++) {
-                    const { x, y } = gameState.playerPos;
-                    let newX = Math.floor(x);
-                    let newY = Math.floor(y);
+                for (var i = 0; i < steps; i++) {
+                    var pos = gameState.playerPos;
+                    var x = pos.x, y = pos.y;
+                    var newX = Math.floor(x);
+                    var newY = Math.floor(y);
                     
                     switch (gameState.playerDirection) {
                         case 'up': newY--; break;
@@ -84,35 +89,35 @@
 
         turn_left: {
             execute: async function() {
-                const directions = ['up', 'left', 'down', 'right'];
-                const currentIndex = directions.indexOf(gameState.playerDirection);
+                var directions = ['up', 'left', 'down', 'right'];
+                var currentIndex = directions.indexOf(gameState.playerDirection);
                 gameState.playerDirection = directions[(currentIndex + 1) % 4];
                 
-                await new Promise(resolve => {
-                    setTimeout(() => { render(); resolve(); }, getAnimationDuration(0.5));
+                await new Promise(function(resolve) {
+                    setTimeout(function() { render(); resolve(); }, getAnimationDuration(0.5));
                 });
             }
         },
 
         turn_right: {
             execute: async function() {
-                const directions = ['up', 'right', 'down', 'left'];
-                const currentIndex = directions.indexOf(gameState.playerDirection);
+                var directions = ['up', 'right', 'down', 'left'];
+                var currentIndex = directions.indexOf(gameState.playerDirection);
                 gameState.playerDirection = directions[(currentIndex + 1) % 4];
                 
-                await new Promise(resolve => {
-                    setTimeout(() => { render(); resolve(); }, getAnimationDuration(0.5));
+                await new Promise(function(resolve) {
+                    setTimeout(function() { render(); resolve(); }, getAnimationDuration(0.5));
                 });
             }
         },
 
         push: {
             execute: async function() {
-                const { targetX, targetY } = getTargetPosition();
-                const object = findObjectAt(targetX, targetY, 'pushable');
+                var pos = getTargetPosition();
+                var object = findObjectAt(pos.targetX, pos.targetY, 'pushable');
                 
                 if (object) {
-                    let newX = targetX, newY = targetY;
+                    var newX = pos.targetX, newY = pos.targetY;
                     switch (gameState.playerDirection) {
                         case 'up': newY--; break;
                         case 'down': newY++; break;
@@ -127,7 +132,7 @@
                     }
                 }
                 
-                await new Promise(r => setTimeout(r, getAnimationDuration(0.5)));
+                await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
             }
         },
 
@@ -141,16 +146,16 @@
                 if (!gameState.messageLog) gameState.messageLog = [];
                 gameState.messageLog.push(message);
                 
-                const messagePanel = document.getElementById('message-panel');
+                var messagePanel = document.getElementById('message-panel');
                 if (messagePanel) {
-                    const msgDiv = document.createElement('div');
+                    var msgDiv = document.createElement('div');
                     msgDiv.className = 'message-item';
                     msgDiv.textContent = message;
                     messagePanel.appendChild(msgDiv);
                     messagePanel.scrollTop = messagePanel.scrollHeight;
                 }
                 
-                await new Promise(r => setTimeout(r, getAnimationDuration()));
+                await new Promise(function(r) { setTimeout(r, getAnimationDuration(1)); });
             }
         },
 
@@ -158,63 +163,68 @@
             args: ['resource'],
             defaults: { resource: 'item' },
             execute: async function(resource) {
-                const { px, py } = getTargetPosition();
-                const collectibleIndex = gameState.collectibles.findIndex(
-                    c => c.x === px && c.y === py && !c.collected
-                );
+                var pos = getTargetPosition();
+                var collectibleIndex = -1;
+                for (var i = 0; i < gameState.collectibles.length; i++) {
+                    var c = gameState.collectibles[i];
+                    if (c.x === pos.px && c.y === pos.py && !c.collected) {
+                        collectibleIndex = i;
+                        break;
+                    }
+                }
                 
                 if (collectibleIndex >= 0) {
                     gameState.collectibles[collectibleIndex].collected = true;
                     if (!gameState.inventory) gameState.inventory = {};
-                    const resourceType = resource || 'item';
+                    var resourceType = resource || 'item';
                     gameState.inventory[resourceType] = (gameState.inventory[resourceType] || 0) + 1;
                     updateInventoryDisplay();
                     await render();
                 }
                 
-                await new Promise(r => setTimeout(r, getAnimationDuration(0.5)));
+                await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
             }
         },
 
         water: {
             execute: async function() {
-                const { px, py } = getTargetPosition();
-                const crop = findObjectAt(px, py, 'crop');
+                var pos = getTargetPosition();
+                var crop = findObjectAt(pos.px, pos.py, 'crop');
                 
                 if (crop && !crop.watered) {
                     crop.watered = true;
                     await render();
                 }
                 
-                await new Promise(r => setTimeout(r, getAnimationDuration(0.5)));
+                await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
             }
         },
 
         open: {
             execute: async function() {
-                const { targetX, targetY } = getTargetPosition();
-                const door = findObjectAt(targetX, targetY, 'door');
+                var pos = getTargetPosition();
+                var door = findObjectAt(pos.targetX, pos.targetY, 'door');
                 
                 if (door) {
                     door.open = true;
                     await render();
                 }
                 
-                await new Promise(r => setTimeout(r, getAnimationDuration(0.5)));
+                await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
             }
         },
 
         close: {
             execute: async function() {
-                const { targetX, targetY } = getTargetPosition();
-                const door = findObjectAt(targetX, targetY, 'door');
+                var pos = getTargetPosition();
+                var door = findObjectAt(pos.targetX, pos.targetY, 'door');
                 
                 if (door) {
                     door.open = false;
                     await render();
                 }
                 
-                await new Promise(r => setTimeout(r, getAnimationDuration(0.5)));
+                await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
             }
         },
 
@@ -223,8 +233,8 @@
             defaults: { item: null },
             execute: async function(item) {
                 if (!item) return;
-                const { targetX, targetY } = getTargetPosition();
-                const chest = findObjectAt(targetX, targetY, 'chest');
+                var pos = getTargetPosition();
+                var chest = findObjectAt(pos.targetX, pos.targetY, 'chest');
                 
                 if (chest) {
                     if (!chest.contents) chest.contents = [];
@@ -232,7 +242,7 @@
                     await render();
                 }
                 
-                await new Promise(r => setTimeout(r, getAnimationDuration(0.5)));
+                await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
             }
         },
 
@@ -241,66 +251,114 @@
             defaults: { objectName: null },
             execute: async function(objectName) {
                 if (!objectName) return;
-                const { targetX, targetY } = getTargetPosition();
+                var pos = getTargetPosition();
                 
                 if (!gameState.objects) gameState.objects = [];
-                gameState.objects.push({ type: objectName, x: targetX, y: targetY, built: true });
+                gameState.objects.push({ type: objectName, x: pos.targetX, y: pos.targetY, built: true });
                 
-                if (objectName === 'bridge' && gameState.mapData[targetY]) {
-                    gameState.mapData[targetY][targetX] = TILES.PATH;
+                if (objectName === 'bridge' && gameState.mapData[pos.targetY]) {
+                    gameState.mapData[pos.targetY][pos.targetX] = TILES.PATH;
                 }
                 
                 await render();
-                await new Promise(r => setTimeout(r, getAnimationDuration()));
+                await new Promise(function(r) { setTimeout(r, getAnimationDuration(1)); });
             }
         }
     };
 
-    // ========== SKULPT WRAPPER GENERATOR ==========
+    // ========== EXPOSE COMMAND EXECUTORS AS GLOBALS ==========
+    // These are called by Skulpt wrappers via window reference
     
-    var commandCounter = 0;
-
-    window.incrementSkulptCommandCounter = function() {
-        commandCounter++;
-    };
-
-    function createSkulptWrapper(cmdName, cmdDef) {
-        return new Sk.builtin.func(function() {
-            var args = Array.prototype.slice.call(arguments);
-            var jsArgs = {};
-            
-            if (cmdDef.args) {
-                cmdDef.args.forEach(function(argName, i) {
-                    if (args[i] !== undefined) {
-                        jsArgs[argName] = Sk.ffi.remapToJs(args[i]);
-                    } else if (cmdDef.defaults && cmdDef.defaults[argName] !== undefined) {
-                        jsArgs[argName] = cmdDef.defaults[argName];
-                    }
-                });
-            }
-            
-            return Sk.misceval.promiseToSuspension(
-                (async function() {
-                    var firstArg = cmdDef.args ? jsArgs[cmdDef.args[0]] : undefined;
-                    var result = await cmdDef.execute(firstArg);
-                    
-                    if (cmdDef.countsAsMultiple && typeof result === 'number') {
-                        commandCounter += result;
-                    } else {
-                        commandCounter++;
-                    }
-                    return Sk.builtin.none.none$;
-                })()
-            );
-        });
+    for (var cmdName in GameCommands) {
+        (function(name, cmd) {
+            window['gameCommand_' + name] = function() {
+                return cmd.execute.apply(null, arguments);
+            };
+        })(cmdName, GameCommands[cmdName]);
     }
 
-    window.playerBuiltinModule = function(name) {
-        var mod = {};
+    // ========== SKULPT MODULE SOURCE GENERATOR ==========
+    // Generates a self-contained module source string at load time
+    
+    function buildSkulptModuleSource() {
+        var lines = [];
+        lines.push('var $builtinmodule = function(name) {');
+        lines.push('    var mod = {};');
+        lines.push('    var commandCounter = 0;');
+        lines.push('');
+        lines.push('    function incrementCounter(n) {');
+        lines.push('        n = n || 1;');
+        lines.push('        commandCounter += n;');
+        lines.push('        if (typeof window.updateSkulptCommandCounter === "function") {');
+        lines.push('            window.updateSkulptCommandCounter(commandCounter);');
+        lines.push('        }');
+        lines.push('    }');
+        lines.push('');
+        
         for (var cmdName in GameCommands) {
-            mod[cmdName] = createSkulptWrapper(cmdName, GameCommands[cmdName]);
+            var cmd = GameCommands[cmdName];
+            var args = cmd.args || [];
+            var defaults = cmd.defaults || {};
+            var countsAsMultiple = cmd.countsAsMultiple || false;
+            
+            lines.push('    mod.' + cmdName + ' = new Sk.builtin.func(function(' + args.join(', ') + ') {');
+            
+            var jsArgsList = [];
+            if (args.length > 0) {
+                for (var i = 0; i < args.length; i++) {
+                    var argName = args[i];
+                    var defaultVal = defaults[argName];
+                    var defaultStr = defaultVal === null ? 'null' : 
+                                     typeof defaultVal === 'string' ? '"' + defaultVal + '"' : 
+                                     String(defaultVal);
+                    lines.push('        var js_' + argName + ' = ' + defaultStr + ';');
+                    lines.push('        if (' + argName + ' !== undefined) {');
+                    lines.push('            js_' + argName + ' = Sk.ffi.remapToJs(' + argName + ');');
+                    lines.push('        }');
+                    jsArgsList.push('js_' + argName);
+                }
+            }
+            
+            lines.push('        return Sk.misceval.promiseToSuspension(');
+            lines.push('            (async function() {');
+            lines.push('                var result = await window.gameCommand_' + cmdName + '(' + jsArgsList.join(', ') + ');');
+            
+            if (countsAsMultiple) {
+                lines.push('                incrementCounter(typeof result === "number" ? result : 1);');
+            } else {
+                lines.push('                incrementCounter(1);');
+            }
+            
+            lines.push('                return Sk.builtin.none.none$;');
+            lines.push('            })()');
+            lines.push('        );');
+            lines.push('    });');
+            lines.push('');
         }
-        return mod;
+        
+        lines.push('    return mod;');
+        lines.push('};');
+        
+        return lines.join('\n');
+    }
+
+    // Generate and expose the module source
+    window.playerModuleSource = buildSkulptModuleSource();
+
+    // ========== COMMAND COUNTER ==========
+    
+    var globalCommandCounter = 0;
+
+    window.updateSkulptCommandCounter = function(count) {
+        globalCommandCounter = count;
+    };
+
+    window.getCommandCount = function() {
+        return globalCommandCounter;
+    };
+
+    window.resetCommandCounter = function() {
+        globalCommandCounter = 0;
     };
 
     // ========== GAME CONTROL FUNCTIONS ==========
@@ -314,17 +372,19 @@
     };
 
     window.resetGame = function() {
-        gameState.playerPos = {...gameState.startPos};
+        gameState.playerPos = { x: gameState.startPos.x, y: gameState.startPos.y };
         gameState.playerDirection = 'right';
         gameState.isRunning = false;
         document.getElementById('run-btn').disabled = false;
         
         if (gameState.collectibles) {
-            gameState.collectibles.forEach(c => c.collected = false);
+            for (var i = 0; i < gameState.collectibles.length; i++) {
+                gameState.collectibles[i].collected = false;
+            }
         }
         
         gameState.messageLog = [];
-        const messagePanel = document.getElementById('message-panel');
+        var messagePanel = document.getElementById('message-panel');
         if (messagePanel) {
             messagePanel.innerHTML = '';
         }
@@ -336,8 +396,6 @@
     // ========== EXPORTS ==========
     
     window.GameCommands = GameCommands;
-    window.getCommandCount = function() { return commandCounter; };
-    window.resetCommandCounter = function() { commandCounter = 0; };
 
     console.log('[Game Commands] Loaded successfully');
 })();
