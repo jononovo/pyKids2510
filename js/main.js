@@ -173,6 +173,13 @@ function loadLevel(levelIndex) {
     currentLevel = levelIndex;
     const level = courseData.levels[levelIndex];
     
+    // Set current level in UserProgressManager
+    if (window.UserProgressManager) {
+        const levelSlug = level.slug || null;
+        UserProgressManager.setCurrentLevel(courseData.chapterNumber, levelIndex, levelSlug);
+        UserProgressManager.resetLevelSession();
+    }
+    
     // Store the current level's starter code globally for Blockly to access
     window.currentLessonStarterCode = level.starterCode;
     
@@ -256,7 +263,14 @@ function loadLevel(levelIndex) {
         if (isFirstLoad) {
             // First time - initialize everything
             initializeEditorInfrastructure();
-            updateEditorContent(level.starterCode);
+            
+            // Check for saved code, otherwise use starter code
+            const savedCode = window.UserProgressManager ? UserProgressManager.getSavedCode() : null;
+            const codeToLoad = savedCode || level.starterCode;
+            updateEditorContent(codeToLoad);
+            
+            // Update currentLessonStarterCode for Blockly compatibility
+            window.currentLessonStarterCode = codeToLoad;
             
             // Load CSS for Blockly if needed
             if (window.BlocklyModeSwitcher) {
@@ -314,7 +328,13 @@ function loadLevel(levelIndex) {
             }
         } else {
             // Infrastructure exists - just update content
-            updateEditorContent(level.starterCode);
+            // Check for saved code, otherwise use starter code
+            const savedCode = window.UserProgressManager ? UserProgressManager.getSavedCode() : null;
+            const codeToLoad = savedCode || level.starterCode;
+            updateEditorContent(codeToLoad);
+            
+            // Update currentLessonStarterCode for Blockly compatibility
+            window.currentLessonStarterCode = codeToLoad;
             
             // Handle Blockly mode persistence
             if (window.BlocklyModeSwitcher) {
@@ -324,10 +344,10 @@ function loadLevel(levelIndex) {
                     // Clear blocks but keep workspace
                     if (window.BlocklyWorkspace && window.BlocklyWorkspace.workspace) {
                         window.BlocklyWorkspace.workspace.clear();
-                        // Load new starter code into existing workspace
-                        if (window.BlocklyIntegration && level.starterCode) {
+                        // Load saved/starter code into existing workspace
+                        if (window.BlocklyIntegration && codeToLoad) {
                             setTimeout(() => {
-                                window.BlocklyIntegration.convertFromText(level.starterCode);
+                                window.BlocklyIntegration.convertFromText(codeToLoad);
                             }, 100);
                         }
                     }
@@ -429,6 +449,9 @@ function initializeEditorInfrastructure() {
     
     jar.onUpdate(() => {
         updateLineNumbers();
+        if (window.UserProgressManager) {
+            UserProgressManager.saveCode(jar.toString());
+        }
     });
     
     return true;
