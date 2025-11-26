@@ -141,6 +141,7 @@ The platform is based on the original game at **codingforkids.io**.
   - **Self-Contained Wrappers**: Generated Skulpt functions reference window globals (no closure dependencies)
   - **Multi-Arg Support**: All arguments properly forwarded to command functions
   - **Command Counter**: Accurate tracking via `countsAsMultiple` for multi-step commands
+  - **Repetition for Turn Commands**: `turn_left(3)` and `turn_right(2)` now repeat N times
   - **Deleted Files**: Removed `js/python-parser.js` and `js/player-module.js`
 
 - **2025-11-25**: Chapter Dropdown for Developers
