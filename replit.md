@@ -134,6 +134,18 @@ The platform is based on the original game at **codingforkids.io**.
 
 ## Recent Changes
 
+- **2025-11-26**: Skulpt Integration Refactor - Single Source of Truth
+  - **Consolidated Architecture**: Merged `python-parser.js` and `player-module.js` into single `js/game-commands.js`
+  - **Single Source of Truth**: All 11 game commands defined once with metadata + execute functions
+  - **Code Generation Pattern**: Skulpt module source generated at load time from GameCommands registry
+  - **Self-Contained Wrappers**: Generated Skulpt functions reference window globals (no closure dependencies)
+  - **Multi-Arg Support**: All arguments properly forwarded to command functions
+  - **Command Counter**: Accurate tracking via `countsAsMultiple` for multi-step commands
+  - **Repetition for Turn Commands**: `turn_left(3)` and `turn_right(2)` now repeat N times
+  - **Simplified Command Aliases**: Added `forward()`, `left()`, `right()` as shortcuts
+  - **Auto-Import Prelude**: Students no longer need `import player` - commands work directly
+  - **Deleted Files**: Removed `js/python-parser.js` and `js/player-module.js`
+
 - **2025-11-26**: Tile Configuration Externalization
   - **Created Tile Manifest**: Moved SVG tile definitions from `game-engine.js` to `assets/map/tiles.json`
   - **Manifest Structure**: JSON file containing tile paths, fallback colors, and overlay flags

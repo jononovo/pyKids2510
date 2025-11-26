@@ -5,12 +5,6 @@
 (function() {
     'use strict';
 
-    var commandCounter = 0;
-
-    window.incrementSkulptCommandCounter = function() {
-        commandCounter++;
-    };
-
     function builtinRead(filename) {
         if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][filename] === undefined) {
             throw "File not found: '" + filename + "'";
@@ -24,12 +18,11 @@
         if (!Sk.builtinFiles.files) Sk.builtinFiles.files = {};
 
         // Inject the player module into Skulpt's virtual file system
-        // Convert the function to source code string so Skulpt can evaluate it
-        if (window.playerBuiltinModule) {
-            Sk.builtinFiles.files['src/lib/player.js'] = 
-                'var $builtinmodule = ' + window.playerBuiltinModule.toString() + ';';
+        // Uses pre-generated self-contained module source from game-commands.js
+        if (window.playerModuleSource) {
+            Sk.builtinFiles.files['src/lib/player.js'] = window.playerModuleSource;
         } else {
-            console.error('[Skulpt Runtime] Player module not found - ensure player-module.js loads first');
+            console.error('[Skulpt Runtime] Player module source not found - ensure game-commands.js loads first');
         }
 
         Sk.configure({
@@ -74,10 +67,12 @@
         return { line: lineNum, error: errorMsg };
     }
 
+    var CODE_PRELUDE = 'from player import *\nimport player\n';
+
     async function executePythonCode(code) {
         configureSkulpt();
         
-        commandCounter = 0;
+        if (typeof window.resetCommandCounter === 'function') window.resetCommandCounter();
         
         if (typeof gameState !== 'undefined') {
             gameState.playerPos = {...gameState.startPos};
@@ -86,18 +81,20 @@
             if (typeof updateViewport === 'function') updateViewport();
         }
 
+        var fullCode = CODE_PRELUDE + code;
         var executionError = null;
 
         try {
             await Sk.misceval.asyncToPromise(function() {
-                return Sk.importMainWithBody("<stdin>", false, code, true);
+                return Sk.importMainWithBody("<stdin>", false, fullCode, true);
             });
         } catch (error) {
             executionError = formatSkulptError(error);
             console.error('[Skulpt Error]', executionError.error);
         }
 
-        return { executionError: executionError, executedCommands: commandCounter };
+        var executedCommands = typeof window.getCommandCount === 'function' ? window.getCommandCount() : 0;
+        return { executionError: executionError, executedCommands: executedCommands };
     }
 
     async function runCodeWithSkulpt() {
@@ -137,7 +134,7 @@
         execute: executePythonCode,
         runCode: runCodeWithSkulpt,
         configure: configureSkulpt,
-        getCommandCount: function() { return commandCounter; }
+        getCommandCount: function() { return typeof window.getCommandCount === 'function' ? window.getCommandCount() : 0; }
     };
 
     window.pythonExecutor = {
