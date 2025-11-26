@@ -134,6 +134,15 @@ The platform is based on the original game at **codingforkids.io**.
 
 ## Recent Changes
 
+- **2025-11-26**: Tile Configuration Externalization
+  - **Created Tile Manifest**: Moved SVG tile definitions from `game-engine.js` to `assets/map/tiles.json`
+  - **Manifest Structure**: JSON file containing tile paths, fallback colors, and overlay flags
+  - **Helper Functions**: Added `getTilePath()`, `getTileFallbackColor()`, `isTileOverlay()` for clean access
+  - **Defensive Guards**: All helper functions safely handle cases where manifest hasn't loaded yet
+  - **Code Cleanup**: Removed hardcoded `SVG_TILES`, `SPECIAL_SVGS`, and `tileColors` objects
+  - **Consistency**: Tiles now load via manifest like collectibles, improving maintainability
+  - **Easier Customization**: Non-developers can add/modify tiles by editing the JSON file
+
 - **2025-10-15**: Modular Beach/Island Tile System
   - **Created Complete Beach Tile Set**: New modular tiles for creating any island or water-based map
     - `sand.svg` - Sandy beach base tile with texture
