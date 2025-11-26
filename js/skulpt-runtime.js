@@ -5,167 +5,32 @@
 (function() {
     'use strict';
 
-    let commandCounter = 0;
+    var commandCounter = 0;
+
+    window.incrementSkulptCommandCounter = function() {
+        commandCounter++;
+    };
 
     function builtinRead(filename) {
-        if (filename === "src/builtin/player.js") {
-            return createPlayerModuleSource();
-        }
         if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][filename] === undefined) {
             throw "File not found: '" + filename + "'";
         }
         return Sk.builtinFiles["files"][filename];
     }
 
-    function createPlayerModuleSource() {
-        return "";
-    }
-
-    function createPlayerModule() {
-        const mod = { __name__: new Sk.builtin.str("player") };
-
-        mod.move_forward = new Sk.builtin.func(function(steps) {
-            steps = steps !== undefined ? Sk.ffi.remapToJs(steps) : 1;
-            steps = parseInt(steps) || 1;
-            
-            return new Sk.misceval.promiseToSuspension(
-                (async () => {
-                    for (let i = 0; i < steps; i++) {
-                        await moveForward();
-                        commandCounter++;
-                    }
-                    return Sk.builtin.none.none$;
-                })()
-            );
-        });
-
-        mod.turn_left = new Sk.builtin.func(function() {
-            return new Sk.misceval.promiseToSuspension(
-                (async () => {
-                    await turnLeft();
-                    commandCounter++;
-                    return Sk.builtin.none.none$;
-                })()
-            );
-        });
-
-        mod.turn_right = new Sk.builtin.func(function() {
-            return new Sk.misceval.promiseToSuspension(
-                (async () => {
-                    await turnRight();
-                    commandCounter++;
-                    return Sk.builtin.none.none$;
-                })()
-            );
-        });
-
-        mod.push = new Sk.builtin.func(function() {
-            return new Sk.misceval.promiseToSuspension(
-                (async () => {
-                    await push();
-                    commandCounter++;
-                    return Sk.builtin.none.none$;
-                })()
-            );
-        });
-
-        mod.speak = new Sk.builtin.func(function(message) {
-            const msg = message !== undefined ? Sk.ffi.remapToJs(message) : '';
-            return new Sk.misceval.promiseToSuspension(
-                (async () => {
-                    await speak(msg);
-                    commandCounter++;
-                    return Sk.builtin.none.none$;
-                })()
-            );
-        });
-
-        mod.collect = new Sk.builtin.func(function(resource) {
-            const res = resource !== undefined ? Sk.ffi.remapToJs(resource) : null;
-            return new Sk.misceval.promiseToSuspension(
-                (async () => {
-                    await collect(res);
-                    commandCounter++;
-                    return Sk.builtin.none.none$;
-                })()
-            );
-        });
-
-        mod.water = new Sk.builtin.func(function() {
-            return new Sk.misceval.promiseToSuspension(
-                (async () => {
-                    await water();
-                    commandCounter++;
-                    return Sk.builtin.none.none$;
-                })()
-            );
-        });
-
-        mod.open = new Sk.builtin.func(function() {
-            return new Sk.misceval.promiseToSuspension(
-                (async () => {
-                    await window.open ? open() : Promise.resolve();
-                    commandCounter++;
-                    return Sk.builtin.none.none$;
-                })()
-            );
-        });
-
-        mod.close = new Sk.builtin.func(function() {
-            return new Sk.misceval.promiseToSuspension(
-                (async () => {
-                    await close();
-                    commandCounter++;
-                    return Sk.builtin.none.none$;
-                })()
-            );
-        });
-
-        mod.place = new Sk.builtin.func(function(item) {
-            const it = item !== undefined ? Sk.ffi.remapToJs(item) : null;
-            return new Sk.misceval.promiseToSuspension(
-                (async () => {
-                    await place(it);
-                    commandCounter++;
-                    return Sk.builtin.none.none$;
-                })()
-            );
-        });
-
-        mod.build = new Sk.builtin.func(function(objectName) {
-            const name = objectName !== undefined ? Sk.ffi.remapToJs(objectName) : null;
-            return new Sk.misceval.promiseToSuspension(
-                (async () => {
-                    await build(name);
-                    commandCounter++;
-                    return Sk.builtin.none.none$;
-                })()
-            );
-        });
-
-        return mod;
-    }
-
-    function injectPlayerModule() {
-        const playerFuncs = createPlayerModule();
-        
-        const playerMod = new Sk.builtin.module();
-        playerMod.$d = new Sk.builtin.dict([]);
-        
-        for (const key in playerFuncs) {
-            playerMod.$d.mp$ass_subscript(new Sk.builtin.str(key), playerFuncs[key]);
-        }
-        
-        Sk.sysmodules.mp$ass_subscript(new Sk.builtin.str("player"), playerMod);
-    }
-
     function configureSkulpt() {
+        Sk.externalLibraries = {
+            'player': {
+                path: '/js/player-module.js'
+            }
+        };
+
         Sk.configure({
             output: function(text) {
                 console.log('[Python]', text);
-                const messagePanel = document.getElementById('message-panel');
+                var messagePanel = document.getElementById('message-panel');
                 if (messagePanel && text.trim()) {
-                    const msgDiv = document.createElement('div');
+                    var msgDiv = document.createElement('div');
                     msgDiv.className = 'message-item';
                     msgDiv.textContent = text.trim();
                     messagePanel.appendChild(msgDiv);
@@ -178,13 +43,11 @@
             killableWhile: true,
             killableFor: true
         });
-
-        injectPlayerModule();
     }
 
     function formatSkulptError(error) {
-        let lineNum = null;
-        let errorMsg = '';
+        var lineNum = null;
+        var errorMsg = '';
         
         if (error.traceback && error.traceback.length > 0) {
             lineNum = error.traceback[0].lineno;
@@ -196,8 +59,8 @@
             errorMsg = error.toString();
         }
         
-        if (errorMsg.includes('SyntaxError')) {
-            const match = errorMsg.match(/line (\d+)/);
+        if (errorMsg.indexOf('SyntaxError') !== -1) {
+            var match = errorMsg.match(/line (\d+)/);
             if (match) lineNum = parseInt(match[1]);
         }
         
@@ -209,12 +72,14 @@
         
         commandCounter = 0;
         
-        gameState.playerPos = {...gameState.startPos};
-        gameState.playerDirection = 'right';
-        render();
-        updateViewport();
+        if (typeof gameState !== 'undefined') {
+            gameState.playerPos = {...gameState.startPos};
+            gameState.playerDirection = 'right';
+            if (typeof render === 'function') render();
+            if (typeof updateViewport === 'function') updateViewport();
+        }
 
-        let executionError = null;
+        var executionError = null;
 
         try {
             await Sk.misceval.asyncToPromise(function() {
@@ -225,17 +90,17 @@
             console.error('[Skulpt Error]', executionError.error);
         }
 
-        return { executionError, executedCommands: commandCounter };
+        return { executionError: executionError, executedCommands: commandCounter };
     }
 
     async function runCodeWithSkulpt() {
         if (typeof gameState === 'undefined' || gameState.isRunning) return;
         
         gameState.isRunning = true;
-        const runBtn = document.getElementById('run-btn');
+        var runBtn = document.getElementById('run-btn');
         if (runBtn) runBtn.disabled = true;
         
-        let code;
+        var code;
         if (window.BlocklyModeSwitcher && window.BlocklyModeSwitcher.isBlockMode()) {
             code = window.BlocklyModeSwitcher.getCode();
         } else if (typeof jar !== 'undefined') {
@@ -247,9 +112,11 @@
             return;
         }
 
-        const { executionError, executedCommands } = await executePythonCode(code);
+        var result = await executePythonCode(code);
+        var executionError = result.executionError;
+        var executedCommands = result.executedCommands;
         
-        const reachedGoal = typeof checkVictory === 'function' ? checkVictory() : false;
+        var reachedGoal = typeof checkVictory === 'function' ? checkVictory() : false;
         
         if (window.tutorEnabled && !reachedGoal && typeof analyzeCodeAndProvideHelp === 'function') {
             analyzeCodeAndProvideHelp(code, executionError, executedCommands);
@@ -271,12 +138,14 @@
             if (typeof gameState === 'undefined' || gameState.isRunning) return;
             
             gameState.isRunning = true;
-            const runBtn = document.getElementById('run-btn');
+            var runBtn = document.getElementById('run-btn');
             if (runBtn) runBtn.disabled = true;
             
-            const { executionError, executedCommands } = await executePythonCode(code);
+            var result = await executePythonCode(code);
+            var executionError = result.executionError;
+            var executedCommands = result.executedCommands;
             
-            const reachedGoal = typeof checkVictory === 'function' ? checkVictory() : false;
+            var reachedGoal = typeof checkVictory === 'function' ? checkVictory() : false;
             
             if (window.tutorEnabled && !reachedGoal && typeof analyzeCodeAndProvideHelp === 'function') {
                 analyzeCodeAndProvideHelp(code, executionError, executedCommands);
