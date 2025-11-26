@@ -134,6 +134,14 @@ The platform is based on the original game at **codingforkids.io**.
 
 ## Recent Changes
 
+- **2025-11-26**: Skulpt Integration Refactor - Single Source of Truth
+  - **Consolidated Architecture**: Merged `python-parser.js` and `player-module.js` into single `js/game-commands.js`
+  - **Single Source of Truth**: All 11 game commands defined once with auto-generated Skulpt wrappers
+  - **No Duplication**: Adding a new command requires only ONE entry in GameCommands object
+  - **Cleaner Wrapper**: Simplified Skulpt wrapper generator with consistent arg handling
+  - **Command Counter**: Accurate tracking via `countsAsMultiple` for multi-step commands
+  - **Deleted Files**: Removed `js/python-parser.js` and `js/player-module.js`
+
 - **2025-11-25**: Chapter Dropdown for Developers
   - **Added dropdown button** in header area (▼ chevron) to switch between lesson files
   - **Dynamic file discovery**: Server endpoint `/markdown-files.json` lists all `.md` files in `assets/` folder
