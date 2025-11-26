@@ -1,45 +1,7 @@
 // ============================================
-// PYTHON COMMAND PARSER & EXECUTOR
+// PYTHON GAME ACTIONS
+// These functions are called by Skulpt runtime
 // ============================================
-
-async function executeCommand(cmd) {
-    if (cmd.includes('move_forward')) {
-        const match = cmd.match(/move_forward\((\d*)\)/);
-        const steps = match && match[1] ? parseInt(match[1]) : 1;
-        
-        for (let i = 0; i < steps; i++) {
-            await moveForward();
-        }
-    } else if (cmd.includes('turn_left')) {
-        await turnLeft();
-    } else if (cmd.includes('turn_right')) {
-        await turnRight();
-    } else if (cmd.includes('push')) {
-        await push();
-    } else if (cmd.includes('speak')) {
-        const match = cmd.match(/speak\((.*)\)/);
-        const message = match && match[1] ? match[1].trim() : '';
-        await speak(message);
-    } else if (cmd.includes('collect')) {
-        const match = cmd.match(/collect\(['"](.*)['"]\)/);
-        const resource = match && match[1] ? match[1] : null;
-        await collect(resource);
-    } else if (cmd.includes('water')) {
-        await water();
-    } else if (cmd.includes('open')) {
-        await open();
-    } else if (cmd.includes('close')) {
-        await close();
-    } else if (cmd.includes('place')) {
-        const match = cmd.match(/place\((.*)\)/);
-        const item = match && match[1] ? match[1].trim() : null;
-        await place(item);
-    } else if (cmd.includes('build')) {
-        const match = cmd.match(/build\(['"](.*)['"]\)/);
-        const objectName = match && match[1] ? match[1] : null;
-        await build(objectName);
-    }
-}
 
 async function moveForward() {
     const { x, y } = gameState.playerPos;
@@ -319,60 +281,13 @@ function updateInventoryDisplay() {
     }
 }
 
-// Run the Python code
+// Run the Python code using Skulpt
 async function runCode() {
-    if (gameState.isRunning) return;
-    
-    gameState.isRunning = true;
-    document.getElementById('run-btn').disabled = true;
-    
-    // Get code from either text editor or Blockly depending on current mode
-    let code;
-    if (window.BlocklyModeSwitcher && window.BlocklyModeSwitcher.isBlockMode()) {
-        code = window.BlocklyModeSwitcher.getCode();
+    if (window.SkulptRuntime) {
+        await window.SkulptRuntime.runCode();
     } else {
-        code = jar.toString();
+        console.error('Skulpt runtime not loaded');
     }
-    
-    const lines = code.split('\n');
-    
-    // Reset player position
-    gameState.playerPos = {...gameState.startPos};
-    gameState.playerDirection = 'right';
-    render();
-    updateViewport();
-    
-    // Track execution for tutor
-    let executionError = null;
-    let executedCommands = 0;
-    
-    for (let line of lines) {
-        line = line.trim();
-        if (!line || line.startsWith('#') || line.startsWith('import')) continue;
-        
-        if (line.includes('player.')) {
-            const cmd = line.replace('player.', '');
-            try {
-                await executeCommand(cmd);
-                executedCommands++;
-            } catch (error) {
-                executionError = { line, error: error.message };
-                break;
-            }
-        }
-    }
-    
-    // Check if code succeeded in reaching goal
-    const reachedGoal = checkVictory();
-    
-    // If tutor is enabled and code didn't succeed, show help
-    if (window.tutorEnabled && !reachedGoal) {
-        // Analyze code and provide help
-        analyzeCodeAndProvideHelp(code, executionError, executedCommands);
-    }
-    
-    gameState.isRunning = false;
-    document.getElementById('run-btn').disabled = false;
 }
 
 // Reset the game state
