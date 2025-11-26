@@ -105,3 +105,5 @@ const PythonHighlighter = {
         }).join('');
     }
 };
+
+window.PythonHighlighter = PythonHighlighter;
