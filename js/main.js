@@ -285,9 +285,10 @@ function loadLevel(levelIndex) {
             if (window._isNewLevelEntry) {
                 // For level 1 (index 0), always use original starter code from MD file
                 // For subsequent levels, use saved code if available
-                window.levelEntrySnapshot.starterCode = (window.currentLevel === 0) 
+                window.levelEntrySnapshot.starterCode = (currentLevel === 0) 
                     ? level.starterCode 
                     : codeToLoad;
+                console.log('[loadLevel] Saved starterCode snapshot for level', currentLevel + 1, ':', window.levelEntrySnapshot.starterCode.substring(0, 50) + '...');
             }
             
             // Update currentLessonStarterCode for Blockly compatibility
@@ -358,9 +359,10 @@ function loadLevel(levelIndex) {
             if (window._isNewLevelEntry) {
                 // For level 1 (index 0), always use original starter code from MD file
                 // For subsequent levels, use saved code if available
-                window.levelEntrySnapshot.starterCode = (window.currentLevel === 0) 
+                window.levelEntrySnapshot.starterCode = (currentLevel === 0) 
                     ? level.starterCode 
                     : codeToLoad;
+                console.log('[loadLevel] Saved starterCode snapshot for level', currentLevel + 1, ':', window.levelEntrySnapshot.starterCode.substring(0, 50) + '...');
             }
             
             // Update currentLessonStarterCode for Blockly compatibility
