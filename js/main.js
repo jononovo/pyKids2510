@@ -443,13 +443,29 @@ function loadLevel(levelIndex) {
     
     // Reset objects and inventory for new level
     gameState.objects = [];
-    gameState.inventory = {};
     gameState.messageLog = [];
     
-    // Clear UI panels
+    // For mission levels, load inventory from MissionState; otherwise start fresh
+    if (isMission && window.MissionState && MissionState.isInitialized()) {
+        gameState.inventory = MissionState.getInventory();
+        console.log('[loadLevel] Mission level - loaded inventory from MissionState:', gameState.inventory);
+    } else {
+        gameState.inventory = {};
+    }
+    
+    // Update UI panels
     const inventoryPanel = document.getElementById('inventory-panel');
     if (inventoryPanel) {
         inventoryPanel.innerHTML = '<strong>Inventory:</strong>';
+        // Display existing inventory items
+        for (const [type, count] of Object.entries(gameState.inventory)) {
+            if (count > 0) {
+                const itemSpan = document.createElement('span');
+                itemSpan.className = 'inventory-item';
+                itemSpan.textContent = ` ${type}: ${count}`;
+                inventoryPanel.appendChild(itemSpan);
+            }
+        }
     }
     const messagePanel = document.getElementById('message-panel');
     if (messagePanel) {
