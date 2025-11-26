@@ -14,38 +14,12 @@ const TILES = {
     FLOWER: 7
 };
 
-// Tile colors (fallback when SVGs not available)
-const tileColors = {
-    [TILES.GRASS]: '#7fc97f',
-    [TILES.GRASS_DARK]: '#6fb96f',
-    [TILES.PATH]: '#d4b896',
-    [TILES.TREE]: '#4a7c4e',
-    [TILES.BUSH]: '#5a8c5e',
-    [TILES.WATER]: '#6fa8dc',
-    [TILES.ROCK]: '#888',
-    [TILES.FLOWER]: '#7fc97f'
-};
-
 // SVG tile cache to store loaded images
 const svgTileCache = new Map();
 const svgLoadPromises = new Map();
 
-// SVG tile mapping
-const SVG_TILES = {
-    [TILES.GRASS]: 'assets/map/tiles/grass.svg',
-    [TILES.GRASS_DARK]: 'assets/map/tiles/grass-dark.svg',
-    [TILES.PATH]: 'assets/map/tiles/path.svg',
-    [TILES.WATER]: 'assets/map/tiles/water.svg',
-    [TILES.ROCK]: 'assets/map/tiles/rock.svg',
-    [TILES.TREE]: 'assets/map/objects/tree.svg',
-    [TILES.BUSH]: 'assets/map/objects/bush.svg',
-    [TILES.FLOWER]: 'assets/map/objects/flower.svg'
-};
-
-// Special item SVGs
-const SPECIAL_SVGS = {
-    star: 'assets/map/special/star-goal.svg'
-};
+// Tile manifest loaded from assets/map/tiles.json
+let tileManifest = null;
 
 // Collectible SVGs - loaded dynamically from server
 let COLLECTIBLE_SVGS = {};
@@ -53,6 +27,18 @@ let COLLECTIBLE_SVGS = {};
 // Track failed SVG loads to avoid repeated attempts
 const svgFailedLoads = new Set();
 let svgFailureWarned = false;
+
+// Load tiles manifest from assets folder
+async function loadTilesManifest() {
+    try {
+        const response = await fetch('/assets/map/tiles.json');
+        tileManifest = await response.json();
+        console.log('Tiles manifest loaded:', Object.keys(tileManifest.tiles).length, 'tiles');
+    } catch (error) {
+        console.error('Failed to load tiles manifest:', error);
+        throw error;
+    }
+}
 
 // Load collectibles manifest from server
 async function loadCollectiblesManifest() {
@@ -116,17 +102,40 @@ async function loadSVGImage(path) {
 
 // Preload all SVG tiles for better performance
 async function preloadSVGTiles() {
-    // Load collectibles manifest first
+    // Load manifests first
+    await loadTilesManifest();
     await loadCollectiblesManifest();
     
+    const basePath = 'assets/map/';
     const tilesToLoad = [
-        ...Object.values(SVG_TILES),
-        ...Object.values(SPECIAL_SVGS),
+        ...Object.values(tileManifest.tiles).map(t => basePath + t.path),
+        basePath + tileManifest.special.star,
         ...Object.values(COLLECTIBLE_SVGS)
     ];
     
     await Promise.all(tilesToLoad.map(path => loadSVGImage(path)));
     console.log('SVG tiles preloaded');
+}
+
+// Helper to get tile SVG path from manifest
+function getTilePath(tileType) {
+    if (!tileManifest) return null;
+    const tile = tileManifest.tiles[tileType];
+    return tile ? 'assets/map/' + tile.path : null;
+}
+
+// Helper to get tile fallback color from manifest
+function getTileFallbackColor(tileType) {
+    if (!tileManifest) return '#333';
+    const tile = tileManifest.tiles[tileType];
+    return tile ? tile.fallbackColor : '#333';
+}
+
+// Helper to check if tile is an overlay (should draw on grass)
+function isTileOverlay(tileType) {
+    if (!tileManifest) return false;
+    const tile = tileManifest.tiles[tileType];
+    return tile ? tile.overlayOnGrass === true : false;
 }
 
 // Drawing functions
@@ -139,18 +148,15 @@ async function drawCollectibles() {
             const px = collectible.x * TILE_SIZE;
             const py = collectible.y * TILE_SIZE;
             
-            // Get the SVG path for this collectible type
             const svgPath = COLLECTIBLE_SVGS[collectible.type];
             
             if (svgPath) {
                 const img = await loadSVGImage(svgPath);
                 if (img) {
-                    // Draw grass underneath
-                    const grassImg = await loadSVGImage(SVG_TILES[TILES.GRASS]);
+                    const grassImg = await loadSVGImage(getTilePath(TILES.GRASS));
                     if (grassImg) {
                         ctx.drawImage(grassImg, px, py, TILE_SIZE, TILE_SIZE);
                     }
-                    // Draw collectible on top
                     ctx.drawImage(img, px, py, TILE_SIZE, TILE_SIZE);
                 } else {
                     console.warn(`Collectible type "${collectible.type}" not found in manifest`);
@@ -165,94 +171,64 @@ async function drawTile(x, y, type) {
     const px = x * TILE_SIZE;
     const py = y * TILE_SIZE;
     
-    // Special handling for flowers and bushes - draw them as overlays on grass
-    if (type === TILES.FLOWER || type === TILES.BUSH) {
-        // First draw grass underneath
-        const grassImg = await loadSVGImage(SVG_TILES[TILES.GRASS]);
+    // Handle overlay tiles (draw on grass first)
+    if (isTileOverlay(type)) {
+        const grassImg = await loadSVGImage(getTilePath(TILES.GRASS));
         if (grassImg) {
             ctx.drawImage(grassImg, px, py, TILE_SIZE, TILE_SIZE);
         } else {
-            // Fallback grass
-            ctx.fillStyle = tileColors[TILES.GRASS];
+            ctx.fillStyle = getTileFallbackColor(TILES.GRASS);
             ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
         }
         
-        // Then draw the flower/bush overlay
-        const overlayPath = SVG_TILES[type];
+        const overlayPath = getTilePath(type);
         if (overlayPath) {
             const overlayImg = await loadSVGImage(overlayPath);
             if (overlayImg) {
                 ctx.drawImage(overlayImg, px, py, TILE_SIZE, TILE_SIZE);
             } else {
-                // Fallback drawing for flower/bush
-                if (type === TILES.FLOWER) {
-                    ctx.fillStyle = '#ff69b4';
-                    ctx.fillRect(px + 10, py + 10, 4, 4);
-                    ctx.fillRect(px + 18, py + 18, 4, 4);
-                } else if (type === TILES.BUSH) {
-                    drawBush(px + TILE_SIZE/2, py + TILE_SIZE/2);
-                }
+                ctx.fillStyle = getTileFallbackColor(type);
+                ctx.fillRect(px + 8, py + 8, TILE_SIZE - 16, TILE_SIZE - 16);
             }
         }
         
-        // Grid lines
         ctx.strokeStyle = 'rgba(0, 0, 0, 0.05)';
         ctx.strokeRect(px, py, TILE_SIZE, TILE_SIZE);
         return;
     }
     
-    // Normal tile rendering for everything else
-    const svgPath = SVG_TILES[type];
+    // Normal tile rendering
+    const svgPath = getTilePath(type);
     if (svgPath) {
         const img = await loadSVGImage(svgPath);
         if (img) {
             ctx.drawImage(img, px, py, TILE_SIZE, TILE_SIZE);
-            // Grid lines
             ctx.strokeStyle = 'rgba(0, 0, 0, 0.05)';
             ctx.strokeRect(px, py, TILE_SIZE, TILE_SIZE);
             return;
         }
     }
     
-    // Fallback to original colored rectangle rendering
-    ctx.fillStyle = tileColors[type] || '#333';
+    // Fallback to colored rectangle
+    ctx.fillStyle = getTileFallbackColor(type);
     ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
-    
-    // Fallback for trees if SVG fails (trees still replace the tile)
-    if (type === TILES.TREE && !svgPath) {
-        drawTree(px + TILE_SIZE/2, py + TILE_SIZE/2);
-    }
-    
     ctx.strokeStyle = 'rgba(0, 0, 0, 0.05)';
     ctx.strokeRect(px, py, TILE_SIZE, TILE_SIZE);
 }
 
-function drawTree(x, y) {
-    ctx.fillStyle = '#654321';
-    ctx.fillRect(x - 2, y + 6, 4, 6);
-    ctx.fillStyle = '#2d5016';
-    ctx.fillRect(x - 8, y - 4, 16, 10);
-    ctx.fillRect(x - 6, y - 8, 12, 6);
-}
-
-function drawBush(x, y) {
-    ctx.fillStyle = '#4a7c4e';
-    ctx.fillRect(x - 10, y - 2, 20, 8);
-}
-
 async function drawStar(x, y) {
-    // Try to use SVG star first
-    const img = await loadSVGImage(SPECIAL_SVGS.star);
-    if (img) {
-        // Draw centered on the position
-        ctx.drawImage(img, x - TILE_SIZE/2, y - TILE_SIZE/2, TILE_SIZE, TILE_SIZE);
-    } else {
-        // Fallback to original star drawing
-        ctx.fillStyle = '#ffd700';
-        ctx.fillRect(x - 2, y - 8, 4, 16);
-        ctx.fillRect(x - 8, y - 2, 16, 4);
-        ctx.fillRect(x - 6, y - 6, 12, 12);
+    if (tileManifest && tileManifest.special) {
+        const starPath = 'assets/map/' + tileManifest.special.star;
+        const img = await loadSVGImage(starPath);
+        if (img) {
+            ctx.drawImage(img, x - TILE_SIZE/2, y - TILE_SIZE/2, TILE_SIZE, TILE_SIZE);
+            return;
+        }
     }
+    ctx.fillStyle = '#ffd700';
+    ctx.fillRect(x - 2, y - 8, 4, 16);
+    ctx.fillRect(x - 8, y - 2, 16, 4);
+    ctx.fillRect(x - 6, y - 6, 12, 12);
 }
 
 function drawTileHover(x, y) {

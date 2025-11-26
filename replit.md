@@ -146,6 +146,14 @@ The platform is based on the original game at **codingforkids.io**.
   - **Auto-Import Prelude**: Students no longer need `import player` - commands work directly
   - **Deleted Files**: Removed `js/python-parser.js` and `js/player-module.js`
 
+- **2025-11-26**: Tile Configuration Externalization
+  - **Created Tile Manifest**: Moved SVG tile definitions from `game-engine.js` to `assets/map/tiles.json`
+  - **Manifest Structure**: JSON file containing tile paths, fallback colors, and overlay flags
+  - **Helper Functions**: Added `getTilePath()`, `getTileFallbackColor()`, `isTileOverlay()` for clean access
+  - **Defensive Guards**: All helper functions safely handle cases where manifest hasn't loaded yet
+  - **Code Cleanup**: Removed hardcoded `SVG_TILES`, `SPECIAL_SVGS`, and `tileColors` objects
+  - **Consistency**: Tiles now load via manifest like collectibles, improving maintainability
+  - **Easier Customization**: Non-developers can add/modify tiles by editing the JSON file
 - **2025-11-25**: Chapter Dropdown for Developers
   - **Added dropdown button** in header area (▼ chevron) to switch between lesson files
   - **Dynamic file discovery**: Server endpoint `/markdown-files.json` lists all `.md` files in `assets/` folder
