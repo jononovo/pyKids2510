@@ -28,6 +28,23 @@ let COLLECTIBLE_SVGS = {};
 const svgFailedLoads = new Set();
 let svgFailureWarned = false;
 
+// Draw fallback pink pixel character when no sprite is loaded
+function drawFallbackCharacter(cx, animY) {
+    ctx.fillStyle = '#ff69b4';
+    ctx.fillRect(cx - 6, animY - 4, 12, 10);
+    ctx.fillRect(cx - 8, animY - 10, 16, 8);
+    ctx.fillRect(cx - 10, animY - 12, 4, 4);
+    ctx.fillRect(cx + 6, animY - 12, 4, 4);
+    
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(cx - 4, animY - 8, 3, 3);
+    ctx.fillRect(cx + 1, animY - 8, 3, 3);
+    
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(cx - 3, animY - 7, 2, 2);
+    ctx.fillRect(cx + 1, animY - 7, 2, 2);
+}
+
 // Load tiles manifest from assets folder
 async function loadTilesManifest() {
     try {
@@ -302,34 +319,14 @@ function drawCharacter(x, y, direction) {
             drawHeight
         );
     } else {
-        // Original character drawing with animation
+        // Fallback character with idle animation
         let yOffset = 0;
         if (!gameState.isRunning) {
-            // Intermittent floating when idle
             if (gameState.idlePhase === 1) {
-                // Animate phase - much slower, smoother floating
                 yOffset = Math.sin(gameState.idleAnimation * 0.03) * 1.5;
             }
-            // During pause phase (idlePhase === 0), yOffset stays at 0
         }
-        // Note: yOffset stays 0 during movement (handled in animateMove)
-        
-        const animY = cy + yOffset;
-        
-        // Draw character with animation offset
-        ctx.fillStyle = '#ff69b4';
-        ctx.fillRect(cx - 6, animY - 4, 12, 10);
-        ctx.fillRect(cx - 8, animY - 10, 16, 8);
-        ctx.fillRect(cx - 10, animY - 12, 4, 4);
-        ctx.fillRect(cx + 6, animY - 12, 4, 4);
-        
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(cx - 4, animY - 8, 3, 3);
-        ctx.fillRect(cx + 1, animY - 8, 3, 3);
-        
-        ctx.fillStyle = '#000000';
-        ctx.fillRect(cx - 3, animY - 7, 2, 2);
-        ctx.fillRect(cx + 1, animY - 7, 2, 2);
+        drawFallbackCharacter(cx, cy + yOffset);
     }
 }
 
@@ -363,22 +360,7 @@ function drawCharacterWithHop(x, y, direction, hopHeight) {
             drawHeight
         );
     } else {
-        // Original character with hop
-        const animY = cy - hopHeight;
-        
-        ctx.fillStyle = '#ff69b4';
-        ctx.fillRect(cx - 6, animY - 4, 12, 10);
-        ctx.fillRect(cx - 8, animY - 10, 16, 8);
-        ctx.fillRect(cx - 10, animY - 12, 4, 4);
-        ctx.fillRect(cx + 6, animY - 12, 4, 4);
-        
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(cx - 4, animY - 8, 3, 3);
-        ctx.fillRect(cx + 1, animY - 8, 3, 3);
-        
-        ctx.fillStyle = '#000000';
-        ctx.fillRect(cx - 3, animY - 7, 2, 2);
-        ctx.fillRect(cx + 1, animY - 7, 2, 2);
+        drawFallbackCharacter(cx, cy - hopHeight);
     }
 }
 
