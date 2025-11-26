@@ -12,6 +12,13 @@ let lastMapCache = null;         // Most recent map from any level
 let lastMissionMapCache = null;  // Most recent map from a Mission/Quest level
 let lastChapterNumber = null;    // Track chapter changes to reset caches
 
+// Level entry snapshot for reset functionality (exposed globally for game-commands.js)
+window.levelEntrySnapshot = {
+    starterCode: '',             // Code loaded when entering the level (saved code or starter code)
+    missionState: null,          // MissionState when entering the level
+    levelIndex: -1               // Track which level the snapshot is for
+};
+
 const TILE_SIZE = 32; // Standard tile size (image will stretch to fit)
 const MOVE_DURATION = 400;
 
@@ -274,6 +281,11 @@ function loadLevel(levelIndex) {
             const codeToLoad = savedCode || level.starterCode;
             updateEditorContent(codeToLoad);
             
+            // Save code snapshot for reset functionality (only on new level entry)
+            if (window._isNewLevelEntry) {
+                window.levelEntrySnapshot.starterCode = codeToLoad;
+            }
+            
             // Update currentLessonStarterCode for Blockly compatibility
             window.currentLessonStarterCode = codeToLoad;
             
@@ -337,6 +349,11 @@ function loadLevel(levelIndex) {
             const savedCode = window.UserProgressManager ? UserProgressManager.getSavedCode() : null;
             const codeToLoad = savedCode || level.starterCode;
             updateEditorContent(codeToLoad);
+            
+            // Save code snapshot for reset functionality (only on new level entry)
+            if (window._isNewLevelEntry) {
+                window.levelEntrySnapshot.starterCode = codeToLoad;
+            }
             
             // Update currentLessonStarterCode for Blockly compatibility
             window.currentLessonStarterCode = codeToLoad;
@@ -452,6 +469,20 @@ function loadLevel(levelIndex) {
         console.log('[loadLevel] Mission level - loaded inventory from MissionState:', gameState.inventory);
     } else {
         gameState.inventory = {};
+    }
+    
+    // Check if this is a new level entry (not a reset/reload of same level)
+    const isNewLevelEntry = window.levelEntrySnapshot.levelIndex !== levelIndex;
+    window._isNewLevelEntry = isNewLevelEntry; // Expose for setTimeout callback
+    
+    // Save MissionState snapshot for reset functionality (only on new level entry)
+    if (isNewLevelEntry) {
+        if (isMission && window.MissionState && MissionState.isInitialized()) {
+            window.levelEntrySnapshot.missionState = MissionState.getState();
+        } else {
+            window.levelEntrySnapshot.missionState = null;
+        }
+        window.levelEntrySnapshot.levelIndex = levelIndex;
     }
     
     // Update UI panels

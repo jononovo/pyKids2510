@@ -447,6 +447,52 @@
             messagePanel.innerHTML = '';
         }
         
+        // Restore MissionState from snapshot if this is a mission level
+        if (window.levelEntrySnapshot && window.levelEntrySnapshot.missionState) {
+            if (window.MissionState) {
+                MissionState.loadState(window.levelEntrySnapshot.missionState);
+                gameState.inventory = MissionState.getInventory();
+                console.log('[resetGame] Restored MissionState from snapshot:', MissionState.getState());
+                
+                // Re-synchronize collectibles with restored MissionState
+                if (gameState.collectibles) {
+                    for (var j = 0; j < gameState.collectibles.length; j++) {
+                        var c = gameState.collectibles[j];
+                        c.collected = MissionState.isCollected(c.x, c.y);
+                    }
+                }
+            }
+        } else {
+            gameState.inventory = {};
+        }
+        
+        // Update inventory panel
+        var inventoryPanel = document.getElementById('inventory-panel');
+        if (inventoryPanel) {
+            inventoryPanel.innerHTML = '<strong>Inventory:</strong>';
+            for (var item in gameState.inventory) {
+                if (gameState.inventory[item] > 0) {
+                    var itemSpan = document.createElement('span');
+                    itemSpan.className = 'inventory-item';
+                    itemSpan.textContent = ' ' + item + ': ' + gameState.inventory[item];
+                    inventoryPanel.appendChild(itemSpan);
+                }
+            }
+        }
+        
+        // Reset code editor to starter code
+        if (window.levelEntrySnapshot && window.levelEntrySnapshot.starterCode) {
+            if (window.jar) {
+                window.jar.updateCode(window.levelEntrySnapshot.starterCode);
+            }
+            // Also update Blockly if in block mode
+            if (window.BlocklyModeSwitcher && window.BlocklyModeSwitcher.isBlockMode()) {
+                if (window.BlocklyIntegration) {
+                    window.BlocklyIntegration.convertFromText(window.levelEntrySnapshot.starterCode);
+                }
+            }
+        }
+        
         render();
         updateViewport();
     };
