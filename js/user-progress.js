@@ -40,6 +40,7 @@ const UserProgressManager = (function() {
         const levelId = data.levelId;
         const code = data.code;
         const completed = data.completed;
+        const chapterState = data.chapterState;
         
         if (levelId) {
             const all = getAllProgress();
@@ -62,6 +63,11 @@ const UserProgressManager = (function() {
         
         if (completed && levelId) {
             completedThisSession[levelId] = true;
+        }
+        
+        // Load chapter state if provided
+        if (chapterState && window.MissionState) {
+            MissionState.loadState(chapterState);
         }
     }
     
@@ -148,11 +154,22 @@ const UserProgressManager = (function() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
         
         if (isEmbedded) {
-            window.parent.postMessage({
+            const message = {
                 type: 'save-progress',
                 levelId: levelId,
                 data: data
-            }, '*');
+            };
+            
+            // Include chapter state for mission levels
+            if (window.MissionState && MissionState.isInitialized()) {
+                const currentLevelData = window.courseData && window.courseData.levels && 
+                                        window.courseData.levels[window.currentLevel];
+                if (currentLevelData && (currentLevelData.type === 'mission' || currentLevelData.type === 'quest')) {
+                    message.chapterState = MissionState.getState();
+                }
+            }
+            
+            window.parent.postMessage(message, '*');
         }
     }
     
@@ -181,11 +198,22 @@ const UserProgressManager = (function() {
         saveProgress(id, { completed: true });
         
         if (isEmbedded) {
-            window.parent.postMessage({
+            const message = {
                 type: 'checker-validation',
                 checkerId: `level ${currentLevelIndex + 1}`,
                 valid: true
-            }, '*');
+            };
+            
+            // Include chapter state for mission levels
+            if (window.MissionState && MissionState.isInitialized()) {
+                const currentLevelData = window.courseData && window.courseData.levels && 
+                                        window.courseData.levels[window.currentLevel];
+                if (currentLevelData && (currentLevelData.type === 'mission' || currentLevelData.type === 'quest')) {
+                    message.chapterState = MissionState.getState();
+                }
+            }
+            
+            window.parent.postMessage(message, '*');
         }
     }
     

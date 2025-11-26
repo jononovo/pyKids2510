@@ -207,10 +207,12 @@
             execute: async function(resource) {
                 var pos = getTargetPosition();
                 var collectibleIndex = -1;
+                var collectible = null;
                 for (var i = 0; i < gameState.collectibles.length; i++) {
                     var c = gameState.collectibles[i];
                     if (c.x === pos.px && c.y === pos.py && !c.collected) {
                         collectibleIndex = i;
+                        collectible = c;
                         break;
                     }
                 }
@@ -218,9 +220,20 @@
                 if (collectibleIndex >= 0) {
                     gameState.collectibles[collectibleIndex].collected = true;
                     if (!gameState.inventory) gameState.inventory = {};
-                    var resourceType = resource || 'item';
+                    var resourceType = collectible.type || resource || 'item';
                     gameState.inventory[resourceType] = (gameState.inventory[resourceType] || 0) + 1;
                     updateInventoryDisplay();
+                    
+                    // Record in MissionState if this is a mission level
+                    if (window.MissionState && MissionState.isInitialized()) {
+                        var currentLevelData = window.courseData && window.courseData.levels && 
+                                              window.courseData.levels[window.currentLevel];
+                        if (currentLevelData && (currentLevelData.type === 'mission' || currentLevelData.type === 'quest')) {
+                            MissionState.recordCollectible(collectible.x, collectible.y, resourceType);
+                            MissionState.addToInventory(resourceType, 1);
+                        }
+                    }
+                    
                     await render();
                 }
                 

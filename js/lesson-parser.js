@@ -142,6 +142,18 @@ function parseCourseLevels(markdown) {
         
         level.markdown = markdownContent.trim();
 
+        // Detect mission type and generate slug
+        if (window.MissionDetector) {
+            level.type = window.MissionDetector.getLevelType(level.title);
+            level.slug = window.MissionDetector.generateSlug(level.title);
+        } else {
+            level.type = 'exercise';
+            level.slug = 'level-' + (courseData.levels.length + 1);
+        }
+        
+        // Mark if map was explicitly defined (for inheritance logic)
+        level.hasOwnMap = level.map.layout.length > 0;
+
         courseData.levels.push(level);
     }
 
