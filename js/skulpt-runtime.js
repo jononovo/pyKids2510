@@ -5,12 +5,6 @@
 (function() {
     'use strict';
 
-    var commandCounter = 0;
-
-    window.incrementSkulptCommandCounter = function() {
-        commandCounter++;
-    };
-
     function builtinRead(filename) {
         if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][filename] === undefined) {
             throw "File not found: '" + filename + "'";
@@ -29,7 +23,7 @@
             Sk.builtinFiles.files['src/lib/player.js'] = 
                 'var $builtinmodule = ' + window.playerBuiltinModule.toString() + ';';
         } else {
-            console.error('[Skulpt Runtime] Player module not found - ensure player-module.js loads first');
+            console.error('[Skulpt Runtime] Player module not found - ensure game-commands.js loads first');
         }
 
         Sk.configure({
@@ -77,7 +71,7 @@
     async function executePythonCode(code) {
         configureSkulpt();
         
-        commandCounter = 0;
+        if (typeof window.resetCommandCounter === 'function') window.resetCommandCounter();
         
         if (typeof gameState !== 'undefined') {
             gameState.playerPos = {...gameState.startPos};
@@ -97,7 +91,8 @@
             console.error('[Skulpt Error]', executionError.error);
         }
 
-        return { executionError: executionError, executedCommands: commandCounter };
+        var executedCommands = typeof window.getCommandCount === 'function' ? window.getCommandCount() : 0;
+        return { executionError: executionError, executedCommands: executedCommands };
     }
 
     async function runCodeWithSkulpt() {
@@ -137,7 +132,7 @@
         execute: executePythonCode,
         runCode: runCodeWithSkulpt,
         configure: configureSkulpt,
-        getCommandCount: function() { return commandCounter; }
+        getCommandCount: function() { return typeof window.getCommandCount === 'function' ? window.getCommandCount() : 0; }
     };
 
     window.pythonExecutor = {
