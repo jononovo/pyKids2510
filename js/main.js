@@ -478,7 +478,21 @@ function loadLevel(levelIndex) {
     // Save MissionState snapshot for reset functionality (only on new level entry)
     if (isNewLevelEntry) {
         if (isMission && window.MissionState && MissionState.isInitialized()) {
-            window.levelEntrySnapshot.missionState = MissionState.getState();
+            // For level 1 (index 0), always capture a fresh/empty snapshot
+            // This ensures reset returns to a clean state from the MD file
+            // For subsequent levels, capture current MissionState (items from previous levels persist)
+            if (levelIndex === 0) {
+                window.levelEntrySnapshot.missionState = {
+                    chapter: MissionState.getCurrentChapter(),
+                    inventory: {},
+                    collectedItems: [],
+                    structures: []
+                };
+                console.log('[loadLevel] Level 1 - captured fresh empty snapshot for reset');
+            } else {
+                window.levelEntrySnapshot.missionState = MissionState.getState();
+                console.log('[loadLevel] Level', levelIndex + 1, '- captured MissionState snapshot for reset:', window.levelEntrySnapshot.missionState);
+            }
         } else {
             window.levelEntrySnapshot.missionState = null;
         }
