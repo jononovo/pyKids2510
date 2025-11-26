@@ -418,6 +418,7 @@ function loadLevel(levelIndex) {
     gameState.goalPos = {...level.map.goalPos};
     gameState.playerPos = {...level.map.startPos};
     gameState.playerDirection = 'right';
+    gameState.levelType = level.type || 'exercise';
     
     // Get collectibles from level
     let collectibles = (level.map.collectibles || []).map(c => ({

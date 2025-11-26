@@ -226,14 +226,11 @@
                     updateInventoryDisplay();
                     
                     // Record in MissionState if this is a mission level
-                    if (window.MissionState && MissionState.isInitialized()) {
-                        var currentLevelData = window.courseData && window.courseData.levels && 
-                                              window.courseData.levels[window.currentLevel];
-                        console.log('[collect] Level type:', currentLevelData ? currentLevelData.type : 'no level data');
-                        if (currentLevelData && (currentLevelData.type === 'mission' || currentLevelData.type === 'quest')) {
-                            MissionState.recordCollectible(collectible.x, collectible.y, resourceType);
-                            MissionState.addToInventory(resourceType, 1);
-                        }
+                    var isMissionLevel = gameState.levelType === 'mission' || gameState.levelType === 'quest';
+                    console.log('[collect] Level type:', gameState.levelType, '- isMission:', isMissionLevel);
+                    if (isMissionLevel && window.MissionState && MissionState.isInitialized()) {
+                        MissionState.recordCollectible(collectible.x, collectible.y, resourceType);
+                        MissionState.addToInventory(resourceType, 1);
                     }
                     
                     await render();
