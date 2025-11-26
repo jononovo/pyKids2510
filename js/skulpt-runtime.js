@@ -19,9 +19,15 @@
     }
 
     function configureSkulpt() {
-        // Register the player module from window (loaded via script tag)
+        // Ensure Sk.builtinFiles exists (required for custom modules)
+        if (!Sk.builtinFiles) Sk.builtinFiles = {};
+        if (!Sk.builtinFiles.files) Sk.builtinFiles.files = {};
+
+        // Inject the player module into Skulpt's virtual file system
+        // Convert the function to source code string so Skulpt can evaluate it
         if (window.playerBuiltinModule) {
-            Sk.builtinModules.player = window.playerBuiltinModule;
+            Sk.builtinFiles.files['src/lib/player.js'] = 
+                'var $builtinmodule = ' + window.playerBuiltinModule.toString() + ';';
         } else {
             console.error('[Skulpt Runtime] Player module not found - ensure player-module.js loads first');
         }
