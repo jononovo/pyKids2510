@@ -5,7 +5,6 @@
 // Global variables
 let courseData = null;
 let currentLevel = 0;
-let jar = null;
 
 // Map inheritance cache
 let lastMapCache = null;         // Most recent map from any level
@@ -274,12 +273,12 @@ function loadLevel(levelIndex) {
         
         if (isFirstLoad) {
             // First time - initialize everything
-            initializeEditorInfrastructure();
+            EditorManager.init();
             
             // Check for saved code, otherwise use starter code
             const savedCode = window.UserProgressManager ? UserProgressManager.getSavedCode() : null;
             const codeToLoad = savedCode || level.starterCode;
-            updateEditorContent(codeToLoad);
+            EditorManager.updateCode(codeToLoad);
             
             // Save code snapshot for reset functionality (only on new level entry)
             if (window._isNewLevelEntry) {
@@ -353,7 +352,7 @@ function loadLevel(levelIndex) {
             // Check for saved code, otherwise use starter code
             const savedCode = window.UserProgressManager ? UserProgressManager.getSavedCode() : null;
             const codeToLoad = savedCode || level.starterCode;
-            updateEditorContent(codeToLoad);
+            EditorManager.updateCode(codeToLoad);
             
             // Save code snapshot for reset functionality (only on new level entry)
             if (window._isNewLevelEntry) {
@@ -548,74 +547,6 @@ function loadLevel(levelIndex) {
     
     // Initialize viewport position
     updateViewport();
-}
-
-// Initialize editor infrastructure (called once)
-function initializeEditorInfrastructure() {
-    const editorElement = document.getElementById('editor');
-    if (!editorElement) return false;
-    
-    // Check if already initialized
-    if (window.jar) return true;
-    
-    // Check if CodeJar is loaded
-    if (!window.CodeJar) {
-        console.error('CodeJar library not loaded');
-        return false;
-    }
-    
-    const highlight = editor => {
-        const code = editor.textContent;
-        editor.innerHTML = PythonHighlighter.highlight(code);
-    };
-    
-    // Force CodeJar to use regular contenteditable mode to support HTML highlighting
-    editorElement.setAttribute('contenteditable', 'true');
-    
-    jar = CodeJar(editorElement, highlight, {
-        tab: '    ',
-        indentOn: /:$/,
-        addClosing: false,
-        spellcheck: false
-    });
-    
-    jar.onUpdate(() => {
-        updateLineNumbers();
-        if (window.UserProgressManager) {
-            UserProgressManager.saveCode(jar.toString());
-        }
-    });
-    
-    return true;
-}
-
-// Update editor content (called on level change)
-function updateEditorContent(starterCode) {
-    if (!window.jar) {
-        // Editor not initialized, try to initialize it first
-        const editorElement = document.getElementById('editor');
-        if (!editorElement) return;
-        
-        if (!initializeEditorInfrastructure()) return;
-    }
-    
-    // Just update the code, don't rebuild
-    jar.updateCode(starterCode);
-    updateLineNumbers();
-}
-
-// Update line numbers
-function updateLineNumbers() {
-    const editor = document.getElementById('editor');
-    const lineNumbers = document.getElementById('line-numbers');
-    if (!editor || !lineNumbers) return;
-    
-    const lines = editor.textContent.split('\n');
-    const numbers = [];
-    for (let i = 1; i <= lines.length; i++) {
-        numbers.push(i);
-    }
-    lineNumbers.textContent = numbers.join('\n');
 }
 
 // ============================================
