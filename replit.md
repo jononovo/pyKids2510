@@ -63,6 +63,10 @@ SVG-based tile rendering system with assets organized in `assets/map/` (tiles, o
     - `levelIndex`: Tracks which level the snapshot belongs to (prevents overwriting on same-level reloads)
     - Reset button restores code editor, MissionState, inventory UI, and collectible states to entry snapshot
 
+## Documentation
+
+- **Lesson Authoring Guide**: `docs/LESSON_AUTHORING_GUIDE.md` - Comprehensive guide for creating lessons, missions, and quests. Includes template structure, map design, collectibles, available commands, and technical details.
+
 ## External Dependencies
 
 - **CodeJar**: Used for the interactive code editor (loaded from CDN, or local UMD version).
