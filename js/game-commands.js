@@ -207,10 +207,12 @@
             execute: async function(resource) {
                 var pos = getTargetPosition();
                 var collectibleIndex = -1;
+                var collectible = null;
                 for (var i = 0; i < gameState.collectibles.length; i++) {
                     var c = gameState.collectibles[i];
                     if (c.x === pos.px && c.y === pos.py && !c.collected) {
                         collectibleIndex = i;
+                        collectible = c;
                         break;
                     }
                 }
@@ -218,9 +220,19 @@
                 if (collectibleIndex >= 0) {
                     gameState.collectibles[collectibleIndex].collected = true;
                     if (!gameState.inventory) gameState.inventory = {};
-                    var resourceType = resource || 'item';
+                    var resourceType = collectible.type || resource || 'item';
                     gameState.inventory[resourceType] = (gameState.inventory[resourceType] || 0) + 1;
+                    console.log('[collect] Collected', resourceType, 'at', collectible.x, collectible.y);
                     updateInventoryDisplay();
+                    
+                    // Record in MissionState if this is a mission level
+                    var isMissionLevel = gameState.levelType === 'mission' || gameState.levelType === 'quest';
+                    console.log('[collect] Level type:', gameState.levelType, '- isMission:', isMissionLevel);
+                    if (isMissionLevel && window.MissionState && MissionState.isInitialized()) {
+                        MissionState.recordCollectible(collectible.x, collectible.y, resourceType);
+                        MissionState.addToInventory(resourceType, 1);
+                    }
+                    
                     await render();
                 }
                 
@@ -433,6 +445,52 @@
         var messagePanel = document.getElementById('message-panel');
         if (messagePanel) {
             messagePanel.innerHTML = '';
+        }
+        
+        // Restore MissionState from snapshot if this is a mission level
+        if (window.levelEntrySnapshot && window.levelEntrySnapshot.missionState) {
+            if (window.MissionState) {
+                MissionState.loadState(window.levelEntrySnapshot.missionState);
+                gameState.inventory = MissionState.getInventory();
+                console.log('[resetGame] Restored MissionState from snapshot:', MissionState.getState());
+                
+                // Re-synchronize collectibles with restored MissionState
+                if (gameState.collectibles) {
+                    for (var j = 0; j < gameState.collectibles.length; j++) {
+                        var c = gameState.collectibles[j];
+                        c.collected = MissionState.isCollected(c.x, c.y);
+                    }
+                }
+            }
+        } else {
+            gameState.inventory = {};
+        }
+        
+        // Update inventory panel
+        var inventoryPanel = document.getElementById('inventory-panel');
+        if (inventoryPanel) {
+            inventoryPanel.innerHTML = '<strong>Inventory:</strong>';
+            for (var item in gameState.inventory) {
+                if (gameState.inventory[item] > 0) {
+                    var itemSpan = document.createElement('span');
+                    itemSpan.className = 'inventory-item';
+                    itemSpan.textContent = ' ' + item + ': ' + gameState.inventory[item];
+                    inventoryPanel.appendChild(itemSpan);
+                }
+            }
+        }
+        
+        // Reset code editor to starter code
+        if (window.levelEntrySnapshot && window.levelEntrySnapshot.starterCode) {
+            if (window.jar) {
+                window.jar.updateCode(window.levelEntrySnapshot.starterCode);
+            }
+            // Also update Blockly if in block mode
+            if (window.BlocklyModeSwitcher && window.BlocklyModeSwitcher.isBlockMode()) {
+                if (window.BlocklyIntegration) {
+                    window.BlocklyIntegration.convertFromText(window.levelEntrySnapshot.starterCode);
+                }
+            }
         }
         
         render();

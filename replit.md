@@ -287,11 +287,26 @@ SVG-based tile rendering system with assets organized in `assets/map/` (tiles, o
 - **User Progress System**: `js/user-progress.js` provides a UserProgressManager with two-way communication:
   - **Outbound Messages** (App → Host):
     - `{type: 'app-ready', currentLevelId: '...'}` - Sent when app is ready to receive data
-    - `{type: 'save-progress', levelId: '...', data: {code, completed}}` - Sent when student saves code
-    - `{type: 'checker-validation', checkerId: 'level 1', valid: true}` - Sent on level completion
+    - `{type: 'save-progress', levelId: '...', data: {code, completed, chapterState?}}` - Sent when student saves code (includes chapterState for mission levels)
+    - `{type: 'checker-validation', checkerId: 'level 1', valid: true, chapterState?}` - Sent on level completion (includes chapterState for mission levels)
   - **Inbound Messages** (Host → App):
-    - `{type: 'load-progress', levelId: '...', code: '...', completed: true}` - Load saved progress into editor
+    - `{type: 'load-progress', levelId: '...', code: '...', completed: true, chapterState?: {...}}` - Load saved progress into editor (chapterState for missions)
     - `{type: 'load-all-progress', progress: {...}}` - Load all progress data at once
+- **Mission System** (`js/mission/`): A story-driven mission system with persistent state:
+  - **Mission Detector** (`mission-detector.js`): Identifies mission/quest levels via `## MISSION` or `## QUEST` headers (case-insensitive)
+  - **Mission State** (`mission-state.js`): Manages persistent chapter state including:
+    - `inventory`: Collected resources (e.g., `{wood: 3, coin: 2}`)
+    - `collectedItems`: Array of `{x, y, type}` for already-collected positions
+    - `structures`: Array for built structures (future use)
+  - **Level Types**: `exercise` (sandbox, no persistence) vs `mission/quest` (persistent inventory/progress)
+  - **Map Inheritance**: Exercises use most recent map layout; missions prefer the last mission's map (via `lastMapCache`/`lastMissionMapCache`)
+  - **Collect Command Integration**: `collect()` records items to MissionState inventory for mission levels, filtering already-collected positions
+  - **chapterState Format**: `{chapter: 1, inventory: {}, collectedItems: [], structures: []}`
+  - **Level Entry Snapshot** (`window.levelEntrySnapshot`): Reset functionality preserves the state when first entering a level:
+    - `starterCode`: The code loaded when entering the level (saved code if available, otherwise starter code)
+    - `missionState`: Deep copy of MissionState at level entry (inventory, collectedItems, structures)
+    - `levelIndex`: Tracks which level the snapshot belongs to (prevents overwriting on same-level reloads)
+    - Reset button restores code editor, MissionState, inventory UI, and collectible states to entry snapshot
 
 ## External Dependencies
 

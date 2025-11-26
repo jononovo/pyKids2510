@@ -7,6 +7,18 @@ let courseData = null;
 let currentLevel = 0;
 let jar = null;
 
+// Map inheritance cache
+let lastMapCache = null;         // Most recent map from any level
+let lastMissionMapCache = null;  // Most recent map from a Mission/Quest level
+let lastChapterNumber = null;    // Track chapter changes to reset caches
+
+// Level entry snapshot for reset functionality (exposed globally for game-commands.js)
+window.levelEntrySnapshot = {
+    starterCode: '',             // Code loaded when entering the level (saved code or starter code)
+    missionState: null,          // MissionState when entering the level
+    levelIndex: -1               // Track which level the snapshot is for
+};
+
 const TILE_SIZE = 32; // Standard tile size (image will stretch to fit)
 const MOVE_DURATION = 400;
 
@@ -269,6 +281,11 @@ function loadLevel(levelIndex) {
             const codeToLoad = savedCode || level.starterCode;
             updateEditorContent(codeToLoad);
             
+            // Save code snapshot for reset functionality (only on new level entry)
+            if (window._isNewLevelEntry) {
+                window.levelEntrySnapshot.starterCode = codeToLoad;
+            }
+            
             // Update currentLessonStarterCode for Blockly compatibility
             window.currentLessonStarterCode = codeToLoad;
             
@@ -333,6 +350,11 @@ function loadLevel(levelIndex) {
             const codeToLoad = savedCode || level.starterCode;
             updateEditorContent(codeToLoad);
             
+            // Save code snapshot for reset functionality (only on new level entry)
+            if (window._isNewLevelEntry) {
+                window.levelEntrySnapshot.starterCode = codeToLoad;
+            }
+            
             // Update currentLessonStarterCode for Blockly compatibility
             window.currentLessonStarterCode = codeToLoad;
             
@@ -364,32 +386,118 @@ function loadLevel(levelIndex) {
         }
     }, 0);
     
+    // Reset map caches if chapter changed
+    if (lastChapterNumber !== courseData.chapterNumber) {
+        lastMapCache = null;
+        lastMissionMapCache = null;
+        lastChapterNumber = courseData.chapterNumber;
+        
+        // Initialize MissionState for new chapter (only if not already initialized for this chapter)
+        if (window.MissionState) {
+            const currentMissionChapter = MissionState.getCurrentChapter();
+            if (currentMissionChapter !== courseData.chapterNumber) {
+                MissionState.init(courseData.chapterNumber);
+            }
+        }
+    }
+    
+    // Determine map layout to use (inheritance logic)
+    let mapLayout = level.map.layout;
+    
+    if (!level.hasOwnMap || mapLayout.length === 0) {
+        // No map defined, use inheritance
+        const isMission = level.type === 'mission' || level.type === 'quest';
+        
+        if (isMission && lastMissionMapCache) {
+            // Mission prefers last mission map
+            mapLayout = lastMissionMapCache;
+            console.log('[Map Inheritance] Mission using last mission map');
+        } else if (lastMapCache) {
+            // Fall back to most recent map
+            mapLayout = lastMapCache;
+            console.log('[Map Inheritance] Using last available map');
+        }
+    } else {
+        // Level has its own map, update caches
+        lastMapCache = level.map.layout;
+        
+        const isMission = level.type === 'mission' || level.type === 'quest';
+        if (isMission) {
+            lastMissionMapCache = level.map.layout;
+        }
+    }
+    
     // Load map
-    gameState.mapData = level.map.layout;
-    gameState.mapHeight = level.map.layout.length;
-    gameState.mapWidth = level.map.layout[0] ? level.map.layout[0].length : 0;
+    gameState.mapData = mapLayout;
+    gameState.mapHeight = mapLayout.length;
+    gameState.mapWidth = mapLayout[0] ? mapLayout[0].length : 0;
     gameState.startPos = {...level.map.startPos};
     gameState.goalPos = {...level.map.goalPos};
     gameState.playerPos = {...level.map.startPos};
     gameState.playerDirection = 'right';
+    gameState.levelType = level.type || 'exercise';
     
-    // Initialize collectibles from map data
-    gameState.collectibles = (level.map.collectibles || []).map(c => ({
+    // Get collectibles from level
+    let collectibles = (level.map.collectibles || []).map(c => ({
         x: c.x !== undefined ? c.x : c[0],
         y: c.y !== undefined ? c.y : c[1],
-        type: c.type || 'gem',  // Store the collectible type
+        type: c.type || 'gem',
         collected: false
     }));
     
+    // For missions, filter out already-collected items
+    const isMission = level.type === 'mission' || level.type === 'quest';
+    if (isMission && window.MissionState && MissionState.isInitialized()) {
+        collectibles = collectibles.map(c => {
+            if (MissionState.isCollected(c.x, c.y)) {
+                return { ...c, collected: true };
+            }
+            return c;
+        });
+    }
+    
+    // Initialize collectibles
+    gameState.collectibles = collectibles;
+    
     // Reset objects and inventory for new level
     gameState.objects = [];
-    gameState.inventory = {};
     gameState.messageLog = [];
     
-    // Clear UI panels
+    // For mission levels, load inventory from MissionState; otherwise start fresh
+    if (isMission && window.MissionState && MissionState.isInitialized()) {
+        gameState.inventory = MissionState.getInventory();
+        console.log('[loadLevel] Mission level - loaded inventory from MissionState:', gameState.inventory);
+    } else {
+        gameState.inventory = {};
+    }
+    
+    // Check if this is a new level entry (not a reset/reload of same level)
+    const isNewLevelEntry = window.levelEntrySnapshot.levelIndex !== levelIndex;
+    window._isNewLevelEntry = isNewLevelEntry; // Expose for setTimeout callback
+    
+    // Save MissionState snapshot for reset functionality (only on new level entry)
+    if (isNewLevelEntry) {
+        if (isMission && window.MissionState && MissionState.isInitialized()) {
+            window.levelEntrySnapshot.missionState = MissionState.getState();
+        } else {
+            window.levelEntrySnapshot.missionState = null;
+        }
+        window.levelEntrySnapshot.levelIndex = levelIndex;
+    }
+    
+    // Update UI panels
     const inventoryPanel = document.getElementById('inventory-panel');
     if (inventoryPanel) {
         inventoryPanel.innerHTML = '<strong>Inventory:</strong>';
+        // Display existing inventory items
+        for (const [type, count] of Object.entries(gameState.inventory)) {
+            if (count > 0) {
+                const itemSpan = document.createElement('span');
+                itemSpan.className = 'inventory-item';
+                itemSpan.textContent = ` ${type}: ${count}`;
+                inventoryPanel.appendChild(itemSpan);
+            }
+        }
     }
     const messagePanel = document.getElementById('message-panel');
     if (messagePanel) {
