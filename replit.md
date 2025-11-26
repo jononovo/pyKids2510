@@ -134,6 +134,18 @@ The platform is based on the original game at **codingforkids.io**.
 
 ## Recent Changes
 
+- **2025-11-26**: Skulpt Integration Refactor - Single Source of Truth
+  - **Consolidated Architecture**: Merged `python-parser.js` and `player-module.js` into single `js/game-commands.js`
+  - **Single Source of Truth**: All 11 game commands defined once with metadata + execute functions
+  - **Code Generation Pattern**: Skulpt module source generated at load time from GameCommands registry
+  - **Self-Contained Wrappers**: Generated Skulpt functions reference window globals (no closure dependencies)
+  - **Multi-Arg Support**: All arguments properly forwarded to command functions
+  - **Command Counter**: Accurate tracking via `countsAsMultiple` for multi-step commands
+  - **Repetition for Turn Commands**: `turn_left(3)` and `turn_right(2)` now repeat N times
+  - **Simplified Command Aliases**: Added `forward()`, `left()`, `right()` as shortcuts
+  - **Auto-Import Prelude**: Students no longer need `import player` - commands work directly
+  - **Deleted Files**: Removed `js/python-parser.js` and `js/player-module.js`
+
 - **2025-11-26**: Tile Configuration Externalization
   - **Created Tile Manifest**: Moved SVG tile definitions from `game-engine.js` to `assets/map/tiles.json`
   - **Manifest Structure**: JSON file containing tile paths, fallback colors, and overlay flags
@@ -142,6 +154,11 @@ The platform is based on the original game at **codingforkids.io**.
   - **Code Cleanup**: Removed hardcoded `SVG_TILES`, `SPECIAL_SVGS`, and `tileColors` objects
   - **Consistency**: Tiles now load via manifest like collectibles, improving maintainability
   - **Easier Customization**: Non-developers can add/modify tiles by editing the JSON file
+- **2025-11-25**: Chapter Dropdown for Developers
+  - **Added dropdown button** in header area (▼ chevron) to switch between lesson files
+  - **Dynamic file discovery**: Server endpoint `/markdown-files.json` lists all `.md` files in `assets/` folder
+  - **Quick switching**: Click any file to load it immediately without using file picker
+  - **Auto-close**: Dropdown closes automatically after selecting a file
 
 - **2025-10-15**: Modular Beach/Island Tile System
   - **Created Complete Beach Tile Set**: New modular tiles for creating any island or water-based map
