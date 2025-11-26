@@ -88,26 +88,44 @@
         },
 
         turn_left: {
-            execute: async function() {
+            args: ['times'],
+            defaults: { times: 1 },
+            countsAsMultiple: true,
+            execute: async function(times) {
+                times = parseInt(times) || 1;
                 var directions = ['up', 'left', 'down', 'right'];
-                var currentIndex = directions.indexOf(gameState.playerDirection);
-                gameState.playerDirection = directions[(currentIndex + 1) % 4];
                 
-                await new Promise(function(resolve) {
-                    setTimeout(function() { render(); resolve(); }, getAnimationDuration(0.5));
-                });
+                for (var i = 0; i < times; i++) {
+                    var currentIndex = directions.indexOf(gameState.playerDirection);
+                    gameState.playerDirection = directions[(currentIndex + 1) % 4];
+                    
+                    await new Promise(function(resolve) {
+                        setTimeout(function() { render(); resolve(); }, getAnimationDuration(0.5));
+                    });
+                }
+                
+                return times;
             }
         },
 
         turn_right: {
-            execute: async function() {
+            args: ['times'],
+            defaults: { times: 1 },
+            countsAsMultiple: true,
+            execute: async function(times) {
+                times = parseInt(times) || 1;
                 var directions = ['up', 'right', 'down', 'left'];
-                var currentIndex = directions.indexOf(gameState.playerDirection);
-                gameState.playerDirection = directions[(currentIndex + 1) % 4];
                 
-                await new Promise(function(resolve) {
-                    setTimeout(function() { render(); resolve(); }, getAnimationDuration(0.5));
-                });
+                for (var i = 0; i < times; i++) {
+                    var currentIndex = directions.indexOf(gameState.playerDirection);
+                    gameState.playerDirection = directions[(currentIndex + 1) % 4];
+                    
+                    await new Promise(function(resolve) {
+                        setTimeout(function() { render(); resolve(); }, getAnimationDuration(0.5));
+                    });
+                }
+                
+                return times;
             }
         },
 
