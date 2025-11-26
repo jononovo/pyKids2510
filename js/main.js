@@ -281,12 +281,9 @@ function loadLevel(levelIndex) {
             EditorManager.updateCode(codeToLoad);
             
             // Save code snapshot for reset functionality (only on new level entry)
+            // Always use original starter code from MD file for all levels
             if (window._isNewLevelEntry) {
-                // For level 1 (index 0), always use original starter code from MD file
-                // For subsequent levels, use saved code if available
-                window.levelEntrySnapshot.starterCode = (currentLevel === 0) 
-                    ? level.starterCode 
-                    : codeToLoad;
+                window.levelEntrySnapshot.starterCode = level.starterCode;
                 console.log('[loadLevel] Saved starterCode snapshot for level', currentLevel + 1, ':', window.levelEntrySnapshot.starterCode.substring(0, 50) + '...');
             }
             
@@ -355,12 +352,9 @@ function loadLevel(levelIndex) {
             EditorManager.updateCode(codeToLoad);
             
             // Save code snapshot for reset functionality (only on new level entry)
+            // Always use original starter code from MD file for all levels
             if (window._isNewLevelEntry) {
-                // For level 1 (index 0), always use original starter code from MD file
-                // For subsequent levels, use saved code if available
-                window.levelEntrySnapshot.starterCode = (currentLevel === 0) 
-                    ? level.starterCode 
-                    : codeToLoad;
+                window.levelEntrySnapshot.starterCode = level.starterCode;
                 console.log('[loadLevel] Saved starterCode snapshot for level', currentLevel + 1, ':', window.levelEntrySnapshot.starterCode.substring(0, 50) + '...');
             }
             
