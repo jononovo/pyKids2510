@@ -1,10 +1,14 @@
 // ============================================
 // SKULPT PLAYER MODULE
 // This file follows Skulpt's $builtinmodule pattern
+// Loaded before skulpt-runtime.js and registers to window
 // ============================================
 
-var $builtinmodule = function(name) {
-    var mod = {};
+(function() {
+    'use strict';
+
+    window.playerBuiltinModule = function(name) {
+        var mod = {};
 
     function incrementCounter() {
         if (typeof window.incrementSkulptCommandCounter === 'function') {
@@ -148,5 +152,8 @@ var $builtinmodule = function(name) {
         );
     });
 
-    return mod;
-};
+        return mod;
+    };
+
+    console.log('[Player Module] Registered successfully');
+})();

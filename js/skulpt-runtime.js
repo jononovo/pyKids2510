@@ -19,11 +19,12 @@
     }
 
     function configureSkulpt() {
-        Sk.externalLibraries = {
-            'player': {
-                path: '/js/player-module.js'
-            }
-        };
+        // Register the player module from window (loaded via script tag)
+        if (window.playerBuiltinModule) {
+            Sk.builtinModules.player = window.playerBuiltinModule;
+        } else {
+            console.error('[Skulpt Runtime] Player module not found - ensure player-module.js loads first');
+        }
 
         Sk.configure({
             output: function(text) {
