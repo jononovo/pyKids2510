@@ -91,6 +91,7 @@ const MissionState = (function() {
         if (!type) return;
         amount = amount || 1;
         inventory[type] = (inventory[type] || 0) + amount;
+        console.log('[MissionState] Added', amount, type, '- Inventory:', { ...inventory });
         saveToStorage();
         return inventory[type];
     }
@@ -115,6 +116,7 @@ const MissionState = (function() {
             y: y,
             type: type || 'unknown'
         });
+        console.log('[MissionState] Recorded collectible at (' + x + ',' + y + ') type:', type);
         saveToStorage();
         return true;
     }
