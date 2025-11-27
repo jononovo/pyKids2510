@@ -89,6 +89,7 @@ function parseCourseLevels(markdown) {
                 goalPos: {x: 0, y: 0},
                 collectibles: [],
                 transforms: [],
+                megaElements: [],
                 graphic: null  // Optional background graphic URL
             }
         };
@@ -170,6 +171,14 @@ function parseCourseLevels(markdown) {
                         level.map.transforms = transformsArray;
                     } catch (e) {
                         console.log('Could not parse transforms:', line);
+                    }
+                } else if (line.includes('megaElements:')) {
+                    try {
+                        const megaElementsStr = line.split('megaElements:')[1].trim();
+                        const megaElementsArray = JSON.parse(megaElementsStr);
+                        level.map.megaElements = megaElementsArray;
+                    } catch (e) {
+                        console.log('Could not parse megaElements:', line);
                     }
                 } else if (line.includes('graphic:')) {
                     // Extract the graphic URL

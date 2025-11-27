@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- 8-pixel grid style house -->
+  
+  <!-- Roof - brown triangular shape using pixel blocks -->
+  <rect x="28" y="4" width="8" height="4" fill="#8B4513"/>
+  <rect x="24" y="8" width="16" height="4" fill="#8B4513"/>
+  <rect x="20" y="12" width="24" height="4" fill="#8B4513"/>
+  <rect x="16" y="16" width="32" height="4" fill="#8B4513"/>
+  <rect x="12" y="20" width="40" height="4" fill="#8B4513"/>
+  <rect x="8" y="24" width="48" height="4" fill="#8B4513"/>
+  
+  <!-- Roof highlight -->
+  <rect x="28" y="4" width="4" height="4" fill="#A0522D"/>
+  <rect x="24" y="8" width="8" height="4" fill="#A0522D"/>
+  <rect x="20" y="12" width="12" height="4" fill="#A0522D"/>
+  <rect x="16" y="16" width="16" height="4" fill="#A0522D"/>
+  <rect x="12" y="20" width="20" height="4" fill="#A0522D"/>
+  <rect x="8" y="24" width="24" height="4" fill="#A0522D"/>
+  
+  <!-- Chimney -->
+  <rect x="44" y="8" width="8" height="16" fill="#8B0000"/>
+  <rect x="44" y="8" width="4" height="4" fill="#A52A2A"/>
+  
+  <!-- House walls -->
+  <rect x="8" y="28" width="48" height="32" fill="#D4A574"/>
+  <rect x="12" y="32" width="40" height="24" fill="#E8C9A0"/>
+  
+  <!-- Door -->
+  <rect x="28" y="40" width="8" height="16" fill="#654321"/>
+  <rect x="28" y="40" width="8" height="4" fill="#8B4513"/>
+  <rect x="32" y="48" width="4" height="4" fill="#FFD700"/>
+  
+  <!-- Left window -->
+  <rect x="12" y="36" width="12" height="12" fill="#654321"/>
+  <rect x="16" y="40" width="4" height="4" fill="#87CEEB"/>
+  
+  <!-- Right window -->
+  <rect x="40" y="36" width="12" height="12" fill="#654321"/>
+  <rect x="44" y="40" width="4" height="4" fill="#87CEEB"/>
+  
+  <!-- Window crosses -->
+  <rect x="16" y="40" width="4" height="4" fill="#87CEEB"/>
+  <rect x="17" y="40" width="2" height="4" fill="#654321"/>
+  <rect x="16" y="41" width="4" height="2" fill="#654321"/>
+  
+  <rect x="44" y="40" width="4" height="4" fill="#87CEEB"/>
+  <rect x="45" y="40" width="2" height="4" fill="#654321"/>
+  <rect x="44" y="41" width="4" height="2" fill="#654321"/>
+  
+  <!-- Ground shadow -->
+  <rect x="8" y="60" width="48" height="4" fill="rgba(0,0,0,0.2)"/>
+</svg>

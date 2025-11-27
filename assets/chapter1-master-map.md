@@ -87,6 +87,7 @@ player.move_forward(3)
 startPos: 7,9
 goalPos: 7,9
 collectibles: [["wood", [[14,3],[8,7],[10,12]]]]
+megaElements: [["house", [[15,4]]], ["shop", [[1,4]]]]
 ```
 
 <!-- Tests -->
@@ -326,5 +327,59 @@ player.move_forward(8)
 startPos: 7,9
 goalPos: 14,4
 collectibles: [["gem", [[1,1],[6,1],[16,1],[4,2],[9,2],[18,2],[3,3],[11,3],[17,3],[6,4],[13,4],[2,5],[14,5],[7,6],[15,6],[5,7],[9,7],[17,7],[1,8],[8,8],[13,8],[3,9],[10,9],[16,9],[6,10],[11,10],[1,11],[7,11],[13,11],[15,12],[2,12],[9,12],[6,13],[11,13],[3,14],[17,14],[1,15],[3,15],[18,15],[1,16],[7,16],[10,16],[15,16]]]]
+```
+---
+
+--- <!-- Demo Level: Mega Elements -->
+## LESSON 10: THE FARMHOUSE
+
+### AVAILABLE AFTER
+Just for demonstration
+
+### OBJECTIVE
+> Navigate around the farmhouse to reach the goal
+
+This level demonstrates a **mega-element** - a multi-tile element like a house that covers more than one tile. The house blocks movement on all 4 tiles it covers. Navigate around it to reach the star!
+
+### SUCCESS CRITERIA
+- Navigate around the house
+- Reach the goal star
+
+<!-- Starter Code -->
+```
+import player
+
+# The house blocks 4 tiles (2x2)
+# Navigate around it to reach the goal
+player.move_forward()
+```
+
+<!-- Solution -->
+```
+import player
+
+# Go down and around the house
+player.turn_right()
+player.move_forward(3)
+player.turn_left()
+player.move_forward(6)
+player.turn_left()
+player.move_forward(2)
+```
+
+<!-- Map -->
+```
+[3,3,3,3,3,3,3,3,3,3,3,3],
+[3,0,0,0,0,0,0,0,0,0,0,3],
+[3,0,0,0,0,0,0,0,0,0,0,3],
+[3,0,0,0,0,0,0,0,0,0,0,3],
+[3,0,0,0,0,0,0,0,0,0,0,3],
+[3,0,0,0,0,0,0,0,0,0,0,3],
+[3,0,0,0,0,0,0,0,0,0,0,3],
+[3,0,0,0,0,0,0,0,0,0,0,3],
+[3,3,3,3,3,3,3,3,3,3,3,3]
+startPos: 1,3
+goalPos: 7,1
+megaElements: [["house", [[4,3]]]]
 ```
 ---

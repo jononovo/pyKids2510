@@ -61,6 +61,16 @@ async function loadTilesManifest() {
     }
 }
 
+// Build TILES constant dynamically from manifest
+function buildTileConstants() {
+    TILES = {};
+    for (const [name, tile] of Object.entries(tileManifest.tiles)) {
+        const normalizedName = name.toUpperCase().replace(/-/g, '_');
+        TILES[normalizedName] = tile.id;
+    }
+    console.log('Tile constants built:', TILES);
+}
+
 // Get tile ID by name (for dynamic tile lookup)
 function getTileIdByName(name) {
     if (!tileManifest) return 0;
@@ -218,6 +228,36 @@ async function drawElements() {
     });
     
     await Promise.all(elementPromises);
+}
+
+async function drawMegaElements() {
+    if (!window.MegaElementManager) return;
+    
+    const megaElements = MegaElementManager.getElementsForRender();
+    if (!megaElements || megaElements.length === 0) return;
+    
+    const megaPromises = megaElements.map(async (element) => {
+        const px = element.x * TILE_SIZE;
+        const py = element.y * TILE_SIZE;
+        const width = element.width * TILE_SIZE;
+        const height = element.height * TILE_SIZE;
+        
+        if (element.path) {
+            const svgPath = 'assets/map/' + element.path;
+            const img = await loadSVGImage(svgPath);
+            if (img) {
+                ctx.drawImage(img, px, py, width, height);
+            } else if (element.fallbackColor) {
+                ctx.fillStyle = element.fallbackColor;
+                ctx.fillRect(px + 4, py + 4, width - 8, height - 8);
+            }
+        } else if (element.fallbackColor) {
+            ctx.fillStyle = element.fallbackColor;
+            ctx.fillRect(px + 4, py + 4, width - 8, height - 8);
+        }
+    });
+    
+    await Promise.all(megaPromises);
 }
 
 async function drawTile(x, y, type) {
@@ -444,6 +484,9 @@ async function render() {
     // Draw all interactive elements (collectibles, transforms, etc.)
     await drawElements();
     
+    // Draw mega-elements (multi-tile elements like houses, mountains)
+    await drawMegaElements();
+    
     await drawStar(gameState.goalPos.x * TILE_SIZE + TILE_SIZE/2, 
                   gameState.goalPos.y * TILE_SIZE + TILE_SIZE/2);
     
@@ -537,6 +580,9 @@ function animateMove(fromX, fromY, toX, toY, direction) {
             // Draw all interactive elements (collectibles, transforms, etc.)
             await drawElements();
             
+            // Draw mega-elements (multi-tile elements like houses, mountains)
+            await drawMegaElements();
+            
             // Draw goal star
             await drawStar(gameState.goalPos.x * TILE_SIZE + TILE_SIZE/2, 
                           gameState.goalPos.y * TILE_SIZE + TILE_SIZE/2);
@@ -565,6 +611,11 @@ function animateMove(fromX, fromY, toX, toY, direction) {
 // Check if player can move to position
 function canMoveTo(x, y) {
     if (x < 0 || x >= gameState.mapWidth || y < 0 || y >= gameState.mapHeight) {
+        return false;
+    }
+    
+    // Check if a mega-element blocks this tile
+    if (window.MegaElementManager && MegaElementManager.isTileBlocked(x, y)) {
         return false;
     }
     

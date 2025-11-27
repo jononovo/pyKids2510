@@ -197,7 +197,7 @@ function loadSpriteFile(event) {
 // ============================================
 
 // Load a level
-function loadLevel(levelIndex) {
+async function loadLevel(levelIndex) {
     if (!courseData || levelIndex < 0 || levelIndex >= courseData.levels.length) return;
     
     // Reset camera to default state when loading a new level
@@ -498,6 +498,11 @@ function loadLevel(levelIndex) {
         if (window.MissionState) {
             MissionState.setIsMissionLevel(isMission);
         }
+    }
+    
+    // Initialize MegaElementManager with level data (multi-tile elements)
+    if (window.MegaElementManager) {
+        await MegaElementManager.loadLevelMegaElements(level);
     }
     
     // Reset objects and inventory for new level
@@ -825,6 +830,11 @@ if (typeof preloadSVGTiles === 'function') {
         // Initialize ElementInteractionManager
         if (window.ElementInteractionManager) {
             await ElementInteractionManager.init();
+        }
+        
+        // Initialize MegaElementManager (multi-tile elements)
+        if (window.MegaElementManager) {
+            await MegaElementManager.init();
         }
         
         console.log('SVG tiles loaded, starting game');
