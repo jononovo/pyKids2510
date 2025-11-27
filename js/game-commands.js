@@ -231,7 +231,18 @@
             execute: async function() {
                 var pos = getTargetPosition();
                 
-                // Use ElementInteractionManager for transforms
+                // Try VehicleInteractionManager first for boarding/disembarking
+                if (window.VehicleInteractionManager) {
+                    var vehicleResult = VehicleInteractionManager.handleInteract(pos.targetX, pos.targetY, gameState);
+                    if (vehicleResult.success) {
+                        console.log('[interact]', vehicleResult.message);
+                        await render();
+                        await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
+                        return;
+                    }
+                }
+                
+                // Fall back to ElementInteractionManager for transforms
                 if (window.ElementInteractionManager) {
                     var result = ElementInteractionManager.handleInteract(pos.px, pos.py, gameState);
                     if (result.success) {
