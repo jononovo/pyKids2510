@@ -145,6 +145,17 @@ startPos: 2,3
 goalPos: 6,4
 collectibles: [[6,4,"wood"]]
 ```
+
+<!-- Tests -->
+```yaml
+pass_all: true
+tests:
+  - type: position
+    target: goal
+  - type: inventory
+    item: wood
+    min: 1
+```
 ---
 ```
 
@@ -160,6 +171,7 @@ collectibles: [[6,4,"wood"]]
 | `<!-- Starter Code -->` | Yes | Initial code in editor |
 | `<!-- Solution -->` | No | Reference solution |
 | `<!-- Map -->` | Yes | Map layout and configuration |
+| `<!-- Tests -->` | No | Custom level completion tests (see Tests System below) |
 
 ---
 
@@ -486,6 +498,194 @@ For mission and quest levels, state persists across levels within a chapter.
 ### Exercise Levels
 
 Exercise levels do NOT persist state. Each run starts fresh, making them ideal for practice.
+
+---
+
+## Tests System
+
+The tests system allows you to define custom completion criteria for levels beyond just reaching the goal position. If no tests are defined, the level defaults to the standard goal position check.
+
+### Basic Syntax
+
+Tests are defined in a YAML code block after `<!-- Tests -->`:
+
+```markdown
+<!-- Tests -->
+```yaml
+pass_all: true
+tests:
+  - type: position
+    target: goal
+  - type: inventory
+    item: wood
+    min: 3
+```
+```
+
+### Configuration Options
+
+| Property | Description |
+|----------|-------------|
+| `pass_all: true` | All tests must pass (default). Set to `false` if any test passing is sufficient. |
+| `tests:` | Array of test definitions |
+
+### Available Test Types
+
+#### Position Test
+Check if the player is at a specific location.
+
+```yaml
+- type: position
+  target: goal          # Check if at goalPos (default)
+```
+
+```yaml
+- type: position
+  target: [5, 3]        # Check specific coordinates
+```
+
+```yaml
+- type: position
+  x: 5
+  y: 3                  # Alternative syntax
+```
+
+#### Inventory Test
+Check if the player has collected specific items.
+
+```yaml
+- type: inventory
+  item: wood
+  min: 5                # At least 5 wood
+```
+
+```yaml
+- type: inventory
+  item: coin
+  exact: 10             # Exactly 10 coins
+```
+
+```yaml
+- type: inventory
+  item: gem
+  max: 3                # At most 3 gems
+```
+
+#### Collectibles Test
+Check the state of collectible items on the map.
+
+```yaml
+- type: collectibles
+  all: true             # All collectibles must be collected
+```
+
+```yaml
+- type: collectibles
+  count: 3              # At least 3 items collected
+```
+
+```yaml
+- type: collectibles
+  types: ["wood", "gem"]  # These specific types must be collected
+```
+
+#### Code Regex Test
+Check if the student's code matches a pattern.
+
+```yaml
+- type: code_regex
+  pattern: "for .* in range"
+  message: "Use a for loop to repeat commands"
+```
+
+```yaml
+- type: code_regex
+  pattern: "move_forward\\(\\d+\\)"
+  flags: "i"            # Case insensitive
+  success_message: "Great use of move_forward with an argument!"
+```
+
+#### Direction Test
+Check which direction the player is facing.
+
+```yaml
+- type: direction
+  facing: up            # up, down, left, right
+```
+
+#### Element State Test
+Check if an interactive element has been transformed.
+
+```yaml
+- type: element_state
+  x: 4
+  y: 4
+  state: door-open      # Check if door at (4,4) is open
+```
+
+### Fallback Behavior
+
+**If no `<!-- Tests -->` section is defined**, the level uses the default behavior: the player wins by reaching the `goalPos` position. This maintains backward compatibility with existing lessons.
+
+### Complete Example
+
+```markdown
+--- <!-- Mission 3 -->
+## MISSION 3: THE COLLECTOR
+
+### OBJECTIVE
+> Collect all 3 gems and return home
+
+### SUCCESS CRITERIA
+- Collect all gems
+- Return to the starting position
+- Use a for loop
+
+<!-- Starter Code -->
+```
+import player
+
+# Collect all gems efficiently
+```
+
+<!-- Solution -->
+```
+import player
+
+for i in range(3):
+    player.move_forward(2)
+    player.collect()
+    player.turn_right()
+    player.move_forward(2)
+    player.turn_left()
+```
+
+<!-- Map -->
+```
+[3,3,3,3,3,3,3],
+[3,0,0,0,0,0,3],
+[3,0,0,0,0,0,3],
+[3,0,0,0,0,0,3],
+[3,3,3,3,3,3,3]
+startPos: 1,2
+goalPos: 1,2
+collectibles: [["gem", [[3,1],[3,2],[3,3]]]]
+```
+
+<!-- Tests -->
+```yaml
+pass_all: true
+tests:
+  - type: position
+    target: goal
+  - type: collectibles
+    all: true
+  - type: code_regex
+    pattern: "for .* in range"
+    message: "Try using a for loop to repeat your commands"
+```
+---
+```
 
 ---
 

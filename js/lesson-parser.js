@@ -2,6 +2,51 @@
 // LESSON PARSER MODULE
 // ============================================
 
+function parseTestsYaml(yamlStr) {
+    const tests = { pass_all: true, items: [] };
+    const lines = yamlStr.split('\n');
+    let currentTest = null;
+    
+    for (const line of lines) {
+        const trimmedLine = line.trim();
+        
+        if (trimmedLine.match(/^pass_all:\s*(true|false)/i)) {
+            tests.pass_all = trimmedLine.toLowerCase().includes('true');
+        } else if (trimmedLine.match(/^-\s*type:/)) {
+            if (currentTest) tests.items.push(currentTest);
+            const typeMatch = trimmedLine.match(/type:\s*["']?(\w+)["']?/);
+            currentTest = { type: typeMatch ? typeMatch[1] : 'unknown' };
+        } else if (currentTest && trimmedLine.match(/^\w+:/)) {
+            const colonIndex = trimmedLine.indexOf(':');
+            const key = trimmedLine.substring(0, colonIndex).trim();
+            let val = trimmedLine.substring(colonIndex + 1).trim();
+            
+            val = val.replace(/^["']|["']$/g, '');
+            
+            if (val === 'true') {
+                currentTest[key] = true;
+            } else if (val === 'false') {
+                currentTest[key] = false;
+            } else if (!isNaN(val) && val !== '') {
+                currentTest[key] = parseInt(val);
+            } else if (val.startsWith('[') && val.endsWith(']')) {
+                try {
+                    currentTest[key] = JSON.parse(val);
+                } catch (e) {
+                    currentTest[key] = val;
+                }
+            } else {
+                currentTest[key] = val;
+            }
+        }
+    }
+    
+    if (currentTest) tests.items.push(currentTest);
+    
+    console.log('[LessonParser] Parsed tests:', tests);
+    return tests;
+}
+
 function parseCourseLevels(markdown) {
     const courseData = {
         chapterName: '',
@@ -147,6 +192,15 @@ function parseCourseLevels(markdown) {
         markdownContent = markdownContent.replace(/\n---\s*$/, '');
         
         level.markdown = markdownContent.trim();
+
+        // Parse Tests section
+        const testsMatch = section.match(/<!--\s*Tests\s*-->\s*\n*```(?:yaml|yml)?\s*([\s\S]*?)```/);
+        if (testsMatch) {
+            level.tests = parseTestsYaml(testsMatch[1].trim());
+        }
+        
+        // Remove tests section from markdown content
+        level.markdown = level.markdown.replace(/<!--\s*Tests\s*-->\s*\n*```(?:yaml|yml)?[\s\S]*?```/g, '');
 
         // Detect mission type and generate slug
         if (window.MissionDetector) {

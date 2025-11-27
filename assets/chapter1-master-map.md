@@ -88,6 +88,17 @@ startPos: 7,9
 goalPos: 7,9
 collectibles: [["wood", [[14,3],[8,7],[10,12]]]]
 ```
+
+<!-- Tests -->
+```yaml
+pass_all: true
+tests:
+  - type: position
+    target: goal
+  - type: inventory
+    item: wood
+    min: 3
+```
 ---
 
 --- <!-- Mission 2 -->
