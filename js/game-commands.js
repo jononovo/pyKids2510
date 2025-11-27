@@ -430,6 +430,11 @@
     // ========== GAME CONTROL FUNCTIONS ==========
     
     window.runCode = async function() {
+        // Reset camera to auto-follow mode when running code
+        if (window.camera) {
+            window.camera.isManualPan = false;
+        }
+        
         if (window.SkulptRuntime) {
             await window.SkulptRuntime.runCode();
         } else {

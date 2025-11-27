@@ -71,6 +71,25 @@ const canvas = document.getElementById('game-canvas');
 const ctx = canvas.getContext('2d');
 ctx.imageSmoothingEnabled = false;
 
+// Camera state for pan/zoom controls
+const camera = {
+    zoom: 1.0,
+    minZoom: 0.25,
+    maxZoom: 2.0,
+    zoomStep: 0.1,
+    panX: 0,
+    panY: 0,
+    isManualPan: false,
+    isDragging: false,
+    dragStartX: 0,
+    dragStartY: 0,
+    panStartX: 0,
+    panStartY: 0
+};
+
+// Expose camera globally for game-engine.js
+window.camera = camera;
+
 // Create audio context for sound effects
 let audioContext = null;
 
@@ -180,6 +199,15 @@ function loadSpriteFile(event) {
 // Load a level
 async function loadLevel(levelIndex) {
     if (!courseData || levelIndex < 0 || levelIndex >= courseData.levels.length) return;
+    
+    // Reset camera to default state when loading a new level
+    if (window.camera) {
+        window.camera.zoom = 1.0;
+        window.camera.panX = 0;
+        window.camera.panY = 0;
+        window.camera.isManualPan = false;
+        window.camera.isDragging = false;
+    }
     
     currentLevel = levelIndex;
     const level = courseData.levels[levelIndex];
@@ -782,7 +810,7 @@ fetch('/api/config')
 loadAvailableSprites();
 
 // Auto-load the default chapter on startup
-fetch('assets/chapter1-master-map.md')
+fetch('assets/chapter1-elements-demo.md')
     .then(response => response.text())
     .then(markdown => {
         courseData = parseCourseLevels(markdown);
@@ -831,15 +859,219 @@ if (typeof preloadSVGTiles === 'function') {
 // Start animation loop
 requestAnimationFrame(animationLoop);
 
-// Add mouse hover tracking for tile highlight
+// ============================================
+// CAMERA: Screen-to-World Coordinate Conversion
+// ============================================
+
+// Convert screen coordinates to world (tile) coordinates
+function screenToWorld(screenX, screenY) {
+    const viewport = document.getElementById('game-viewport');
+    if (!viewport) return { x: screenX, y: screenY };
+    
+    const viewportRect = viewport.getBoundingClientRect();
+    const cam = window.camera;
+    
+    // Get position relative to viewport
+    const relX = screenX - viewportRect.left;
+    const relY = screenY - viewportRect.top;
+    
+    // Reverse the transform: subtract pan offset, then divide by zoom
+    const worldX = (relX - cam.panX) / cam.zoom;
+    const worldY = (relY - cam.panY) / cam.zoom;
+    
+    return { x: worldX, y: worldY };
+}
+
+// Expose for debugging
+window.screenToWorld = screenToWorld;
+
+// ============================================
+// CAMERA: Zoom Controls (Mouse Wheel)
+// ============================================
+
+const gameViewport = document.getElementById('game-viewport');
+
+gameViewport.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    
+    const cam = window.camera;
+    const viewport = document.getElementById('game-viewport');
+    const viewportRect = viewport.getBoundingClientRect();
+    
+    // Get mouse position relative to viewport
+    const mouseX = e.clientX - viewportRect.left;
+    const mouseY = e.clientY - viewportRect.top;
+    
+    // Calculate world position under mouse before zoom
+    const worldX = (mouseX - cam.panX) / cam.zoom;
+    const worldY = (mouseY - cam.panY) / cam.zoom;
+    
+    // Calculate new zoom level
+    const oldZoom = cam.zoom;
+    const zoomDelta = e.deltaY > 0 ? -cam.zoomStep : cam.zoomStep;
+    cam.zoom = Math.max(cam.minZoom, Math.min(cam.maxZoom, cam.zoom + zoomDelta));
+    
+    // Only adjust if zoom actually changed
+    if (cam.zoom !== oldZoom) {
+        // Adjust pan so the point under the mouse stays fixed
+        cam.panX = mouseX - worldX * cam.zoom;
+        cam.panY = mouseY - worldY * cam.zoom;
+        cam.isManualPan = true;
+        
+        updateViewport();
+        updateCameraUI();
+    }
+}, { passive: false });
+
+// ============================================
+// CAMERA: Pan Controls (Click and Drag)
+// ============================================
+
+gameViewport.addEventListener('mousedown', (e) => {
+    // Only pan with left mouse button
+    if (e.button !== 0) return;
+    
+    const cam = window.camera;
+    cam.isDragging = true;
+    cam.dragStartX = e.clientX;
+    cam.dragStartY = e.clientY;
+    cam.panStartX = cam.panX;
+    cam.panStartY = cam.panY;
+    
+    // Change cursor to grabbing
+    gameViewport.style.cursor = 'grabbing';
+});
+
+document.addEventListener('mousemove', (e) => {
+    const cam = window.camera;
+    if (!cam.isDragging) return;
+    
+    // Calculate drag delta
+    const deltaX = e.clientX - cam.dragStartX;
+    const deltaY = e.clientY - cam.dragStartY;
+    
+    // Update pan position
+    cam.panX = cam.panStartX + deltaX;
+    cam.panY = cam.panStartY + deltaY;
+    cam.isManualPan = true;
+    
+    updateViewport();
+});
+
+document.addEventListener('mouseup', (e) => {
+    const cam = window.camera;
+    if (cam.isDragging) {
+        cam.isDragging = false;
+        gameViewport.style.cursor = 'grab';
+    }
+});
+
+// Set default cursor for viewport
+gameViewport.style.cursor = 'grab';
+
+// ============================================
+// CAMERA: Update UI Display
+// ============================================
+
+function updateCameraUI() {
+    const zoomDisplay = document.getElementById('zoom-level');
+    if (zoomDisplay) {
+        const cam = window.camera;
+        zoomDisplay.textContent = `${Math.round(cam.zoom * 100)}%`;
+    }
+}
+
+// Expose for reset button
+window.resetCamera = function() {
+    const cam = window.camera;
+    if (!cam) return;
+    
+    cam.zoom = 1.0;
+    cam.panX = 0;
+    cam.panY = 0;
+    cam.isManualPan = false;
+    cam.isDragging = false;
+    
+    if (typeof updateViewport === 'function') {
+        updateViewport();
+    }
+    updateCameraUI();
+};
+
+// Zoom in function for button
+window.zoomIn = function() {
+    const cam = window.camera;
+    const viewport = document.getElementById('game-viewport');
+    const viewportRect = viewport.getBoundingClientRect();
+    
+    // Zoom toward center of viewport
+    const centerX = viewportRect.width / 2;
+    const centerY = viewportRect.height / 2;
+    
+    // Calculate world position at center before zoom
+    const worldX = (centerX - cam.panX) / cam.zoom;
+    const worldY = (centerY - cam.panY) / cam.zoom;
+    
+    // Apply zoom
+    const oldZoom = cam.zoom;
+    cam.zoom = Math.min(cam.maxZoom, cam.zoom + cam.zoomStep);
+    
+    if (cam.zoom !== oldZoom) {
+        // Adjust pan to keep center fixed
+        cam.panX = centerX - worldX * cam.zoom;
+        cam.panY = centerY - worldY * cam.zoom;
+        cam.isManualPan = true;
+        
+        updateViewport();
+        updateCameraUI();
+    }
+};
+
+// Zoom out function for button
+window.zoomOut = function() {
+    const cam = window.camera;
+    const viewport = document.getElementById('game-viewport');
+    const viewportRect = viewport.getBoundingClientRect();
+    
+    // Zoom toward center of viewport
+    const centerX = viewportRect.width / 2;
+    const centerY = viewportRect.height / 2;
+    
+    // Calculate world position at center before zoom
+    const worldX = (centerX - cam.panX) / cam.zoom;
+    const worldY = (centerY - cam.panY) / cam.zoom;
+    
+    // Apply zoom
+    const oldZoom = cam.zoom;
+    cam.zoom = Math.max(cam.minZoom, cam.zoom - cam.zoomStep);
+    
+    if (cam.zoom !== oldZoom) {
+        // Adjust pan to keep center fixed
+        cam.panX = centerX - worldX * cam.zoom;
+        cam.panY = centerY - worldY * cam.zoom;
+        cam.isManualPan = true;
+        
+        updateViewport();
+        updateCameraUI();
+    }
+};
+
+// ============================================
+// CAMERA: Tile Hover Tracking (zoom-aware)
+// ============================================
+
 canvas.addEventListener('mousemove', (e) => {
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const cam = window.camera;
+    
+    // Skip hover tracking while dragging
+    if (cam.isDragging) return;
+    
+    // Convert screen coordinates to world coordinates
+    const world = screenToWorld(e.clientX, e.clientY);
     
     // Calculate which tile the mouse is over
-    const tileX = Math.floor(x / TILE_SIZE);
-    const tileY = Math.floor(y / TILE_SIZE);
+    const tileX = Math.floor(world.x / TILE_SIZE);
+    const tileY = Math.floor(world.y / TILE_SIZE);
     
     // Only update if we're hovering over a different tile
     if (gameState.hoveredTile.x !== tileX || gameState.hoveredTile.y !== tileY) {
