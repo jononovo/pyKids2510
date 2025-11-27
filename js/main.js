@@ -19,6 +19,7 @@ window.levelEntrySnapshot = {
 };
 
 const TILE_SIZE = 32; // Standard tile size (image will stretch to fit)
+window.TILE_SIZE = TILE_SIZE; // Expose globally for map modules
 const MOVE_DURATION = 400;
 
 // Speed settings
@@ -60,6 +61,7 @@ let gameState = {
     inventory: {},
     messageLog: []
 };
+window.gameState = gameState; // Expose globally for map modules
 
 const canvas = document.getElementById('game-canvas');
 const ctx = canvas.getContext('2d');
@@ -843,46 +845,7 @@ if (typeof preloadSVGTiles === 'function') {
 // Start animation loop
 requestAnimationFrame(animationLoop);
 
-// ============================================
-// TILE HOVER TRACKING (zoom-aware)
-// Note: Camera controls are in js/map/camera-controls.js
-// ============================================
-
-canvas.addEventListener('mousemove', (e) => {
-    const cam = window.camera;
-    
-    // Skip hover tracking while dragging
-    if (cam.isDragging) return;
-    
-    // Convert screen coordinates to world coordinates
-    const world = window.screenToWorld(e.clientX, e.clientY);
-    
-    // Calculate which tile the mouse is over
-    const tileX = Math.floor(world.x / TILE_SIZE);
-    const tileY = Math.floor(world.y / TILE_SIZE);
-    
-    // Only update if we're hovering over a different tile
-    if (gameState.hoveredTile.x !== tileX || gameState.hoveredTile.y !== tileY) {
-        // Check if tile is within bounds
-        if (tileX >= 0 && tileX < gameState.mapWidth && 
-            tileY >= 0 && tileY < gameState.mapHeight) {
-            gameState.hoveredTile.x = tileX;
-            gameState.hoveredTile.y = tileY;
-        } else {
-            gameState.hoveredTile.x = -1;
-            gameState.hoveredTile.y = -1;
-        }
-        // Re-render to show the hover effect
-        render();
-    }
-});
-
-// Clear hover when mouse leaves canvas
-canvas.addEventListener('mouseleave', () => {
-    gameState.hoveredTile.x = -1;
-    gameState.hoveredTile.y = -1;
-    render();
-});
+// Note: Tile hover tracking is now in js/map/tile-hover.js
 
 // ============================================
 // CHAPTER DROPDOWN FUNCTIONALITY
