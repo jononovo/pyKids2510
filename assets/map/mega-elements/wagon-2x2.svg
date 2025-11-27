@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Old wooden farmer's wagon with food - 2x2 tiles, 3/4 RPG view -->
+  
+  <!-- Shadow -->
+  <ellipse cx="32" cy="60" rx="28" ry="4" fill="rgba(0,0,0,0.15)"/>
+  
+  <!-- WHEELS -->
+  <!-- Left wheel -->
+  <ellipse cx="12" cy="52" rx="10" ry="10" fill="#5A4030"/>
+  <ellipse cx="12" cy="52" rx="8" ry="8" fill="#6B5040"/>
+  <ellipse cx="12" cy="52" rx="3" ry="3" fill="#4A3020"/>
+  <!-- Wheel spokes -->
+  <rect x="11" y="42" width="2" height="20" rx="1" fill="#4A3020"/>
+  <rect x="2" y="51" width="20" height="2" rx="1" fill="#4A3020"/>
+  <rect x="5" y="45" width="14" height="2" rx="1" fill="#4A3020" transform="rotate(45 12 52)"/>
+  <rect x="5" y="45" width="14" height="2" rx="1" fill="#4A3020" transform="rotate(-45 12 52)"/>
+  
+  <!-- Right wheel -->
+  <ellipse cx="52" cy="52" rx="10" ry="10" fill="#5A4030"/>
+  <ellipse cx="52" cy="52" rx="8" ry="8" fill="#6B5040"/>
+  <ellipse cx="52" cy="52" rx="3" ry="3" fill="#4A3020"/>
+  <!-- Wheel spokes -->
+  <rect x="51" y="42" width="2" height="20" rx="1" fill="#4A3020"/>
+  <rect x="42" y="51" width="20" height="2" rx="1" fill="#4A3020"/>
+  <rect x="45" y="45" width="14" height="2" rx="1" fill="#4A3020" transform="rotate(45 52 52)"/>
+  <rect x="45" y="45" width="14" height="2" rx="1" fill="#4A3020" transform="rotate(-45 52 52)"/>
+  
+  <!-- AXLE -->
+  <rect x="10" y="48" width="44" height="4" rx="2" fill="#4A3020"/>
+  
+  <!-- WAGON BED/BODY -->
+  <rect x="6" y="22" width="52" height="28" rx="3" fill="#8B6848"/>
+  <!-- Wood plank texture -->
+  <rect x="8" y="24" width="48" height="3" rx="1" fill="#9B7858"/>
+  <rect x="8" y="29" width="48" height="2" rx="1" fill="#7B5838"/>
+  <rect x="8" y="35" width="48" height="2" rx="1" fill="#7B5838"/>
+  <rect x="8" y="41" width="48" height="2" rx="1" fill="#7B5838"/>
+  <!-- Side edges -->
+  <rect x="6" y="22" width="4" height="28" rx="2" fill="#9B7858"/>
+  <rect x="54" y="22" width="4" height="28" rx="2" fill="#6B4828"/>
+  <!-- Front/back walls -->
+  <rect x="6" y="22" width="52" height="4" rx="2" fill="#7B5838"/>
+  
+  <!-- WAGON SIDES (raised edges) -->
+  <rect x="4" y="16" width="4" height="34" rx="2" fill="#7B5838"/>
+  <rect x="56" y="16" width="4" height="34" rx="2" fill="#5B3818"/>
+  <rect x="4" y="14" width="56" height="4" rx="2" fill="#6B4828"/>
+  
+  <!-- FOOD/PRODUCE ON WAGON -->
+  <!-- Hay/straw base -->
+  <rect x="10" y="18" width="44" height="8" rx="2" fill="#D4B060"/>
+  <rect x="12" y="16" width="40" height="4" rx="2" fill="#E4C070"/>
+  
+  <!-- Pumpkin -->
+  <ellipse cx="18" cy="12" rx="7" ry="6" fill="#D86020"/>
+  <ellipse cx="18" cy="11" rx="5" ry="4" fill="#E87030"/>
+  <rect x="16" y="5" width="4" height="4" rx="1" fill="#4A7030"/>
+  
+  <!-- Apple basket -->
+  <rect x="28" y="8" width="12" height="10" rx="2" fill="#8B6040"/>
+  <ellipse cx="31" cy="8" rx="3" ry="3" fill="#C03030"/>
+  <ellipse cx="37" cy="9" rx="3" ry="3" fill="#D04040"/>
+  <ellipse cx="34" cy="6" rx="3" ry="3" fill="#B02020"/>
+  
+  <!-- Corn/vegetables -->
+  <ellipse cx="48" cy="10" rx="4" ry="7" fill="#E8D040"/>
+  <ellipse cx="48" cy="8" rx="3" ry="5" fill="#F0E050"/>
+  <rect x="46" y="2" width="4" height="4" rx="1" fill="#60A040"/>
+  
+  <!-- Cabbage -->
+  <ellipse cx="52" cy="14" rx="5" ry="4" fill="#50A050"/>
+  <ellipse cx="52" cy="13" rx="3" ry="3" fill="#60B060"/>
+  
+  <!-- PULL HANDLE -->
+  <rect x="26" y="48" width="12" height="3" rx="1" fill="#5A4030"/>
+  <rect x="24" y="50" width="4" height="8" rx="2" fill="#6B5040"/>
+  <rect x="36" y="50" width="4" height="8" rx="2" fill="#6B5040"/>
+</svg>
