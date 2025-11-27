@@ -293,14 +293,14 @@ Elements are interactive items placed over tiles. They can be collectibles, tran
 
 ### Collectibles
 
-Collectibles are items players pick up using the `collect()` command.
+Collectibles are items players pick up using the `collect()` command. All element definitions require an outer array wrapper.
 
-**Single Type:**
+**Single Type (outer wrapper required):**
 ```
-collectibles: ["gem", [[5,3],[8,9],[12,4]]]
+collectibles: [["gem", [[5,3],[8,9],[12,4]]]]
 ```
 
-**Multiple Types (wrap in outer array):**
+**Multiple Types:**
 ```
 collectibles: [["gem", [[5,3],[8,9]]], ["coin", [[2,4],[6,7]]]]
 ```
@@ -312,24 +312,24 @@ collectibles: [["gem", [[1,3]]], ["gem", {"trigger": "on_step", "at": [[5,3],[8,
 
 ### Transforms
 
-Transforms are elements that change when the player uses `interact()`.
+Transforms are elements that change when the player uses `interact()`. All element definitions require an outer array wrapper.
 
 **Disappear on interact:**
 ```
-transforms: ["door", [[6,6],[8,9]]]
+transforms: [["door", [[6,6],[8,9]]]]
 ```
 
 **Swap to replacement:**
 ```
-transforms: ["door", "door-open", [[4,4],[7,7]]]
+transforms: [["door", "door-open", [[4,4],[7,7]]]]
 ```
 
 **With on_step trigger (auto-trigger when stepped on):**
 ```
-transforms: ["door", "door-open", {"trigger": "on_step", "at": [[7,7]]}]
+transforms: [["door", "door-open", {"trigger": "on_step", "at": [[7,7]]}]]
 ```
 
-**Multiple transform types (wrap in outer array):**
+**Multiple transform types:**
 ```
 transforms: [["door", "door-open", [[4,4]]], ["lever", "lever-on", [[8,8]]]]
 ```
