@@ -279,6 +279,7 @@ SVG-based tile rendering system with assets organized in `assets/map/` (tiles, o
 ### Technical Implementations & Features
 
 - **Code Execution**: Python-like commands are parsed and executed visually. Skulpt integration has been refactored for a single source of truth for game commands (`js/game-commands.js`), generating Skulpt module source at load time. Commands now support multi-argument and repetition for turns, with simplified aliases and auto-import prelude.
+- **Editor Manager** (`js/editor-manager.js`): Centralized module managing the CodeJar code editor instance with methods for initialization, code updates, line numbers, and reset functionality. Exposes `init()`, `updateCode()`, `getCode()`, `updateLineNumbers()`, `isInitialized()`, and `resetToSnapshot()` methods via the global `EditorManager` object.
 - **Visual Coding**: Integration with Blockly allows students to toggle between a Python text editor and visual blocks, with custom blocks for movement commands.
 - **Coding Tutor**: An intelligent, rules-based coding tutor analyzes student code against solutions, providing contextual help and recommendations, with an "Apply" button to insert/replace code.
 - **Code Book**: A slide-out panel provides documentation and examples for in-game functions.
@@ -307,6 +308,10 @@ SVG-based tile rendering system with assets organized in `assets/map/` (tiles, o
     - `missionState`: Deep copy of MissionState at level entry (inventory, collectedItems, structures)
     - `levelIndex`: Tracks which level the snapshot belongs to (prevents overwriting on same-level reloads)
     - Reset button restores code editor, MissionState, inventory UI, and collectible states to entry snapshot
+
+## Documentation
+
+- **Lesson Authoring Guide**: `docs/LESSON_AUTHORING_GUIDE.md` - Comprehensive guide for creating lessons, missions, and quests. Includes template structure, map design, collectibles, available commands, and technical details.
 
 ## External Dependencies
 

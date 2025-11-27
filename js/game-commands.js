@@ -481,13 +481,12 @@
         }
         
         // Reset code editor to starter code
-        if (window.levelEntrySnapshot && window.levelEntrySnapshot.starterCode) {
-            if (window.jar) {
-                window.jar.updateCode(window.levelEntrySnapshot.starterCode);
-            }
+        if (window.EditorManager) {
+            EditorManager.resetToSnapshot();
+            
             // Also update Blockly if in block mode
             if (window.BlocklyModeSwitcher && window.BlocklyModeSwitcher.isBlockMode()) {
-                if (window.BlocklyIntegration) {
+                if (window.BlocklyIntegration && window.levelEntrySnapshot && window.levelEntrySnapshot.starterCode) {
                     window.BlocklyIntegration.convertFromText(window.levelEntrySnapshot.starterCode);
                 }
             }

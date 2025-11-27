@@ -5,7 +5,6 @@
 // Global variables
 let courseData = null;
 let currentLevel = 0;
-let jar = null;
 
 // Map inheritance cache
 let lastMapCache = null;         // Most recent map from any level
@@ -274,16 +273,18 @@ function loadLevel(levelIndex) {
         
         if (isFirstLoad) {
             // First time - initialize everything
-            initializeEditorInfrastructure();
+            EditorManager.init();
             
             // Check for saved code, otherwise use starter code
             const savedCode = window.UserProgressManager ? UserProgressManager.getSavedCode() : null;
             const codeToLoad = savedCode || level.starterCode;
-            updateEditorContent(codeToLoad);
+            EditorManager.updateCode(codeToLoad);
             
             // Save code snapshot for reset functionality (only on new level entry)
+            // Always use original starter code from MD file for all levels
             if (window._isNewLevelEntry) {
-                window.levelEntrySnapshot.starterCode = codeToLoad;
+                window.levelEntrySnapshot.starterCode = level.starterCode;
+                console.log('[loadLevel] Saved starterCode snapshot for level', currentLevel + 1, ':', window.levelEntrySnapshot.starterCode.substring(0, 50) + '...');
             }
             
             // Update currentLessonStarterCode for Blockly compatibility
@@ -348,11 +349,13 @@ function loadLevel(levelIndex) {
             // Check for saved code, otherwise use starter code
             const savedCode = window.UserProgressManager ? UserProgressManager.getSavedCode() : null;
             const codeToLoad = savedCode || level.starterCode;
-            updateEditorContent(codeToLoad);
+            EditorManager.updateCode(codeToLoad);
             
             // Save code snapshot for reset functionality (only on new level entry)
+            // Always use original starter code from MD file for all levels
             if (window._isNewLevelEntry) {
-                window.levelEntrySnapshot.starterCode = codeToLoad;
+                window.levelEntrySnapshot.starterCode = level.starterCode;
+                console.log('[loadLevel] Saved starterCode snapshot for level', currentLevel + 1, ':', window.levelEntrySnapshot.starterCode.substring(0, 50) + '...');
             }
             
             // Update currentLessonStarterCode for Blockly compatibility
@@ -478,7 +481,21 @@ function loadLevel(levelIndex) {
     // Save MissionState snapshot for reset functionality (only on new level entry)
     if (isNewLevelEntry) {
         if (isMission && window.MissionState && MissionState.isInitialized()) {
-            window.levelEntrySnapshot.missionState = MissionState.getState();
+            // For level 1 (index 0), always capture a fresh/empty snapshot
+            // This ensures reset returns to a clean state from the MD file
+            // For subsequent levels, capture current MissionState (items from previous levels persist)
+            if (levelIndex === 0) {
+                window.levelEntrySnapshot.missionState = {
+                    chapter: MissionState.getCurrentChapter(),
+                    inventory: {},
+                    collectedItems: [],
+                    structures: []
+                };
+                console.log('[loadLevel] Level 1 - captured fresh empty snapshot for reset');
+            } else {
+                window.levelEntrySnapshot.missionState = MissionState.getState();
+                console.log('[loadLevel] Level', levelIndex + 1, '- captured MissionState snapshot for reset:', window.levelEntrySnapshot.missionState);
+            }
         } else {
             window.levelEntrySnapshot.missionState = null;
         }
@@ -524,74 +541,6 @@ function loadLevel(levelIndex) {
     
     // Initialize viewport position
     updateViewport();
-}
-
-// Initialize editor infrastructure (called once)
-function initializeEditorInfrastructure() {
-    const editorElement = document.getElementById('editor');
-    if (!editorElement) return false;
-    
-    // Check if already initialized
-    if (window.jar) return true;
-    
-    // Check if CodeJar is loaded
-    if (!window.CodeJar) {
-        console.error('CodeJar library not loaded');
-        return false;
-    }
-    
-    const highlight = editor => {
-        const code = editor.textContent;
-        editor.innerHTML = PythonHighlighter.highlight(code);
-    };
-    
-    // Force CodeJar to use regular contenteditable mode to support HTML highlighting
-    editorElement.setAttribute('contenteditable', 'true');
-    
-    jar = CodeJar(editorElement, highlight, {
-        tab: '    ',
-        indentOn: /:$/,
-        addClosing: false,
-        spellcheck: false
-    });
-    
-    jar.onUpdate(() => {
-        updateLineNumbers();
-        if (window.UserProgressManager) {
-            UserProgressManager.saveCode(jar.toString());
-        }
-    });
-    
-    return true;
-}
-
-// Update editor content (called on level change)
-function updateEditorContent(starterCode) {
-    if (!window.jar) {
-        // Editor not initialized, try to initialize it first
-        const editorElement = document.getElementById('editor');
-        if (!editorElement) return;
-        
-        if (!initializeEditorInfrastructure()) return;
-    }
-    
-    // Just update the code, don't rebuild
-    jar.updateCode(starterCode);
-    updateLineNumbers();
-}
-
-// Update line numbers
-function updateLineNumbers() {
-    const editor = document.getElementById('editor');
-    const lineNumbers = document.getElementById('line-numbers');
-    if (!editor || !lineNumbers) return;
-    
-    const lines = editor.textContent.split('\n');
-    const numbers = [];
-    for (let i = 1; i <= lines.length; i++) {
-        numbers.push(i);
-    }
-    lineNumbers.textContent = numbers.join('\n');
 }
 
 // ============================================
