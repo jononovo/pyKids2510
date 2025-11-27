@@ -11,11 +11,11 @@
     },
     "shop": {
       "name": "shop",
-      "path": "mega-elements/shop-stand-2x2.svg",
-      "width": 2,
-      "height": 2,
+      "path": "mega-elements/shop-stand-3x3.svg",
+      "width": 3,
+      "height": 3,
       "fallbackColor": "#707070",
-      "blockedTiles": [[0,1], [1,1]],
+      "blockedTiles": [[0,1], [1,1], [2,1], [0,2], [1,2], [2,2]],
       "description": "A trader stand with stone counter and wooden awning"
     }
   }
