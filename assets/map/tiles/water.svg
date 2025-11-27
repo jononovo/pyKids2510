@@ -1,15 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
-  <!-- Water base -->
-  <rect width="32" height="32" fill="#6fa8dc"/>
-  <!-- Animated wave pattern effect -->
-  <path d="M0,8 Q8,6 16,8 T32,8" stroke="#5f98cc" stroke-width="1.5" fill="none" opacity="0.6"/>
-  <path d="M0,16 Q8,14 16,16 T32,16" stroke="#5f98cc" stroke-width="1.5" fill="none" opacity="0.6"/>
-  <path d="M0,24 Q8,22 16,24 T32,24" stroke="#5f98cc" stroke-width="1.5" fill="none" opacity="0.6"/>
-  <!-- Light reflections -->
-  <ellipse cx="10" cy="12" rx="3" ry="1" fill="#8fbfef" opacity="0.4"/>
-  <ellipse cx="22" cy="20" rx="2" ry="0.8" fill="#8fbfef" opacity="0.4"/>
-  <ellipse cx="16" cy="6" rx="2.5" ry="0.6" fill="#8fbfef" opacity="0.3"/>
-  <!-- Subtle ripples -->
-  <circle cx="8" cy="18" r="3" stroke="#5f98cc" stroke-width="0.5" fill="none" opacity="0.3"/>
-  <circle cx="24" cy="10" r="2" stroke="#5f98cc" stroke-width="0.5" fill="none" opacity="0.3"/>
+  <!-- Water base - vibrant sky blue -->
+  <rect width="32" height="32" fill="#4fc3f7"/>
+  <!-- Soft organic wave patterns -->
+  <path d="M-2,7 Q6,5 14,8 Q22,11 32,7" stroke="#29b6f6" stroke-width="2" fill="none" opacity="0.35"/>
+  <path d="M0,15 Q10,12 18,16 Q26,20 34,14" stroke="#29b6f6" stroke-width="2" fill="none" opacity="0.35"/>
+  <path d="M-4,23 Q4,20 12,24 Q20,28 30,22" stroke="#29b6f6" stroke-width="2" fill="none" opacity="0.35"/>
+  <!-- Light reflections / shimmer -->
+  <ellipse cx="8" cy="10" rx="4" ry="1.5" fill="#b3e5fc" opacity="0.5"/>
+  <ellipse cx="22" cy="18" rx="3" ry="1.2" fill="#b3e5fc" opacity="0.45"/>
+  <ellipse cx="14" cy="26" rx="3.5" ry="1" fill="#b3e5fc" opacity="0.4"/>
+  <!-- Subtle sparkle highlights -->
+  <circle cx="6" cy="20" r="1" fill="#e1f5fe" opacity="0.6"/>
+  <circle cx="26" cy="8" r="0.8" fill="#e1f5fe" opacity="0.5"/>
 </svg>

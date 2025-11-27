@@ -5,10 +5,10 @@
     "2": { "name": "path", "path": "tiles/path.svg", "fallbackColor": "#d4b896" },
     "3": { "name": "tree", "path": "objects/tree.svg", "fallbackColor": "#4a7c4e", "access": "blocked" },
     "4": { "name": "bush", "path": "objects/bush.svg", "fallbackColor": "#5a8c5e", "overlayOnGrass": true, "access": "blocked" },
-    "5": { "name": "water", "path": "tiles/water.svg", "fallbackColor": "#6fa8dc", "access": ["boat", "ship", "fish"] },
+    "5": { "name": "water", "path": "tiles/water.svg", "fallbackColor": "#4fc3f7", "access": ["boat", "ship", "fish"] },
     "6": { "name": "rock", "path": "tiles/rock.svg", "fallbackColor": "#888888", "access": "blocked" },
     "7": { "name": "flower", "path": "objects/flower.svg", "fallbackColor": "#7fc97f", "overlayOnGrass": true },
-    "8": { "name": "water-dark", "path": "tiles/water-dark.svg", "fallbackColor": "#5898bc", "access": ["boat", "ship", "fish"] }
+    "8": { "name": "water-dark", "path": "tiles/water-dark.svg", "fallbackColor": "#039be5", "access": ["boat", "ship", "fish"] }
   },
   "special": {
     "star": "special/star-goal.svg"
