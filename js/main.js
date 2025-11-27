@@ -979,6 +979,64 @@ window.resetCamera = function() {
     }
 };
 
+// Zoom in function for button
+window.zoomIn = function() {
+    const cam = window.camera;
+    const viewport = document.getElementById('game-viewport');
+    const viewportRect = viewport.getBoundingClientRect();
+    
+    // Zoom toward center of viewport
+    const centerX = viewportRect.width / 2;
+    const centerY = viewportRect.height / 2;
+    
+    // Calculate world position at center before zoom
+    const worldX = (centerX - cam.panX) / cam.zoom;
+    const worldY = (centerY - cam.panY) / cam.zoom;
+    
+    // Apply zoom
+    const oldZoom = cam.zoom;
+    cam.zoom = Math.min(cam.maxZoom, cam.zoom + cam.zoomStep);
+    
+    if (cam.zoom !== oldZoom) {
+        // Adjust pan to keep center fixed
+        cam.panX = centerX - worldX * cam.zoom;
+        cam.panY = centerY - worldY * cam.zoom;
+        cam.isManualPan = true;
+        
+        updateViewport();
+        updateCameraUI();
+    }
+};
+
+// Zoom out function for button
+window.zoomOut = function() {
+    const cam = window.camera;
+    const viewport = document.getElementById('game-viewport');
+    const viewportRect = viewport.getBoundingClientRect();
+    
+    // Zoom toward center of viewport
+    const centerX = viewportRect.width / 2;
+    const centerY = viewportRect.height / 2;
+    
+    // Calculate world position at center before zoom
+    const worldX = (centerX - cam.panX) / cam.zoom;
+    const worldY = (centerY - cam.panY) / cam.zoom;
+    
+    // Apply zoom
+    const oldZoom = cam.zoom;
+    cam.zoom = Math.max(cam.minZoom, cam.zoom - cam.zoomStep);
+    
+    if (cam.zoom !== oldZoom) {
+        // Adjust pan to keep center fixed
+        cam.panX = centerX - worldX * cam.zoom;
+        cam.panY = centerY - worldY * cam.zoom;
+        cam.isManualPan = true;
+        
+        updateViewport();
+        updateCameraUI();
+    }
+};
+
 // ============================================
 // CAMERA: Tile Hover Tracking (zoom-aware)
 // ============================================

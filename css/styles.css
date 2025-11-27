@@ -156,6 +156,32 @@ body {
     text-align: center;
 }
 
+#zoom-in-btn,
+#zoom-out-btn {
+    background: #444;
+    color: #fff;
+    border: 1px solid #666;
+    width: 24px;
+    height: 24px;
+    font-size: 16px;
+    font-weight: bold;
+    font-family: 'Courier New', monospace;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+#zoom-in-btn:hover,
+#zoom-out-btn:hover {
+    background: #7fc542;
+    color: #000;
+    border-color: #7fc542;
+}
+
 #reset-view-btn {
     background: #444;
     color: #fff;
