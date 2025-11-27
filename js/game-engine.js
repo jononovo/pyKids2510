@@ -54,23 +54,11 @@ async function loadTilesManifest() {
         }
         
         console.log('Tiles manifest loaded:', Object.keys(tileManifest.tiles).length, 'tiles');
-        
-        // Build TILES constants from manifest
-        buildTileConstants();
+        console.log('Tile constants built:', TILES);
     } catch (error) {
         console.error('Failed to load tiles manifest:', error);
         throw error;
     }
-}
-
-// Build TILES constant dynamically from manifest
-function buildTileConstants() {
-    TILES = {};
-    for (const [id, tile] of Object.entries(tileManifest.tiles)) {
-        const name = tile.name.toUpperCase().replace(/-/g, '_');
-        TILES[name] = parseInt(id);
-    }
-    console.log('Tile constants built:', TILES);
 }
 
 // Get tile ID by name (for dynamic tile lookup)
@@ -606,53 +594,85 @@ function canMoveTo(x, y) {
     return true;
 }
 
-// Update viewport - centers each axis independently
+// Update viewport - centers each axis independently with zoom support
 function updateViewport() {
     const viewport = document.getElementById('game-viewport');
     if (!viewport) return;
+    
+    // Get camera state
+    const cam = window.camera || { zoom: 1, panX: 0, panY: 0, isManualPan: false };
+    const zoom = cam.zoom;
     
     // Get viewport dimensions
     const viewportWidth = viewport.clientWidth;
     const viewportHeight = viewport.clientHeight;
     
-    // Get canvas dimensions
-    const canvasWidth = gameState.mapWidth * TILE_SIZE;
-    const canvasHeight = gameState.mapHeight * TILE_SIZE;
+    // Get canvas dimensions (scaled by zoom)
+    const canvasWidth = gameState.mapWidth * TILE_SIZE * zoom;
+    const canvasHeight = gameState.mapHeight * TILE_SIZE * zoom;
     
-    // Get player position in pixels
-    const playerPixelX = gameState.playerPos.x * TILE_SIZE + TILE_SIZE/2;
-    const playerPixelY = gameState.playerPos.y * TILE_SIZE + TILE_SIZE/2;
+    // Get player position in pixels (scaled by zoom)
+    const playerPixelX = (gameState.playerPos.x * TILE_SIZE + TILE_SIZE/2) * zoom;
+    const playerPixelY = (gameState.playerPos.y * TILE_SIZE + TILE_SIZE/2) * zoom;
     
     let offsetX, offsetY;
     
-    // Handle horizontal centering/scrolling independently
-    if (viewportWidth >= canvasWidth) {
-        // Map fits horizontally - center it
-        offsetX = (viewportWidth - canvasWidth) / 2;
+    // If manual pan mode is active, use manual offsets
+    if (cam.isManualPan) {
+        offsetX = cam.panX;
+        offsetY = cam.panY;
     } else {
-        // Map is wider than viewport - follow the player horizontally
-        offsetX = viewportWidth/2 - playerPixelX;
+        // Auto-follow player mode
         
-        // Constrain to map boundaries (no empty space on left/right)
-        const minOffsetX = Math.min(0, viewportWidth - canvasWidth);
-        offsetX = Math.max(minOffsetX, Math.min(0, offsetX));
+        // Handle horizontal centering/scrolling independently
+        if (viewportWidth >= canvasWidth) {
+            // Map fits horizontally - center it
+            offsetX = (viewportWidth - canvasWidth) / 2;
+        } else {
+            // Map is wider than viewport - follow the player horizontally
+            offsetX = viewportWidth/2 - playerPixelX;
+            
+            // Constrain to map boundaries (no empty space on left/right)
+            const minOffsetX = Math.min(0, viewportWidth - canvasWidth);
+            offsetX = Math.max(minOffsetX, Math.min(0, offsetX));
+        }
+        
+        // Handle vertical centering/scrolling independently
+        if (viewportHeight >= canvasHeight) {
+            // Map fits vertically - center it
+            offsetY = (viewportHeight - canvasHeight) / 2;
+        } else {
+            // Map is taller than viewport - follow the player vertically
+            offsetY = viewportHeight/2 - playerPixelY;
+            
+            // Constrain to map boundaries (no empty space on top/bottom)
+            const minOffsetY = Math.min(0, viewportHeight - canvasHeight);
+            offsetY = Math.max(minOffsetY, Math.min(0, offsetY));
+        }
+        
+        // Store auto-calculated offsets so manual pan can start from here
+        cam.panX = offsetX;
+        cam.panY = offsetY;
     }
     
-    // Handle vertical centering/scrolling independently
-    if (viewportHeight >= canvasHeight) {
-        // Map fits vertically - center it
-        offsetY = (viewportHeight - canvasHeight) / 2;
-    } else {
-        // Map is taller than viewport - follow the player vertically
-        offsetY = viewportHeight/2 - playerPixelY;
-        
-        // Constrain to map boundaries (no empty space on top/bottom)
-        const minOffsetY = Math.min(0, viewportHeight - canvasHeight);
-        offsetY = Math.max(minOffsetY, Math.min(0, offsetY));
-    }
+    // Apply transform with zoom and translation
+    // Use transform-origin: 0 0 so scaling happens from top-left
+    canvas.style.transformOrigin = '0 0';
+    canvas.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${zoom})`;
+}
+
+// Reset camera to default state (auto-follow)
+function resetCamera() {
+    const cam = window.camera;
+    if (!cam) return;
     
-    // Apply transform to position canvas
-    canvas.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+    cam.zoom = 1.0;
+    cam.panX = 0;
+    cam.panY = 0;
+    cam.isManualPan = false;
+    cam.isDragging = false;
+    
+    updateViewport();
 }
 
 // Check win condition

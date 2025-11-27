@@ -1,137 +1,180 @@
 # CHAPTER 1 ELEMENTS DEMO
-## FARM HOMESTEAD
+## TREASURE ARCHIPELAGO
 
-Welcome to your Farm Homestead! This chapter demonstrates the new Element Interaction System with collectibles, doors, and interactive elements.
+Welcome to the Treasure Archipelago! A vast collection of islands full of secrets, collectibles, and adventure. This chapter demonstrates map inheritance between missions across multiple unique islands.
 
 --- <!-- Mission 1 -->
-## MISSION 1: GATHER RESOURCES
+## MISSION 1: ISLAND EXPLORER
 
 ### AVAILABLE AFTER
 Starting the game
 
 ### OBJECTIVE
-> Collect gems and coins scattered around the farm using the new element system
+> Explore Starter Island and collect 5 gold coins scattered around the beach and forest paths
 
-Learn to collect items with `player.collect()`. Walk to each collectible and use the command to add it to your inventory!
+You've just arrived at the Archipelago! Use `move_forward()`, `turn_left()`, and `turn_right()` to navigate the paths. Collect coins with `collect()` and return to base camp.
 
 ### SUCCESS CRITERIA
-- Collect all 4 gems
-- Collect all 3 coins
-- Return to your starting position
+- Collect all 5 gold coins
+- Return to your starting position (base camp)
+- Use the collect() command
 
 ### REWARDS
-- Gems: +4
-- Coins: +3
+- Coins: +5
 - Unlocks Mission 2
 
 <!-- Starter Code -->
 ```
 import player
 
-# Walk to collectibles and use collect()
-player.move_forward(2)
-player.collect()
+# Explore the island and collect coins!
+# Use move_forward() and turn commands
+player.move_forward()
 ```
 
 <!-- Solution -->
 ```
 import player
 
-# Collect gem at (9, 7)
-player.move_forward(2)
-player.collect()
+# Walk north to first coin
+player.move_forward(5)
+player.collect()  # Coin 1 at (27,46)
 
-# Collect coin at (11, 7)
+# Continue north to second coin
 player.move_forward(2)
-player.collect()
+player.collect()  # Coin 2 at (27,44)
 
-# Collect gem at (11, 5)
+# Go left to third coin
 player.turn_left()
 player.move_forward(2)
-player.collect()
+player.collect()  # Coin 3 at (25,44)
 
-# Collect coin at (9, 5)
+# Go right to fourth coin
+player.turn_right()
+player.turn_right()
+player.move_forward(4)
+player.collect()  # Coin 4 at (29,44)
+
+# Go north to fifth coin
 player.turn_left()
 player.move_forward(2)
-player.collect()
+player.collect()  # Coin 5 at (29,42)
 
-# Collect gem at (9, 3)
+# Return to base camp (currently at 29,42 facing north)
 player.turn_right()
-player.move_forward(2)
-player.collect()
-
-# Collect gem at (11, 3) 
-player.turn_right()
-player.move_forward(2)
-player.collect()
-
-# Collect coin at (13, 5)
-player.move_forward(2)
-player.turn_right()
-player.move_forward(2)
-player.collect()
-
-# Return home
-player.turn_right()
-player.move_forward(6)
-player.turn_right()
-player.move_forward(2)
+player.turn_right()  # now facing south
+player.move_forward(9)  # to (29,51)
+player.turn_right()  # facing west
+player.move_forward(2)  # to (27,51)
 ```
 
 <!-- Map -->
 ```
-[3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
-[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
-[3,0,1,0,0,0,0,2,2,2,2,2,2,2,0,0,0,1,0,3],
-[3,0,0,0,0,0,0,2,0,0,0,0,0,2,0,0,0,0,0,3],
-[3,0,0,0,0,0,0,2,0,0,0,0,0,2,0,0,0,0,0,3],
-[3,0,0,0,0,0,0,2,0,0,0,0,0,2,0,0,0,0,0,3],
-[3,0,0,0,0,0,0,2,0,0,0,0,0,2,0,0,0,0,0,3],
-[3,0,0,0,0,0,0,2,0,0,0,0,0,2,0,0,0,0,0,3],
-[3,0,0,0,0,0,0,2,2,2,2,2,2,2,0,0,0,0,0,3],
-[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
-[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
-[3,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,3],
-[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
-[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
-[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
-[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
-[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
-[3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3]
-startPos: 7,9
-goalPos: 7,9
-collectibles: [["gem", [[9,3],[11,3],[9,5],[9,7]]], ["coin", [[11,5],[11,7],[13,5]]]]
+[5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5],
+[5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5],
+[5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5],
+[5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5],
+[5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5],
+[5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5],
+[5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,0,1,1,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5],
+[5,5,5,5,5,5,5,5,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,1,3,3,3,1,0,0,0,0,5,5,5,5,5,5,5,5,5,5],
+[5,5,5,5,5,5,5,0,0,0,1,1,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,1,3,3,7,3,3,1,0,0,0,0,5,5,5,5,5,5,5,5,5],
+[5,5,5,5,5,5,0,0,0,1,3,3,1,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,1,3,3,3,3,3,3,3,1,0,0,0,0,5,5,5,5,5,5,5,5],
+[5,5,5,5,5,0,0,0,1,3,3,3,3,1,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,1,3,3,7,0,0,7,3,3,3,1,0,0,0,0,5,5,5,5,5,5,5],
+[5,5,5,5,0,0,0,1,3,3,7,3,3,3,1,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,1,3,3,0,0,0,0,0,0,3,3,3,1,0,0,0,0,5,5,5,5,5,5],
+[5,5,5,5,0,0,0,0,1,3,3,3,3,1,0,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,0,0,0,1,3,3,0,0,7,0,0,7,0,0,3,3,3,1,0,0,0,5,5,5,5,5,5],
+[5,5,5,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,0,0,0,1,3,3,0,0,0,0,0,0,0,0,0,0,3,3,1,0,0,0,0,5,5,5,5,5],
+[5,5,5,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,5,5],
+[5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,7,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,0,5,5,5,5],
+[5,5,0,0,0,0,0,0,0,0,0,7,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,5],
+[5,5,0,0,4,0,0,0,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,0,0,0,4,0,0,4,0,0,0,0,0,7,0,0,0,0,0,0,5,5,5,5,5],
+[5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,5,5],
+[5,5,0,0,0,0,3,3,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,5,5,5,5,5,5],
+[5,5,0,0,0,3,3,3,3,0,0,7,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,5,5,5,5],
+[5,5,0,0,0,0,3,3,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,0,7,0,0,0,7,0,0,0,0,0,0,0,0,0,5,5,5,5,5,5,5],
+[5,5,5,0,0,0,0,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5],
+[5,5,5,0,0,0,0,0,0,0,7,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5],
+[5,5,5,5,0,0,0,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5],
+[5,5,5,5,0,0,4,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5],
+[5,5,5,5,5,0,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5],
+[5,5,5,5,5,5,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5],
+[5,5,5,5,5,5,5,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5],
+[5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,0,0,0,0,0,0,5,5,5,5,5,5,5],
+[5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,6,6,0,0,0,0,0,0,5,5,5,5,5,5],
+[5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,6,6,6,6,0,0,7,0,0,0,5,5,5,5,5],
+[5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,0,0,6,6,0,0,0,0,0,0,0,0,5,5,5,5],
+[5,5,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,5],
+[5,0,0,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5],
+[5,0,0,0,1,1,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,5,5,5],
+[5,0,0,1,3,3,1,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,0,0,0,0,0,0,0,6,6,0,0,0,0,0,0,0,0,0,5,5],
+[5,0,0,0,1,1,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,0,0,0,0,0,0,0,0,6,6,0,0,0,0,0,0,0,0,0,5,5],
+[5,0,0,0,0,0,0,0,7,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,0,0,5,5],
+[5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5],
+[5,0,0,0,0,3,3,0,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5],
+[5,0,0,0,3,3,3,3,0,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,0,0,0,0,0,7,0,0,0,7,0,0,0,0,0,0,0,0,0,5,5,5],
+[5,5,0,0,0,3,3,0,0,0,7,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,5],
+[5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,5,5],
+[5,5,5,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,5,5,5,5,5,5,0,0,0,0,0,0,0,0,0,0,5,5,5,5,0,0,0,6,0,0,0,6,0,0,0,0,0,0,0,0,5,5,5,5,5,5],
+[5,5,5,0,0,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,5,5,5,5],
+[5,5,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,5,5,5,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5],
+[5,5,5,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,1,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5],
+[5,5,5,5,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,7,7,3,3,1,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5],
+[5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,0,0,0,0,1,3,3,3,3,1,0,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5],
+[5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,7,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5],
+[5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5],
+[5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5],
+[5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5],
+[5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5],
+[5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5],
+[5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,0,0,0,0,0,0,7,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5],
+[5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,0,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5],
+[5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5],
+[5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5]
+startPos: 27,51
+goalPos: 27,51
+collectibles: [["coin", [[27,46],[27,44],[25,44],[29,44],[29,42]]]]
+```
+
+<!-- Tests -->
+```yaml
+pass_all: true
+tests:
+  - type: position
+    target: goal
+  - type: inventory
+    item: coin
+    min: 5
+  - type: code_regex
+    pattern: "collect\\(\\)"
+    message: "Use collect() to pick up items"
 ```
 ---
 
 --- <!-- Mission 2 -->
-## MISSION 2: THE SECRET DOOR
+## MISSION 2: GEM HUNT
 
 ### AVAILABLE AFTER
 Completing Mission 1
 
 ### OBJECTIVE
-> Discover the hidden treasure room by opening a mysterious door!
+> Explore the island and find hidden gems scattered across the terrain
 
-You've found a locked door blocking a treasure room! Use `player.interact()` to open the door, then collect the treasure inside. The door will swing open when you interact with it!
+Search carefully across the island to discover 4 precious gems hidden in various locations.
 
 ### SUCCESS CRITERIA
-- Navigate to the door
-- Use interact() to open the door
-- Collect the hidden treasure (a key and 3 gems)
-- Exit the room
+- Find and collect all 4 hidden gems
+- Return to base camp
+- Face upward (north) when done
 
 ### REWARDS
-- Key: +1 (unlocks special areas!)
-- Gems: +3
+- Gems: +4
 - Unlocks Mission 3
 
 <!-- Starter Code -->
 ```
 import player
 
-# Find the door and open it!
-# Hint: Use player.interact() when standing at the door
+# Find the hidden gems in the forest!
 player.move_forward()
 ```
 
@@ -139,102 +182,81 @@ player.move_forward()
 ```
 import player
 
-# Navigate to the door at (10, 6)
-player.move_forward(3)
+# Explore Starter Island for gems
+# Gem 1 - north then west
+player.move_forward(7)
 player.turn_left()
 player.move_forward(3)
+player.collect()  # Gem 1 at (24,44)
 
-# Open the door!
-player.interact()
-
-# Enter the treasure room
+# Gem 2 - continue west
 player.move_forward(3)
+player.collect()  # Gem 2 at (21,44)
 
-# Collect the key at (10, 3)
-player.collect()
-
-# Collect gem at (8, 3)
-player.turn_left()
-player.move_forward(2)
-player.collect()
-
-# Collect gem at (12, 3)
+# Gem 3 - go east side
 player.turn_right()
 player.turn_right()
-player.move_forward(4)
-player.collect()
+player.move_forward(9)
+player.collect()  # Gem 3 at (30,44)
 
-# Collect gem at (10, 2)
+# Gem 4 - north a bit
 player.turn_left()
-player.turn_left()
-player.move_forward(2)
-player.turn_left()
-player.move_forward(1)
-player.collect()
-
-# Exit the room
-player.turn_left()
-player.turn_left()
-player.move_forward(4)
-player.turn_right()
 player.move_forward(3)
+player.collect()  # Gem 4 at (30,41)
+
+# Return to base camp facing north (currently at 30,41 facing north)
+player.turn_right()
+player.turn_right()  # facing south
+player.move_forward(10)  # to (30,51)
+player.turn_right()  # facing west
+player.move_forward(3)  # to (27,51)
+player.turn_right()  # facing north
 ```
 
 <!-- Map -->
 ```
-[3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
-[3,0,0,0,0,0,0,3,3,3,3,3,3,3,0,0,0,0,0,3],
-[3,0,1,0,0,0,0,3,0,0,0,0,0,3,0,0,0,1,0,3],
-[3,0,0,0,0,0,0,3,0,0,0,0,0,3,0,0,0,0,0,3],
-[3,0,0,0,0,0,0,3,0,0,0,0,0,3,0,0,0,0,0,3],
-[3,0,0,0,0,0,0,3,3,3,0,3,3,3,0,0,0,0,0,3],
-[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
-[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
-[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
-[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
-[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
-[3,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,3],
-[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
-[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
-[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
-[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
-[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
-[3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3]
-startPos: 7,9
-goalPos: 7,9
-collectibles: [["key", [[10,3]]], ["gem", [[8,3],[12,3],[10,2]]]]
-transforms: ["door", "door-open", [[10,5]]]
+startPos: 27,51
+goalPos: 27,51
+collectibles: [["gem", [[24,44],[21,44],[30,44],[30,41]]]]
+```
+
+<!-- Tests -->
+```yaml
+pass_all: true
+tests:
+  - type: position
+    target: goal
+  - type: collectibles
+    all: true
+  - type: direction
+    facing: up
 ```
 ---
 
 --- <!-- Mission 3 -->
-## MISSION 3: THE MAGIC STEPPING STONES
+## MISSION 3: STAR QUEST
 
 ### AVAILABLE AFTER
 Completing Mission 2
 
 ### OBJECTIVE
-> Cross the enchanted bridge where doors open automatically as you step on them!
+> Find the legendary star hidden on the island!
 
-The ancient bridge has magical tiles that transform as you walk on them! Each stepping stone will reveal itself when you step on it. Find your way across to reach the treasure on the other side.
+You've mastered exploring the island. Now locate the legendary star that's hidden somewhere special. Navigate carefully to claim your prize!
 
 ### SUCCESS CRITERIA
-- Cross the magical bridge
-- Step on all 5 magic tiles (they auto-activate!)
-- Collect the star at the end
-- The doors will automatically open when you step on them
+- Find and collect the star
+- Return to base camp
 
 ### REWARDS
 - Star: +1
-- Magic Bridge Complete!
-- Chapter Complete
+- Chapter Complete!
 
 <!-- Starter Code -->
 ```
 import player
 
-# Walk across the magic bridge!
-# The doors will open automatically when you step on them
+# Find the legendary star!
 player.move_forward()
 ```
 
@@ -242,43 +264,34 @@ player.move_forward()
 ```
 import player
 
-# Cross the magical bridge - doors open as you step!
-player.move_forward(2)  # Step on first magic tile
-player.move_forward(2)  # Step on second magic tile
-player.turn_left()
-player.move_forward(2)  # Step on third magic tile
-player.turn_right()
-player.move_forward(2)  # Step on fourth magic tile
-player.move_forward(2)  # Step on fifth magic tile
+# Navigate to the star location on Starter Island
+player.move_forward(10)  # to (27,41)
+player.turn_left()  # facing west
+player.move_forward(2)  # to (25,41)
+player.collect()  # Star at (25,41)
 
-# Collect the star!
-player.move_forward(1)
-player.collect()
+# Return to base camp (currently at 25,41 facing west)
+player.turn_left()  # facing south
+player.move_forward(10)  # to (25,51)
+player.turn_left()  # facing east
+player.move_forward(2)  # to (27,51)
 ```
 
 <!-- Map -->
 ```
-[3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
-[3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3],
-[3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3],
-[3,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,5,5,3],
-[3,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,5,5,3],
-[3,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,5,5,5,3],
-[3,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,5,5,5,3],
-[3,5,5,5,5,5,5,5,5,0,0,0,0,0,5,5,5,5,5,3],
-[3,5,5,5,5,5,5,5,5,0,0,0,5,5,5,5,5,5,5,3],
-[3,0,0,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,3],
-[3,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3],
-[3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3],
-[3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3],
-[3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3],
-[3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3],
-[3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3],
-[3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3],
-[3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3]
-startPos: 1,9
-goalPos: 15,3
-collectibles: [["star", [[15,3]]]]
-transforms: ["door", "door-open", {"trigger": "on_step", "at": [[3,9],[5,9],[9,7],[13,5],[13,3]]}]
+startPos: 27,51
+goalPos: 27,51
+collectibles: [["star", [[25,41]]]]
+```
+
+<!-- Tests -->
+```yaml
+pass_all: true
+tests:
+  - type: position
+    target: goal
+  - type: inventory
+    item: star
+    min: 1
 ```
 ---
