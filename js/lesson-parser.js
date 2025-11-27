@@ -113,18 +113,8 @@ function parseCourseLevels(markdown) {
                     try {
                         const collectiblesStr = line.split('collectibles:')[1].trim();
                         const collectiblesArray = JSON.parse(collectiblesStr);
-                        // Check if new format (first element is string) or legacy format
-                        if (collectiblesArray.length > 0 && typeof collectiblesArray[0] === 'string') {
-                            // New format: ["gem", [[x,y],[x,y]]], stored as-is for ElementInteractionManager
-                            level.map.collectibles = collectiblesArray;
-                        } else {
-                            // Legacy format: [[x,y,"type"]]
-                            level.map.collectibles = collectiblesArray.map(c => ({
-                                x: c[0], 
-                                y: c[1],
-                                type: c[2] || 'gem'
-                            }));
-                        }
+                        // New format only: ["type", [[x,y],[x,y]]]
+                        level.map.collectibles = collectiblesArray;
                     } catch (e) {
                         console.log('Could not parse collectibles:', line);
                     }

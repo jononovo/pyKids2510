@@ -118,49 +118,12 @@
             return `${type}_${x}_${y}`;
         },
 
-        parseLegacyCollectibles(collectiblesArray) {
-            if (!Array.isArray(collectiblesArray)) return [];
-            
-            return collectiblesArray.map(c => {
-                if (Array.isArray(c)) {
-                    return {
-                        type: c[2] || 'gem',
-                        x: c[0],
-                        y: c[1],
-                        trigger: 'on_collect',
-                        section: 'collectibles',
-                        replacement: null,
-                        id: this._generateId(c[2] || 'gem', c[0], c[1])
-                    };
-                } else if (typeof c === 'object' && c.x !== undefined) {
-                    return {
-                        type: c.type || 'gem',
-                        x: c.x,
-                        y: c.y,
-                        trigger: 'on_collect',
-                        section: 'collectibles',
-                        replacement: null,
-                        id: this._generateId(c.type || 'gem', c.x, c.y)
-                    };
-                }
-                return null;
-            }).filter(Boolean);
-        },
-
         loadLevelElements(levelData) {
             this.elements = [];
             
             if (levelData.map && levelData.map.collectibles) {
-                const isNewFormat = levelData.map.collectibles.length > 0 && 
-                    typeof levelData.map.collectibles[0] === 'string';
-                
-                if (isNewFormat) {
-                    const parsed = this.parseElementSection('collectibles', levelData.map.collectibles);
-                    this.elements.push(...parsed);
-                } else {
-                    const legacy = this.parseLegacyCollectibles(levelData.map.collectibles);
-                    this.elements.push(...legacy);
-                }
+                const parsed = this.parseElementSection('collectibles', levelData.map.collectibles);
+                this.elements.push(...parsed);
             }
 
             if (levelData.map && levelData.map.transforms) {
