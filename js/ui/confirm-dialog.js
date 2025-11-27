@@ -1,44 +1,70 @@
 const ConfirmDialog = (function() {
     let resolveCallback = null;
+    let initialized = false;
     
     function init() {
-        if (document.getElementById('confirm-dialog-overlay')) return;
+        let overlay = document.getElementById('confirm-dialog-overlay');
         
-        const overlay = document.createElement('div');
-        overlay.id = 'confirm-dialog-overlay';
-        overlay.className = 'confirm-overlay';
-        overlay.innerHTML = `
-            <div class="confirm-dialog">
-                <div class="confirm-title" id="confirm-title">Confirm</div>
-                <div class="confirm-message" id="confirm-message"></div>
-                <div class="confirm-buttons">
-                    <button type="button" class="confirm-btn confirm-cancel" id="confirm-cancel">Cancel</button>
-                    <button type="button" class="confirm-btn confirm-ok" id="confirm-ok">OK</button>
+        if (overlay) {
+            if (initialized) return;
+            overlay.style.display = '';
+            overlay.className = 'confirm-overlay';
+        } else {
+            overlay = document.createElement('div');
+            overlay.id = 'confirm-dialog-overlay';
+            overlay.className = 'confirm-overlay';
+            overlay.innerHTML = `
+                <div class="confirm-dialog">
+                    <div class="confirm-title" id="confirm-title">Confirm</div>
+                    <div class="confirm-message" id="confirm-message"></div>
+                    <div class="confirm-buttons">
+                        <button type="button" class="confirm-btn confirm-cancel" id="confirm-cancel">Cancel</button>
+                        <button type="button" class="confirm-btn confirm-ok" id="confirm-ok">OK</button>
+                    </div>
                 </div>
-            </div>
-        `;
-        document.body.appendChild(overlay);
+            `;
+            document.body.appendChild(overlay);
+        }
         
-        document.getElementById('confirm-cancel').addEventListener('click', function() {
+        const cancelBtn = document.getElementById('confirm-cancel');
+        const okBtn = document.getElementById('confirm-ok');
+        
+        cancelBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            console.log('[ConfirmDialog] Cancel clicked');
             hide();
-            if (resolveCallback) resolveCallback(false);
+            if (resolveCallback) {
+                resolveCallback(false);
+                resolveCallback = null;
+            }
         });
         
-        document.getElementById('confirm-ok').addEventListener('click', function() {
+        okBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            console.log('[ConfirmDialog] OK clicked');
             hide();
-            if (resolveCallback) resolveCallback(true);
+            if (resolveCallback) {
+                resolveCallback(true);
+                resolveCallback = null;
+            }
         });
         
         overlay.addEventListener('click', function(e) {
             if (e.target === overlay) {
+                console.log('[ConfirmDialog] Overlay background clicked');
                 hide();
-                if (resolveCallback) resolveCallback(false);
+                if (resolveCallback) {
+                    resolveCallback(false);
+                    resolveCallback = null;
+                }
             }
         });
+        
+        initialized = true;
     }
     
     function show(options) {
-        console.log('[ConfirmDialog] show() called with:', options);
+        console.log('[ConfirmDialog] show() called');
         init();
         
         const title = options.title || 'Confirm';
@@ -52,9 +78,10 @@ const ConfirmDialog = (function() {
         document.getElementById('confirm-cancel').textContent = cancelText;
         
         const overlay = document.getElementById('confirm-dialog-overlay');
-        console.log('[ConfirmDialog] Overlay element:', overlay);
+        overlay.style.display = 'flex';
         overlay.classList.add('show');
-        console.log('[ConfirmDialog] Dialog should now be visible');
+        
+        console.log('[ConfirmDialog] Modal visible, waiting for user input');
         
         return new Promise(function(resolve) {
             resolveCallback = resolve;
@@ -63,8 +90,10 @@ const ConfirmDialog = (function() {
     
     function hide() {
         const overlay = document.getElementById('confirm-dialog-overlay');
-        if (overlay) overlay.classList.remove('show');
-        resolveCallback = null;
+        if (overlay) {
+            overlay.classList.remove('show');
+            overlay.style.display = 'none';
+        }
     }
     
     return {

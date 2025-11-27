@@ -479,10 +479,16 @@
     window.resetGame = async function() {
         console.log('[resetGame] Reset button clicked');
         
-        // Use browser's native confirm dialog - works reliably in iframe contexts
-        var confirmed = confirm('Reset Level?\n\nYour code and level progress will be cleared.');
-        console.log('[resetGame] Confirm result:', confirmed);
-        if (!confirmed) return;
+        if (window.ConfirmDialog) {
+            var confirmed = await ConfirmDialog.show({
+                title: 'Reset Level',
+                message: 'Your code and level progress will be cleared.',
+                okText: 'Reset',
+                cancelText: 'Cancel'
+            });
+            console.log('[resetGame] Dialog result:', confirmed);
+            if (!confirmed) return;
+        }
         
         console.log('[resetGame] Performing reset...');
         
