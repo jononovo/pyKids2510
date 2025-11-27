@@ -1,63 +1,49 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96">
-  <!-- Isometric 3D pixel-art house (3x3 tiles, 96x96 pixels) -->
-  <!-- 8-pixel grid style with visible roof, front wall, and right side wall -->
+  <!-- Isometric 3D pixel-art house with connected geometry -->
   
   <!-- Ground shadow -->
-  <rect x="16" y="80" width="72" height="8" fill="rgba(0,0,0,0.15)"/>
-  <rect x="8" y="72" width="80" height="8" fill="rgba(0,0,0,0.1)"/>
+  <polygon points="16,88 80,88 88,80 24,80" fill="rgba(0,0,0,0.15)"/>
   
-  <!-- Right side wall (darker for depth) -->
-  <rect x="64" y="40" width="24" height="40" fill="#B8956A"/>
-  <rect x="72" y="40" width="16" height="40" fill="#A88560"/>
+  <!-- Right wall (darker, shares edge with front wall at x=48) -->
+  <polygon points="48,40 80,40 80,80 48,80" fill="#A88560"/>
   
-  <!-- Front wall -->
-  <rect x="8" y="40" width="56" height="40" fill="#E8C9A0"/>
-  <rect x="8" y="40" width="56" height="8" fill="#D4B890"/>
+  <!-- Front wall (shares edge with right wall at x=48) -->
+  <polygon points="16,40 48,40 48,80 16,80" fill="#D4B890"/>
   
-  <!-- Front wall border/outline -->
-  <rect x="8" y="40" width="8" height="40" fill="#D4A574"/>
-  <rect x="56" y="40" width="8" height="40" fill="#D4A574"/>
+  <!-- Front wall left edge highlight -->
+  <rect x="16" y="40" width="4" height="40" fill="#E8D8B0"/>
   
-  <!-- Door -->
-  <rect x="24" y="48" width="16" height="32" fill="#654321"/>
-  <rect x="28" y="52" width="8" height="24" fill="#8B4513"/>
-  <rect x="32" y="64" width="4" height="4" fill="#FFD700"/>
+  <!-- Roof top surface (peak at y=8, connects to walls at y=40) -->
+  <polygon points="48,8 84,40 48,40 12,40" fill="#A0522D"/>
   
-  <!-- Front window (left of door) -->
-  <rect x="8" y="52" width="12" height="12" fill="#654321"/>
-  <rect x="10" y="54" width="8" height="8" fill="#87CEEB"/>
-  <rect x="13" y="54" width="2" height="8" fill="#654321"/>
-  <rect x="10" y="57" width="8" height="2" fill="#654321"/>
+  <!-- Roof front overhang edge -->
+  <polygon points="12,40 48,40 48,44 12,44" fill="#8B4513"/>
   
-  <!-- Front window (right of door) -->
-  <rect x="44" y="52" width="12" height="12" fill="#654321"/>
-  <rect x="46" y="54" width="8" height="8" fill="#87CEEB"/>
-  <rect x="49" y="54" width="2" height="8" fill="#654321"/>
-  <rect x="46" y="57" width="8" height="2" fill="#654321"/>
-  
-  <!-- Side window -->
-  <rect x="72" y="52" width="12" height="12" fill="#543210"/>
-  <rect x="74" y="54" width="8" height="8" fill="#6BA5C9"/>
-  <rect x="77" y="54" width="2" height="8" fill="#543210"/>
-  <rect x="74" y="57" width="8" height="2" fill="#543210"/>
-  
-  <!-- Roof top surface (isometric diamond-ish shape) -->
-  <polygon points="48,4 88,24 48,44 8,24" fill="#A0522D"/>
-  
-  <!-- Roof front edge (darker) -->
-  <polygon points="8,24 48,44 48,48 8,28" fill="#8B4513"/>
-  
-  <!-- Roof right edge (darkest) -->
-  <polygon points="48,44 88,24 88,28 48,48" fill="#6B3510"/>
+  <!-- Roof right overhang edge -->
+  <polygon points="48,40 84,40 84,44 48,44" fill="#6B3510"/>
   
   <!-- Roof ridge highlight -->
-  <polygon points="48,4 68,14 48,24 28,14" fill="#B8623D"/>
+  <polygon points="48,8 60,24 48,24 36,24" fill="#B8623D"/>
   
-  <!-- Chimney -->
-  <rect x="64" y="8" width="12" height="20" fill="#8B0000"/>
-  <rect x="68" y="8" width="8" height="8" fill="#A52A2A"/>
-  <rect x="64" y="4" width="16" height="8" fill="#6B0000"/>
+  <!-- Door on front wall -->
+  <rect x="28" y="52" width="16" height="28" fill="#654321"/>
+  <rect x="30" y="54" width="12" height="24" fill="#8B4513"/>
+  <rect x="38" y="64" width="3" height="4" fill="#FFD700"/>
   
-  <!-- Chimney top -->
-  <rect x="62" y="0" width="20" height="4" fill="#8B0000"/>
+  <!-- Front window left -->
+  <rect x="18" y="52" width="8" height="10" fill="#654321"/>
+  <rect x="19" y="53" width="6" height="8" fill="#87CEEB"/>
+  <rect x="21" y="53" width="2" height="8" fill="#654321"/>
+  <rect x="19" y="56" width="6" height="2" fill="#654321"/>
+  
+  <!-- Side window on right wall -->
+  <rect x="56" y="52" width="10" height="10" fill="#543210"/>
+  <rect x="58" y="54" width="6" height="6" fill="#6BA5C9"/>
+  <rect x="60" y="54" width="2" height="6" fill="#543210"/>
+  <rect x="58" y="56" width="6" height="2" fill="#543210"/>
+  
+  <!-- Chimney on roof -->
+  <rect x="64" y="16" width="10" height="24" fill="#8B0000"/>
+  <rect x="66" y="16" width="6" height="8" fill="#A52A2A"/>
+  <rect x="62" y="12" width="14" height="6" fill="#6B0000"/>
 </svg>
