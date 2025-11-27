@@ -216,6 +216,7 @@
                 if (window.ElementInteractionManager) {
                     var result = ElementInteractionManager.handleCollect(pos.px, pos.py, gameState);
                     if (result.success) {
+                        playCollectSound();
                         console.log('[collect]', result.message);
                         updateInventoryDisplay();
                         await render();

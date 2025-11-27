@@ -131,6 +131,28 @@ function playBumpSound() {
     osc2.stop(t + 0.18);
 }
 
+function playCollectSound() {
+    if (!audioContext) initAudio();
+    
+    const t = audioContext.currentTime;
+    
+    const osc = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(440, t);
+    osc.frequency.exponentialRampToValueAtTime(880, t + 0.1);
+    
+    gain.gain.setValueAtTime(0.06, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+    
+    osc.connect(gain);
+    gain.connect(audioContext.destination);
+    
+    osc.start(t);
+    osc.stop(t + 0.15);
+}
+
 // ============================================
 // FILE LOADING
 // ============================================
