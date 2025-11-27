@@ -1,29 +1,41 @@
 // ============================================
-// GAME ENGINE - Rendering & Movement
+// GAME ENGINE - Character Rendering, Movement & Collision
+// Note: Tile/element rendering is in js/map/ modules
 // ============================================
 
-// Tile type constants - generated from manifest
-let TILES = {};
+// Get tile ID by name (for dynamic tile lookup)
+function getTileIdByName(name) {
+    const tileManifest = window.tileManifest;
+    if (!tileManifest) return 0;
+    for (const [id, tile] of Object.entries(tileManifest.tiles)) {
+        if (tile.name === name) return parseInt(id);
+    }
+    return 0;
+}
 
-// Tile data lookup by ID - for rendering
-let tileDataById = {};
-
-// SVG tile cache to store loaded images
-const svgTileCache = new Map();
-const svgLoadPromises = new Map();
-
-// Tile manifest loaded from assets/map/tiles.json
-let tileManifest = null;
-
-// Collectible SVGs - loaded dynamically from server
-let COLLECTIBLE_SVGS = {};
-
-// Track failed SVG loads to avoid repeated attempts
-const svgFailedLoads = new Set();
-let svgFailureWarned = false;
+// Check if inventory meets requirements for tile access
+function checkAccessRequirements(requires) {
+    const inventory = gameState.inventory || {};
+    
+    if (Array.isArray(requires)) {
+        return requires.every(item => (inventory[item] || 0) >= 1);
+    }
+    
+    if (typeof requires === "object") {
+        return Object.entries(requires).every(([item, qty]) => 
+            (inventory[item] || 0) >= qty
+        );
+    }
+    
+    return true;
+}
 
 // Draw fallback pink pixel character when no sprite is loaded
 function drawFallbackCharacter(cx, animY) {
+    const canvas = document.getElementById('game-canvas');
+    const ctx = canvas ? canvas.getContext('2d') : null;
+    if (!ctx) return;
+    
     ctx.fillStyle = '#ff69b4';
     ctx.fillRect(cx - 6, animY - 4, 12, 10);
     ctx.fillRect(cx - 8, animY - 10, 16, 8);
@@ -39,452 +51,44 @@ function drawFallbackCharacter(cx, animY) {
     ctx.fillRect(cx + 1, animY - 7, 2, 2);
 }
 
-// Load tiles manifest from assets folder
-async function loadTilesManifest() {
-    try {
-        const response = await fetch('/assets/map/tiles.json');
-        tileManifest = await response.json();
-        
-        // Build TILES constant and tileDataById lookup from manifest
-        TILES = {};
-        tileDataById = {};
-        for (const [name, data] of Object.entries(tileManifest.tiles)) {
-            TILES[name] = data.id;
-            tileDataById[data.id] = data;
-        }
-        
-        window.tileDataById = tileDataById;
-        
-        console.log('Tiles manifest loaded:', Object.keys(tileManifest.tiles).length, 'tiles');
-        console.log('Tile constants built:', TILES);
-    } catch (error) {
-        console.error('Failed to load tiles manifest:', error);
-        throw error;
-    }
-}
-
-// Build TILES constant dynamically from manifest
-function buildTileConstants() {
-    TILES = {};
-    for (const [name, tile] of Object.entries(tileManifest.tiles)) {
-        const normalizedName = name.toUpperCase().replace(/-/g, '_');
-        TILES[normalizedName] = tile.id;
-    }
-    console.log('Tile constants built:', TILES);
-}
-
-// Get tile ID by name (for dynamic tile lookup)
-function getTileIdByName(name) {
-    if (!tileManifest) return 0;
-    for (const [id, tile] of Object.entries(tileManifest.tiles)) {
-        if (tile.name === name) return parseInt(id);
-    }
-    return 0; // fallback to grass
-}
-
-// Check if inventory meets requirements for tile access
-function checkAccessRequirements(requires) {
-    const inventory = gameState.inventory || {};
-    
-    // Array of items: ["key", "axe"] - need at least 1 of each
-    if (Array.isArray(requires)) {
-        return requires.every(item => (inventory[item] || 0) >= 1);
-    }
-    
-    // Object with quantities: { wood: 100, stone: 50 }
-    if (typeof requires === "object") {
-        return Object.entries(requires).every(([item, qty]) => 
-            (inventory[item] || 0) >= qty
-        );
-    }
-    
-    return true;
-}
-
-// Load collectibles manifest from server
-async function loadCollectiblesManifest() {
-    try {
-        const response = await fetch('/collectibles.json');
-        COLLECTIBLE_SVGS = await response.json();
-        console.log('Collectibles loaded:', Object.keys(COLLECTIBLE_SVGS));
-    } catch (error) {
-        console.warn('Could not load collectibles manifest, using defaults');
-        COLLECTIBLE_SVGS = {
-            gem: 'assets/map/elements/collectible-gem.svg',
-            coin: 'assets/map/elements/collectible-coin.svg'
-        };
-    }
-}
-
-// Load SVG as Image
-async function loadSVGImage(path) {
-    // Check cache first (includes both successful and failed loads)
-    if (svgTileCache.has(path)) {
-        return svgTileCache.get(path);
-    }
-    
-    // Check if we already know this SVG failed to load
-    if (svgFailedLoads.has(path)) {
-        return null;
-    }
-    
-    // Check if already loading
-    if (svgLoadPromises.has(path)) {
-        return svgLoadPromises.get(path);
-    }
-    
-    const loadPromise = new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => {
-            svgTileCache.set(path, img);
-            svgLoadPromises.delete(path);
-            resolve(img);
-        };
-        img.onerror = () => {
-            // Cache the failure to prevent repeated load attempts
-            svgFailedLoads.add(path);
-            svgTileCache.set(path, null);  // Cache null result
-            svgLoadPromises.delete(path);
-            
-            // Only warn once about SVG failures
-            if (!svgFailureWarned) {
-                console.warn(`Some SVG tiles failed to load, using fallback rendering`);
-                svgFailureWarned = true;
-            }
-            
-            resolve(null);
-        };
-        img.src = path;
-    });
-    
-    svgLoadPromises.set(path, loadPromise);
-    return loadPromise;
-}
-
-// Preload all SVG tiles for better performance
-async function preloadSVGTiles() {
-    // Load manifests first
-    await loadTilesManifest();
-    await loadCollectiblesManifest();
-    
-    const basePath = 'assets/map/';
-    const tilesToLoad = [
-        ...Object.values(tileManifest.tiles).map(t => basePath + t.path),
-        basePath + tileManifest.special.star,
-        ...Object.values(COLLECTIBLE_SVGS)
-    ];
-    
-    await Promise.all(tilesToLoad.map(path => loadSVGImage(path)));
-    console.log('SVG tiles preloaded');
-}
-
-// Helper to get tile SVG path by ID
-function getTilePath(tileId) {
-    const tile = tileDataById[tileId];
-    return tile ? 'assets/map/' + tile.path : null;
-}
-
-// Helper to get tile fallback color by ID
-function getTileFallbackColor(tileId) {
-    const tile = tileDataById[tileId];
-    return tile ? tile.fallbackColor : '#333';
-}
-
-// Helper to check if tile is an overlay (should draw on grass)
-function isTileOverlay(tileId) {
-    const tile = tileDataById[tileId];
-    return tile ? tile.overlayOnGrass === true : false;
-}
-
-// Drawing functions
-async function drawElements() {
-    if (!window.ElementInteractionManager) return;
-    
-    const elements = ElementInteractionManager.getElementsForRender();
-    if (!elements || elements.length === 0) return;
-    
-    const elementPromises = elements.map(async (element) => {
-        const px = element.x * TILE_SIZE;
-        const py = element.y * TILE_SIZE;
-        
-        // Try to get element definition from manifest
-        const elementDef = ElementInteractionManager.getElementDefinition(element.type);
-        let svgPath = null;
-        
-        if (elementDef && elementDef.path) {
-            svgPath = 'assets/map/' + elementDef.path;
-        } else {
-            // Try collectibles as fallback (for collectible elements)
-            svgPath = COLLECTIBLE_SVGS[element.type];
-        }
-        
-        if (svgPath) {
-            const img = await loadSVGImage(svgPath);
-            if (img) {
-                ctx.drawImage(img, px, py, TILE_SIZE, TILE_SIZE);
-            } else if (elementDef && elementDef.fallbackColor) {
-                ctx.fillStyle = elementDef.fallbackColor;
-                ctx.fillRect(px + 4, py + 4, TILE_SIZE - 8, TILE_SIZE - 8);
-            }
-        }
-    });
-    
-    await Promise.all(elementPromises);
-}
-
-async function drawMegaElements() {
-    if (!window.MegaElementManager) return;
-    
-    const megaElements = MegaElementManager.getElementsForRender();
-    if (!megaElements || megaElements.length === 0) return;
-    
-    const megaPromises = megaElements.map(async (element) => {
-        const px = element.x * TILE_SIZE;
-        const py = element.y * TILE_SIZE;
-        const width = element.width * TILE_SIZE;
-        const height = element.height * TILE_SIZE;
-        
-        if (element.path) {
-            const svgPath = 'assets/map/' + element.path;
-            const img = await loadSVGImage(svgPath);
-            if (img) {
-                ctx.drawImage(img, px, py, width, height);
-            } else if (element.fallbackColor) {
-                ctx.fillStyle = element.fallbackColor;
-                ctx.fillRect(px + 4, py + 4, width - 8, height - 8);
-            }
-        } else if (element.fallbackColor) {
-            ctx.fillStyle = element.fallbackColor;
-            ctx.fillRect(px + 4, py + 4, width - 8, height - 8);
-        }
-    });
-    
-    await Promise.all(megaPromises);
-}
-
-async function drawVehicles() {
-    if (!window.VehicleInteractionManager) return;
-    
-    const vehicles = VehicleInteractionManager.getVehiclesForRender();
-    if (!vehicles || vehicles.length === 0) return;
-    
-    const vehiclePromises = vehicles.map(async (vehicle) => {
-        const px = vehicle.x * TILE_SIZE;
-        const py = vehicle.y * TILE_SIZE;
-        
-        const vehicleDef = VehicleInteractionManager.getVehicleDefinition(vehicle.type);
-        if (!vehicleDef) return;
-        
-        const width = (vehicleDef.width || 1) * TILE_SIZE;
-        const height = (vehicleDef.height || 1) * TILE_SIZE;
-        
-        if (vehicleDef.path) {
-            const svgPath = 'assets/map/' + vehicleDef.path;
-            const img = await loadSVGImage(svgPath);
-            if (img) {
-                ctx.drawImage(img, px, py, width, height);
-            } else if (vehicleDef.fallbackColor) {
-                ctx.fillStyle = vehicleDef.fallbackColor;
-                ctx.fillRect(px + 4, py + 4, width - 8, height - 8);
-            }
-        } else if (vehicleDef.fallbackColor) {
-            ctx.fillStyle = vehicleDef.fallbackColor;
-            ctx.fillRect(px + 4, py + 4, width - 8, height - 8);
-        }
-    });
-    
-    await Promise.all(vehiclePromises);
-}
-
-async function drawMegaObjects() {
-    if (!window.MegaObjectManager) return;
-    
-    const megaObjects = MegaObjectManager.getObjectsForRender();
-    if (!megaObjects || megaObjects.length === 0) return;
-    
-    const objectPromises = megaObjects.map(async (obj) => {
-        const px = obj.x * TILE_SIZE;
-        const py = obj.y * TILE_SIZE;
-        const width = obj.width * TILE_SIZE;
-        const height = obj.height * TILE_SIZE;
-        
-        if (obj.path) {
-            const svgPath = 'assets/map/' + obj.path;
-            const img = await loadSVGImage(svgPath);
-            if (img) {
-                ctx.drawImage(img, px, py, width, height);
-            } else if (obj.fallbackColor) {
-                ctx.fillStyle = obj.fallbackColor;
-                ctx.fillRect(px + 4, py + 4, width - 8, height - 8);
-            }
-        } else if (obj.fallbackColor) {
-            ctx.fillStyle = obj.fallbackColor;
-            ctx.fillRect(px + 4, py + 4, width - 8, height - 8);
-        }
-    });
-    
-    await Promise.all(objectPromises);
-}
-
-async function drawTile(x, y, type) {
-    const px = x * TILE_SIZE;
-    const py = y * TILE_SIZE;
-    
-    // Handle overlay tiles (draw on grass first)
-    if (isTileOverlay(type)) {
-        const grassImg = await loadSVGImage(getTilePath(TILES.GRASS));
-        if (grassImg) {
-            ctx.drawImage(grassImg, px, py, TILE_SIZE, TILE_SIZE);
-        } else {
-            ctx.fillStyle = getTileFallbackColor(TILES.GRASS);
-            ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
-        }
-        
-        const overlayPath = getTilePath(type);
-        if (overlayPath) {
-            const overlayImg = await loadSVGImage(overlayPath);
-            if (overlayImg) {
-                ctx.drawImage(overlayImg, px, py, TILE_SIZE, TILE_SIZE);
-            } else {
-                ctx.fillStyle = getTileFallbackColor(type);
-                ctx.fillRect(px + 8, py + 8, TILE_SIZE - 16, TILE_SIZE - 16);
-            }
-        }
-        
-        ctx.strokeStyle = 'rgba(0, 0, 0, 0.05)';
-        ctx.strokeRect(px, py, TILE_SIZE, TILE_SIZE);
-        return;
-    }
-    
-    // Normal tile rendering
-    const svgPath = getTilePath(type);
-    if (svgPath) {
-        const img = await loadSVGImage(svgPath);
-        if (img) {
-            ctx.drawImage(img, px, py, TILE_SIZE, TILE_SIZE);
-            ctx.strokeStyle = 'rgba(0, 0, 0, 0.05)';
-            ctx.strokeRect(px, py, TILE_SIZE, TILE_SIZE);
-            return;
-        }
-    }
-    
-    // Fallback to colored rectangle
-    ctx.fillStyle = getTileFallbackColor(type);
-    ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
-    ctx.strokeStyle = 'rgba(0, 0, 0, 0.05)';
-    ctx.strokeRect(px, py, TILE_SIZE, TILE_SIZE);
-}
-
-async function drawStar(x, y) {
-    if (tileManifest && tileManifest.special) {
-        const starPath = 'assets/map/' + tileManifest.special.star;
-        const img = await loadSVGImage(starPath);
-        if (img) {
-            ctx.drawImage(img, x - TILE_SIZE/2, y - TILE_SIZE/2, TILE_SIZE, TILE_SIZE);
-            return;
-        }
-    }
-    ctx.fillStyle = '#ffd700';
-    ctx.fillRect(x - 2, y - 8, 4, 16);
-    ctx.fillRect(x - 8, y - 2, 16, 4);
-    ctx.fillRect(x - 6, y - 6, 12, 12);
-}
-
-function drawTileHover(x, y) {
-    // Draw corner brackets on the hovered tile
-    const px = x * TILE_SIZE;
-    const py = y * TILE_SIZE;
-    const cornerLength = 4; // Length of each corner bracket line
-    const thickness = 2; // Thickness of the lines
-    
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-    
-    // Top-left corner
-    ctx.fillRect(px, py, cornerLength, thickness); // Horizontal
-    ctx.fillRect(px, py, thickness, cornerLength); // Vertical
-    
-    // Top-right corner
-    ctx.fillRect(px + TILE_SIZE - cornerLength, py, cornerLength, thickness); // Horizontal
-    ctx.fillRect(px + TILE_SIZE - thickness, py, thickness, cornerLength); // Vertical
-    
-    // Bottom-left corner
-    ctx.fillRect(px, py + TILE_SIZE - thickness, cornerLength, thickness); // Horizontal
-    ctx.fillRect(px, py + TILE_SIZE - cornerLength, thickness, cornerLength); // Vertical
-    
-    // Bottom-right corner
-    ctx.fillRect(px + TILE_SIZE - cornerLength, py + TILE_SIZE - thickness, cornerLength, thickness); // Horizontal
-    ctx.fillRect(px + TILE_SIZE - thickness, py + TILE_SIZE - cornerLength, thickness, cornerLength); // Vertical
-}
-
-async function drawCharacterVehicle(x, y) {
-    if (!window.VehicleInteractionManager) return;
-    
-    const currentVehicle = VehicleInteractionManager.getCurrentVehicle();
-    if (!currentVehicle) return;
-    
-    const vehicleDef = VehicleInteractionManager.getVehicleDefinition(currentVehicle.type);
-    if (!vehicleDef) return;
-    
-    const px = x * TILE_SIZE;
-    const py = y * TILE_SIZE;
-    const width = (vehicleDef.width || 1) * TILE_SIZE;
-    const height = (vehicleDef.height || 1) * TILE_SIZE;
-    
-    if (vehicleDef.path) {
-        const svgPath = 'assets/map/' + vehicleDef.path;
-        const img = await loadSVGImage(svgPath);
-        if (img) {
-            ctx.drawImage(img, px, py, width, height);
-        } else if (vehicleDef.fallbackColor) {
-            ctx.fillStyle = vehicleDef.fallbackColor;
-            ctx.fillRect(px + 4, py + 4, width - 8, height - 8);
-        }
-    } else if (vehicleDef.fallbackColor) {
-        ctx.fillStyle = vehicleDef.fallbackColor;
-        ctx.fillRect(px + 4, py + 4, width - 8, height - 8);
-    }
-}
-
 function drawCharacter(x, y, direction) {
+    const canvas = document.getElementById('game-canvas');
+    const ctx = canvas ? canvas.getContext('2d') : null;
+    if (!ctx) return;
+    
+    const TILE_SIZE = window.TILE_SIZE || 32;
     const charType = gameState.characterType || 'player';
     
     if (charType !== 'player' && window.VehicleInteractionManager && VehicleInteractionManager.isBoarded()) {
-        drawCharacterVehicle(x, y);
+        if (window.drawCharacterVehicle) {
+            window.drawCharacterVehicle(x, y);
+        }
         return;
     }
     
     const cx = x * TILE_SIZE + TILE_SIZE / 2;
     const cy = y * TILE_SIZE + TILE_SIZE / 2;
     
-    // If we have a sprite loaded, use it
     if (gameState.spriteImage && gameState.spriteFrameWidth > 0) {
-        // Draw sprite frame
         let frameX = 0;
         let frameY = 0;
         
         if (gameState.isRunning) {
-            // Use walking animation (bottom row)
             frameY = 1;
-            // Cycle through all 6 walking frames
             frameX = gameState.currentSpriteFrame % 6;
         } else {
-            // Use idle animation (top row)
             frameY = 0;
             if (gameState.idlePhase === 1) {
-                // Cycle through the 4 idle frames slowly
                 frameX = Math.floor(gameState.spriteAnimationCounter / 15) % 4;
             } else {
-                // During pause, show first idle frame
                 frameX = 0;
             }
         }
         
-        // Scale factor for the sprite (1.5x larger)
         const scale = 1.5;
         const drawWidth = gameState.spriteFrameWidth * scale;
         const drawHeight = gameState.spriteFrameHeight * scale;
         
-        // Draw the sprite centered on the tile
         ctx.drawImage(
             gameState.spriteImage,
             frameX * gameState.spriteFrameWidth,
@@ -497,7 +101,6 @@ function drawCharacter(x, y, direction) {
             drawHeight
         );
     } else {
-        // Fallback character with idle animation
         let yOffset = 0;
         if (!gameState.isRunning) {
             if (gameState.idlePhase === 1) {
@@ -509,28 +112,31 @@ function drawCharacter(x, y, direction) {
 }
 
 function drawCharacterWithHop(x, y, direction, hopHeight) {
+    const canvas = document.getElementById('game-canvas');
+    const ctx = canvas ? canvas.getContext('2d') : null;
+    if (!ctx) return;
+    
+    const TILE_SIZE = window.TILE_SIZE || 32;
     const charType = gameState.characterType || 'player';
     
     if (charType !== 'player' && window.VehicleInteractionManager && VehicleInteractionManager.isBoarded()) {
-        drawCharacterVehicle(x, y);
+        if (window.drawCharacterVehicle) {
+            window.drawCharacterVehicle(x, y);
+        }
         return;
     }
     
     const cx = x * TILE_SIZE + TILE_SIZE / 2;
     const cy = y * TILE_SIZE + TILE_SIZE / 2;
     
-    // If we have a sprite loaded, use it
     if (gameState.spriteImage && gameState.spriteFrameWidth > 0) {
-        // Walking animation - cycle through bottom row
-        const frameY = 1; // Bottom row for walking
+        const frameY = 1;
         const frameX = gameState.currentSpriteFrame % 6;
         
-        // Scale factor for the sprite (1.5x larger)
         const scale = 1.5;
         const drawWidth = gameState.spriteFrameWidth * scale;
         const drawHeight = gameState.spriteFrameHeight * scale;
         
-        // Apply hop offset
         const animY = cy - hopHeight;
         
         ctx.drawImage(
@@ -550,9 +156,14 @@ function drawCharacterWithHop(x, y, direction, hopHeight) {
 }
 
 async function render() {
+    const canvas = document.getElementById('game-canvas');
+    const ctx = canvas ? canvas.getContext('2d') : null;
+    if (!ctx) return;
+    
+    const TILE_SIZE = window.TILE_SIZE || 32;
+    
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Draw placeholder if no level loaded
     if (!courseData || gameState.mapData.length === 0) {
         ctx.fillStyle = '#2a3f2a';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -563,96 +174,83 @@ async function render() {
         return;
     }
     
-    // Draw background graphic if available
     if (gameState.backgroundImage) {
-        // Draw the background image stretched to fit the entire canvas
         ctx.drawImage(gameState.backgroundImage, 0, 0, canvas.width, canvas.height);
     }
     
-    // Draw tiles (or just collectibles if using background image)
     const tilePromises = [];
     for (let y = 0; y < gameState.mapHeight; y++) {
         for (let x = 0; x < gameState.mapWidth; x++) {
             if (gameState.mapData[y] && gameState.mapData[y][x] !== undefined) {
                 const tileType = gameState.mapData[y][x];
                 
-                // If we have a background image, only render collectibles (value 7)
-                // Everything else is invisible collision data
                 if (gameState.backgroundImage) {
                     if (tileType !== 7) {
-                        continue; // Skip all non-collectible tiles
+                        continue;
                     }
                 }
                 
-                tilePromises.push(drawTile(x, y, tileType));
+                if (window.drawTile) {
+                    tilePromises.push(window.drawTile(x, y, tileType));
+                }
             }
         }
     }
     await Promise.all(tilePromises);
     
-    // Draw mega-objects (multi-tile walkable terrain like hills, mountains)
-    await drawMegaObjects();
+    if (window.drawMegaObjects) await window.drawMegaObjects();
+    if (window.drawElements) await window.drawElements();
+    if (window.drawVehicles) await window.drawVehicles();
+    if (window.drawMegaElements) await window.drawMegaElements();
     
-    // Draw all interactive elements (collectibles, transforms, etc.)
-    await drawElements();
-    
-    // Draw vehicles (boats, etc.) that are not currently boarded
-    await drawVehicles();
-    
-    // Draw mega-elements (multi-tile elements like houses, mountains)
-    await drawMegaElements();
-    
-    await drawStar(gameState.goalPos.x * TILE_SIZE + TILE_SIZE/2, 
-                  gameState.goalPos.y * TILE_SIZE + TILE_SIZE/2);
+    if (window.drawStar) {
+        await window.drawStar(gameState.goalPos.x * TILE_SIZE + TILE_SIZE/2, 
+                              gameState.goalPos.y * TILE_SIZE + TILE_SIZE/2);
+    }
     
     drawCharacter(gameState.playerPos.x, gameState.playerPos.y, gameState.playerDirection);
     
-    // Draw tile hover highlight
     if (gameState.hoveredTile.x >= 0 && gameState.hoveredTile.y >= 0) {
-        drawTileHover(gameState.hoveredTile.x, gameState.hoveredTile.y);
+        if (window.drawTileHover) {
+            window.drawTileHover(gameState.hoveredTile.x, gameState.hoveredTile.y);
+        }
     }
     
-    // Update viewport to follow player
-    updateViewport();
+    if (window.updateViewport) window.updateViewport();
 }
 
-// Movement animation
 function animateMove(fromX, fromY, toX, toY, direction) {
     return new Promise(resolve => {
         gameState.playerDirection = direction;
         const startTime = Date.now();
         
-        // Get current speed duration
         const moveDuration = SPEED_SETTINGS[currentSpeed].duration;
+        const TILE_SIZE = window.TILE_SIZE || 32;
         
-        // Play step sound at the start of each move
         playStepSound();
         
-        // Reset sprite animation for this move
         if (gameState.spriteImage) {
             gameState.currentSpriteFrame = 0;
         }
         
         async function animate() {
+            const canvas = document.getElementById('game-canvas');
+            const ctx = canvas ? canvas.getContext('2d') : null;
+            if (!ctx) return;
+            
             const elapsed = Date.now() - startTime;
             const progress = Math.min(elapsed / moveDuration, 1);
             const easeProgress = 1 - Math.pow(1 - progress, 3);
             
-            // Update sprite frame for walking animation
             if (gameState.spriteImage) {
-                // Change frame every few milliseconds for smooth animation
                 gameState.currentSpriteFrame = Math.floor((elapsed / 60)) % 6;
             }
             
-            // Simple hop animation - up in first half, down in second half
             let hopHeight = 0;
             if (!gameState.spriteImage) {
-                // Only apply hop to default character
                 if (progress < 0.5) {
-                    // Rising phase
                     hopHeight = Math.sin(progress * Math.PI) * 3;
                 } else {
-                    // Falling phase
                     hopHeight = Math.sin(progress * Math.PI) * 3;
                 }
             }
@@ -660,61 +258,51 @@ function animateMove(fromX, fromY, toX, toY, direction) {
             gameState.playerPos.x = fromX + (toX - fromX) * easeProgress;
             gameState.playerPos.y = fromY + (toY - fromY) * easeProgress;
             
-            // Update viewport to follow player during movement
-            updateViewport();
+            if (window.updateViewport) window.updateViewport();
             
-            // Clear and redraw everything
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // Draw background graphic if available (MUST be before tiles!)
             if (gameState.backgroundImage) {
                 ctx.drawImage(gameState.backgroundImage, 0, 0, canvas.width, canvas.height);
             }
             
-            // Draw tiles (or just collectibles if using background image)
             const tilePromises = [];
             for (let y = 0; y < gameState.mapHeight; y++) {
                 for (let x = 0; x < gameState.mapWidth; x++) {
                     if (gameState.mapData[y] && gameState.mapData[y][x] !== undefined) {
                         const tileType = gameState.mapData[y][x];
                         
-                        // If we have a background image, only render collectibles (value 7)
-                        // Everything else is invisible collision data
                         if (gameState.backgroundImage) {
                             if (tileType !== 7) {
-                                continue; // Skip all non-collectible tiles
+                                continue;
                             }
                         }
                         
-                        tilePromises.push(drawTile(x, y, tileType));
+                        if (window.drawTile) {
+                            tilePromises.push(window.drawTile(x, y, tileType));
+                        }
                     }
                 }
             }
             await Promise.all(tilePromises);
             
-            // Draw mega-objects (multi-tile walkable terrain like hills, mountains)
-            await drawMegaObjects();
+            if (window.drawMegaObjects) await window.drawMegaObjects();
+            if (window.drawElements) await window.drawElements();
+            if (window.drawVehicles) await window.drawVehicles();
+            if (window.drawMegaElements) await window.drawMegaElements();
             
-            // Draw all interactive elements (collectibles, transforms, etc.)
-            await drawElements();
+            if (window.drawStar) {
+                await window.drawStar(gameState.goalPos.x * TILE_SIZE + TILE_SIZE/2, 
+                                      gameState.goalPos.y * TILE_SIZE + TILE_SIZE/2);
+            }
             
-            // Draw vehicles (boats, etc.) that are not currently boarded
-            await drawVehicles();
-            
-            // Draw mega-elements (multi-tile elements like houses, mountains)
-            await drawMegaElements();
-            
-            // Draw goal star
-            await drawStar(gameState.goalPos.x * TILE_SIZE + TILE_SIZE/2, 
-                          gameState.goalPos.y * TILE_SIZE + TILE_SIZE/2);
-            
-            // Draw character with animation
             drawCharacterWithHop(gameState.playerPos.x, gameState.playerPos.y, 
                                gameState.playerDirection, hopHeight);
             
-            // Draw tile hover highlight during animation too
             if (gameState.hoveredTile.x >= 0 && gameState.hoveredTile.y >= 0) {
-                drawTileHover(gameState.hoveredTile.x, gameState.hoveredTile.y);
+                if (window.drawTileHover) {
+                    window.drawTileHover(gameState.hoveredTile.x, gameState.hoveredTile.y);
+                }
             }
             
             if (progress < 1) {
@@ -729,36 +317,28 @@ function animateMove(fromX, fromY, toX, toY, direction) {
     });
 }
 
-// Check if player can move to position
 function canMoveTo(x, y) {
     if (x < 0 || x >= gameState.mapWidth || y < 0 || y >= gameState.mapHeight) {
         return false;
     }
     
-    // Check if a mega-element blocks this tile
     if (window.MegaElementManager && MegaElementManager.isTileBlocked(x, y)) {
         return false;
     }
     
     const tile = gameState.mapData[y][x];
+    const tileManifest = window.tileManifest;
     const tileInfo = tileManifest?.tiles[tile];
     
-    // No manifest or no tile info = assume walkable
     if (!tileInfo) return true;
-    
-    // No access restriction = walkable by default
     if (!tileInfo.access) return true;
-    
-    // "blocked" = never passable
     if (tileInfo.access === "blocked") return false;
     
-    // Character type whitelist (e.g., ["boat", "ship", "fish"])
     if (Array.isArray(tileInfo.access)) {
         const charType = gameState.characterType || "player";
         return tileInfo.access.includes(charType);
     }
     
-    // Inventory/resource requirements (e.g., { requires: ["key"] } or { requires: { wood: 100 } })
     if (typeof tileInfo.access === "object" && tileInfo.access.requires) {
         return checkAccessRequirements(tileInfo.access.requires);
     }
@@ -766,74 +346,6 @@ function canMoveTo(x, y) {
     return true;
 }
 
-// Update viewport - centers each axis independently with zoom support
-function updateViewport() {
-    const viewport = document.getElementById('game-viewport');
-    if (!viewport) return;
-    
-    // Get camera state
-    const cam = window.camera || { zoom: 1, panX: 0, panY: 0, isManualPan: false };
-    const zoom = cam.zoom;
-    
-    // Get viewport dimensions
-    const viewportWidth = viewport.clientWidth;
-    const viewportHeight = viewport.clientHeight;
-    
-    // Get canvas dimensions (scaled by zoom)
-    const canvasWidth = gameState.mapWidth * TILE_SIZE * zoom;
-    const canvasHeight = gameState.mapHeight * TILE_SIZE * zoom;
-    
-    // Get player position in pixels (scaled by zoom)
-    const playerPixelX = (gameState.playerPos.x * TILE_SIZE + TILE_SIZE/2) * zoom;
-    const playerPixelY = (gameState.playerPos.y * TILE_SIZE + TILE_SIZE/2) * zoom;
-    
-    let offsetX, offsetY;
-    
-    // If manual pan mode is active, use manual offsets
-    if (cam.isManualPan) {
-        offsetX = cam.panX;
-        offsetY = cam.panY;
-    } else {
-        // Auto-follow player mode
-        
-        // Handle horizontal centering/scrolling independently
-        if (viewportWidth >= canvasWidth) {
-            // Map fits horizontally - center it
-            offsetX = (viewportWidth - canvasWidth) / 2;
-        } else {
-            // Map is wider than viewport - follow the player horizontally
-            offsetX = viewportWidth/2 - playerPixelX;
-            
-            // Constrain to map boundaries (no empty space on left/right)
-            const minOffsetX = Math.min(0, viewportWidth - canvasWidth);
-            offsetX = Math.max(minOffsetX, Math.min(0, offsetX));
-        }
-        
-        // Handle vertical centering/scrolling independently
-        if (viewportHeight >= canvasHeight) {
-            // Map fits vertically - center it
-            offsetY = (viewportHeight - canvasHeight) / 2;
-        } else {
-            // Map is taller than viewport - follow the player vertically
-            offsetY = viewportHeight/2 - playerPixelY;
-            
-            // Constrain to map boundaries (no empty space on top/bottom)
-            const minOffsetY = Math.min(0, viewportHeight - canvasHeight);
-            offsetY = Math.max(minOffsetY, Math.min(0, offsetY));
-        }
-        
-        // Store auto-calculated offsets so manual pan can start from here
-        cam.panX = offsetX;
-        cam.panY = offsetY;
-    }
-    
-    // Apply transform with zoom and translation
-    // Use transform-origin: 0 0 so scaling happens from top-left
-    canvas.style.transformOrigin = '0 0';
-    canvas.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${zoom})`;
-}
-
-// Check win condition
 function checkWinCondition() {
     const px = Math.floor(gameState.playerPos.x);
     const py = Math.floor(gameState.playerPos.y);
@@ -843,18 +355,15 @@ function checkWinCondition() {
     if (px === gx && py === gy) {
         gameState.levelCompleted[currentLevel] = true;
         
-        // Notify UserProgressManager of completion
         if (window.UserProgressManager) {
             UserProgressManager.markCompletion();
         }
         
-        // Show victory modal
         updateProgressIndicators();
         document.getElementById('victory-modal').classList.add('show');
     }
 }
 
-// Check if player reached the goal (for tutor)
 function checkVictory() {
     const px = Math.floor(gameState.playerPos.x);
     const py = Math.floor(gameState.playerPos.y);
@@ -864,27 +373,20 @@ function checkVictory() {
     return px === gx && py === gy;
 }
 
-// Animation loop for idle animations
 function animationLoop() {
     if (!gameState.isRunning) {
-        // Handle idle animation phases
         if (gameState.idlePhase === 0) {
-            // Pause phase
             gameState.idlePauseTime++;
             if (gameState.idlePauseTime >= gameState.idlePauseDuration) {
-                // Switch to animation phase
                 gameState.idlePhase = 1;
                 gameState.idlePauseTime = 0;
                 gameState.idleAnimation = 0;
             }
         } else {
-            // Animation phase
             gameState.idleAnimation++;
             gameState.spriteAnimationCounter++;
             
-            // After completing a few animation cycles (roughly 2 seconds of animation)
             if (gameState.idleAnimation >= 120) {
-                // Switch back to pause phase
                 gameState.idlePhase = 0;
                 gameState.idlePauseTime = 0;
                 gameState.idleAnimation = 0;
@@ -892,7 +394,6 @@ function animationLoop() {
             }
         }
         
-        // Only re-render during animation phase, not during pause
         if (gameState.idlePhase === 1) {
             render();
         }
@@ -900,3 +401,7 @@ function animationLoop() {
     
     requestAnimationFrame(animationLoop);
 }
+
+window.render = render;
+
+console.log('[GameEngine] Module loaded');
