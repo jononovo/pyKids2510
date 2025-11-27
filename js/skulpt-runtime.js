@@ -77,6 +77,13 @@
         if (typeof gameState !== 'undefined') {
             gameState.playerPos = {...gameState.startPos};
             gameState.playerDirection = 'right';
+            gameState.characterType = 'player';
+            
+            // Reset vehicles to original positions and restore player sprite
+            if (window.VehicleInteractionManager) {
+                VehicleInteractionManager.reset(gameState);
+            }
+            
             if (typeof render === 'function') render();
             if (typeof updateViewport === 'function') updateViewport();
         }
