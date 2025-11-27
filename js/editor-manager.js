@@ -1,12 +1,20 @@
 const EditorManager = (function() {
     let jar = null;
     let initialized = false;
+    let currentEditorElement = null;
     
     function init() {
         const editorElement = document.getElementById('editor');
         if (!editorElement) return false;
         
-        if (initialized && jar) return true;
+        if (initialized && jar && currentEditorElement === editorElement) {
+            return true;
+        }
+        
+        if (jar && jar.destroy) {
+            jar.destroy();
+            console.log('[EditorManager] Destroyed old CodeJar instance');
+        }
         
         if (!window.CodeJar) {
             console.error('[EditorManager] CodeJar library not loaded');
@@ -36,13 +44,26 @@ const EditorManager = (function() {
             }
         });
         
+        currentEditorElement = editorElement;
         initialized = true;
         console.log('[EditorManager] Initialized successfully');
         return true;
     }
     
+    function reinitialize() {
+        initialized = false;
+        currentEditorElement = null;
+        if (jar && jar.destroy) {
+            jar.destroy();
+        }
+        jar = null;
+        return init();
+    }
+    
     function updateCode(code) {
-        if (!initialized || !jar) {
+        const editorElement = document.getElementById('editor');
+        
+        if (!initialized || !jar || currentEditorElement !== editorElement) {
             if (!init()) {
                 console.warn('[EditorManager] Cannot update code - editor not initialized');
                 return false;
@@ -55,8 +76,9 @@ const EditorManager = (function() {
     }
     
     function getCode() {
-        if (!initialized || !jar) {
-            const editorElement = document.getElementById('editor');
+        const editorElement = document.getElementById('editor');
+        
+        if (!initialized || !jar || currentEditorElement !== editorElement) {
             return editorElement ? editorElement.textContent : '';
         }
         return jar.toString();
@@ -76,7 +98,8 @@ const EditorManager = (function() {
     }
     
     function isInitialized() {
-        return initialized && jar !== null;
+        const editorElement = document.getElementById('editor');
+        return initialized && jar !== null && currentEditorElement === editorElement;
     }
     
     function resetToSnapshot() {
@@ -85,11 +108,13 @@ const EditorManager = (function() {
             console.log('[EditorManager] Reset to snapshot code');
             return true;
         }
+        console.warn('[EditorManager] No snapshot starterCode available');
         return false;
     }
     
     return {
         init: init,
+        reinitialize: reinitialize,
         updateCode: updateCode,
         getCode: getCode,
         updateLineNumbers: updateLineNumbers,

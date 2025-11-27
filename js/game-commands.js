@@ -487,75 +487,11 @@
             if (!confirmed) return;
         }
         
-        gameState.playerPos = { x: gameState.startPos.x, y: gameState.startPos.y };
-        gameState.playerDirection = 'right';
-        gameState.characterType = 'player';
-        gameState.isRunning = false;
-        document.getElementById('run-btn').disabled = false;
-        
-        if (window.VehicleInteractionManager) {
-            VehicleInteractionManager.reset(gameState);
-        }
-        
-        if (gameState.collectibles) {
-            for (var i = 0; i < gameState.collectibles.length; i++) {
-                gameState.collectibles[i].collected = false;
-            }
-        }
-        
-        gameState.messageLog = [];
-        var messagePanel = document.getElementById('message-panel');
-        if (messagePanel) {
-            messagePanel.innerHTML = '';
-        }
-        
-        // Restore MissionState from snapshot if this is a mission level
-        if (window.levelEntrySnapshot && window.levelEntrySnapshot.missionState) {
-            if (window.MissionState) {
-                MissionState.loadState(window.levelEntrySnapshot.missionState);
-                gameState.inventory = MissionState.getInventory();
-                console.log('[resetGame] Restored MissionState from snapshot:', MissionState.getState());
-                
-                // Re-synchronize collectibles with restored MissionState
-                if (gameState.collectibles) {
-                    for (var j = 0; j < gameState.collectibles.length; j++) {
-                        var c = gameState.collectibles[j];
-                        c.collected = MissionState.isCollected(c.x, c.y);
-                    }
-                }
-            }
+        if (window.ResetManager) {
+            ResetManager.fullReset(gameState);
         } else {
-            gameState.inventory = {};
+            console.error('[resetGame] ResetManager not available');
         }
-        
-        // Update inventory panel
-        var inventoryPanel = document.getElementById('inventory-panel');
-        if (inventoryPanel) {
-            inventoryPanel.innerHTML = '<strong>Inventory:</strong>';
-            for (var item in gameState.inventory) {
-                if (gameState.inventory[item] > 0) {
-                    var itemSpan = document.createElement('span');
-                    itemSpan.className = 'inventory-item';
-                    itemSpan.textContent = ' ' + item + ': ' + gameState.inventory[item];
-                    inventoryPanel.appendChild(itemSpan);
-                }
-            }
-        }
-        
-        // Reset code editor to starter code
-        if (window.EditorManager) {
-            EditorManager.resetToSnapshot();
-            
-            // Also update Blockly if in block mode
-            if (window.BlocklyModeSwitcher && window.BlocklyModeSwitcher.isBlockMode()) {
-                if (window.BlocklyIntegration && window.levelEntrySnapshot && window.levelEntrySnapshot.starterCode) {
-                    window.BlocklyIntegration.convertFromText(window.levelEntrySnapshot.starterCode);
-                }
-            }
-        }
-        
-        render();
-        updateViewport();
     };
 
     // ========== EXPORTS ==========

@@ -75,17 +75,20 @@
         if (typeof window.resetCommandCounter === 'function') window.resetCommandCounter();
         
         if (typeof gameState !== 'undefined') {
-            gameState.playerPos = {...gameState.startPos};
-            gameState.playerDirection = 'right';
-            gameState.characterType = 'player';
-            
-            // Reset vehicles to original positions and restore player sprite
-            if (window.VehicleInteractionManager) {
-                VehicleInteractionManager.reset(gameState);
+            if (window.ResetManager) {
+                ResetManager.softReset(gameState);
+            } else {
+                gameState.playerPos = {...gameState.startPos};
+                gameState.playerDirection = 'right';
+                gameState.characterType = 'player';
+                
+                if (window.VehicleInteractionManager) {
+                    VehicleInteractionManager.reset(gameState);
+                }
+                
+                if (typeof render === 'function') render();
+                if (typeof updateViewport === 'function') updateViewport();
             }
-            
-            if (typeof render === 'function') render();
-            if (typeof updateViewport === 'function') updateViewport();
         }
 
         var fullCode = CODE_PRELUDE + code;
