@@ -103,6 +103,26 @@ function playStepSound() {
     oscillator.stop(audioContext.currentTime + duration);
 }
 
+function playBumpSound() {
+    if (!audioContext) initAudio();
+    
+    const duration = 0.12;
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.frequency.value = 80;
+    oscillator.type = 'triangle';
+    
+    gainNode.gain.setValueAtTime(0.03, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + duration);
+}
+
 // ============================================
 // FILE LOADING
 // ============================================

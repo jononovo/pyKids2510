@@ -78,6 +78,7 @@
                         await animateMove(x, y, newX, newY, gameState.playerDirection);
                         moved++;
                     } else {
+                        playBumpSound();
                         break;
                     }
                 }
