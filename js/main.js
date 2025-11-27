@@ -2,9 +2,9 @@
 // MAIN - Initialization & UI Controls  
 // ============================================
 
-// Global variables
-let courseData = null;
-let currentLevel = 0;
+// Global variables (exposed on window for test system access)
+var courseData = null;
+var currentLevel = 0;
 
 // Map inheritance cache
 let lastMapCache = null;         // Most recent map from any level
