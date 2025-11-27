@@ -1,14 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
-  <!-- Water base - deeper ocean blue -->
   <rect width="32" height="32" fill="#039be5"/>
-  <!-- Soft organic wave patterns - offset from light water -->
-  <path d="M0,10 Q8,7 16,11 Q24,15 32,9" stroke="#0288d1" stroke-width="2" fill="none" opacity="0.4"/>
-  <path d="M-2,18 Q6,15 14,19 Q22,23 32,17" stroke="#0288d1" stroke-width="2" fill="none" opacity="0.4"/>
-  <path d="M0,26 Q8,23 16,27 Q24,31 34,25" stroke="#0288d1" stroke-width="2" fill="none" opacity="0.4"/>
-  <!-- Light reflections / shimmer - subtler on deep water -->
   <ellipse cx="10" cy="14" rx="3" ry="1.2" fill="#4fc3f7" opacity="0.35"/>
   <ellipse cx="24" cy="22" rx="2.5" ry="1" fill="#4fc3f7" opacity="0.3"/>
   <ellipse cx="6" cy="6" rx="2" ry="0.8" fill="#4fc3f7" opacity="0.25"/>
-  <!-- Subtle sparkle -->
   <circle cx="20" cy="10" r="0.8" fill="#b3e5fc" opacity="0.4"/>
 </svg>
