@@ -3,10 +3,10 @@
     "GRASS":      { "id": 0, "path": "tiles/grass.svg", "fallbackColor": "#7fc97f" },
     "GRASS_DARK": { "id": 1, "path": "tiles/grass-dark.svg", "fallbackColor": "#6fb96f" },
     "PATH":       { "id": 2, "path": "tiles/path.svg", "fallbackColor": "#d4b896" },
-    "TREE":       { "id": 3, "path": "objects/tree.svg", "fallbackColor": "#4a7c4e" },
-    "BUSH":       { "id": 4, "path": "objects/bush.svg", "fallbackColor": "#5a8c5e", "overlayOnGrass": true },
-    "WATER":      { "id": 5, "path": "tiles/water.svg", "fallbackColor": "#6fa8dc" },
-    "ROCK":       { "id": 6, "path": "tiles/rock.svg", "fallbackColor": "#888888" },
+    "TREE":       { "id": 3, "path": "objects/tree.svg", "fallbackColor": "#4a7c4e", "access": "blocked" },
+    "BUSH":       { "id": 4, "path": "objects/bush.svg", "fallbackColor": "#5a8c5e", "overlayOnGrass": true, "access": "blocked" },
+    "WATER":      { "id": 5, "path": "tiles/water.svg", "fallbackColor": "#6fa8dc", "access": ["boat", "ship", "fish"] },
+    "ROCK":       { "id": 6, "path": "tiles/rock.svg", "fallbackColor": "#888888", "access": "blocked" },
     "FLOWER":     { "id": 7, "path": "objects/flower.svg", "fallbackColor": "#7fc97f", "overlayOnGrass": true }
   },
   "special": {
