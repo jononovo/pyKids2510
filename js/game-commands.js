@@ -477,6 +477,8 @@
     };
 
     window.resetGame = async function() {
+        console.log('[resetGame] Reset button clicked');
+        
         if (window.ConfirmDialog) {
             var confirmed = await ConfirmDialog.show({
                 title: 'Reset Level',
@@ -484,14 +486,37 @@
                 okText: 'Reset',
                 cancelText: 'Cancel'
             });
+            console.log('[resetGame] Dialog result:', confirmed);
             if (!confirmed) return;
         }
+        
+        console.log('[resetGame] Performing reset...');
         
         if (window.ResetManager) {
             ResetManager.fullReset(gameState);
         } else {
             console.error('[resetGame] ResetManager not available');
         }
+        
+        // Direct editor reset - use level starter code directly
+        var starterCode = '';
+        if (window.courseData && window.courseData.levels && typeof currentLevel !== 'undefined') {
+            starterCode = window.courseData.levels[currentLevel].starterCode || '';
+        }
+        
+        if (window.EditorManager) {
+            EditorManager.updateCode(starterCode);
+            console.log('[resetGame] Editor reset to starter code, length:', starterCode.length);
+        }
+        
+        // Handle Blockly mode if active
+        if (window.BlocklyModeSwitcher && window.BlocklyModeSwitcher.isBlockMode()) {
+            if (window.BlocklyIntegration) {
+                window.BlocklyIntegration.convertFromText(starterCode);
+            }
+        }
+        
+        console.log('[resetGame] Reset complete');
     };
 
     // ========== EXPORTS ==========
