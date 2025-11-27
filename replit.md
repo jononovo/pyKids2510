@@ -62,16 +62,32 @@ SVG-based tile rendering system with assets organized in `assets/map/` (tiles, o
   - **Mission State** (`mission-state.js`): Manages persistent chapter state including:
     - `inventory`: Collected resources (e.g., `{wood: 3, coin: 2}`)
     - `collectedItems`: Array of `{x, y, type}` for already-collected positions
+    - `elementStates`: Object tracking transformed elements (e.g., doors that have been opened)
     - `structures`: Array for built structures (future use)
   - **Level Types**: `exercise` (sandbox, no persistence) vs `mission/quest` (persistent inventory/progress)
   - **Map Inheritance**: Exercises use most recent map layout; missions prefer the last mission's map (via `lastMapCache`/`lastMissionMapCache`)
   - **Collect Command Integration**: `collect()` records items to MissionState inventory for mission levels, filtering already-collected positions
-  - **chapterState Format**: `{chapter: 1, inventory: {}, collectedItems: [], structures: []}`
+  - **chapterState Format**: `{chapter: 1, inventory: {}, collectedItems: [], structures: [], elementStates: {}}`
   - **Level Entry Snapshot** (`window.levelEntrySnapshot`): Reset functionality preserves the state when first entering a level:
     - `starterCode`: The code loaded when entering the level (saved code if available, otherwise starter code)
-    - `missionState`: Deep copy of MissionState at level entry (inventory, collectedItems, structures)
+    - `missionState`: Deep copy of MissionState at level entry (inventory, collectedItems, structures, elementStates)
     - `levelIndex`: Tracks which level the snapshot belongs to (prevents overwriting on same-level reloads)
     - Reset button restores code editor, MissionState, inventory UI, and collectible states to entry snapshot
+
+- **Element Interaction System** (`js/game-engine/element-interaction-logic.js`): Handles interactive elements placed over tiles:
+  - **ElementInteractionManager**: Singleton class managing element loading, parsing, state, and interactions
+  - **Element Manifest** (`assets/map/elements.json`): Defines available elements (door, door-open, lever, button, etc.) with SVG paths and fallback colors
+  - **Syntax Formats**:
+    - Legacy: `[[x,y,"type"]]` for backward compatibility
+    - Compact: `["type", [[coords...]]]` reduces duplication by ~40%
+    - With trigger: `["type", {trigger: "on_step", at: [[coords...]]}]`
+  - **Element Types**:
+    - `collectibles:` - Items picked up with `collect()`, default trigger `on_collect`
+    - `transforms:` - Elements changed with `interact()`, default trigger `on_interact`
+  - **Transform Behavior**:
+    - Disappear: `["door", [[6,6]]]`
+    - Swap: `["door", "door-open", [[4,4]]]`
+  - **Trigger Types**: `on_collect`, `on_interact`, `on_step` (auto-trigger when player walks on tile)
 
 ## Documentation
 
