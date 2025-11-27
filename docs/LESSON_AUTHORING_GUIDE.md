@@ -331,12 +331,12 @@ transforms: ["door", "door-open", {"trigger": "on_step", "at": [[7,7]]}]
 
 ### Available Collectible Types
 
-Located in `assets/map/collectibles/`:
+Located in `assets/map/elements/`:
 
 | Type | File | Description |
 |------|------|-------------|
-| coin | collectible-coin.svg | Currency |
-| gem | collectible-gem.svg | Default collectible |
+| coin | collectible-coin.svg | Currency (gold coin) |
+| gem | collectible-gem.svg | Default collectible (precious gem) |
 | key | key.svg | Key item |
 | heart | heart.svg | Health/life |
 | star | star.svg | Special item |
@@ -377,14 +377,14 @@ Located in `assets/map/elements.json`:
 
 ### Adding Custom Collectibles
 
-1. Add SVG file to `assets/map/collectibles/`
+1. Add SVG file to `assets/map/elements/`
 2. Use the filename (without extension) as the type:
 
 ```
 collectibles: ["custom-item", [[5,3]]]
 ```
 
-Ensure `assets/map/collectibles/custom-item.svg` exists.
+Ensure `assets/map/elements/custom-item.svg` exists.
 
 ---
 
@@ -853,8 +853,8 @@ assets/
 │   ├── tiles.json             # Tile definitions
 │   ├── elements.json          # Interactive element definitions
 │   ├── tiles/                 # Tile SVGs
-│   ├── objects/               # Object SVGs (trees, bushes, doors)
-│   ├── collectibles/          # Collectible SVGs
+│   ├── objects/               # Static object SVGs (trees, bushes, flowers)
+│   ├── elements/              # All interactive element SVGs (collectibles, doors, etc.)
 │   └── special/               # Special items (star-goal)
 └── sprites/                   # Character sprites
 

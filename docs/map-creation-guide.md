@@ -54,14 +54,16 @@ assets/
 │   │   ├── sand.svg
 │   │   ├── beach-edge-[top|bottom|left|right].svg
 │   │   └── beach-corner-[top|bottom]-[left|right].svg
-│   ├── objects/        # Decorative elements
+│   ├── objects/        # Static decorative elements
 │   │   ├── tree.svg
 │   │   ├── bush.svg
 │   │   └── flower.svg
-│   ├── special/        # Interactive elements
+│   ├── special/        # Special elements
 │   │   └── goal.svg
-│   ├── collectibles/   # Pickup items
-│   │   └── collectible-[type].svg
+│   ├── elements/       # Interactive elements (collectibles, doors, etc.)
+│   │   ├── collectible-[type].svg
+│   │   ├── door.svg
+│   │   └── door-open.svg
 │   └── graphic-maps/   # Full background images
 │       └── [map-name].svg
 ```

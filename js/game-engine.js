@@ -98,8 +98,8 @@ async function loadCollectiblesManifest() {
     } catch (error) {
         console.warn('Could not load collectibles manifest, using defaults');
         COLLECTIBLE_SVGS = {
-            gem: 'assets/map/collectibles/collectible-gem.svg',
-            coin: 'assets/map/collectibles/collectible-coin.svg'
+            gem: 'assets/map/elements/collectible-gem.svg',
+            coin: 'assets/map/elements/collectible-coin.svg'
         };
     }
 }

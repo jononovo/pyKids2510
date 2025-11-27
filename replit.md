@@ -28,7 +28,13 @@ Lessons are authored in Markdown files (`.md`), defining objectives, challenges,
 
 ### Map Graphics System
 
-SVG-based tile rendering system with assets organized in `assets/map/` (tiles, objects, special items). It supports automatic caching and preloading, with a fallback to programmatic rendering. The system also supports full graphic maps (PNG/SVG backgrounds) where tiles can become transparent.
+SVG-based tile rendering system with assets organized in `assets/map/` (tiles, objects, elements, special items). It supports automatic caching and preloading, with a fallback to programmatic rendering. The system also supports full graphic maps (PNG/SVG backgrounds) where tiles can become transparent.
+
+**Asset Organization:**
+- `tiles/` - Static terrain tiles (grass, path, water, etc.)
+- `objects/` - Static decorative objects (trees, bushes, flowers)
+- `elements/` - All interactive elements (collectibles like coins/gems, transforms like doors/levers)
+- `special/` - Special items (star-goal)
 
 **Tile System (tiles.json)**: Single source of truth for all tile definitions:
 - `TILES` constant is dynamically generated from manifest at load time via `buildTileConstants()`

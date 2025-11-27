@@ -52,15 +52,15 @@ class NoCacheHTTPRequestHandler(SimpleHTTPRequestHandler):
     
     def send_collectibles_json(self):
         """Return JSON object mapping collectible types to SVG paths"""
-        collectibles_dir = Path('assets/map/collectibles')
+        elements_dir = Path('assets/map/elements')
         collectibles = {}
         
-        if collectibles_dir.exists() and collectibles_dir.is_dir():
-            # Get all SVG files in the collectibles directory
-            for file in collectibles_dir.glob('*.svg'):
+        if elements_dir.exists() and elements_dir.is_dir():
+            # Get all SVG files in the elements directory
+            for file in elements_dir.glob('*.svg'):
                 # Use the filename (without extension) as the collectible type key
                 collectible_type = file.stem.replace('collectible-', '').replace('-', '_')
-                collectibles[collectible_type] = f'assets/map/collectibles/{file.name}'
+                collectibles[collectible_type] = f'assets/map/elements/{file.name}'
         
         # Send JSON response
         self.send_response(200)

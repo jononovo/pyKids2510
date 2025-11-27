@@ -85,8 +85,8 @@ goalPos: 1,1
 
 ## Asset Paths
 - Tiles: `assets/map/tiles/*.svg`
-- Objects: `assets/map/objects/*.svg`
-- Collectibles: `assets/map/collectibles/*.svg`
+- Objects: `assets/map/objects/*.svg` (static: trees, bushes, flowers)
+- Elements: `assets/map/elements/*.svg` (interactive: collectibles, doors, etc.)
 - Backgrounds: `assets/map/graphic-maps/*.svg`
 - Levels: `assets/python-course-chapter*.md`
 
