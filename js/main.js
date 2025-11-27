@@ -154,16 +154,20 @@ function playCollectSound() {
 }
 
 function animateCollectSparkle(tileX, tileY) {
-    const canvas = document.getElementById('game-canvas');
+    const viewport = document.getElementById('game-viewport');
     const inventoryPanel = document.getElementById('inventory-panel');
-    if (!canvas || !inventoryPanel) return;
+    if (!viewport || !inventoryPanel) return;
     
-    const canvasRect = canvas.getBoundingClientRect();
+    const viewportRect = viewport.getBoundingClientRect();
     const invRect = inventoryPanel.getBoundingClientRect();
     
     const cam = window.camera || { zoom: 1, panX: 0, panY: 0 };
-    const startX = canvasRect.left + (tileX * TILE_SIZE + TILE_SIZE / 2) * cam.zoom + cam.panX;
-    const startY = canvasRect.top + (tileY * TILE_SIZE + TILE_SIZE / 2) * cam.zoom + cam.panY;
+    
+    const tilePixelX = tileX * TILE_SIZE + TILE_SIZE / 2;
+    const tilePixelY = tileY * TILE_SIZE + TILE_SIZE / 2;
+    
+    const startX = viewportRect.left + cam.panX + tilePixelX * cam.zoom;
+    const startY = viewportRect.top + cam.panY + tilePixelY * cam.zoom;
     
     const endX = invRect.left + invRect.width / 2;
     const endY = invRect.top + 20;
@@ -173,32 +177,35 @@ function animateCollectSparkle(tileX, tileY) {
         position: fixed;
         left: ${startX}px;
         top: ${startY}px;
-        width: 12px;
-        height: 12px;
-        background: radial-gradient(circle, #fff 0%, #ffd700 50%, transparent 70%);
+        width: 10px;
+        height: 10px;
+        background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,215,0,0.6) 40%, transparent 70%);
         border-radius: 50%;
         pointer-events: none;
         z-index: 9999;
-        box-shadow: 0 0 8px #ffd700, 0 0 16px #ffa500;
-        transition: all 0.4s ease-in-out;
+        box-shadow: 0 0 6px rgba(255,215,0,0.5), 0 0 12px rgba(255,180,0,0.3);
+        transition: left 0.7s cubic-bezier(0.25, 0.1, 0.25, 1), 
+                    top 0.7s cubic-bezier(0.25, 0.1, 0.25, 1),
+                    transform 0.7s ease-out,
+                    opacity 0.7s ease-out;
     `;
     document.body.appendChild(sparkle);
     
     requestAnimationFrame(() => {
         sparkle.style.left = endX + 'px';
         sparkle.style.top = endY + 'px';
-        sparkle.style.transform = 'scale(0.5)';
-        sparkle.style.opacity = '0.7';
+        sparkle.style.transform = 'scale(0.4)';
+        sparkle.style.opacity = '0';
     });
     
     setTimeout(() => {
         sparkle.remove();
-        inventoryPanel.style.transition = 'transform 0.1s';
-        inventoryPanel.style.transform = 'scale(1.05)';
+        inventoryPanel.style.transition = 'transform 0.15s ease-out';
+        inventoryPanel.style.transform = 'scale(1.03)';
         setTimeout(() => {
             inventoryPanel.style.transform = 'scale(1)';
-        }, 100);
-    }, 400);
+        }, 150);
+    }, 700);
 }
 
 // ============================================
