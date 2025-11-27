@@ -232,7 +232,7 @@ async function loadLevel(levelIndex) {
                         <span class="infinity-symbol">∞</span>
                     </div>
                     <div class="controls-bottom">
-                        <button class="btn secondary-btn" id="reset-btn">
+                        <button type="button" class="btn secondary-btn" id="reset-btn">
                             <span class="btn-icon">↺</span> <span class="btn-text">RESET</span>
                         </button>
                         <button class="btn secondary-btn">

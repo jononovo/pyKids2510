@@ -12,8 +12,8 @@ const ConfirmDialog = (function() {
                 <div class="confirm-title" id="confirm-title">Confirm</div>
                 <div class="confirm-message" id="confirm-message"></div>
                 <div class="confirm-buttons">
-                    <button class="confirm-btn confirm-cancel" id="confirm-cancel">Cancel</button>
-                    <button class="confirm-btn confirm-ok" id="confirm-ok">OK</button>
+                    <button type="button" class="confirm-btn confirm-cancel" id="confirm-cancel">Cancel</button>
+                    <button type="button" class="confirm-btn confirm-ok" id="confirm-ok">OK</button>
                 </div>
             </div>
         `;
@@ -38,6 +38,7 @@ const ConfirmDialog = (function() {
     }
     
     function show(options) {
+        console.log('[ConfirmDialog] show() called with:', options);
         init();
         
         const title = options.title || 'Confirm';
@@ -50,7 +51,10 @@ const ConfirmDialog = (function() {
         document.getElementById('confirm-ok').textContent = okText;
         document.getElementById('confirm-cancel').textContent = cancelText;
         
-        document.getElementById('confirm-dialog-overlay').classList.add('show');
+        const overlay = document.getElementById('confirm-dialog-overlay');
+        console.log('[ConfirmDialog] Overlay element:', overlay);
+        overlay.classList.add('show');
+        console.log('[ConfirmDialog] Dialog should now be visible');
         
         return new Promise(function(resolve) {
             resolveCallback = resolve;

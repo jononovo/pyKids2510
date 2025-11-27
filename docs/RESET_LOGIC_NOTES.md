@@ -21,7 +21,7 @@ User clicks Reset button
     ↓
 resetGame() in game-commands.js
     ↓
-ConfirmDialog.show() - waits for user confirmation
+Browser confirm() dialog - waits for user confirmation
     ↓
 ResetManager.fullReset(gameState) - resets game state
     ↓
@@ -49,6 +49,17 @@ Handle Blockly if active
 
 ## Key Implementation Details
 
+### Confirmation Dialog
+
+Uses the browser's native `confirm()` dialog instead of a custom modal. This is more reliable in iframe/embedded contexts where custom overlays may have visibility issues.
+
+```javascript
+var confirmed = confirm('Reset Level?\n\nYour code and level progress will be cleared.');
+if (!confirmed) return;
+```
+
+### Editor Reset
+
 The editor reset uses the level data directly:
 
 ```javascript
@@ -68,7 +79,7 @@ This approach is simpler and more reliable than the previous snapshot-based syst
 
 Console logs for reset flow:
 - `[resetGame] Reset button clicked` - Button click registered
-- `[resetGame] Dialog result: true/false` - User confirmation
+- `[resetGame] Confirm result: true/false` - User confirmation result
 - `[resetGame] Performing reset...` - Reset started
 - `[ResetManager] Performing full reset` - Game state reset
 - `[resetGame] Editor reset to starter code, length: X` - Editor updated
