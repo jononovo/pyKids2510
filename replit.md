@@ -80,12 +80,12 @@ SVG-based tile rendering system with assets organized in `assets/map/` (tiles, o
     - `levelIndex`: Tracks which level the snapshot belongs to (prevents overwriting on same-level reloads)
     - Reset button restores code editor, MissionState, inventory UI, and collectible states to entry snapshot
 
-- **Element Interaction System** (`js/game-engine/element-interaction-logic.js`): Handles interactive elements placed over tiles:
+- **Element Interaction System** (`js/game-engine/element-interaction-logic.js`): Single source of truth for all interactive elements:
   - **ElementInteractionManager**: Singleton class managing element loading, parsing, state, and interactions
   - **Element Manifest** (`assets/map/elements.json`): Defines available elements (door, door-open, lever, button, etc.) with SVG paths and fallback colors
-  - **Syntax Formats**:
-    - Legacy: `[[x,y,"type"]]` for backward compatibility
-    - Compact: `["type", [[coords...]]]` reduces duplication by ~40%
+  - **Syntax (single format - no legacy support)**:
+    - Single type: `["type", [[coords...]]]`
+    - Multiple types: `[["type1", [[coords...]]], ["type2", [[coords...]]]]` (outer array wrapper required)
     - With trigger: `["type", {trigger: "on_step", at: [[coords...]]}]`
   - **Element Types**:
     - `collectibles:` - Items picked up with `collect()`, default trigger `on_collect`
