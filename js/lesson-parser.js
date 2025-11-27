@@ -89,9 +89,10 @@ function parseCourseLevels(markdown) {
                 goalPos: {x: 0, y: 0},
                 collectibles: [],
                 transforms: [],
+                vehicles: [],
                 megaElements: [],
                 megaObjects: [],
-                graphic: null  // Optional background graphic URL
+                graphic: null
             }
         };
 
@@ -172,6 +173,14 @@ function parseCourseLevels(markdown) {
                         level.map.transforms = transformsArray;
                     } catch (e) {
                         console.log('Could not parse transforms:', line);
+                    }
+                } else if (line.includes('vehicles:')) {
+                    try {
+                        const vehiclesStr = line.split('vehicles:')[1].trim();
+                        const vehiclesArray = JSON.parse(vehiclesStr);
+                        level.map.vehicles = vehiclesArray;
+                    } catch (e) {
+                        console.log('Could not parse vehicles:', line);
                     }
                 } else if (line.includes('megaElements:')) {
                     try {

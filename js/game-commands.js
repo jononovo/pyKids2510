@@ -455,8 +455,13 @@
         
         gameState.playerPos = { x: gameState.startPos.x, y: gameState.startPos.y };
         gameState.playerDirection = 'right';
+        gameState.characterType = 'player';
         gameState.isRunning = false;
         document.getElementById('run-btn').disabled = false;
+        
+        if (window.VehicleInteractionManager) {
+            VehicleInteractionManager.reset(gameState);
+        }
         
         if (gameState.collectibles) {
             for (var i = 0; i < gameState.collectibles.length; i++) {

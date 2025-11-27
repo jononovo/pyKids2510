@@ -37,33 +37,27 @@ let gameState = {
     startPos: {x: 0, y: 0},
     goalPos: {x: 0, y: 0},
     playerDirection: 'right',
+    characterType: 'player',
     isRunning: false,
     moveQueue: [],
     mapData: [],
     mapWidth: 0,
     mapHeight: 0,
     levelCompleted: [],
-    idleAnimation: 0,  // For floating animation
-    idlePhase: 0,      // 0 = pause, 1 = animate
-    idlePauseTime: 0,   // Counter for pause duration
-    idlePauseDuration: 120, // Frames to pause (2 seconds at 60fps)
-    // Sprite system
+    idleAnimation: 0,
+    idlePhase: 0,
+    idlePauseTime: 0,
+    idlePauseDuration: 120,
     spriteImage: null,
     spriteFrameWidth: 0,
     spriteFrameHeight: 0,
     currentSpriteFrame: 0,
     spriteAnimationCounter: 0,
-    // Background graphic for the level
     backgroundImage: null,
-    // Mouse hover tile
     hoveredTile: {x: -1, y: -1},
-    // Collectibles tracking (for collect() function)
     collectibles: [],
-    // Interactive objects (doors, chests, crops, pushable objects)
     objects: [],
-    // Player inventory
     inventory: {},
-    // Message log (for speak() function)
     messageLog: []
 };
 
@@ -466,6 +460,7 @@ async function loadLevel(levelIndex) {
     gameState.goalPos = {...level.map.goalPos};
     gameState.playerPos = {...level.map.startPos};
     gameState.playerDirection = 'right';
+    gameState.characterType = 'player';
     gameState.levelType = level.type || 'exercise';
     
     // Get collectibles from level
