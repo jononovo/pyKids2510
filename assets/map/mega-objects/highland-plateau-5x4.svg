@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 128" width="160" height="128" shape-rendering="crispEdges">
+  <!-- Highland plateau - flat grassy top with cliff faces, 5x4 tiles -->
+  
+  <!-- Shadow at base -->
+  <ellipse cx="80" cy="122" rx="75" ry="6" fill="#2a3a2a" opacity="0.3"/>
+  
+  <!-- MAIN CLIFF FACE - Front/bottom edge -->
+  <rect x="8" y="70" width="144" height="52" fill="#5a4a3a"/>
+  
+  <!-- Rock striations on front cliff -->
+  <line x1="20" y1="75" x2="20" y2="120" stroke="#4a3a2a" stroke-width="3"/>
+  <line x1="40" y1="72" x2="40" y2="118" stroke="#4a3a2a" stroke-width="2"/>
+  <line x1="55" y1="74" x2="55" y2="120" stroke="#4a3a2a" stroke-width="2"/>
+  <line x1="75" y1="72" x2="75" y2="118" stroke="#4a3a2a" stroke-width="3"/>
+  <line x1="95" y1="74" x2="95" y2="120" stroke="#4a3a2a" stroke-width="2"/>
+  <line x1="110" y1="72" x2="110" y2="118" stroke="#4a3a2a" stroke-width="2"/>
+  <line x1="130" y1="75" x2="130" y2="120" stroke="#4a3a2a" stroke-width="3"/>
+  <line x1="145" y1="73" x2="145" y2="118" stroke="#4a3a2a" stroke-width="2"/>
+  
+  <!-- Lighter rock highlights -->
+  <line x1="30" y1="78" x2="30" y2="115" stroke="#6a5a4a" stroke-width="1.5"/>
+  <line x1="65" y1="76" x2="65" y2="117" stroke="#6a5a4a" stroke-width="1.5"/>
+  <line x1="85" y1="78" x2="85" y2="116" stroke="#6a5a4a" stroke-width="1.5"/>
+  <line x1="120" y1="76" x2="120" y2="117" stroke="#6a5a4a" stroke-width="1.5"/>
+  
+  <!-- Side cliff edges (perspective) -->
+  <polygon points="8,70 8,122 0,115 0,65" fill="#4a3a2a"/>
+  <polygon points="152,70 152,122 160,115 160,65" fill="#6a5a4a"/>
+  
+  <!-- Side striations -->
+  <line x1="4" y1="75" x2="4" y2="110" stroke="#3a2a1a" stroke-width="1.5"/>
+  <line x1="156" y1="75" x2="156" y2="110" stroke="#7a6a5a" stroke-width="1.5"/>
+  
+  <!-- GRASS TOP - Main plateau surface -->
+  <ellipse cx="80" cy="68" rx="78" ry="18" fill="#4a9a3a"/>
+  
+  <!-- Grass texture/variation -->
+  <ellipse cx="40" cy="65" rx="25" ry="8" fill="#5aaa4a" opacity="0.7"/>
+  <ellipse cx="120" cy="65" rx="25" ry="8" fill="#5aaa4a" opacity="0.7"/>
+  <ellipse cx="80" cy="60" rx="20" ry="6" fill="#3a8a2a" opacity="0.5"/>
+  
+  <!-- Dark grass edge (cliff rim) -->
+  <path d="M10 72 Q40 78 80 76 Q120 78 150 72" stroke="#3a7a2a" stroke-width="3" fill="none"/>
+  
+  <!-- PINE TREES on plateau -->
+  <!-- Tree 1 - left -->
+  <polygon points="35,42 25,58 45,58" fill="#1a5a1a"/>
+  <polygon points="35,48 22,65 48,65" fill="#2a6a2a"/>
+  <polygon points="35,55 20,72 50,72" fill="#3a7a3a"/>
+  <rect x="32" y="72" width="6" height="6" fill="#4a2a1a"/>
+  
+  <!-- Tree 2 - center-left -->
+  <polygon points="65,38 55,54 75,54" fill="#1a5a1a"/>
+  <polygon points="65,44 52,61 78,61" fill="#2a6a2a"/>
+  <polygon points="65,51 50,68 80,68" fill="#3a7a3a"/>
+  <rect x="62" y="68" width="6" height="6" fill="#4a2a1a"/>
+  
+  <!-- Tree 3 - center-right -->
+  <polygon points="95,40 85,56 105,56" fill="#1a5a1a"/>
+  <polygon points="95,46 82,63 108,63" fill="#2a6a2a"/>
+  <polygon points="95,53 80,70 110,70" fill="#3a7a3a"/>
+  <rect x="92" y="70" width="6" height="6" fill="#4a2a1a"/>
+  
+  <!-- Tree 4 - right -->
+  <polygon points="125,44 115,60 135,60" fill="#1a5a1a"/>
+  <polygon points="125,50 112,67 138,67" fill="#2a6a2a"/>
+  <polygon points="125,57 110,74 140,74" fill="#3a7a3a"/>
+  <rect x="122" y="74" width="6" height="6" fill="#4a2a1a"/>
+  
+  <!-- Small bushes/shrubs -->
+  <ellipse cx="50" cy="70" rx="5" ry="3" fill="#2a7a2a"/>
+  <ellipse cx="110" cy="68" rx="5" ry="3" fill="#2a7a2a"/>
+  <ellipse cx="80" cy="72" rx="4" ry="2" fill="#3a8a3a"/>
+  
+  <!-- Rock debris at base -->
+  <circle cx="15" cy="118" r="3" fill="#5a4a3a"/>
+  <circle cx="145" cy="118" r="3" fill="#6a5a4a"/>
+  <ellipse cx="25" cy="120" rx="4" ry="2" fill="#4a3a2a"/>
+  <ellipse cx="135" cy="120" rx="4" ry="2" fill="#5a4a3a"/>
+</svg>
