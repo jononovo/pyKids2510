@@ -80,6 +80,19 @@ SVG-based tile rendering system with assets organized in `assets/map/` (tiles, o
     - `levelIndex`: Tracks which level the snapshot belongs to (prevents overwriting on same-level reloads)
     - Reset button restores code editor, MissionState, inventory UI, and collectible states to entry snapshot
 
+- **Test System** (`js/tests/`): Modular level completion testing:
+  - **Test Context** (`test-context.js`): Snapshots all game state for tests (player position, inventory, collectibles, code, mission state)
+  - **Test Types** (`test-types.js`): Available test implementations:
+    - `position`: Check player at goal or specific coordinates
+    - `inventory`: Check item counts (min/exact/max)
+    - `collectibles`: Check collected items (all/count/types)
+    - `code_regex`: Regex match on student code
+    - `direction`: Check player facing direction
+    - `element_state`: Check transformed elements
+  - **Test Runner** (`test-runner.js`): Orchestrates test execution with fallback to goalPos check when no tests defined
+  - **Lesson Parser Integration**: Parses `<!-- Tests -->` YAML sections from lesson markdown
+  - **Fallback Behavior**: If no tests defined, defaults to standard goalPos win condition
+
 - **Element Interaction System** (`js/game-engine/element-interaction-logic.js`): Single source of truth for all interactive elements:
   - **ElementInteractionManager**: Singleton class managing element loading, parsing, state, and interactions
   - **Element Manifest** (`assets/map/elements.json`): Defines available elements (door, door-open, lever, button, etc.) with SVG paths and fallback colors

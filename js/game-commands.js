@@ -82,7 +82,11 @@
                     }
                 }
                 
-                checkWinCondition();
+                if (window.TestRunner) {
+                    TestRunner.evaluate();
+                } else {
+                    checkWinCondition();
+                }
                 return moved;
             }
         },
