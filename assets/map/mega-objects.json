@@ -6,7 +6,15 @@
       "width": 6,
       "height": 7,
       "fallbackColor": "#7a8b6e",
-      "description": "A moderate-sized mountain with rocky terrain and grass patches, walkable"
+      "description": "A moderate-sized mountain with rocky terrain, walkable"
+    },
+    "large-mountain": {
+      "name": "large-mountain",
+      "path": "mega-objects/moderate-mountain-8x9.svg",
+      "width": 8,
+      "height": 9,
+      "fallbackColor": "#5a6a4a",
+      "description": "A large isometric mountain with snow-capped peaks, cliff faces, and pine trees"
     }
   }
 }

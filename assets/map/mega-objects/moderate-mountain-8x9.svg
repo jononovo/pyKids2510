@@ -1,0 +1,125 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 288" width="256" height="288" shape-rendering="crispEdges">
+  <!-- Isometric-style mountain with dramatic cliff faces - 8x9 tiles -->
+  
+  <!-- Shadow at base -->
+  <ellipse cx="128" cy="278" rx="115" ry="10" fill="#2a3a2a" opacity="0.4"/>
+  
+  <!-- MAIN CENTRAL PEAK -->
+  <!-- Left cliff face (darker, in shadow) -->
+  <polygon points="30,265 128,45 128,265" fill="#4a3a2a"/>
+  <!-- Left cliff striations -->
+  <line x1="50" y1="240" x2="95" y2="100" stroke="#3a2a1a" stroke-width="3"/>
+  <line x1="65" y1="250" x2="105" y2="85" stroke="#3a2a1a" stroke-width="2"/>
+  <line x1="80" y1="255" x2="115" y2="75" stroke="#3a2a1a" stroke-width="2"/>
+  <line x1="55" y1="245" x2="100" y2="110" stroke="#5a4a3a" stroke-width="1.5"/>
+  <line x1="75" y1="252" x2="112" y2="90" stroke="#5a4a3a" stroke-width="1"/>
+  <line x1="90" y1="258" x2="120" y2="80" stroke="#5a4a3a" stroke-width="1"/>
+  
+  <!-- Right cliff face (lighter, sun-facing) -->
+  <polygon points="226,265 128,45 128,265" fill="#6a5a4a"/>
+  <!-- Right cliff striations -->
+  <line x1="206" y1="240" x2="161" y2="100" stroke="#5a4a3a" stroke-width="3"/>
+  <line x1="191" y1="250" x2="151" y2="85" stroke="#5a4a3a" stroke-width="2"/>
+  <line x1="176" y1="255" x2="141" y2="75" stroke="#5a4a3a" stroke-width="2"/>
+  <line x1="201" y1="245" x2="156" y2="110" stroke="#7a6a5a" stroke-width="1.5"/>
+  <line x1="181" y1="252" x2="144" y2="90" stroke="#7a6a5a" stroke-width="1"/>
+  <line x1="166" y1="258" x2="136" y2="80" stroke="#7a6a5a" stroke-width="1"/>
+  
+  <!-- SECONDARY PEAK - LEFT -->
+  <polygon points="5,275 60,105 60,275" fill="#4a3a2a"/>
+  <polygon points="60,275 60,105 115,275" fill="#5a4a3a"/>
+  <line x1="20" y1="240" x2="48" y2="150" stroke="#3a2a1a" stroke-width="2"/>
+  <line x1="35" y1="255" x2="55" y2="130" stroke="#3a2a1a" stroke-width="1.5"/>
+  <line x1="85" y1="240" x2="68" y2="150" stroke="#6a5a4a" stroke-width="2"/>
+  <line x1="100" y1="260" x2="72" y2="140" stroke="#6a5a4a" stroke-width="1.5"/>
+  
+  <!-- SECONDARY PEAK - RIGHT -->
+  <polygon points="141,275 196,115 196,275" fill="#4a3a2a"/>
+  <polygon points="196,275 196,115 251,275" fill="#6a5a4a"/>
+  <line x1="156" y1="240" x2="184" y2="155" stroke="#3a2a1a" stroke-width="2"/>
+  <line x1="171" y1="260" x2="190" y2="140" stroke="#3a2a1a" stroke-width="1.5"/>
+  <line x1="221" y1="240" x2="203" y2="155" stroke="#7a6a5a" stroke-width="2"/>
+  <line x1="236" y1="260" x2="208" y2="145" stroke="#7a6a5a" stroke-width="1.5"/>
+  
+  <!-- SNOW CAPS -->
+  <!-- Main peak snow -->
+  <polygon points="128,45 105,85 128,72 151,85" fill="#ffffff"/>
+  <polygon points="128,72 112,95 128,85 144,95" fill="#e0e8f0"/>
+  <polygon points="128,85 118,102 128,95 138,102" fill="#d0d8e0"/>
+  
+  <!-- Left peak snow -->
+  <polygon points="60,105 45,130 60,120 75,130" fill="#ffffff"/>
+  <polygon points="60,120 50,140 60,132 70,140" fill="#e0e8f0"/>
+  
+  <!-- Right peak snow -->
+  <polygon points="196,115 181,140 196,130 211,140" fill="#ffffff"/>
+  <polygon points="196,130 186,150 196,142 206,150" fill="#e0e8f0"/>
+  
+  <!-- GRASS PLATEAUS -->
+  <!-- Main shoulders -->
+  <ellipse cx="75" cy="145" rx="22" ry="10" fill="#4a8a3a"/>
+  <ellipse cx="181" cy="145" rx="22" ry="10" fill="#5a9a4a"/>
+  
+  <!-- Mid-level ledges -->
+  <ellipse cx="50" cy="195" rx="18" ry="8" fill="#4a8a3a"/>
+  <ellipse cx="206" cy="195" rx="18" ry="8" fill="#5a9a4a"/>
+  <ellipse cx="95" cy="180" rx="15" ry="6" fill="#3a7a2a"/>
+  <ellipse cx="161" cy="180" rx="15" ry="6" fill="#4a8a3a"/>
+  
+  <!-- Lower ledges -->
+  <ellipse cx="40" cy="235" rx="14" ry="6" fill="#3a7a2a"/>
+  <ellipse cx="216" cy="235" rx="14" ry="6" fill="#4a8a3a"/>
+  
+  <!-- PINE TREES -->
+  <!-- Tree 1 - left shoulder -->
+  <polygon points="72,128 62,145 82,145" fill="#1a5a1a"/>
+  <polygon points="72,135 60,152 84,152" fill="#2a6a2a"/>
+  <polygon points="72,142 58,160 86,160" fill="#3a7a3a"/>
+  <rect x="69" y="160" width="6" height="6" fill="#4a2a1a"/>
+  
+  <!-- Tree 2 - right shoulder -->
+  <polygon points="184,128 174,145 194,145" fill="#1a5a1a"/>
+  <polygon points="184,135 172,152 196,152" fill="#2a6a2a"/>
+  <polygon points="184,142 170,160 198,160" fill="#3a7a3a"/>
+  <rect x="181" y="160" width="6" height="6" fill="#4a2a1a"/>
+  
+  <!-- Tree 3 - left mid ledge -->
+  <polygon points="52,182 45,192 59,192" fill="#1a5a1a"/>
+  <polygon points="52,186 43,198 61,198" fill="#2a6a2a"/>
+  <rect x="50" y="198" width="4" height="5" fill="#4a2a1a"/>
+  
+  <!-- Tree 4 - right mid ledge -->
+  <polygon points="204,182 197,192 211,192" fill="#1a5a1a"/>
+  <polygon points="204,186 195,198 213,198" fill="#2a6a2a"/>
+  <rect x="202" y="198" width="4" height="5" fill="#4a2a1a"/>
+  
+  <!-- Tree 5 - lower left -->
+  <polygon points="38,222 32,230 44,230" fill="#1a5a1a"/>
+  <polygon points="38,226 30,236 46,236" fill="#2a6a2a"/>
+  <rect x="36" y="236" width="4" height="4" fill="#4a2a1a"/>
+  
+  <!-- Tree 6 - lower right -->
+  <polygon points="218,222 212,230 224,230" fill="#1a5a1a"/>
+  <polygon points="218,226 210,236 226,236" fill="#2a6a2a"/>
+  <rect x="216" y="236" width="4" height="4" fill="#4a2a1a"/>
+  
+  <!-- Small trees -->
+  <polygon points="90,170 85,178 95,178" fill="#2a6a2a"/>
+  <rect x="88" y="178" width="3" height="3" fill="#4a2a1a"/>
+  
+  <polygon points="166,170 161,178 171,178" fill="#2a6a2a"/>
+  <rect x="164" y="178" width="3" height="3" fill="#4a2a1a"/>
+  
+  <!-- ROCK DEBRIS at base -->
+  <ellipse cx="25" cy="272" rx="10" ry="5" fill="#5a4a3a"/>
+  <ellipse cx="231" cy="272" rx="10" ry="5" fill="#6a5a4a"/>
+  <circle cx="45" cy="275" r="4" fill="#4a3a2a"/>
+  <circle cx="211" cy="275" r="4" fill="#5a4a3a"/>
+  <circle cx="60" cy="278" r="3" fill="#5a4a3a"/>
+  <circle cx="196" cy="278" r="3" fill="#6a5a4a"/>
+  
+  <!-- Highlight accents on rock faces -->
+  <line x1="135" y1="70" x2="145" y2="100" stroke="#8a7a6a" stroke-width="1" opacity="0.5"/>
+  <line x1="140" y1="90" x2="155" y2="130" stroke="#8a7a6a" stroke-width="1" opacity="0.4"/>
+  <line x1="203" y1="130" x2="208" y2="150" stroke="#9a8a7a" stroke-width="1" opacity="0.5"/>
+</svg>

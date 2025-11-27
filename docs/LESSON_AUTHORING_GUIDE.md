@@ -664,6 +664,7 @@ This ensures terrain features like mountains appear as background visuals that t
 | Type | Size | Description |
 |------|------|-------------|
 | `moderate-mountain` | 6x7 | Rocky mountain terrain with grass patches, walkable |
+| `large-mountain` | 8x9 | Isometric mountain with snow-capped peaks, cliff faces, and pine trees |
 
 ### Adding Custom Mega-Objects
 
