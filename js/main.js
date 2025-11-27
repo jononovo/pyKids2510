@@ -200,11 +200,11 @@ function animateCollectSparkle(tileX, tileY) {
     
     setTimeout(() => {
         sparkle.remove();
-        inventoryPanel.style.transition = 'transform 0.15s ease-out';
-        inventoryPanel.style.transform = 'scale(1.03)';
+        inventoryPanel.style.transition = 'transform 0.2s ease-out';
+        inventoryPanel.style.transform = 'scale(1.12)';
         setTimeout(() => {
             inventoryPanel.style.transform = 'scale(1)';
-        }, 150);
+        }, 200);
     }, 1100);
 }
 
