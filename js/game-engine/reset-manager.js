@@ -111,18 +111,9 @@
         },
 
         resetEditor() {
-            if (window.EditorManager) {
-                const success = EditorManager.resetToSnapshot();
-                if (!success) {
-                    console.warn('[ResetManager] Editor reset failed - no snapshot available');
-                }
-                
-                if (window.BlocklyModeSwitcher && window.BlocklyModeSwitcher.isBlockMode()) {
-                    if (window.BlocklyIntegration && window.levelEntrySnapshot && window.levelEntrySnapshot.starterCode) {
-                        window.BlocklyIntegration.convertFromText(window.levelEntrySnapshot.starterCode);
-                    }
-                }
-            }
+            // Editor reset is now handled directly in resetGame() for simplicity
+            // This method is kept for API compatibility but does nothing
+            console.log('[ResetManager] resetEditor() called (no-op, handled by resetGame)');
         },
 
         resetUI(gameState) {
