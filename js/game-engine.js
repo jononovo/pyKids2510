@@ -741,7 +741,7 @@ function canMoveTo(x, y) {
     }
     
     const tile = gameState.mapData[y][x];
-    const tileInfo = tileManifest?.tiles[tile];
+    const tileInfo = tileDataById[tile];
     
     // No manifest or no tile info = assume walkable
     if (!tileInfo) return true;
