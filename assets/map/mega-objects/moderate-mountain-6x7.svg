@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 224" width="192" height="224" shape-rendering="crispEdges">
+  <!-- Layered mountain from top-down view with clear rocky tiers -->
+  
+  <!-- Outer base shadow/grass ring -->
+  <ellipse cx="96" cy="188" rx="90" ry="32" fill="#4a6b3a"/>
+  
+  <!-- Base rock tier - widest layer -->
+  <ellipse cx="96" cy="176" rx="82" ry="38" fill="#6b7b5b"/>
+  <ellipse cx="96" cy="172" rx="78" ry="34" fill="#7a8a6a"/>
+  
+  <!-- Second tier rocks -->
+  <ellipse cx="96" cy="156" rx="68" ry="32" fill="#8a8a7a"/>
+  <ellipse cx="96" cy="152" rx="64" ry="28" fill="#9a9a8a"/>
+  
+  <!-- Third tier -->
+  <ellipse cx="96" cy="132" rx="52" ry="26" fill="#a5a595"/>
+  <ellipse cx="96" cy="128" rx="48" ry="22" fill="#b0b0a0"/>
+  
+  <!-- Fourth tier -->
+  <ellipse cx="96" cy="108" rx="38" ry="20" fill="#b8b8a8"/>
+  <ellipse cx="96" cy="104" rx="34" ry="16" fill="#c0c0b0"/>
+  
+  <!-- Fifth tier - near peak -->
+  <ellipse cx="96" cy="86" rx="26" ry="14" fill="#c8c8b8"/>
+  <ellipse cx="96" cy="82" rx="22" ry="11" fill="#d0d0c0"/>
+  
+  <!-- Peak cap -->
+  <ellipse cx="96" cy="68" rx="16" ry="9" fill="#d8d8c8"/>
+  <ellipse cx="96" cy="64" rx="12" ry="6" fill="#e0e0d0"/>
+  <ellipse cx="96" cy="60" rx="8" ry="4" fill="#e8e8d8"/>
+  
+  <!-- Rock texture details on tiers -->
+  <ellipse cx="50" cy="168" rx="10" ry="5" fill="#6a7a5a" opacity="0.7"/>
+  <ellipse cx="142" cy="168" rx="10" ry="5" fill="#6a7a5a" opacity="0.7"/>
+  <ellipse cx="40" cy="180" rx="8" ry="4" fill="#5a6a4a" opacity="0.6"/>
+  <ellipse cx="152" cy="180" rx="8" ry="4" fill="#5a6a4a" opacity="0.6"/>
+  
+  <!-- Grass patches at base -->
+  <ellipse cx="30" cy="185" rx="12" ry="5" fill="#5a8a4a" opacity="0.5"/>
+  <ellipse cx="162" cy="185" rx="12" ry="5" fill="#5a8a4a" opacity="0.5"/>
+  <ellipse cx="60" cy="190" rx="10" ry="4" fill="#4a7a3a" opacity="0.4"/>
+  <ellipse cx="132" cy="190" rx="10" ry="4" fill="#4a7a3a" opacity="0.4"/>
+  
+  <!-- Subtle shadows on rocky surfaces -->
+  <ellipse cx="70" cy="145" rx="8" ry="4" fill="#7a7a6a" opacity="0.4"/>
+  <ellipse cx="122" cy="145" rx="8" ry="4" fill="#7a7a6a" opacity="0.4"/>
+  <ellipse cx="76" cy="120" rx="6" ry="3" fill="#8a8a7a" opacity="0.3"/>
+  <ellipse cx="116" cy="120" rx="6" ry="3" fill="#8a8a7a" opacity="0.3"/>
+  
+  <!-- Highlight accents on upper tiers -->
+  <ellipse cx="80" cy="95" rx="5" ry="3" fill="#d8d8c8" opacity="0.4"/>
+  <ellipse cx="112" cy="95" rx="5" ry="3" fill="#d8d8c8" opacity="0.4"/>
+  <ellipse cx="88" cy="75" rx="4" ry="2" fill="#e8e8d8" opacity="0.5"/>
+  <ellipse cx="104" cy="75" rx="4" ry="2" fill="#e8e8d8" opacity="0.5"/>
+  
+  <!-- Small rocks scattered around base -->
+  <circle cx="25" cy="175" r="4" fill="#8a8a7a" opacity="0.5"/>
+  <circle cx="167" cy="175" r="4" fill="#8a8a7a" opacity="0.5"/>
+  <circle cx="48" cy="182" r="3" fill="#7a7a6a" opacity="0.4"/>
+  <circle cx="144" cy="182" r="3" fill="#7a7a6a" opacity="0.4"/>
+</svg>

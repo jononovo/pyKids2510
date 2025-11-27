@@ -260,6 +260,36 @@ async function drawMegaElements() {
     await Promise.all(megaPromises);
 }
 
+async function drawMegaObjects() {
+    if (!window.MegaObjectManager) return;
+    
+    const megaObjects = MegaObjectManager.getObjectsForRender();
+    if (!megaObjects || megaObjects.length === 0) return;
+    
+    const objectPromises = megaObjects.map(async (obj) => {
+        const px = obj.x * TILE_SIZE;
+        const py = obj.y * TILE_SIZE;
+        const width = obj.width * TILE_SIZE;
+        const height = obj.height * TILE_SIZE;
+        
+        if (obj.path) {
+            const svgPath = 'assets/map/' + obj.path;
+            const img = await loadSVGImage(svgPath);
+            if (img) {
+                ctx.drawImage(img, px, py, width, height);
+            } else if (obj.fallbackColor) {
+                ctx.fillStyle = obj.fallbackColor;
+                ctx.fillRect(px + 4, py + 4, width - 8, height - 8);
+            }
+        } else if (obj.fallbackColor) {
+            ctx.fillStyle = obj.fallbackColor;
+            ctx.fillRect(px + 4, py + 4, width - 8, height - 8);
+        }
+    });
+    
+    await Promise.all(objectPromises);
+}
+
 async function drawTile(x, y, type) {
     const px = x * TILE_SIZE;
     const py = y * TILE_SIZE;
@@ -481,6 +511,9 @@ async function render() {
     }
     await Promise.all(tilePromises);
     
+    // Draw mega-objects (multi-tile walkable terrain like hills, mountains)
+    await drawMegaObjects();
+    
     // Draw all interactive elements (collectibles, transforms, etc.)
     await drawElements();
     
@@ -576,6 +609,9 @@ function animateMove(fromX, fromY, toX, toY, direction) {
                 }
             }
             await Promise.all(tilePromises);
+            
+            // Draw mega-objects (multi-tile walkable terrain like hills, mountains)
+            await drawMegaObjects();
             
             // Draw all interactive elements (collectibles, transforms, etc.)
             await drawElements();
