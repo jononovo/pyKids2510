@@ -153,6 +153,54 @@ function playCollectSound() {
     osc.stop(t + 0.15);
 }
 
+function animateCollectSparkle(tileX, tileY) {
+    const canvas = document.getElementById('game-canvas');
+    const inventoryPanel = document.getElementById('inventory-panel');
+    if (!canvas || !inventoryPanel) return;
+    
+    const canvasRect = canvas.getBoundingClientRect();
+    const invRect = inventoryPanel.getBoundingClientRect();
+    
+    const cam = window.camera || { zoom: 1, panX: 0, panY: 0 };
+    const startX = canvasRect.left + (tileX * TILE_SIZE + TILE_SIZE / 2) * cam.zoom + cam.panX;
+    const startY = canvasRect.top + (tileY * TILE_SIZE + TILE_SIZE / 2) * cam.zoom + cam.panY;
+    
+    const endX = invRect.left + invRect.width / 2;
+    const endY = invRect.top + 20;
+    
+    const sparkle = document.createElement('div');
+    sparkle.style.cssText = `
+        position: fixed;
+        left: ${startX}px;
+        top: ${startY}px;
+        width: 12px;
+        height: 12px;
+        background: radial-gradient(circle, #fff 0%, #ffd700 50%, transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 9999;
+        box-shadow: 0 0 8px #ffd700, 0 0 16px #ffa500;
+        transition: all 0.4s ease-in-out;
+    `;
+    document.body.appendChild(sparkle);
+    
+    requestAnimationFrame(() => {
+        sparkle.style.left = endX + 'px';
+        sparkle.style.top = endY + 'px';
+        sparkle.style.transform = 'scale(0.5)';
+        sparkle.style.opacity = '0.7';
+    });
+    
+    setTimeout(() => {
+        sparkle.remove();
+        inventoryPanel.style.transition = 'transform 0.1s';
+        inventoryPanel.style.transform = 'scale(1.05)';
+        setTimeout(() => {
+            inventoryPanel.style.transform = 'scale(1)';
+        }, 100);
+    }, 400);
+}
+
 // ============================================
 // FILE LOADING
 // ============================================
