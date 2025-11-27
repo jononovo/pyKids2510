@@ -135,6 +135,7 @@ goalPos: 27,51
 collectibles: [["coin", [[27,46],[27,44],[25,44],[29,44],[29,42]]]]
 megaObjects: [["large-mountain", [[42,8]]], ["moderate-mountain", [[3,33]]], ["highland-plateau", [[22,43]]]]
 megaElements: [["house", [[5,12]]]]
+vehicles: [["boat", [16, 44]]]
 ```
 
 <!-- Tests -->
