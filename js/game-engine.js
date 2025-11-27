@@ -54,23 +54,11 @@ async function loadTilesManifest() {
         }
         
         console.log('Tiles manifest loaded:', Object.keys(tileManifest.tiles).length, 'tiles');
-        
-        // Build TILES constants from manifest
-        buildTileConstants();
+        console.log('Tile constants built:', TILES);
     } catch (error) {
         console.error('Failed to load tiles manifest:', error);
         throw error;
     }
-}
-
-// Build TILES constant dynamically from manifest
-function buildTileConstants() {
-    TILES = {};
-    for (const [id, tile] of Object.entries(tileManifest.tiles)) {
-        const name = tile.name.toUpperCase().replace(/-/g, '_');
-        TILES[name] = parseInt(id);
-    }
-    console.log('Tile constants built:', TILES);
 }
 
 // Get tile ID by name (for dynamic tile lookup)

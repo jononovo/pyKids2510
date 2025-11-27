@@ -200,6 +200,15 @@ function loadSpriteFile(event) {
 function loadLevel(levelIndex) {
     if (!courseData || levelIndex < 0 || levelIndex >= courseData.levels.length) return;
     
+    // Reset camera to default state when loading a new level
+    if (window.camera) {
+        window.camera.zoom = 1.0;
+        window.camera.panX = 0;
+        window.camera.panY = 0;
+        window.camera.isManualPan = false;
+        window.camera.isDragging = false;
+    }
+    
     currentLevel = levelIndex;
     const level = courseData.levels[levelIndex];
     

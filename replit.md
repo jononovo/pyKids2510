@@ -22,6 +22,17 @@ The application is a single-page application (`index.html`) using vanilla JavaSc
 
 A 2D tile-based rendering system with character animation supports movement commands (`move_forward()`, `turn_left()`, `turn_right()`), collision detection, and objective tracking.
 
+### Camera System
+
+The game viewport supports pan/zoom controls for navigating large maps:
+- **Mouse wheel**: Zoom in/out (zooms toward cursor position)
+- **Click and drag**: Pan around the map
+- **Auto-follow**: Camera automatically follows the player during code execution
+- **Reset View button**: Returns to auto-follow mode at 100% zoom
+- Camera state is managed in `window.camera` object in `js/main.js`
+- Coordinate conversion via `screenToWorld()` for zoom-aware mouse handling
+- Camera resets when loading new levels
+
 ### Lesson System
 
 Lessons are authored in Markdown files (`.md`), defining objectives, challenges, starter code, solutions, tile map layouts, character positions, and collectible items. The system includes a dynamic chapter dropdown for developers to switch between lesson files.
