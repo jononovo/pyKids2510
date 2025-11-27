@@ -8,6 +8,15 @@
       "fallbackColor": "#8B4513",
       "blockedTiles": [[0,1], [1,1], [2,1], [0,2], [1,2], [2,2]],
       "description": "A cozy cottage with isometric 3D view, covers 3x3 tiles"
+    },
+    "shop": {
+      "name": "shop",
+      "path": "mega-elements/shop-stand-2x2.svg",
+      "width": 2,
+      "height": 2,
+      "fallbackColor": "#707070",
+      "blockedTiles": [[0,1], [1,1]],
+      "description": "A trader stand with stone counter and wooden awning"
     }
   }
 }

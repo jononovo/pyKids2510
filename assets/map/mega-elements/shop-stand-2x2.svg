@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" shape-rendering="crispEdges">
+  <!-- Trader stand / shop stall - 2x2 tiles, 3/4 RPG view -->
+  
+  <!-- Shadow -->
+  <rect x="4" y="58" width="56" height="6" fill="rgba(0,0,0,0.15)"/>
+  
+  <!-- STONE COUNTER/BASE -->
+  <!-- Main stone body -->
+  <rect x="4" y="32" width="56" height="28" fill="#707070"/>
+  <!-- Stone block texture -->
+  <rect x="4" y="32" width="56" height="4" fill="#808080"/>
+  <rect x="4" y="44" width="56" height="2" fill="#606060"/>
+  <rect x="4" y="54" width="56" height="2" fill="#606060"/>
+  <!-- Vertical stone lines -->
+  <rect x="18" y="32" width="2" height="28" fill="#585858"/>
+  <rect x="34" y="32" width="2" height="28" fill="#585858"/>
+  <rect x="50" y="32" width="2" height="28" fill="#585858"/>
+  <!-- Stone highlights -->
+  <rect x="6" y="34" width="10" height="8" fill="#787878"/>
+  <rect x="22" y="34" width="10" height="8" fill="#787878"/>
+  <rect x="38" y="34" width="10" height="8" fill="#787878"/>
+  <rect x="6" y="46" width="10" height="6" fill="#686868"/>
+  <rect x="22" y="46" width="10" height="6" fill="#686868"/>
+  <rect x="38" y="46" width="10" height="6" fill="#686868"/>
+  <!-- Counter top surface -->
+  <rect x="2" y="28" width="60" height="6" fill="#505050"/>
+  <rect x="2" y="28" width="60" height="2" fill="#606060"/>
+  <!-- Side edges -->
+  <rect x="4" y="32" width="4" height="28" fill="#888888"/>
+  <rect x="56" y="32" width="4" height="28" fill="#585858"/>
+  
+  <!-- WOODEN AWNING/ROOF -->
+  <!-- Roof planks -->
+  <rect x="0" y="4" width="64" height="26" fill="#9B6848"/>
+  <!-- Plank lines -->
+  <rect x="0" y="4" width="64" height="4" fill="#AB7858"/>
+  <rect x="0" y="10" width="64" height="2" fill="#7B4828"/>
+  <rect x="0" y="16" width="64" height="2" fill="#7B4828"/>
+  <rect x="0" y="22" width="64" height="2" fill="#7B4828"/>
+  <!-- Roof front edge/eave -->
+  <rect x="0" y="28" width="64" height="4" fill="#6B3818"/>
+  <!-- Roof side edges -->
+  <rect x="0" y="4" width="4" height="26" fill="#BB8868"/>
+  <rect x="60" y="4" width="4" height="26" fill="#6B3818"/>
+  <!-- Roof top trim -->
+  <rect x="0" y="2" width="64" height="4" fill="#7B4828"/>
+  
+  <!-- SUPPORT POSTS -->
+  <rect x="6" y="28" width="4" height="6" fill="#6B4020"/>
+  <rect x="54" y="28" width="4" height="6" fill="#5B3010"/>
+  
+  <!-- ITEMS ON COUNTER (optional goods) -->
+  <rect x="14" y="24" width="8" height="6" fill="#C08040"/>
+  <rect x="26" y="22" width="6" height="8" fill="#40A040"/>
+  <rect x="36" y="24" width="8" height="6" fill="#A06030"/>
+  <rect x="48" y="23" width="6" height="7" fill="#D04040"/>
+</svg>
