@@ -12,7 +12,7 @@ This comprehensive guide covers everything you need to know about creating lesso
 4. [Lesson Template](#lesson-template)
 5. [Map System](#map-system)
 6. [Tile Reference](#tile-reference)
-7. [Collectibles](#collectibles)
+7. [Elements System](#elements-system)
 8. [Available Python Commands](#available-python-commands)
 9. [Mission State System](#mission-state-system)
 10. [Best Practices](#best-practices)
@@ -27,8 +27,10 @@ Lessons are authored in Markdown files (`.md`) located in the `assets/` director
 **Key Files:**
 - `assets/chapter1-master-map.md` - Main chapter file with all levels
 - `assets/map/tiles.json` - Tile definitions and graphics
+- `assets/map/elements.json` - Interactive element definitions (doors, levers, etc.)
 - `js/lesson-parser.js` - Parses markdown into game data
 - `js/mission/mission-detector.js` - Determines level types
+- `js/game-engine/element-interaction-logic.js` - Handles element interactions
 
 ---
 
@@ -446,14 +448,16 @@ For mission and quest levels, state persists across levels within a chapter.
 
 - **Inventory:** Collected resources (e.g., `{wood: 3, coin: 5}`)
 - **Collected Items:** Positions of already-collected items
+- **Element States:** Transformed elements (e.g., opened doors)
 - **Structures:** Built structures (future feature)
 
 ### How It Works
 
 1. **Level Load:** MissionState loads saved data from localStorage
 2. **Collect Action:** Items added to MissionState inventory
-3. **Level Complete:** State saved and carries to next level
-4. **Reset Button:** Returns to state when level was first entered
+3. **Interact Action:** Element transformations recorded in elementStates
+4. **Level Complete:** State saved and carries to next level
+5. **Reset Button:** Returns to state when level was first entered
 
 ### Technical Details
 
@@ -466,6 +470,9 @@ For mission and quest levels, state persists across levels within a chapter.
     { x: 14, y: 3, type: "wood" },
     { x: 8, y: 7, type: "wood" }
   ],
+  elementStates: {
+    "10,5": { type: "door-open", wasType: "door" }
+  },
   structures: []
 }
 ```
@@ -679,6 +686,130 @@ collectibles: [[3,1,"apple"],[8,1,"apple"],[1,3,"apple"],[9,3,"apple"],[2,6,"app
 ---
 ```
 
+### Example 4: Mission with Interactive Elements
+
+```markdown
+--- <!-- Mission 2 -->
+## MISSION 2: THE SECRET DOOR
+
+### AVAILABLE AFTER
+Completing Mission 1
+
+### OBJECTIVE
+> Discover the hidden treasure room by opening a mysterious door!
+
+You've found a locked door blocking a treasure room! Use `player.interact()` to open the door, then collect the treasure inside.
+
+### SUCCESS CRITERIA
+- Navigate to the door
+- Use interact() to open the door
+- Collect the hidden treasure
+
+### REWARDS
+- Key: +1
+- Gems: +3
+
+<!-- Starter Code -->
+```
+import player
+
+# Find the door and open it!
+# Hint: Use player.interact() when at the door
+player.move_forward()
+```
+
+<!-- Solution -->
+```
+import player
+
+# Navigate to the door
+player.move_forward(3)
+player.turn_left()
+player.move_forward(3)
+
+# Open the door!
+player.interact()
+
+# Enter and collect treasure
+player.move_forward(2)
+player.collect()
+```
+
+<!-- Map -->
+```
+[3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+[3,0,0,0,0,0,0,3,0,0,0,0,0,0,3],
+[3,0,1,0,0,0,0,3,0,0,0,0,0,0,3],
+[3,0,0,0,0,0,0,3,0,0,0,0,0,0,3],
+[3,0,0,0,0,0,0,3,3,3,0,3,3,3,3],
+[3,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
+[3,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
+[3,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
+[3,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
+[3,3,3,3,3,3,3,3,3,3,3,3,3,3,3]
+startPos: 7,8
+goalPos: 10,2
+collectibles: ["key", [[10,2]]]
+transforms: ["door", "door-open", [[10,4]]]
+```
+---
+```
+
+### Example 5: Magic Stepping Stones (on_step trigger)
+
+```markdown
+--- <!-- Mission 3 -->
+## MISSION 3: THE MAGIC BRIDGE
+
+### OBJECTIVE
+> Cross the enchanted bridge where doors open automatically as you step on them!
+
+The ancient bridge has magical tiles that transform as you walk on them!
+
+### SUCCESS CRITERIA
+- Cross the magical bridge
+- Collect the star at the end
+
+<!-- Starter Code -->
+```
+import player
+
+# Walk across the magic bridge!
+# The doors will open automatically when you step on them
+player.move_forward()
+```
+
+<!-- Solution -->
+```
+import player
+
+# Cross the magical bridge - doors open as you step!
+player.move_forward(2)  # Step on first magic tile
+player.move_forward(2)  # Step on second magic tile
+player.turn_left()
+player.move_forward(2)
+player.collect()
+```
+
+<!-- Map -->
+```
+[3,3,3,3,3,3,3,3,3,3],
+[3,5,5,5,5,5,5,5,5,3],
+[3,5,5,5,5,0,0,0,5,3],
+[3,5,5,5,5,0,0,0,5,3],
+[3,5,5,5,5,5,5,0,5,3],
+[3,0,0,0,0,0,5,0,5,3],
+[3,0,0,5,5,5,5,5,5,3],
+[3,5,5,5,5,5,5,5,5,3],
+[3,3,3,3,3,3,3,3,3,3]
+startPos: 1,5
+goalPos: 5,2
+collectibles: ["star", [[5,2]]]
+transforms: ["door", "door-open", {"trigger": "on_step", "at": [[3,5],[5,5],[7,4],[7,3]]}]
+```
+---
+```
+
 ---
 
 ## Troubleshooting
@@ -692,6 +823,9 @@ collectibles: [[3,1,"apple"],[8,1,"apple"],[1,3,"apple"],[9,3,"apple"],[2,6,"app
 | Collectibles not showing | Wrong coordinates | Verify X,Y match walkable tiles |
 | Wrong level type | Title missing keyword | Include MISSION or QUEST in title |
 | Code not running | Missing import | Ensure `import player` in starter code |
+| Elements not parsing | Invalid JSON in triggers | Use double-quoted keys: `{"trigger": "on_step", "at": [[x,y]]}` |
+| Transforms not working | Wrong section name | Use `transforms:` not `transform:` |
+| Door not rendering | Missing element definition | Check `assets/map/elements.json` has the element type |
 
 ### Validation Checklist
 
@@ -700,6 +834,8 @@ collectibles: [[3,1,"apple"],[8,1,"apple"],[1,3,"apple"],[9,3,"apple"],[2,6,"app
 - [ ] Map layout is valid JSON arrays
 - [ ] startPos and goalPos are on walkable tiles
 - [ ] Collectible positions are on walkable tiles
+- [ ] Element/transform positions are on walkable tiles
+- [ ] Trigger objects use double-quoted keys (valid JSON)
 - [ ] Starter code includes `import player`
 - [ ] Solution code actually solves the level
 
@@ -712,20 +848,24 @@ collectibles: [[3,1,"apple"],[8,1,"apple"],[1,3,"apple"],[9,3,"apple"],[2,6,"app
 ```
 assets/
 ├── chapter1-master-map.md     # Main lesson file
+├── chapter1-elements-demo.md  # Demo of element interaction system
 ├── map/
 │   ├── tiles.json             # Tile definitions
+│   ├── elements.json          # Interactive element definitions
 │   ├── tiles/                 # Tile SVGs
-│   ├── objects/               # Object SVGs (trees, bushes)
+│   ├── objects/               # Object SVGs (trees, bushes, doors)
 │   ├── collectibles/          # Collectible SVGs
 │   └── special/               # Special items (star-goal)
 └── sprites/                   # Character sprites
 
 js/
 ├── lesson-parser.js           # Parses markdown to game data
-├── mission/
-│   ├── mission-detector.js    # Detects level types
-│   └── mission-state.js       # Manages persistent state
-└── game-commands.js           # Python command implementations
+├── game-commands.js           # Python command implementations
+├── game-engine/
+│   └── element-interaction-logic.js  # Element interaction system
+└── mission/
+    ├── mission-detector.js    # Detects level types
+    └── mission-state.js       # Manages persistent state
 ```
 
 ### Parser Regex Patterns
