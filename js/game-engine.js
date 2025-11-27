@@ -188,34 +188,6 @@ function isTileOverlay(tileType) {
 }
 
 // Drawing functions
-async function drawCollectibles() {
-    if (!gameState.collectibles) return;
-    
-    const collectiblePromises = gameState.collectibles
-        .filter(c => !c.collected)
-        .map(async (collectible) => {
-            const px = collectible.x * TILE_SIZE;
-            const py = collectible.y * TILE_SIZE;
-            
-            const svgPath = COLLECTIBLE_SVGS[collectible.type];
-            
-            if (svgPath) {
-                const img = await loadSVGImage(svgPath);
-                if (img) {
-                    const grassImg = await loadSVGImage(getTilePath(TILES.GRASS));
-                    if (grassImg) {
-                        ctx.drawImage(grassImg, px, py, TILE_SIZE, TILE_SIZE);
-                    }
-                    ctx.drawImage(img, px, py, TILE_SIZE, TILE_SIZE);
-                } else {
-                    console.warn(`Collectible type "${collectible.type}" not found in manifest`);
-                }
-            }
-        });
-    
-    await Promise.all(collectiblePromises);
-}
-
 async function drawElements() {
     if (!window.ElementInteractionManager) return;
     
@@ -472,10 +444,7 @@ async function render() {
     }
     await Promise.all(tilePromises);
     
-    // Draw collectibles using their types
-    await drawCollectibles();
-    
-    // Draw interactive elements (transforms, etc.)
+    // Draw all interactive elements (collectibles, transforms, etc.)
     await drawElements();
     
     await drawStar(gameState.goalPos.x * TILE_SIZE + TILE_SIZE/2, 
@@ -568,10 +537,7 @@ function animateMove(fromX, fromY, toX, toY, direction) {
             }
             await Promise.all(tilePromises);
             
-            // Draw collectibles using their types
-            await drawCollectibles();
-            
-            // Draw interactive elements (transforms, etc.)
+            // Draw all interactive elements (collectibles, transforms, etc.)
             await drawElements();
             
             // Draw goal star
