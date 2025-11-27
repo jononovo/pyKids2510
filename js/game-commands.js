@@ -229,32 +229,55 @@
             args: [],
             defaults: {},
             execute: async function() {
-                var pos = getTargetPosition();
+                var px = Math.floor(gameState.playerPos.x);
+                var py = Math.floor(gameState.playerPos.y);
                 
-                // Try VehicleInteractionManager first for boarding/disembarking
-                if (window.VehicleInteractionManager) {
-                    var vehicleResult = VehicleInteractionManager.handleInteract(pos.targetX, pos.targetY, gameState);
-                    if (vehicleResult.success) {
-                        console.log('[interact]', vehicleResult.message);
+                // If aboard a vehicle, try to disembark
+                if (window.VehicleInteractionManager && VehicleInteractionManager.isBoarded()) {
+                    var disembarkResult = VehicleInteractionManager.handleDisembark(gameState);
+                    console.log('[interact]', disembarkResult.message);
+                    if (disembarkResult.success) {
                         await render();
-                        await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
-                        return;
+                    }
+                    await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
+                    return;
+                }
+                
+                // Check all 4 adjacent tiles
+                var adjacent = [
+                    { x: px + 1, y: py },
+                    { x: px, y: py - 1 },
+                    { x: px, y: py + 1 },
+                    { x: px - 1, y: py }
+                ];
+                
+                for (var i = 0; i < adjacent.length; i++) {
+                    var tile = adjacent[i];
+                    
+                    // Try vehicle boarding
+                    if (window.VehicleInteractionManager) {
+                        var vehicleResult = VehicleInteractionManager.handleInteract(tile.x, tile.y, gameState);
+                        if (vehicleResult.success) {
+                            console.log('[interact]', vehicleResult.message);
+                            await render();
+                            await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
+                            return;
+                        }
+                    }
+                    
+                    // Try element interaction
+                    if (window.ElementInteractionManager) {
+                        var result = ElementInteractionManager.handleInteract(tile.x, tile.y, gameState);
+                        if (result.success) {
+                            console.log('[interact]', result.message);
+                            await render();
+                            await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
+                            return;
+                        }
                     }
                 }
                 
-                // Fall back to ElementInteractionManager for transforms
-                if (window.ElementInteractionManager) {
-                    var result = ElementInteractionManager.handleInteract(pos.px, pos.py, gameState);
-                    if (result.success) {
-                        console.log('[interact]', result.message);
-                        await render();
-                        await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
-                        return;
-                    } else {
-                        console.log('[interact]', result.message);
-                    }
-                }
-                
+                console.log('[interact]', 'Nothing to interact with nearby');
                 await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
             }
         },

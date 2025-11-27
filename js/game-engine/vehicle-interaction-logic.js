@@ -215,18 +215,11 @@
 
         findAdjacentWalkableTile(x, y, gameState) {
             const directions = [
-                { dx: 0, dy: -1, name: 'up' },
-                { dx: 0, dy: 1, name: 'down' },
-                { dx: -1, dy: 0, name: 'left' },
-                { dx: 1, dy: 0, name: 'right' }
+                { dx: 1, dy: 0 },
+                { dx: 0, dy: -1 },
+                { dx: 0, dy: 1 },
+                { dx: -1, dy: 0 }
             ];
-
-            const playerDir = gameState.playerDirection;
-            directions.sort((a, b) => {
-                if (a.name === playerDir) return -1;
-                if (b.name === playerDir) return 1;
-                return 0;
-            });
 
             for (const dir of directions) {
                 const checkX = x + dir.dx;
