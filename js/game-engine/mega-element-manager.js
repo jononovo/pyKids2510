@@ -89,9 +89,14 @@
             return `mega_${type}_${x}_${y}`;
         },
 
-        loadLevelMegaElements(levelData) {
+        async loadLevelMegaElements(levelData) {
             this.elements = [];
             this.blockedTileCache.clear();
+            
+            // Ensure manifest is loaded before parsing
+            if (!this.manifest) {
+                await this.loadManifest();
+            }
             
             if (levelData.map && levelData.map.megaElements) {
                 this.elements = this.parseMegaElements(levelData.map.megaElements);

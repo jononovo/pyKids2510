@@ -178,7 +178,7 @@ function loadSpriteFile(event) {
 // ============================================
 
 // Load a level
-function loadLevel(levelIndex) {
+async function loadLevel(levelIndex) {
     if (!courseData || levelIndex < 0 || levelIndex >= courseData.levels.length) return;
     
     currentLevel = levelIndex;
@@ -474,7 +474,7 @@ function loadLevel(levelIndex) {
     
     // Initialize MegaElementManager with level data (multi-tile elements)
     if (window.MegaElementManager) {
-        MegaElementManager.loadLevelMegaElements(level);
+        await MegaElementManager.loadLevelMegaElements(level);
     }
     
     // Reset objects and inventory for new level
