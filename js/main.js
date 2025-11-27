@@ -103,6 +103,56 @@ function playStepSound() {
     oscillator.stop(audioContext.currentTime + duration);
 }
 
+function playBumpSound() {
+    if (!audioContext) initAudio();
+    
+    const t = audioContext.currentTime;
+    
+    const osc1 = audioContext.createOscillator();
+    const gain1 = audioContext.createGain();
+    osc1.type = 'sine';
+    osc1.frequency.value = 330;
+    gain1.gain.setValueAtTime(0.06, t);
+    gain1.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+    osc1.connect(gain1);
+    gain1.connect(audioContext.destination);
+    osc1.start(t);
+    osc1.stop(t + 0.08);
+    
+    const osc2 = audioContext.createOscillator();
+    const gain2 = audioContext.createGain();
+    osc2.type = 'sine';
+    osc2.frequency.value = 262;
+    gain2.gain.setValueAtTime(0.06, t + 0.1);
+    gain2.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+    osc2.connect(gain2);
+    gain2.connect(audioContext.destination);
+    osc2.start(t + 0.1);
+    osc2.stop(t + 0.18);
+}
+
+function playCollectSound() {
+    if (!audioContext) initAudio();
+    
+    const t = audioContext.currentTime;
+    
+    const osc = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(440, t);
+    osc.frequency.exponentialRampToValueAtTime(880, t + 0.1);
+    
+    gain.gain.setValueAtTime(0.06, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+    
+    osc.connect(gain);
+    gain.connect(audioContext.destination);
+    
+    osc.start(t);
+    osc.stop(t + 0.15);
+}
+
 // ============================================
 // FILE LOADING
 // ============================================
