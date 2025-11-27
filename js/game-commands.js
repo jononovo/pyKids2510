@@ -437,9 +437,15 @@
         }
     };
 
-    window.resetGame = function() {
-        if (!confirm('Reset to starter code?\n\nYour code and level progress will be cleared.')) {
-            return;
+    window.resetGame = async function() {
+        if (window.ConfirmDialog) {
+            var confirmed = await ConfirmDialog.show({
+                title: 'Reset Level',
+                message: 'Your code and level progress will be cleared.',
+                okText: 'Reset',
+                cancelText: 'Cancel'
+            });
+            if (!confirmed) return;
         }
         
         gameState.playerPos = { x: gameState.startPos.x, y: gameState.startPos.y };
