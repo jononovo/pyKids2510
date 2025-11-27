@@ -44,6 +44,16 @@ Two parallel systems handle large multi-tile graphics:
 
 This ensures terrain features appear as background, while structures render in front of the player.
 
+### Vehicle System
+
+The vehicle system (`js/game-engine/vehicle-interaction-logic.js`) enables character-vehicle interactions:
+
+-   **Tile Access Control**: Water tiles in `tiles.json` have `access: ["boat", "ship", "fish"]` restricting traversal to specific character types.
+-   **Boarding**: Players use `interact()` when adjacent to a vehicle. The system stores the original sprite, changes `characterType` to the vehicle type (e.g., "boat"), and loads the vehicle sprite.
+-   **Disembarking**: Using `interact()` while on a vehicle finds an adjacent land tile, moves the player there, and restores the original sprite and character type.
+-   **Lesson Authoring**: Use `vehicles: ["boat", [[x,y]]]` section in level markdown to place vehicles.
+-   **Element Definition**: Vehicles are defined in `elements.json` with `vehicleType` and `spritePath` properties.
+
 ### Technical Implementations & Features
 
 -   **Code Execution**: Python-like commands are parsed and executed visually. Skulpt integration consolidates game commands into `js/game-commands.js`, generating the Skulpt module source at load time. Commands support multi-argument and repetition, with simplified aliases and an auto-import prelude. The `Editor Manager` (`js/editor-manager.js`) handles editor functionalities.
