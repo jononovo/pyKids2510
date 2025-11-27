@@ -1,61 +1,83 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 224" width="192" height="224" shape-rendering="crispEdges">
-  <!-- Layered mountain from top-down view with clear rocky tiers -->
+  <!-- Isometric-style mountain with visible cliff faces -->
   
-  <!-- Outer base shadow/grass ring -->
-  <ellipse cx="96" cy="188" rx="90" ry="32" fill="#4a6b3a"/>
+  <!-- Main cliff face - left side (darker, in shadow) -->
+  <polygon points="20,200 96,48 96,200" fill="#5a4a3a"/>
+  <!-- Left cliff rock striations -->
+  <line x1="40" y1="180" x2="70" y2="100" stroke="#4a3a2a" stroke-width="2"/>
+  <line x1="50" y1="190" x2="80" y2="90" stroke="#4a3a2a" stroke-width="2"/>
+  <line x1="60" y1="195" x2="88" y2="80" stroke="#4a3a2a" stroke-width="1.5"/>
+  <line x1="35" y1="185" x2="65" y2="110" stroke="#6a5a4a" stroke-width="1"/>
+  <line x1="55" y1="192" x2="82" y2="95" stroke="#6a5a4a" stroke-width="1"/>
   
-  <!-- Base rock tier - widest layer -->
-  <ellipse cx="96" cy="176" rx="82" ry="38" fill="#6b7b5b"/>
-  <ellipse cx="96" cy="172" rx="78" ry="34" fill="#7a8a6a"/>
+  <!-- Main cliff face - right side (lighter, sun-facing) -->
+  <polygon points="172,200 96,48 96,200" fill="#7a6a5a"/>
+  <!-- Right cliff rock striations -->
+  <line x1="152" y1="180" x2="122" y2="100" stroke="#6a5a4a" stroke-width="2"/>
+  <line x1="142" y1="190" x2="112" y2="90" stroke="#6a5a4a" stroke-width="2"/>
+  <line x1="132" y1="195" x2="104" y2="80" stroke="#6a5a4a" stroke-width="1.5"/>
+  <line x1="157" y1="185" x2="127" y2="110" stroke="#8a7a6a" stroke-width="1"/>
+  <line x1="137" y1="192" x2="110" y2="95" stroke="#8a7a6a" stroke-width="1"/>
   
-  <!-- Second tier rocks -->
-  <ellipse cx="96" cy="156" rx="68" ry="32" fill="#8a8a7a"/>
-  <ellipse cx="96" cy="152" rx="64" ry="28" fill="#9a9a8a"/>
+  <!-- Secondary peak - left -->
+  <polygon points="10,210 55,90 55,210" fill="#5a4a3a"/>
+  <polygon points="55,210 55,90 100,210" fill="#6a5a4a"/>
+  <line x1="25" y1="180" x2="45" y2="120" stroke="#4a3a2a" stroke-width="1.5"/>
+  <line x1="35" y1="195" x2="50" y2="110" stroke="#4a3a2a" stroke-width="1"/>
+  <line x1="70" y1="180" x2="60" y2="120" stroke="#7a6a5a" stroke-width="1.5"/>
   
-  <!-- Third tier -->
-  <ellipse cx="96" cy="132" rx="52" ry="26" fill="#a5a595"/>
-  <ellipse cx="96" cy="128" rx="48" ry="22" fill="#b0b0a0"/>
+  <!-- Secondary peak - right -->
+  <polygon points="92,210 137,100 137,210" fill="#5a4a3a"/>
+  <polygon points="137,210 137,100 182,210" fill="#7a6a5a"/>
+  <line x1="107" y1="175" x2="127" y2="130" stroke="#4a3a2a" stroke-width="1.5"/>
+  <line x1="117" y1="190" x2="132" y2="120" stroke="#4a3a2a" stroke-width="1"/>
+  <line x1="162" y1="175" x2="147" y2="130" stroke="#8a7a6a" stroke-width="1.5"/>
   
-  <!-- Fourth tier -->
-  <ellipse cx="96" cy="108" rx="38" ry="20" fill="#b8b8a8"/>
-  <ellipse cx="96" cy="104" rx="34" ry="16" fill="#c0c0b0"/>
+  <!-- Snow cap on main peak -->
+  <polygon points="96,48 80,75 96,68 112,75" fill="#ffffff"/>
+  <polygon points="96,68 85,82 96,78 107,82" fill="#e8e8f0"/>
   
-  <!-- Fifth tier - near peak -->
-  <ellipse cx="96" cy="86" rx="26" ry="14" fill="#c8c8b8"/>
-  <ellipse cx="96" cy="82" rx="22" ry="11" fill="#d0d0c0"/>
+  <!-- Snow on secondary peaks -->
+  <polygon points="55,90 45,105 55,100 65,105" fill="#ffffff"/>
+  <polygon points="137,100 127,115 137,110 147,115" fill="#ffffff"/>
   
-  <!-- Peak cap -->
-  <ellipse cx="96" cy="68" rx="16" ry="9" fill="#d8d8c8"/>
-  <ellipse cx="96" cy="64" rx="12" ry="6" fill="#e0e0d0"/>
-  <ellipse cx="96" cy="60" rx="8" ry="4" fill="#e8e8d8"/>
+  <!-- Grass plateau on top of cliffs - main mountain shoulders -->
+  <ellipse cx="60" cy="120" rx="18" ry="8" fill="#5a9a4a"/>
+  <ellipse cx="132" cy="120" rx="18" ry="8" fill="#5a9a4a"/>
   
-  <!-- Rock texture details on tiers -->
-  <ellipse cx="50" cy="168" rx="10" ry="5" fill="#6a7a5a" opacity="0.7"/>
-  <ellipse cx="142" cy="168" rx="10" ry="5" fill="#6a7a5a" opacity="0.7"/>
-  <ellipse cx="40" cy="180" rx="8" ry="4" fill="#5a6a4a" opacity="0.6"/>
-  <ellipse cx="152" cy="180" rx="8" ry="4" fill="#5a6a4a" opacity="0.6"/>
+  <!-- Grass patches on ledges -->
+  <ellipse cx="40" cy="160" rx="12" ry="5" fill="#4a8a3a"/>
+  <ellipse cx="152" cy="160" rx="12" ry="5" fill="#5a9a4a"/>
+  <ellipse cx="75" cy="145" rx="10" ry="4" fill="#4a8a3a"/>
+  <ellipse cx="117" cy="145" rx="10" ry="4" fill="#5a9a4a"/>
   
-  <!-- Grass patches at base -->
-  <ellipse cx="30" cy="185" rx="12" ry="5" fill="#5a8a4a" opacity="0.5"/>
-  <ellipse cx="162" cy="185" rx="12" ry="5" fill="#5a8a4a" opacity="0.5"/>
-  <ellipse cx="60" cy="190" rx="10" ry="4" fill="#4a7a3a" opacity="0.4"/>
-  <ellipse cx="132" cy="190" rx="10" ry="4" fill="#4a7a3a" opacity="0.4"/>
+  <!-- Small pine trees on plateaus -->
+  <!-- Tree 1 - left plateau -->
+  <polygon points="58,108 52,120 64,120" fill="#2a6a2a"/>
+  <polygon points="58,112 50,124 66,124" fill="#3a7a3a"/>
+  <rect x="56" y="124" width="4" height="4" fill="#5a3a2a"/>
   
-  <!-- Subtle shadows on rocky surfaces -->
-  <ellipse cx="70" cy="145" rx="8" ry="4" fill="#7a7a6a" opacity="0.4"/>
-  <ellipse cx="122" cy="145" rx="8" ry="4" fill="#7a7a6a" opacity="0.4"/>
-  <ellipse cx="76" cy="120" rx="6" ry="3" fill="#8a8a7a" opacity="0.3"/>
-  <ellipse cx="116" cy="120" rx="6" ry="3" fill="#8a8a7a" opacity="0.3"/>
+  <!-- Tree 2 - right plateau -->
+  <polygon points="134,108 128,120 140,120" fill="#2a6a2a"/>
+  <polygon points="134,112 126,124 142,124" fill="#3a7a3a"/>
+  <rect x="132" y="124" width="4" height="4" fill="#5a3a2a"/>
   
-  <!-- Highlight accents on upper tiers -->
-  <ellipse cx="80" cy="95" rx="5" ry="3" fill="#d8d8c8" opacity="0.4"/>
-  <ellipse cx="112" cy="95" rx="5" ry="3" fill="#d8d8c8" opacity="0.4"/>
-  <ellipse cx="88" cy="75" rx="4" ry="2" fill="#e8e8d8" opacity="0.5"/>
-  <ellipse cx="104" cy="75" rx="4" ry="2" fill="#e8e8d8" opacity="0.5"/>
+  <!-- Tree 3 - left ledge -->
+  <polygon points="42,150 38,158 46,158" fill="#2a6a2a"/>
+  <polygon points="42,153 36,161 48,161" fill="#3a7a3a"/>
+  <rect x="41" y="161" width="3" height="3" fill="#5a3a2a"/>
   
-  <!-- Small rocks scattered around base -->
-  <circle cx="25" cy="175" r="4" fill="#8a8a7a" opacity="0.5"/>
-  <circle cx="167" cy="175" r="4" fill="#8a8a7a" opacity="0.5"/>
-  <circle cx="48" cy="182" r="3" fill="#7a7a6a" opacity="0.4"/>
-  <circle cx="144" cy="182" r="3" fill="#7a7a6a" opacity="0.4"/>
+  <!-- Tree 4 - right ledge -->
+  <polygon points="150,150 146,158 154,158" fill="#2a6a2a"/>
+  <polygon points="150,153 144,161 156,161" fill="#3a7a3a"/>
+  <rect x="149" y="161" width="3" height="3" fill="#5a3a2a"/>
+  
+  <!-- Rock debris at base -->
+  <ellipse cx="30" cy="208" rx="8" ry="4" fill="#6a5a4a"/>
+  <ellipse cx="162" cy="208" rx="8" ry="4" fill="#7a6a5a"/>
+  <circle cx="45" cy="212" r="3" fill="#5a4a3a"/>
+  <circle cx="147" cy="212" r="3" fill="#6a5a4a"/>
+  
+  <!-- Shadow at base -->
+  <ellipse cx="96" cy="215" rx="85" ry="8" fill="#3a4a3a" opacity="0.3"/>
 </svg>
