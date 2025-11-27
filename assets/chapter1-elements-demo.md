@@ -100,7 +100,7 @@ player.move_forward(2)
 [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3]
 startPos: 7,9
 goalPos: 7,9
-collectibles: ["gem", [[9,3],[11,3],[9,5],[9,7]]], ["coin", [[11,5],[11,7],[13,5]]]
+collectibles: [["gem", [[9,3],[11,3],[9,5],[9,7]]], ["coin", [[11,5],[11,7],[13,5]]]]
 ```
 ---
 
@@ -202,7 +202,7 @@ player.move_forward(3)
 [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3]
 startPos: 7,9
 goalPos: 7,9
-collectibles: ["key", [[10,3]]], ["gem", [[8,3],[12,3],[10,2]]]
+collectibles: [["key", [[10,3]]], ["gem", [[8,3],[12,3],[10,2]]]]
 transforms: ["door", "door-open", [[10,5]]]
 ```
 ---
@@ -278,7 +278,7 @@ player.collect()
 [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3]
 startPos: 1,9
 goalPos: 15,3
-collectibles: ["star", [[15,3]]]
+collectibles: [["star", [[15,3]]]]
 transforms: ["door", "door-open", {"trigger": "on_step", "at": [[3,9],[5,9],[9,7],[13,5],[13,3]]}]
 ```
 ---

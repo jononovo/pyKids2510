@@ -295,19 +295,19 @@ Elements are interactive items placed over tiles. They can be collectibles, tran
 
 Collectibles are items players pick up using the `collect()` command.
 
-**Legacy Format (still supported):**
+**Single Type:**
 ```
-collectibles: [[14,3,"wood"],[8,7,"wood"],[10,12,"gem"]]
+collectibles: ["gem", [[5,3],[8,9],[12,4]]]
 ```
 
-**New Compact Format:**
+**Multiple Types (wrap in outer array):**
 ```
-collectibles: ["gem", [[5,3],[8,9],[12,4]]], ["coin", [[5,3],[8,9]]]
+collectibles: [["gem", [[5,3],[8,9]]], ["coin", [[2,4],[6,7]]]]
 ```
 
 **With Trigger Override:**
 ```
-collectibles: ["gem", [[1,3]]], ["gem", {"trigger": "on_step", "at": [[5,3],[8,9]]}]
+collectibles: [["gem", [[1,3]]], ["gem", {"trigger": "on_step", "at": [[5,3],[8,9]]}]]
 ```
 
 ### Transforms
@@ -327,6 +327,11 @@ transforms: ["door", "door-open", [[4,4],[7,7]]]
 **With on_step trigger (auto-trigger when stepped on):**
 ```
 transforms: ["door", "door-open", {"trigger": "on_step", "at": [[7,7]]}]
+```
+
+**Multiple transform types (wrap in outer array):**
+```
+transforms: [["door", "door-open", [[4,4]]], ["lever", "lever-on", [[8,8]]]]
 ```
 
 ### Available Collectible Types
