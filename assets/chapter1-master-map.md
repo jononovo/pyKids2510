@@ -87,7 +87,7 @@ player.move_forward(3)
 startPos: 7,9
 goalPos: 7,9
 collectibles: [["wood", [[14,3],[8,7],[10,12]]]]
-megaElements: [["house", [[15,4]]], ["shop", [[1,4]]], ["wagon", [[8,3]]]]
+megaElements: [["house", [[15,4]]], ["shop", [[1,4]]]]
 ```
 
 <!-- Tests -->

@@ -17,15 +17,6 @@
       "fallbackColor": "#707070",
       "blockedTiles": [[0,1], [1,1], [2,1], [0,2], [1,2], [2,2]],
       "description": "A trader stand with stone counter and wooden awning"
-    },
-    "wagon": {
-      "name": "wagon",
-      "path": "mega-elements/wagon-2x2.svg",
-      "width": 2,
-      "height": 2,
-      "fallbackColor": "#8B6848",
-      "blockedTiles": [[0,0], [1,0], [0,1], [1,1]],
-      "description": "Old wooden farmer's wagon loaded with produce"
     }
   }
 }
