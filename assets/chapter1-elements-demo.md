@@ -193,6 +193,13 @@ player.move_forward(5)
 player.turn_left()
 ```
 
+<!-- Map -->
+```
+startPos: 6,18
+goalPos: 6,18
+collectibles: [["gem", [[8,8],[13,8],[8,5],[13,5]]]]
+```
+
 <!-- Tests -->
 ```yaml
 pass_all: true
@@ -204,8 +211,6 @@ tests:
   - type: direction
     facing: up
 ```
-
-collectibles: [["gem", [[8,8],[13,8],[8,5],[13,5]]]]
 ---
 
 --- <!-- Mission 3 -->
@@ -255,6 +260,13 @@ player.move_forward(9)
 player.turn_left()
 ```
 
+<!-- Map -->
+```
+startPos: 6,18
+goalPos: 6,18
+collectibles: [["star", [[16,9]]]]
+```
+
 <!-- Tests -->
 ```yaml
 pass_all: true
@@ -265,6 +277,4 @@ tests:
     item: star
     min: 1
 ```
-
-collectibles: [["star", [[16,9]]]]
 ---
