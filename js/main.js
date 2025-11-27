@@ -302,12 +302,10 @@ async function loadLevel(levelIndex) {
             const codeToLoad = savedCode || level.starterCode;
             EditorManager.updateCode(codeToLoad);
             
-            // Save code snapshot for reset functionality (only on new level entry)
-            // Always use original starter code from MD file for all levels
-            if (window._isNewLevelEntry) {
-                window.levelEntrySnapshot.starterCode = level.starterCode;
-                console.log('[loadLevel] Saved starterCode snapshot for level', currentLevel + 1, ':', window.levelEntrySnapshot.starterCode.substring(0, 50) + '...');
-            }
+            // Always save starterCode snapshot for reset functionality
+            // This ensures reset works even after page reload
+            window.levelEntrySnapshot.starterCode = level.starterCode;
+            console.log('[loadLevel] Saved starterCode snapshot for level', currentLevel + 1);
             
             // Update currentLessonStarterCode for Blockly compatibility
             window.currentLessonStarterCode = codeToLoad;
@@ -373,12 +371,10 @@ async function loadLevel(levelIndex) {
             const codeToLoad = savedCode || level.starterCode;
             EditorManager.updateCode(codeToLoad);
             
-            // Save code snapshot for reset functionality (only on new level entry)
-            // Always use original starter code from MD file for all levels
-            if (window._isNewLevelEntry) {
-                window.levelEntrySnapshot.starterCode = level.starterCode;
-                console.log('[loadLevel] Saved starterCode snapshot for level', currentLevel + 1, ':', window.levelEntrySnapshot.starterCode.substring(0, 50) + '...');
-            }
+            // Always save starterCode snapshot for reset functionality
+            // This ensures reset works even after page reload
+            window.levelEntrySnapshot.starterCode = level.starterCode;
+            console.log('[loadLevel] Saved starterCode snapshot for level', currentLevel + 1);
             
             // Update currentLessonStarterCode for Blockly compatibility
             window.currentLessonStarterCode = codeToLoad;
