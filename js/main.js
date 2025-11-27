@@ -973,10 +973,19 @@ function updateCameraUI() {
 
 // Expose for reset button
 window.resetCamera = function() {
-    if (typeof resetCamera === 'function') {
-        resetCamera();
-        updateCameraUI();
+    const cam = window.camera;
+    if (!cam) return;
+    
+    cam.zoom = 1.0;
+    cam.panX = 0;
+    cam.panY = 0;
+    cam.isManualPan = false;
+    cam.isDragging = false;
+    
+    if (typeof updateViewport === 'function') {
+        updateViewport();
     }
+    updateCameraUI();
 };
 
 // Zoom in function for button
