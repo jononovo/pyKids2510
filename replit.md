@@ -28,7 +28,17 @@ Lessons are authored in Markdown files (`.md`), defining objectives, challenges,
 
 ### Map Graphics System
 
-SVG-based tile rendering system with assets organized in `assets/map/` (tiles, objects, special items). It supports automatic caching and preloading, with a fallback to programmatic rendering. A `tiles.json` manifest externalizes tile definitions, enabling easier customization. The system also supports full graphic maps (PNG/SVG backgrounds) where tiles can become transparent.
+SVG-based tile rendering system with assets organized in `assets/map/` (tiles, objects, special items). It supports automatic caching and preloading, with a fallback to programmatic rendering. The system also supports full graphic maps (PNG/SVG backgrounds) where tiles can become transparent.
+
+**Tile System (tiles.json)**: Single source of truth for all tile definitions:
+- `TILES` constant is dynamically generated from manifest at load time via `buildTileConstants()`
+- `getTileIdByName(name)` helper for looking up tile IDs by name
+- `access` property controls walkability:
+  - No access property = walkable by default
+  - `"blocked"` = never passable (tree, rock, bush)
+  - `["boat", "ship"]` = only these character types can pass (water)
+  - `{"requires": ["key"]}` or `{"requires": {"wood": 100}}` = inventory requirements
+- Adding new tiles requires only editing `assets/map/tiles.json` - no code changes needed
 
 ### Technical Implementations & Features
 
