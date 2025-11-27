@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <defs>
+    <linearGradient id="boatHull" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#8B4513"/>
+      <stop offset="100%" stop-color="#654321"/>
+    </linearGradient>
+    <linearGradient id="boatDeck" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#DEB887"/>
+      <stop offset="100%" stop-color="#D2B48C"/>
+    </linearGradient>
+  </defs>
+  <path d="M4 20 Q4 26 16 28 Q28 26 28 20 L26 12 L6 12 Z" fill="url(#boatHull)" stroke="#5D3A1A" stroke-width="0.5"/>
+  <rect x="6" y="12" width="20" height="4" rx="1" fill="url(#boatDeck)" stroke="#A0522D" stroke-width="0.3"/>
+  <rect x="8" y="14" width="4" height="1" fill="#A0522D" opacity="0.5"/>
+  <rect x="14" y="14" width="4" height="1" fill="#A0522D" opacity="0.5"/>
+  <rect x="20" y="14" width="4" height="1" fill="#A0522D" opacity="0.5"/>
+  <ellipse cx="16" cy="22" rx="8" ry="3" fill="#654321" opacity="0.3"/>
+  <path d="M6 12 L4 8 L6 8 L8 12" fill="#8B4513" stroke="#5D3A1A" stroke-width="0.3"/>
+  <path d="M26 12 L28 8 L26 8 L24 12" fill="#8B4513" stroke="#5D3A1A" stroke-width="0.3"/>
+</svg>

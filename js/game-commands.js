@@ -231,9 +231,9 @@
             execute: async function() {
                 var pos = getTargetPosition();
                 
-                // Use ElementInteractionManager for transforms
+                // Use ElementInteractionManager for transforms and vehicles
                 if (window.ElementInteractionManager) {
-                    var result = ElementInteractionManager.handleInteract(pos.px, pos.py, gameState);
+                    var result = ElementInteractionManager.handleInteract(pos.px, pos.py, gameState, window.tileManifest);
                     if (result.success) {
                         console.log('[interact]', result.message);
                         await render();
