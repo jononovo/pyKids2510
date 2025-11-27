@@ -177,24 +177,24 @@ function animateCollectSparkle(tileX, tileY) {
         position: fixed;
         left: ${startX}px;
         top: ${startY}px;
-        width: 10px;
-        height: 10px;
+        width: 16px;
+        height: 16px;
         background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,215,0,0.6) 40%, transparent 70%);
         border-radius: 50%;
         pointer-events: none;
         z-index: 9999;
-        box-shadow: 0 0 6px rgba(255,215,0,0.5), 0 0 12px rgba(255,180,0,0.3);
-        transition: left 0.7s cubic-bezier(0.25, 0.1, 0.25, 1), 
-                    top 0.7s cubic-bezier(0.25, 0.1, 0.25, 1),
-                    transform 0.7s ease-out,
-                    opacity 0.7s ease-out;
+        box-shadow: 0 0 8px rgba(255,215,0,0.6), 0 0 16px rgba(255,180,0,0.4);
+        transition: left 1.1s cubic-bezier(0.25, 0.1, 0.25, 1), 
+                    top 1.1s cubic-bezier(0.25, 0.1, 0.25, 1),
+                    transform 1.1s ease-out,
+                    opacity 1.1s ease-out;
     `;
     document.body.appendChild(sparkle);
     
     requestAnimationFrame(() => {
         sparkle.style.left = endX + 'px';
         sparkle.style.top = endY + 'px';
-        sparkle.style.transform = 'scale(0.4)';
+        sparkle.style.transform = 'scale(0.5)';
         sparkle.style.opacity = '0';
     });
     
@@ -205,7 +205,7 @@ function animateCollectSparkle(tileX, tileY) {
         setTimeout(() => {
             inventoryPanel.style.transform = 'scale(1)';
         }, 150);
-    }, 700);
+    }, 1100);
 }
 
 // ============================================
