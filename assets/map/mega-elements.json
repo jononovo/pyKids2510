@@ -1,0 +1,13 @@
+{
+  "megaElements": {
+    "house": {
+      "name": "house",
+      "path": "mega-elements/house-2x2.svg",
+      "width": 2,
+      "height": 2,
+      "fallbackColor": "#8B4513",
+      "blockedTiles": "all",
+      "description": "A cozy cottage that covers 2x2 tiles"
+    }
+  }
+}

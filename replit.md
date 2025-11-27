@@ -54,6 +54,13 @@ The application is fully functional and ready to use:
      - `tiles/` - Basic tiles (grass, path, water, rock)
      - `objects/` - Interactive objects (trees, bushes, flowers)
      - `special/` - Special items (goal star, collectibles)
+     - `mega-elements/` - Multi-tile graphics (2x2, 4x4, etc.) like houses, mountains
+   - **Mega-Element System** - Multi-tile elements spanning multiple grid spaces:
+     - Managed by `MegaElementManager` module (`js/game-engine/mega-element-manager.js`)
+     - Manifest: `assets/map/mega-elements.json` with size and collision data
+     - Use upper-left anchor point, extending right and down
+     - Collision blocking via `blockedTiles` in manifest
+     - Rendering layer: background → tiles → elements → mega-elements → goal → player
    - Automatic caching and preloading for performance
    - Fallback to programmatic rendering if SVGs unavailable
 

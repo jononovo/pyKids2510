@@ -472,6 +472,11 @@ function loadLevel(levelIndex) {
         }
     }
     
+    // Initialize MegaElementManager with level data (multi-tile elements)
+    if (window.MegaElementManager) {
+        MegaElementManager.loadLevelMegaElements(level);
+    }
+    
     // Reset objects and inventory for new level
     gameState.objects = [];
     gameState.messageLog = [];
@@ -797,6 +802,11 @@ if (typeof preloadSVGTiles === 'function') {
         // Initialize ElementInteractionManager
         if (window.ElementInteractionManager) {
             await ElementInteractionManager.init();
+        }
+        
+        // Initialize MegaElementManager (multi-tile elements)
+        if (window.MegaElementManager) {
+            await MegaElementManager.init();
         }
         
         console.log('SVG tiles loaded, starting game');
