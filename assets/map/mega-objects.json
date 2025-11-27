@@ -15,6 +15,14 @@
       "height": 9,
       "fallbackColor": "#5a6a4a",
       "description": "A large isometric mountain with snow-capped peaks, cliff faces, and pine trees"
+    },
+    "highland-plateau": {
+      "name": "highland-plateau",
+      "path": "mega-objects/highland-plateau-5x4.svg",
+      "width": 5,
+      "height": 4,
+      "fallbackColor": "#4a8a3a",
+      "description": "Flat-topped highland plateau with grass, cliff edges, and pine trees"
     }
   }
 }
