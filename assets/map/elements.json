@@ -1,0 +1,46 @@
+{
+  "elements": {
+    "door": {
+      "name": "door",
+      "path": "objects/door.svg",
+      "fallbackColor": "#8B4513",
+      "description": "A closed door that can be opened"
+    },
+    "door-open": {
+      "name": "door-open",
+      "path": "objects/door-open.svg",
+      "fallbackColor": "#D2691E",
+      "description": "An open door"
+    },
+    "lever": {
+      "name": "lever",
+      "path": "objects/lever.svg",
+      "fallbackColor": "#696969",
+      "description": "A lever that can be pulled"
+    },
+    "lever-on": {
+      "name": "lever-on",
+      "path": "objects/lever-on.svg",
+      "fallbackColor": "#228B22",
+      "description": "A lever in the on position"
+    },
+    "button": {
+      "name": "button",
+      "path": "objects/button.svg",
+      "fallbackColor": "#DC143C",
+      "description": "A button that can be pressed"
+    },
+    "crate": {
+      "name": "crate",
+      "path": "objects/crate.svg",
+      "fallbackColor": "#DEB887",
+      "description": "A wooden crate"
+    },
+    "sign": {
+      "name": "sign",
+      "path": "objects/sign.svg",
+      "fallbackColor": "#8B4513",
+      "description": "A sign with information"
+    }
+  }
+}

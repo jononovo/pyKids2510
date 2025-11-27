@@ -206,6 +206,20 @@
             defaults: { resource: 'item' },
             execute: async function(resource) {
                 var pos = getTargetPosition();
+                
+                // Try ElementInteractionManager first (new system)
+                if (window.ElementInteractionManager) {
+                    var result = ElementInteractionManager.handleCollect(pos.px, pos.py, gameState);
+                    if (result.success) {
+                        console.log('[collect]', result.message);
+                        updateInventoryDisplay();
+                        await render();
+                        await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
+                        return;
+                    }
+                }
+                
+                // Fall back to legacy collectibles system
                 var collectibleIndex = -1;
                 var collectible = null;
                 for (var i = 0; i < gameState.collectibles.length; i++) {
@@ -234,6 +248,29 @@
                     }
                     
                     await render();
+                }
+                
+                await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
+            }
+        },
+
+        interact: {
+            args: [],
+            defaults: {},
+            execute: async function() {
+                var pos = getTargetPosition();
+                
+                // Use ElementInteractionManager for transforms
+                if (window.ElementInteractionManager) {
+                    var result = ElementInteractionManager.handleInteract(pos.px, pos.py, gameState);
+                    if (result.success) {
+                        console.log('[interact]', result.message);
+                        await render();
+                        await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
+                        return;
+                    } else {
+                        console.log('[interact]', result.message);
+                    }
                 }
                 
                 await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });

@@ -216,6 +216,41 @@ async function drawCollectibles() {
     await Promise.all(collectiblePromises);
 }
 
+async function drawElements() {
+    if (!window.ElementInteractionManager) return;
+    
+    const elements = ElementInteractionManager.getElementsForRender();
+    if (!elements || elements.length === 0) return;
+    
+    const elementPromises = elements.map(async (element) => {
+        const px = element.x * TILE_SIZE;
+        const py = element.y * TILE_SIZE;
+        
+        // Try to get element definition from manifest
+        const elementDef = ElementInteractionManager.getElementDefinition(element.type);
+        let svgPath = null;
+        
+        if (elementDef && elementDef.path) {
+            svgPath = 'assets/map/' + elementDef.path;
+        } else {
+            // Try collectibles as fallback (for collectible elements)
+            svgPath = COLLECTIBLE_SVGS[element.type];
+        }
+        
+        if (svgPath) {
+            const img = await loadSVGImage(svgPath);
+            if (img) {
+                ctx.drawImage(img, px, py, TILE_SIZE, TILE_SIZE);
+            } else if (elementDef && elementDef.fallbackColor) {
+                ctx.fillStyle = elementDef.fallbackColor;
+                ctx.fillRect(px + 4, py + 4, TILE_SIZE - 8, TILE_SIZE - 8);
+            }
+        }
+    });
+    
+    await Promise.all(elementPromises);
+}
+
 async function drawTile(x, y, type) {
     const px = x * TILE_SIZE;
     const py = y * TILE_SIZE;
@@ -440,6 +475,9 @@ async function render() {
     // Draw collectibles using their types
     await drawCollectibles();
     
+    // Draw interactive elements (transforms, etc.)
+    await drawElements();
+    
     await drawStar(gameState.goalPos.x * TILE_SIZE + TILE_SIZE/2, 
                   gameState.goalPos.y * TILE_SIZE + TILE_SIZE/2);
     
@@ -532,6 +570,9 @@ function animateMove(fromX, fromY, toX, toY, direction) {
             
             // Draw collectibles using their types
             await drawCollectibles();
+            
+            // Draw interactive elements (transforms, etc.)
+            await drawElements();
             
             // Draw goal star
             await drawStar(gameState.goalPos.x * TILE_SIZE + TILE_SIZE/2, 

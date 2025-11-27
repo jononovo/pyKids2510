@@ -278,23 +278,53 @@ The `access` property in `tiles.json` controls who can traverse a tile:
 
 ---
 
-## Collectibles
+## Elements System
 
-Collectibles are items players can pick up using the `collect()` command.
+Elements are interactive items placed over tiles. They can be collectibles, transforms, or other interactive objects.
 
-### Defining Collectibles
+### Element Behavior Types
 
-In the map section:
+| Section | Default Trigger | Behavior |
+|---------|-----------------|----------|
+| `collectibles:` | `on_collect` | Disappears + adds to inventory |
+| `transforms:` | `on_interact` | Disappears or swaps to replacement |
 
+### Collectibles
+
+Collectibles are items players pick up using the `collect()` command.
+
+**Legacy Format (still supported):**
 ```
 collectibles: [[14,3,"wood"],[8,7,"wood"],[10,12,"gem"]]
 ```
 
-Format: `[[X, Y, "type"], ...]`
-
-If type is omitted, defaults to "gem":
+**New Compact Format:**
 ```
-collectibles: [[7,2],[16,3],[11,4]]  # All become "gem" type
+collectibles: ["gem", [[5,3],[8,9],[12,4]]], ["coin", [[5,3],[8,9]]]
+```
+
+**With Trigger Override:**
+```
+collectibles: ["gem", [[1,3]]], ["gem", {trigger: "on_step", at: [[5,3],[8,9]]}]
+```
+
+### Transforms
+
+Transforms are elements that change when the player uses `interact()`.
+
+**Disappear on interact:**
+```
+transforms: ["door", [[6,6],[8,9]]]
+```
+
+**Swap to replacement:**
+```
+transforms: ["door", "door-open", [[4,4],[7,7]]]
+```
+
+**With on_step trigger (auto-trigger when stepped on):**
+```
+transforms: ["door", "door-open", {trigger: "on_step", at: [[7,7]]}]
 ```
 
 ### Available Collectible Types
@@ -311,13 +341,45 @@ Located in `assets/map/collectibles/`:
 | apple | apple.svg | Food resource |
 | wood | wood.svg | Building material |
 
+### Available Element Types
+
+Located in `assets/map/elements.json`:
+
+| Type | Description |
+|------|-------------|
+| door | A closed door |
+| door-open | An open door |
+| lever | A lever (off position) |
+| lever-on | A lever (on position) |
+| button | A pressable button |
+| crate | A wooden crate |
+| sign | An informational sign |
+
+### Adding Custom Elements
+
+1. Add SVG file to `assets/map/objects/`
+2. Update `assets/map/elements.json`:
+
+```json
+{
+  "elements": {
+    "custom-element": {
+      "name": "custom-element",
+      "path": "objects/custom-element.svg",
+      "fallbackColor": "#hexcolor",
+      "description": "Description of the element"
+    }
+  }
+}
+```
+
 ### Adding Custom Collectibles
 
 1. Add SVG file to `assets/map/collectibles/`
 2. Use the filename (without extension) as the type:
 
 ```
-collectibles: [[5,3,"custom-item"]]
+collectibles: ["custom-item", [[5,3]]]
 ```
 
 Ensure `assets/map/collectibles/custom-item.svg` exists.
@@ -352,6 +414,7 @@ Students write Python code using these commands:
 | Command | Description |
 |---------|-------------|
 | `player.collect()` | Collect item at current position |
+| `player.interact()` | Interact with element at current position (transforms) |
 | `player.push()` | Push object in facing direction |
 | `player.speak("text")` | Display speech bubble |
 | `player.build("structure")` | Build a structure |
