@@ -153,6 +153,61 @@ function playCollectSound() {
     osc.stop(t + 0.15);
 }
 
+function animateCollectSparkle(tileX, tileY) {
+    const viewport = document.getElementById('game-viewport');
+    const inventoryPanel = document.getElementById('inventory-panel');
+    if (!viewport || !inventoryPanel) return;
+    
+    const viewportRect = viewport.getBoundingClientRect();
+    const invRect = inventoryPanel.getBoundingClientRect();
+    
+    const cam = window.camera || { zoom: 1, panX: 0, panY: 0 };
+    
+    const tilePixelX = tileX * TILE_SIZE + TILE_SIZE / 2;
+    const tilePixelY = tileY * TILE_SIZE + TILE_SIZE / 2;
+    
+    const startX = viewportRect.left + cam.panX + tilePixelX * cam.zoom;
+    const startY = viewportRect.top + cam.panY + tilePixelY * cam.zoom;
+    
+    const endX = invRect.left + invRect.width / 2;
+    const endY = invRect.top + 20;
+    
+    const sparkle = document.createElement('div');
+    sparkle.style.cssText = `
+        position: fixed;
+        left: ${startX}px;
+        top: ${startY}px;
+        width: 16px;
+        height: 16px;
+        background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,215,0,0.6) 40%, transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 9999;
+        box-shadow: 0 0 8px rgba(255,215,0,0.6), 0 0 16px rgba(255,180,0,0.4);
+        transition: left 1.1s cubic-bezier(0.25, 0.1, 0.25, 1), 
+                    top 1.1s cubic-bezier(0.25, 0.1, 0.25, 1),
+                    transform 1.1s ease-out,
+                    opacity 1.1s ease-out;
+    `;
+    document.body.appendChild(sparkle);
+    
+    requestAnimationFrame(() => {
+        sparkle.style.left = endX + 'px';
+        sparkle.style.top = endY + 'px';
+        sparkle.style.transform = 'scale(0.5)';
+        sparkle.style.opacity = '0';
+    });
+    
+    setTimeout(() => {
+        sparkle.remove();
+        inventoryPanel.style.transition = 'transform 0.2s ease-out';
+        inventoryPanel.style.transform = 'scale(1.12)';
+        setTimeout(() => {
+            inventoryPanel.style.transform = 'scale(1)';
+        }, 200);
+    }, 1100);
+}
+
 // ============================================
 // FILE LOADING
 // ============================================

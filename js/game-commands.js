@@ -217,6 +217,7 @@
                     var result = ElementInteractionManager.handleCollect(pos.px, pos.py, gameState);
                     if (result.success) {
                         playCollectSound();
+                        animateCollectSparkle(pos.px, pos.py);
                         console.log('[collect]', result.message);
                         updateInventoryDisplay();
                         await render();
