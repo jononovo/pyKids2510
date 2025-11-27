@@ -18,6 +18,14 @@ This comprehensive guide covers everything you need to know about creating lesso
 10. [Mission State System](#mission-state-system)
 11. [Best Practices](#best-practices)
 12. [Complete Examples](#complete-examples)
+6. [Map Inheritance](#map-inheritance)
+7. [Tile Reference](#tile-reference)
+8. [Elements System](#elements-system)
+9. [Available Python Commands](#available-python-commands)
+10. [Mission State System](#mission-state-system)
+11. [Tests System](#tests-system)
+12. [Best Practices](#best-practices)
+13. [Complete Examples](#complete-examples)
 
 ---
 
@@ -218,9 +226,84 @@ This automatically adds the position to the collectibles array.
 
 ---
 
+## Map Inheritance
+
+Mission and Quest levels can inherit maps from previous levels, allowing you to reuse the same map across multiple missions without duplicating the layout.
+
+### How Map Inheritance Works
+
+1. **Mission 1** defines a full map layout (the 2D array of tiles)
+2. **Mission 2** can omit the map layout but still include metadata (startPos, goalPos, collectibles)
+3. When Mission 2 loads, it automatically inherits the map from Mission 1
+
+### Technical Details
+
+The system uses two caches:
+- `lastMapCache`: Most recent map from any level
+- `lastMissionMapCache`: Most recent map from a Mission/Quest level specifically
+
+When loading a level:
+1. If the level has map layout rows (`[...]`), it uses that map and updates the caches
+2. If the level has NO layout rows, it checks:
+   - For missions/quests: Uses `lastMissionMapCache` if available
+   - Falls back to `lastMapCache` otherwise
+3. Console logs `[Map Inheritance] Mission using last mission map` when inheritance occurs
+
+### Creating a Level with Map Inheritance
+
+**Mission 1 (defines the map):**
+```markdown
+<!-- Map -->
+```
+[3,3,3,3,3,3,3,3,3,3],
+[3,0,0,0,0,0,0,0,0,3],
+[3,0,0,0,0,0,0,0,0,3],
+[3,3,3,3,3,3,3,3,3,3]
+startPos: 2,2
+goalPos: 7,2
+collectibles: [["coin", [[5,2]]]]
+```
+```
+
+**Mission 2 (inherits map, different collectibles):**
+```markdown
+<!-- Map -->
+```
+startPos: 2,2
+goalPos: 7,2
+collectibles: [["gem", [[3,2],[6,2]]]]
+```
+```
+
+**Key Points:**
+- Mission 2's `<!-- Map -->` block has NO `[...]` rows, only metadata
+- The startPos and goalPos can be the same or different from the inherited map
+- Collectibles are specific to each level (not inherited)
+- The `hasOwnMap` flag is `false` when `layout.length === 0`
+
+### When to Use Map Inheritance
+
+**Good use cases:**
+- Multi-part missions on the same map with different objectives
+- Story progression where the player explores different areas
+- Varying difficulty with same terrain but different collectibles
+
+**Avoid when:**
+- The new mission needs a completely different layout
+- The map size or terrain should change
+- You need different tile types or obstacles
+
+### Chapter Reset
+
+Map caches reset when the chapter changes. Each new chapter starts fresh without inheriting from the previous chapter.
+
+---
+
 ## Tile Reference
 
-Tiles are defined in `assets/map/tiles.json`. All tiles are **walkable by default** unless an `access` property is specified.
+Tiles are defined in `assets/map/tiles.json`, which serves as the **single source of truth** for all tile definitions. The `TILES` constant is dynamically generated from this manifest at load time via `buildTileConstants()`.
+
+All tiles are **walkable by default** unless an `access` property is specified.
 
 | ID | Name | Description | Access |
 |----|------|-------------|--------|
@@ -1140,18 +1223,25 @@ transforms: ["door", "door-open", {"trigger": "on_step", "at": [[3,5],[5,5],[7,4
 | Elements not parsing | Invalid JSON in triggers | Use double-quoted keys: `{"trigger": "on_step", "at": [[x,y]]}` |
 | Transforms not working | Wrong section name | Use `transforms:` not `transform:` |
 | Door not rendering | Missing element definition | Check `assets/map/elements.json` has the element type |
+| Map not inheriting | Map block has layout rows | Remove `[...]` rows to trigger inheritance |
+| Inherited map shows wrong collectibles | Collectibles from previous level | Each level needs its own `collectibles:` line |
+| Tests not running | Missing YAML block | Wrap tests in ` ```yaml ` code block |
+| Test failing unexpectedly | Wrong test configuration | Check test type syntax and property names |
 
 ### Validation Checklist
 
 - [ ] Level has separator line before title
 - [ ] Title follows naming convention for level type
-- [ ] Map layout is valid JSON arrays
+- [ ] Map layout is valid JSON arrays (or empty for inheritance)
 - [ ] startPos and goalPos are on walkable tiles
 - [ ] Collectible positions are on walkable tiles
 - [ ] Element/transform positions are on walkable tiles
 - [ ] Trigger objects use double-quoted keys (valid JSON)
 - [ ] Starter code includes `import player`
 - [ ] Solution code actually solves the level
+- [ ] Tests section uses valid YAML syntax
+- [ ] Test types match available options (position, inventory, collectibles, code_regex, direction, element_state)
+- [ ] For inherited maps: Previous mission defines the map layout
 
 ---
 
@@ -1175,11 +1265,18 @@ assets/
 js/
 ├── lesson-parser.js           # Parses markdown to game data
 ├── game-commands.js           # Python command implementations
+├── main.js                    # Main app logic, map inheritance
 ├── game-engine/
 │   └── element-interaction-logic.js  # Element interaction system
-└── mission/
-    ├── mission-detector.js    # Detects level types
-    └── mission-state.js       # Manages persistent state
+├── mission/
+│   ├── mission-detector.js    # Detects level types
+│   └── mission-state.js       # Manages persistent state
+├── tests/
+│   ├── test-runner.js         # Orchestrates test execution
+│   ├── test-types.js          # Test type implementations
+│   └── test-context.js        # Snapshots game state for tests
+└── ui/
+    └── confirm-dialog.js      # Custom modal dialogs
 ```
 
 ### Parser Regex Patterns
@@ -1199,7 +1296,26 @@ js/
 
 // Map data
 /<!--\s*Map\s*-->\s*\n*```([\s\S]*?)```/
+
+// Tests section
+/<!--\s*Tests\s*-->\s*\n*```(?:yaml|yml)?\s*([\s\S]*?)```/
 ```
+
+### Test System Architecture
+
+The test system consists of three main components:
+
+1. **test-context.js**: Creates a snapshot of all game state for tests (player position, direction, inventory, collectibles, mission state)
+
+2. **test-types.js**: Implements individual test types:
+   - `position`: Checks player location
+   - `inventory`: Checks item counts
+   - `collectibles`: Checks collected items
+   - `code_regex`: Pattern matches student code
+   - `direction`: Checks player facing direction
+   - `element_state`: Checks transformed elements
+
+3. **test-runner.js**: Orchestrates test execution with fallback to goalPos when no tests defined
 
 ---
 
