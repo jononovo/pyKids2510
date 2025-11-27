@@ -295,3 +295,72 @@ tests:
     min: 1
 ```
 ---
+
+--- <!-- Mission 4 -->
+## MISSION 4: MOUNTAIN EXPLORER
+
+### AVAILABLE AFTER
+Completing Mission 3
+
+### OBJECTIVE
+> Explore the mountain terrain and collect gems scattered around the peaks!
+
+A moderate mountain rises from the grassland. Navigate around and over the terrain to collect all the gems.
+
+### SUCCESS CRITERIA
+- Collect all 3 gems
+- Return to starting position
+
+### REWARDS
+- Gems: +3
+- Mountain Explorer Badge
+
+<!-- Starter Code -->
+```
+import player
+
+# Explore the mountain terrain!
+player.move_forward()
+```
+
+<!-- Solution -->
+```
+import player
+
+# Navigate around the mountain to collect gems
+player.move_forward(4)
+player.collect()  # Gem 1
+player.turn_right()
+player.move_forward(5)
+player.collect()  # Gem 2
+player.turn_right()
+player.move_forward(4)
+player.collect()  # Gem 3
+player.turn_right()
+player.move_forward(5)
+player.turn_right()  # Back at start
+```
+
+<!-- Map -->
+```
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+startPos: 2,10
+goalPos: 2,10
+collectibles: [["gem", [[6,6],[11,6],[11,11]]]]
+megaObjects: [["moderate-mountain", [[7,4]]]]
+```
+---

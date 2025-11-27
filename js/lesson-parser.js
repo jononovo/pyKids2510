@@ -90,6 +90,7 @@ function parseCourseLevels(markdown) {
                 collectibles: [],
                 transforms: [],
                 megaElements: [],
+                megaObjects: [],
                 graphic: null  // Optional background graphic URL
             }
         };
@@ -179,6 +180,14 @@ function parseCourseLevels(markdown) {
                         level.map.megaElements = megaElementsArray;
                     } catch (e) {
                         console.log('Could not parse megaElements:', line);
+                    }
+                } else if (line.includes('megaObjects:')) {
+                    try {
+                        const megaObjectsStr = line.split('megaObjects:')[1].trim();
+                        const megaObjectsArray = JSON.parse(megaObjectsStr);
+                        level.map.megaObjects = megaObjectsArray;
+                    } catch (e) {
+                        console.log('Could not parse megaObjects:', line);
                     }
                 } else if (line.includes('graphic:')) {
                     // Extract the graphic URL

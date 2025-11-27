@@ -505,6 +505,11 @@ async function loadLevel(levelIndex) {
         await MegaElementManager.loadLevelMegaElements(level);
     }
     
+    // Initialize MegaObjectManager with level data (multi-tile walkable objects)
+    if (window.MegaObjectManager) {
+        await MegaObjectManager.loadLevelMegaObjects(level);
+    }
+    
     // Reset objects and inventory for new level
     gameState.objects = [];
     gameState.messageLog = [];
@@ -835,6 +840,11 @@ if (typeof preloadSVGTiles === 'function') {
         // Initialize MegaElementManager (multi-tile elements)
         if (window.MegaElementManager) {
             await MegaElementManager.init();
+        }
+        
+        // Initialize MegaObjectManager (multi-tile walkable objects)
+        if (window.MegaObjectManager) {
+            await MegaObjectManager.init();
         }
         
         console.log('SVG tiles loaded, starting game');

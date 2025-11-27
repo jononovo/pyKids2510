@@ -573,8 +573,8 @@ y=4  [ wall  wall  wall ]  <- row 2, blocked
 
 ### Rendering Order
 
-Mega-elements render after regular tiles but before the player:
-`background → tiles → elements → mega-elements → goal star → player`
+Mega-elements render after tiles and mega-objects but before the player:
+`background → tiles → mega-objects → elements → mega-elements → goal star → player`
 
 ### Available Mega-Elements
 
@@ -588,6 +588,88 @@ Mega-elements render after regular tiles but before the player:
 1. Create SVG in `assets/map/mega-elements/` (sized correctly)
 2. Add entry to `assets/map/mega-elements.json`
 3. Reference in level: `megaElements: [["my-element", [[x,y]]]]`
+
+---
+
+## Mega-Objects System
+
+Mega-objects are multi-tile walkable graphics for terrain features like hills, mountains, and decorative landscapes. Unlike mega-elements, mega-objects do NOT block player movement - the character can walk over them.
+
+### Key Files
+
+| File | Purpose |
+|------|---------|
+| `assets/map/mega-objects.json` | Manifest defining all mega-objects |
+| `assets/map/mega-objects/*.svg` | SVG graphics (sized to tile dimensions) |
+| `js/game-engine/mega-object-manager.js` | Loading and rendering |
+
+### Manifest Schema
+
+```json
+{
+  "megaObjects": {
+    "moderate-mountain": {
+      "name": "moderate-mountain",
+      "path": "mega-objects/moderate-mountain-6x7.svg",
+      "width": 6,
+      "height": 7,
+      "fallbackColor": "#7a8b6e",
+      "description": "A moderate-sized mountain with rocky terrain"
+    }
+  }
+}
+```
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `name` | string | Identifier for the mega-object |
+| `path` | string | Relative path from `assets/map/` |
+| `width` | number | Width in tiles |
+| `height` | number | Height in tiles |
+| `fallbackColor` | string | Hex color when SVG fails |
+| `description` | string | Optional description |
+
+**Note:** Unlike mega-elements, mega-objects have no `blockedTiles` property - they are always walkable.
+
+### Map Syntax
+
+Place mega-objects using the `megaObjects:` property in the map block:
+
+```
+megaObjects: [["moderate-mountain", [[5,2]]], ["hill", [[15,8]]]]
+```
+
+**Format:** `[["type", [[x,y], [x2,y2], ...]]]`
+
+- Position is the **upper-left corner** of the mega-object
+- Object extends **right** and **down** from that position
+- Multiple instances: `["moderate-mountain", [[5,2], [18,10]]]`
+
+### SVG Requirements
+
+- **Dimensions:** `width * 32` x `height * 32` pixels (e.g., 6x7 = 192x224)
+- **ViewBox:** Match pixel dimensions `viewBox="0 0 192 224"`
+- **Style:** Use `shape-rendering="crispEdges"` for pixel art
+- **Visual style:** Top-down/overhead RPG view
+
+### Rendering Order
+
+Mega-objects render after tiles but before elements, mega-elements, and the player:
+`background → tiles → mega-objects → elements → mega-elements → goal star → player`
+
+This ensures terrain features like mountains appear as background visuals that the player walks over.
+
+### Available Mega-Objects
+
+| Type | Size | Description |
+|------|------|-------------|
+| `moderate-mountain` | 6x7 | Rocky mountain terrain with grass patches, walkable |
+
+### Adding Custom Mega-Objects
+
+1. Create SVG in `assets/map/mega-objects/` (sized correctly)
+2. Add entry to `assets/map/mega-objects.json`
+3. Reference in level: `megaObjects: [["my-object", [[x,y]]]]`
 
 ---
 
