@@ -133,7 +133,7 @@ player.move_forward(2)  # to (27,51)
 startPos: 27,51
 goalPos: 27,51
 collectibles: [["coin", [[27,46],[27,44],[25,44],[29,44],[29,42]]]]
-megaObjects: [["large-mountain", [[42,8]]]]
+megaObjects: [["large-mountain", [[42,8]]], ["moderate-mountain", [[3,33]]]]
 ```
 
 <!-- Tests -->
