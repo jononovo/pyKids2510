@@ -32,6 +32,18 @@ Lessons are authored in Markdown files (`.md`), defining objectives, challenges,
 
 An SVG-based tile rendering system organizes assets in `assets/map/` (tiles, objects, elements, special items). It supports automatic caching and preloading, with a fallback to programmatic rendering. Full graphic maps (PNG/SVG backgrounds) are supported, allowing tiles to become transparent. `tiles.json` is the single source of truth for all tile definitions, dynamically generating `TILES` constants and managing access control properties. The system also supports interactive elements defined in `assets/map/elements.json`, handling collectibles and transforms with various trigger types.
 
+The map rendering system is modularized under `js/map/`:
+
+-   **tile-renderer.js** (238 lines): SVG loading infrastructure, tile/star/hover drawing with caching
+-   **element-renderer.js** (202 lines): Interactive elements, mega-elements, vehicles, mega-objects rendering
+-   **viewport.js** (65 lines): Viewport management with player-follow camera and zoom support
+-   **camera-controls.js** (238 lines): Pan/zoom controls, keyboard/mouse input, auto-follow toggle
+-   **tile-hover.js** (71 lines): Mouse hover tracking with zoom/pan awareness
+
+**Script Loading Order**: tile-renderer → element-renderer → viewport → camera-controls → tile-hover → game-engine
+
+**Global Exposures**: Modules communicate via `window.*` for shared state (`TILE_SIZE`, `gameState`, `camera`) and drawing functions (`drawTile`, `drawStar`, `drawElements`, etc.).
+
 ### Multi-Tile Rendering Systems
 
 Two parallel systems handle large multi-tile graphics:
