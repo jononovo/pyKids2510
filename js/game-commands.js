@@ -231,9 +231,9 @@
             execute: async function() {
                 var pos = getTargetPosition();
                 
-                // Use ElementInteractionManager for transforms and vehicles
+                // Use ElementInteractionManager for transforms
                 if (window.ElementInteractionManager) {
-                    var result = ElementInteractionManager.handleInteract(pos.px, pos.py, gameState, window.tileManifest);
+                    var result = ElementInteractionManager.handleInteract(pos.px, pos.py, gameState);
                     if (result.success) {
                         console.log('[interact]', result.message);
                         await render();
@@ -457,14 +457,6 @@
         gameState.playerDirection = 'right';
         gameState.isRunning = false;
         document.getElementById('run-btn').disabled = false;
-        
-        // Reset vehicle/character type to player
-        gameState.characterType = 'player';
-        if (gameState.originalSpriteImage) {
-            gameState.spriteImage = gameState.originalSpriteImage;
-            gameState.originalSpriteImage = null;
-        }
-        gameState.activeVehicle = null;
         
         if (gameState.collectibles) {
             for (var i = 0; i < gameState.collectibles.length; i++) {

@@ -109,64 +109,13 @@
         _getDefaultTrigger(sectionName) {
             const defaults = {
                 'collectibles': 'on_collect',
-                'transforms': 'on_interact',
-                'vehicles': 'on_interact'
+                'transforms': 'on_interact'
             };
             return defaults[sectionName] || 'on_interact';
         },
 
         _generateId(type, x, y) {
             return `${type}_${x}_${y}`;
-        },
-
-        parseVehicleSection(vehiclesData) {
-            const parsed = [];
-            
-            if (!vehiclesData || !Array.isArray(vehiclesData)) return parsed;
-
-            for (const item of vehiclesData) {
-                if (!Array.isArray(item)) continue;
-
-                const vehicleType = item[0];
-                if (typeof vehicleType !== 'string') continue;
-
-                const manifest = this.manifest?.elements?.[vehicleType];
-                const vehicleCharType = manifest?.vehicleType || vehicleType;
-
-                for (let i = 1; i < item.length; i++) {
-                    const data = item[i];
-                    
-                    if (Array.isArray(data)) {
-                        if (data.length === 2 && typeof data[0] === 'number' && typeof data[1] === 'number') {
-                            parsed.push({
-                                type: vehicleType,
-                                x: data[0],
-                                y: data[1],
-                                trigger: 'on_interact',
-                                section: 'vehicles',
-                                vehicleType: vehicleCharType,
-                                id: this._generateId(vehicleType, data[0], data[1])
-                            });
-                        } else {
-                            for (const coord of data) {
-                                if (Array.isArray(coord) && coord.length >= 2) {
-                                    parsed.push({
-                                        type: vehicleType,
-                                        x: coord[0],
-                                        y: coord[1],
-                                        trigger: 'on_interact',
-                                        section: 'vehicles',
-                                        vehicleType: vehicleCharType,
-                                        id: this._generateId(vehicleType, coord[0], coord[1])
-                                    });
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            return parsed;
         },
 
         loadLevelElements(levelData) {
@@ -179,11 +128,6 @@
 
             if (levelData.map && levelData.map.transforms) {
                 const parsed = this.parseElementSection('transforms', levelData.map.transforms);
-                this.elements.push(...parsed);
-            }
-
-            if (levelData.map && levelData.map.vehicles) {
-                const parsed = this.parseVehicleSection(levelData.map.vehicles);
                 this.elements.push(...parsed);
             }
 
@@ -238,23 +182,12 @@
             return { success: false, message: 'Cannot collect this' };
         },
 
-        handleInteract(x, y, gameState, tileManifest) {
-            if (window.VehicleInteractionManager && gameState.characterType !== 'player') {
-                return VehicleInteractionManager.disembark(gameState, tileManifest);
-            }
-            
+        handleInteract(x, y, gameState) {
             const element = this.getElementAt(x, y);
             if (!element) return { success: false, message: 'Nothing to interact with here' };
             
             if (element.section === 'collectibles') {
                 return { success: false, message: 'Use collect() for this item' };
-            }
-            
-            if (element.section === 'vehicles') {
-                if (window.VehicleInteractionManager) {
-                    return VehicleInteractionManager.board(element, gameState);
-                }
-                return { success: false, message: 'Vehicle system not loaded' };
             }
             
             if (element.trigger === 'on_interact' || element.trigger === 'on_step') {

@@ -83,14 +83,6 @@
       "path": "elements/star.svg",
       "fallbackColor": "#FFD700",
       "description": "A shining star"
-    },
-    "boat": {
-      "name": "boat",
-      "path": "elements/boat.svg",
-      "fallbackColor": "#8B4513",
-      "description": "A wooden boat for crossing water",
-      "vehicleType": "boat",
-      "spritePath": "elements/boat.svg"
     }
   }
 }

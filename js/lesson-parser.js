@@ -173,14 +173,6 @@ function parseCourseLevels(markdown) {
                     } catch (e) {
                         console.log('Could not parse transforms:', line);
                     }
-                } else if (line.includes('vehicles:')) {
-                    try {
-                        const vehiclesStr = line.split('vehicles:')[1].trim();
-                        const vehiclesArray = JSON.parse(vehiclesStr);
-                        level.map.vehicles = vehiclesArray;
-                    } catch (e) {
-                        console.log('Could not parse vehicles:', line);
-                    }
                 } else if (line.includes('megaElements:')) {
                     try {
                         const megaElementsStr = line.split('megaElements:')[1].trim();

@@ -387,7 +387,6 @@ Elements are interactive items placed over tiles. They can be collectibles, tran
 |---------|-----------------|----------|
 | `collectibles:` | `on_collect` | Disappears + adds to inventory |
 | `transforms:` | `on_interact` | Disappears or swaps to replacement |
-| `vehicles:` | `on_interact` | Player boards/disembarks, changes character type |
 
 ### Collectibles
 
@@ -431,64 +430,6 @@ transforms: [["door", "door-open", {"trigger": "on_step", "at": [[7,7]]}]]
 ```
 transforms: [["door", "door-open", [[4,4]]], ["lever", "lever-on", [[8,8]]]]
 ```
-
-### Vehicles
-
-Vehicles are special elements that allow players to traverse normally blocked tiles (like water). The player boards a vehicle using `interact()` and their character type changes, allowing access to restricted tiles.
-
-**Basic vehicle placement:**
-```
-vehicles: [["boat", [5, 10]]]
-```
-
-**Multiple vehicles:**
-```
-vehicles: [["boat", [[5, 10], [15, 20]]], ["ship", [30, 5]]]
-```
-
-**How vehicles work:**
-1. Player walks to a tile adjacent to the vehicle
-2. Player faces the vehicle and uses `interact()`
-3. Character type changes to the vehicle type (e.g., "boat")
-4. Player can now traverse tiles with matching access (e.g., water tiles with `access: ["boat"]`)
-5. To disembark, player uses `interact()` again when adjacent to a land tile
-6. Character type returns to "player"
-
-**Vehicle access control:**
-Vehicles work with the tile access system in `tiles.json`:
-```json
-"WATER": { "id": 5, "path": "tiles/water.svg", "access": ["boat", "ship", "fish"] }
-```
-
-Only characters with matching types (boat, ship, fish) can enter water tiles.
-
-### Available Vehicle Types
-
-| Type | File | Description |
-|------|------|-------------|
-| boat | elements/boat.svg | Wooden boat for crossing water |
-
-### Adding Custom Vehicles
-
-1. Add SVG file to `assets/map/elements/`
-2. Update `assets/map/elements.json`:
-
-```json
-{
-  "elements": {
-    "custom-vehicle": {
-      "name": "custom-vehicle",
-      "path": "elements/custom-vehicle.svg",
-      "fallbackColor": "#hexcolor",
-      "description": "Description of the vehicle",
-      "vehicleType": "custom-vehicle",
-      "spritePath": "elements/custom-vehicle.svg"
-    }
-  }
-}
-```
-
-3. Ensure appropriate tiles have the vehicle type in their access array in `tiles.json`
 
 ### Available Collectible Types
 
