@@ -216,9 +216,10 @@ Tiles are defined in `assets/map/tiles.json`. All tiles are **walkable by defaul
 | 2 | path | Dirt/sand path | (walkable) |
 | 3 | tree | Tree obstacle | blocked |
 | 4 | bush | Bush (overlay on grass) | blocked |
-| 5 | water | Water obstacle | boat, ship, fish |
+| 5 | water | Light blue water | boat, ship, fish |
 | 6 | rock | Rock obstacle | blocked |
 | 7 | flower | Flower (decorative, overlay) | (walkable) |
+| 8 | water-dark | Slightly darker water (for variety) | boat, ship, fish |
 
 ### Tile Access System
 
@@ -515,7 +516,13 @@ Exercise levels do NOT persist state. Each run starts fresh, making them ideal f
 
 1. **Logical Placement:** Items should be reachable
 2. **Type Consistency:** Use appropriate types for the story
-3. **Visible Markers:** Consider using flower tiles (7) to mark locations
+3. **Clean Backgrounds:** Place collectibles on grass (0) or path (2) tiles - avoid layering with decorative tiles like flowers (7) as this causes visual overlap
+
+### Water Tiles
+
+1. **Variety:** Mix water (5) and water-dark (8) for natural-looking oceans
+2. **Distribution:** Use ~85-95% light water with sparse dark patches
+3. **Island Maps:** Water tiles can replace trees for island-themed levels
 
 ---
 
