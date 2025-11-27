@@ -64,7 +64,13 @@ let gameState = {
     // Player inventory
     inventory: {},
     // Message log (for speak() function)
-    messageLog: []
+    messageLog: [],
+    // Vehicle/character type system - determines tile access permissions
+    characterType: 'player',
+    // Store original player sprite when boarding a vehicle
+    originalSpriteImage: null,
+    // Vehicle element currently boarded (if any)
+    activeVehicle: null
 };
 
 const canvas = document.getElementById('game-canvas');

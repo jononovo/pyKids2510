@@ -458,6 +458,14 @@
         gameState.isRunning = false;
         document.getElementById('run-btn').disabled = false;
         
+        // Reset vehicle/character type to player
+        gameState.characterType = 'player';
+        if (gameState.originalSpriteImage) {
+            gameState.spriteImage = gameState.originalSpriteImage;
+            gameState.originalSpriteImage = null;
+        }
+        gameState.activeVehicle = null;
+        
         if (gameState.collectibles) {
             for (var i = 0; i < gameState.collectibles.length; i++) {
                 gameState.collectibles[i].collected = false;
