@@ -2,17 +2,8 @@
 // GAME ENGINE - Rendering & Movement
 // ============================================
 
-// Tile type constants
-const TILES = {
-    GRASS: 0,
-    GRASS_DARK: 1,
-    PATH: 2,
-    TREE: 3,
-    BUSH: 4,
-    WATER: 5,
-    ROCK: 6,
-    FLOWER: 7
-};
+// Tile type constants - generated dynamically from manifest
+let TILES = {};
 
 // SVG tile cache to store loaded images
 const svgTileCache = new Map();
@@ -51,10 +42,51 @@ async function loadTilesManifest() {
         const response = await fetch('/assets/map/tiles.json');
         tileManifest = await response.json();
         console.log('Tiles manifest loaded:', Object.keys(tileManifest.tiles).length, 'tiles');
+        
+        // Build TILES constants from manifest
+        buildTileConstants();
     } catch (error) {
         console.error('Failed to load tiles manifest:', error);
         throw error;
     }
+}
+
+// Build TILES constant dynamically from manifest
+function buildTileConstants() {
+    TILES = {};
+    for (const [id, tile] of Object.entries(tileManifest.tiles)) {
+        const name = tile.name.toUpperCase().replace(/-/g, '_');
+        TILES[name] = parseInt(id);
+    }
+    console.log('Tile constants built:', TILES);
+}
+
+// Get tile ID by name (for dynamic tile lookup)
+function getTileIdByName(name) {
+    if (!tileManifest) return 0;
+    for (const [id, tile] of Object.entries(tileManifest.tiles)) {
+        if (tile.name === name) return parseInt(id);
+    }
+    return 0; // fallback to grass
+}
+
+// Check if inventory meets requirements for tile access
+function checkAccessRequirements(requires) {
+    const inventory = gameState.inventory || {};
+    
+    // Array of items: ["key", "axe"] - need at least 1 of each
+    if (Array.isArray(requires)) {
+        return requires.every(item => (inventory[item] || 0) >= 1);
+    }
+    
+    // Object with quantities: { wood: 100, stone: 50 }
+    if (typeof requires === "object") {
+        return Object.entries(requires).every(([item, qty]) => 
+            (inventory[item] || 0) >= qty
+        );
+    }
+    
+    return true;
 }
 
 // Load collectibles manifest from server
@@ -533,8 +565,26 @@ function canMoveTo(x, y) {
     }
     
     const tile = gameState.mapData[y][x];
-    if (tile === TILES.TREE || tile === TILES.WATER || tile === TILES.ROCK) {
-        return false;
+    const tileInfo = tileManifest?.tiles[tile];
+    
+    // No manifest or no tile info = assume walkable
+    if (!tileInfo) return true;
+    
+    // No access restriction = walkable by default
+    if (!tileInfo.access) return true;
+    
+    // "blocked" = never passable
+    if (tileInfo.access === "blocked") return false;
+    
+    // Character type whitelist (e.g., ["boat", "ship", "fish"])
+    if (Array.isArray(tileInfo.access)) {
+        const charType = gameState.characterType || "player";
+        return tileInfo.access.includes(charType);
+    }
+    
+    // Inventory/resource requirements (e.g., { requires: ["key"] } or { requires: { wood: 100 } })
+    if (typeof tileInfo.access === "object" && tileInfo.access.requires) {
+        return checkAccessRequirements(tileInfo.access.requires);
     }
     
     return true;

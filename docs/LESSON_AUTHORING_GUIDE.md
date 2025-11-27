@@ -205,18 +205,30 @@ This automatically adds the position to the collectibles array.
 
 ## Tile Reference
 
-Tiles are defined in `assets/map/tiles.json`:
+Tiles are defined in `assets/map/tiles.json`. All tiles are **walkable by default** unless an `access` property is specified.
 
-| ID | Name | Description | Walkable |
-|----|------|-------------|----------|
-| 0 | grass | Light green grass | Yes |
-| 1 | grass-dark | Dark green grass (decorative) | Yes |
-| 2 | path | Dirt/sand path | Yes |
-| 3 | tree | Tree obstacle | No |
-| 4 | bush | Bush (overlay on grass) | No |
-| 5 | water | Water obstacle | No |
-| 6 | rock | Rock obstacle | No |
-| 7 | flower | Flower (decorative, overlay) | Yes |
+| ID | Name | Description | Access |
+|----|------|-------------|--------|
+| 0 | grass | Light green grass | (walkable) |
+| 1 | grass-dark | Dark green grass (decorative) | (walkable) |
+| 2 | path | Dirt/sand path | (walkable) |
+| 3 | tree | Tree obstacle | blocked |
+| 4 | bush | Bush (overlay on grass) | blocked |
+| 5 | water | Water obstacle | boat, ship, fish |
+| 6 | rock | Rock obstacle | blocked |
+| 7 | flower | Flower (decorative, overlay) | (walkable) |
+
+### Tile Access System
+
+The `access` property in `tiles.json` controls who can traverse a tile:
+
+| Access Value | Meaning | Example Use |
+|-------------|---------|-------------|
+| *(none)* | Walkable by all (default) | grass, path, flower |
+| `"blocked"` | Never passable | tree, rock, bush, wall |
+| `["boat", "ship"]` | Only these character types can pass | water, lava |
+| `{"requires": ["key"]}` | Need items in inventory | locked door |
+| `{"requires": {"wood": 100}}` | Need resource amounts | resource gate |
 
 ### Special Tiles
 
@@ -234,17 +246,35 @@ Tiles are defined in `assets/map/tiles.json`:
       "name": "custom-tile", 
       "path": "tiles/custom.svg", 
       "fallbackColor": "#hexcolor",
-      "overlayOnGrass": false
+      "overlayOnGrass": false,
+      "access": "blocked"
     }
   }
 }
 ```
 
 **Properties:**
-- `name`: Identifier for the tile
+- `name`: Identifier for the tile (used for dynamic lookup)
 - `path`: Relative path from `assets/map/`
 - `fallbackColor`: Color when SVG fails to load
 - `overlayOnGrass`: If true, grass renders underneath
+- `access`: (optional) Access restriction - see table above
+
+### Access Property Examples
+
+```json
+// Completely blocked tile (wall, tree, rock)
+"3": { "name": "tree", "path": "objects/tree.svg", "access": "blocked" }
+
+// Only specific character types can pass (water for boats)
+"5": { "name": "water", "path": "tiles/water.svg", "access": ["boat", "ship", "fish"] }
+
+// Requires items in inventory (locked door)
+"8": { "name": "locked-door", "path": "objects/door.svg", "access": { "requires": ["key"] } }
+
+// Requires resource amounts (resource gate)
+"9": { "name": "gate", "path": "objects/gate.svg", "access": { "requires": { "wood": 100, "stone": 50 } } }
+```
 
 ---
 

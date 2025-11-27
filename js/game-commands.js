@@ -311,7 +311,7 @@
                 gameState.objects.push({ type: objectName, x: pos.targetX, y: pos.targetY, built: true });
                 
                 if (objectName === 'bridge' && gameState.mapData[pos.targetY]) {
-                    gameState.mapData[pos.targetY][pos.targetX] = TILES.PATH;
+                    gameState.mapData[pos.targetY][pos.targetX] = getTileIdByName('path');
                 }
                 
                 await render();
