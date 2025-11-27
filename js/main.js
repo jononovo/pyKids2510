@@ -71,6 +71,25 @@ const canvas = document.getElementById('game-canvas');
 const ctx = canvas.getContext('2d');
 ctx.imageSmoothingEnabled = false;
 
+// Camera state for pan/zoom controls
+const camera = {
+    zoom: 1.0,
+    minZoom: 0.25,
+    maxZoom: 2.0,
+    zoomStep: 0.1,
+    panX: 0,
+    panY: 0,
+    isManualPan: false,
+    isDragging: false,
+    dragStartX: 0,
+    dragStartY: 0,
+    panStartX: 0,
+    panStartY: 0
+};
+
+// Expose camera globally for game-engine.js
+window.camera = camera;
+
 // Create audio context for sound effects
 let audioContext = null;
 
