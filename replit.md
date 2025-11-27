@@ -22,7 +22,7 @@ The application is a single-page application (`index.html`) using vanilla JavaSc
 
 ### Game Engine
 
-A 2D tile-based rendering system with character animation supports movement commands (`move_forward()`, `turn_left()`, `turn_right()`), collision detection, and objective tracking. A Camera System allows pan/zoom controls for navigating large maps, with auto-follow functionality and a "Reset View" option.
+A 2D tile-based rendering system with character animation supports movement commands (`move_forward()`, `turn_left()`, `turn_right()`), collision detection, and objective tracking. The Camera System (`js/map/camera-controls.js`) allows pan/zoom controls for navigating large maps, with auto-follow functionality and a "Reset View" option.
 
 ### Lesson System
 

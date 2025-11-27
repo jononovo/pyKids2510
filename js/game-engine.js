@@ -748,20 +748,6 @@ function updateViewport() {
     canvas.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${zoom})`;
 }
 
-// Reset camera to default state (auto-follow)
-function resetCamera() {
-    const cam = window.camera;
-    if (!cam) return;
-    
-    cam.zoom = 1.0;
-    cam.panX = 0;
-    cam.panY = 0;
-    cam.isManualPan = false;
-    cam.isDragging = false;
-    
-    updateViewport();
-}
-
 // Check win condition
 function checkWinCondition() {
     const px = Math.floor(gameState.playerPos.x);
