@@ -22,7 +22,11 @@
             inventoryPanel.innerHTML = '<strong>Inventory:</strong><br>';
             for (var item in gameState.inventory) {
                 var itemDiv = document.createElement('div');
-                itemDiv.textContent = item + ': ' + gameState.inventory[item];
+                var countSpan = document.createElement('span');
+                countSpan.id = 'inventory-count-' + item;
+                countSpan.textContent = gameState.inventory[item];
+                itemDiv.textContent = item + ': ';
+                itemDiv.appendChild(countSpan);
                 inventoryPanel.appendChild(itemDiv);
             }
         }
