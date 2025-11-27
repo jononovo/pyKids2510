@@ -279,6 +279,6 @@ player.collect()
 startPos: 1,9
 goalPos: 15,3
 collectibles: ["star", [[15,3]]]
-transforms: ["door", "door-open", {trigger: "on_step", at: [[3,9],[5,9],[9,7],[13,5],[13,3]]}]
+transforms: ["door", "door-open", {"trigger": "on_step", "at": [[3,9],[5,9],[9,7],[13,5],[13,3]]}]
 ```
 ---

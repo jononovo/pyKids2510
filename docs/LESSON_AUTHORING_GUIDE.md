@@ -305,7 +305,7 @@ collectibles: ["gem", [[5,3],[8,9],[12,4]]], ["coin", [[5,3],[8,9]]]
 
 **With Trigger Override:**
 ```
-collectibles: ["gem", [[1,3]]], ["gem", {trigger: "on_step", at: [[5,3],[8,9]]}]
+collectibles: ["gem", [[1,3]]], ["gem", {"trigger": "on_step", "at": [[5,3],[8,9]]}]
 ```
 
 ### Transforms
@@ -324,7 +324,7 @@ transforms: ["door", "door-open", [[4,4],[7,7]]]
 
 **With on_step trigger (auto-trigger when stepped on):**
 ```
-transforms: ["door", "door-open", {trigger: "on_step", at: [[7,7]]}]
+transforms: ["door", "door-open", {"trigger": "on_step", "at": [[7,7]]}]
 ```
 
 ### Available Collectible Types
