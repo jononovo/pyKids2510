@@ -134,6 +134,46 @@ body {
     transition: transform 0.2s ease-out;  /* Smooth camera movement */
 }
 
+/* Camera Controls Overlay */
+#camera-controls {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 6px 10px;
+    border-radius: 4px;
+    z-index: 10;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+}
+
+#zoom-level {
+    color: #7fc542;
+    min-width: 45px;
+    text-align: center;
+}
+
+#reset-view-btn {
+    background: #444;
+    color: #fff;
+    border: 1px solid #666;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-family: 'Courier New', monospace;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.2s;
+}
+
+#reset-view-btn:hover {
+    background: #7fc542;
+    color: #000;
+    border-color: #7fc542;
+}
+
 /* ========================================
    HEADER & NAVIGATION
    ======================================== */
