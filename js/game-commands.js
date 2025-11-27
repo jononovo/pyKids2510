@@ -206,34 +206,38 @@
             defaults: { resource: 'item' },
             execute: async function(resource) {
                 var pos = getTargetPosition();
-                var collectibleIndex = -1;
-                var collectible = null;
-                for (var i = 0; i < gameState.collectibles.length; i++) {
-                    var c = gameState.collectibles[i];
-                    if (c.x === pos.px && c.y === pos.py && !c.collected) {
-                        collectibleIndex = i;
-                        collectible = c;
-                        break;
+                
+                // Use ElementInteractionManager for all collectibles
+                if (window.ElementInteractionManager) {
+                    var result = ElementInteractionManager.handleCollect(pos.px, pos.py, gameState);
+                    if (result.success) {
+                        console.log('[collect]', result.message);
+                        updateInventoryDisplay();
+                        await render();
                     }
                 }
                 
-                if (collectibleIndex >= 0) {
-                    gameState.collectibles[collectibleIndex].collected = true;
-                    if (!gameState.inventory) gameState.inventory = {};
-                    var resourceType = collectible.type || resource || 'item';
-                    gameState.inventory[resourceType] = (gameState.inventory[resourceType] || 0) + 1;
-                    console.log('[collect] Collected', resourceType, 'at', collectible.x, collectible.y);
-                    updateInventoryDisplay();
-                    
-                    // Record in MissionState if this is a mission level
-                    var isMissionLevel = gameState.levelType === 'mission' || gameState.levelType === 'quest';
-                    console.log('[collect] Level type:', gameState.levelType, '- isMission:', isMissionLevel);
-                    if (isMissionLevel && window.MissionState && MissionState.isInitialized()) {
-                        MissionState.recordCollectible(collectible.x, collectible.y, resourceType);
-                        MissionState.addToInventory(resourceType, 1);
+                await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
+            }
+        },
+
+        interact: {
+            args: [],
+            defaults: {},
+            execute: async function() {
+                var pos = getTargetPosition();
+                
+                // Use ElementInteractionManager for transforms
+                if (window.ElementInteractionManager) {
+                    var result = ElementInteractionManager.handleInteract(pos.px, pos.py, gameState);
+                    if (result.success) {
+                        console.log('[interact]', result.message);
+                        await render();
+                        await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
+                        return;
+                    } else {
+                        console.log('[interact]', result.message);
                     }
-                    
-                    await render();
                 }
                 
                 await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
@@ -311,7 +315,7 @@
                 gameState.objects.push({ type: objectName, x: pos.targetX, y: pos.targetY, built: true });
                 
                 if (objectName === 'bridge' && gameState.mapData[pos.targetY]) {
-                    gameState.mapData[pos.targetY][pos.targetX] = TILES.PATH;
+                    gameState.mapData[pos.targetY][pos.targetX] = getTileIdByName('path');
                 }
                 
                 await render();

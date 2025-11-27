@@ -1,0 +1,88 @@
+{
+  "elements": {
+    "door": {
+      "name": "door",
+      "path": "elements/door.svg",
+      "fallbackColor": "#8B4513",
+      "description": "A closed door that can be opened"
+    },
+    "door-open": {
+      "name": "door-open",
+      "path": "elements/door-open.svg",
+      "fallbackColor": "#D2691E",
+      "description": "An open door"
+    },
+    "lever": {
+      "name": "lever",
+      "path": "elements/lever.svg",
+      "fallbackColor": "#696969",
+      "description": "A lever that can be pulled"
+    },
+    "lever-on": {
+      "name": "lever-on",
+      "path": "elements/lever-on.svg",
+      "fallbackColor": "#228B22",
+      "description": "A lever in the on position"
+    },
+    "button": {
+      "name": "button",
+      "path": "elements/button.svg",
+      "fallbackColor": "#DC143C",
+      "description": "A button that can be pressed"
+    },
+    "crate": {
+      "name": "crate",
+      "path": "elements/crate.svg",
+      "fallbackColor": "#DEB887",
+      "description": "A wooden crate"
+    },
+    "sign": {
+      "name": "sign",
+      "path": "elements/sign.svg",
+      "fallbackColor": "#8B4513",
+      "description": "A sign with information"
+    },
+    "coin": {
+      "name": "coin",
+      "path": "elements/collectible-coin.svg",
+      "fallbackColor": "#FFD700",
+      "description": "A gold coin"
+    },
+    "gem": {
+      "name": "gem",
+      "path": "elements/collectible-gem.svg",
+      "fallbackColor": "#9400D3",
+      "description": "A precious gem"
+    },
+    "key": {
+      "name": "key",
+      "path": "elements/key.svg",
+      "fallbackColor": "#DAA520",
+      "description": "A key to unlock doors"
+    },
+    "wood": {
+      "name": "wood",
+      "path": "elements/wood.svg",
+      "fallbackColor": "#8B4513",
+      "description": "A piece of wood"
+    },
+    "apple": {
+      "name": "apple",
+      "path": "elements/apple.svg",
+      "fallbackColor": "#FF0000",
+      "description": "A red apple"
+    },
+    "heart": {
+      "name": "heart",
+      "path": "elements/heart.svg",
+      "fallbackColor": "#FF69B4",
+      "description": "A heart for health"
+    },
+    "star": {
+      "name": "star",
+      "path": "elements/star.svg",
+      "fallbackColor": "#FFD700",
+      "description": "A shining star"
+    }
+  }
+}

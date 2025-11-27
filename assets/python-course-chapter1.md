@@ -209,7 +209,7 @@ player.move_forward(1)
 [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3]
 startPos: 3,7
 goalPos: 10,7
-collectibles: [[5,2],[9,2],[5,5],[9,5]]
+collectibles: [["gem", [[5,2],[9,2],[5,5],[9,5]]]]
 ```
 ---
 
@@ -273,7 +273,7 @@ graphic: assets/map/graphic-maps/castle-garden.svg
 [0,0,0,0,0,0,0,0,2,2,2,2,2,0,0,0,0,0,0,0]
 startPos: 4, 12
 goalPos: 12, 14
-collectibles: [[7, 10], [10, 12], [12, 12]]
+collectibles: [["gem", [[7,10],[10,12],[12,12]]]]
 ```
 ---
 

@@ -462,6 +462,16 @@ function loadLevel(levelIndex) {
     // Initialize collectibles
     gameState.collectibles = collectibles;
     
+    // Initialize ElementInteractionManager with level data
+    if (window.ElementInteractionManager) {
+        ElementInteractionManager.loadLevelElements(level);
+        
+        // Set mission level flag for persistence
+        if (window.MissionState) {
+            MissionState.setIsMissionLevel(isMission);
+        }
+    }
+    
     // Reset objects and inventory for new level
     gameState.objects = [];
     gameState.messageLog = [];
@@ -781,9 +791,14 @@ fetch('assets/chapter1-master-map.md')
         console.log('Default chapter not found, waiting for user to load one');
     });
 
-// Preload SVG tiles before starting
+// Preload SVG tiles and initialize element system before starting
 if (typeof preloadSVGTiles === 'function') {
-    preloadSVGTiles().then(() => {
+    preloadSVGTiles().then(async () => {
+        // Initialize ElementInteractionManager
+        if (window.ElementInteractionManager) {
+            await ElementInteractionManager.init();
+        }
+        
         console.log('SVG tiles loaded, starting game');
         render();
         if (window.UserProgressManager) {

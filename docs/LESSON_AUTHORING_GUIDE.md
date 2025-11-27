@@ -12,7 +12,7 @@ This comprehensive guide covers everything you need to know about creating lesso
 4. [Lesson Template](#lesson-template)
 5. [Map System](#map-system)
 6. [Tile Reference](#tile-reference)
-7. [Collectibles](#collectibles)
+7. [Elements System](#elements-system)
 8. [Available Python Commands](#available-python-commands)
 9. [Mission State System](#mission-state-system)
 10. [Best Practices](#best-practices)
@@ -27,8 +27,10 @@ Lessons are authored in Markdown files (`.md`) located in the `assets/` director
 **Key Files:**
 - `assets/chapter1-master-map.md` - Main chapter file with all levels
 - `assets/map/tiles.json` - Tile definitions and graphics
+- `assets/map/elements.json` - Interactive element definitions (doors, levers, etc.)
 - `js/lesson-parser.js` - Parses markdown into game data
 - `js/mission/mission-detector.js` - Determines level types
+- `js/game-engine/element-interaction-logic.js` - Handles element interactions
 
 ---
 
@@ -205,18 +207,31 @@ This automatically adds the position to the collectibles array.
 
 ## Tile Reference
 
-Tiles are defined in `assets/map/tiles.json`:
+Tiles are defined in `assets/map/tiles.json`. All tiles are **walkable by default** unless an `access` property is specified.
 
-| ID | Name | Description | Walkable |
-|----|------|-------------|----------|
-| 0 | grass | Light green grass | Yes |
-| 1 | grass-dark | Dark green grass (decorative) | Yes |
-| 2 | path | Dirt/sand path | Yes |
-| 3 | tree | Tree obstacle | No |
-| 4 | bush | Bush (overlay on grass) | No |
-| 5 | water | Water obstacle | No |
-| 6 | rock | Rock obstacle | No |
-| 7 | flower | Flower (decorative, overlay) | Yes |
+| ID | Name | Description | Access |
+|----|------|-------------|--------|
+| 0 | grass | Light green grass | (walkable) |
+| 1 | grass-dark | Dark green grass (decorative) | (walkable) |
+| 2 | path | Dirt/sand path | (walkable) |
+| 3 | tree | Tree obstacle | blocked |
+| 4 | bush | Bush (overlay on grass) | blocked |
+| 5 | water | Light blue water | boat, ship, fish |
+| 6 | rock | Rock obstacle | blocked |
+| 7 | flower | Flower (decorative, overlay) | (walkable) |
+| 8 | water-dark | Slightly darker water (for variety) | boat, ship, fish |
+
+### Tile Access System
+
+The `access` property in `tiles.json` controls who can traverse a tile:
+
+| Access Value | Meaning | Example Use |
+|-------------|---------|-------------|
+| *(none)* | Walkable by all (default) | grass, path, flower |
+| `"blocked"` | Never passable | tree, rock, bush, wall |
+| `["boat", "ship"]` | Only these character types can pass | water, lava |
+| `{"requires": ["key"]}` | Need items in inventory | locked door |
+| `{"requires": {"wood": 100}}` | Need resource amounts | resource gate |
 
 ### Special Tiles
 
@@ -234,63 +249,148 @@ Tiles are defined in `assets/map/tiles.json`:
       "name": "custom-tile", 
       "path": "tiles/custom.svg", 
       "fallbackColor": "#hexcolor",
-      "overlayOnGrass": false
+      "overlayOnGrass": false,
+      "access": "blocked"
     }
   }
 }
 ```
 
 **Properties:**
-- `name`: Identifier for the tile
+- `name`: Identifier for the tile (used for dynamic lookup)
 - `path`: Relative path from `assets/map/`
 - `fallbackColor`: Color when SVG fails to load
 - `overlayOnGrass`: If true, grass renders underneath
+- `access`: (optional) Access restriction - see table above
+
+### Access Property Examples
+
+```json
+// Completely blocked tile (wall, tree, rock)
+"3": { "name": "tree", "path": "objects/tree.svg", "access": "blocked" }
+
+// Only specific character types can pass (water for boats)
+"5": { "name": "water", "path": "tiles/water.svg", "access": ["boat", "ship", "fish"] }
+
+// Requires items in inventory (locked door)
+"8": { "name": "locked-door", "path": "objects/door.svg", "access": { "requires": ["key"] } }
+
+// Requires resource amounts (resource gate)
+"9": { "name": "gate", "path": "objects/gate.svg", "access": { "requires": { "wood": 100, "stone": 50 } } }
+```
 
 ---
 
-## Collectibles
+## Elements System
 
-Collectibles are items players can pick up using the `collect()` command.
+Elements are interactive items placed over tiles. They can be collectibles, transforms, or other interactive objects.
 
-### Defining Collectibles
+### Element Behavior Types
 
-In the map section:
+| Section | Default Trigger | Behavior |
+|---------|-----------------|----------|
+| `collectibles:` | `on_collect` | Disappears + adds to inventory |
+| `transforms:` | `on_interact` | Disappears or swaps to replacement |
 
+### Collectibles
+
+Collectibles are items players pick up using the `collect()` command. All element definitions require an outer array wrapper.
+
+**Single Type (outer wrapper required):**
 ```
-collectibles: [[14,3,"wood"],[8,7,"wood"],[10,12,"gem"]]
+collectibles: [["gem", [[5,3],[8,9],[12,4]]]]
 ```
 
-Format: `[[X, Y, "type"], ...]`
-
-If type is omitted, defaults to "gem":
+**Multiple Types:**
 ```
-collectibles: [[7,2],[16,3],[11,4]]  # All become "gem" type
+collectibles: [["gem", [[5,3],[8,9]]], ["coin", [[2,4],[6,7]]]]
+```
+
+**With Trigger Override:**
+```
+collectibles: [["gem", [[1,3]]], ["gem", {"trigger": "on_step", "at": [[5,3],[8,9]]}]]
+```
+
+### Transforms
+
+Transforms are elements that change when the player uses `interact()`. All element definitions require an outer array wrapper.
+
+**Disappear on interact:**
+```
+transforms: [["door", [[6,6],[8,9]]]]
+```
+
+**Swap to replacement:**
+```
+transforms: [["door", "door-open", [[4,4],[7,7]]]]
+```
+
+**With on_step trigger (auto-trigger when stepped on):**
+```
+transforms: [["door", "door-open", {"trigger": "on_step", "at": [[7,7]]}]]
+```
+
+**Multiple transform types:**
+```
+transforms: [["door", "door-open", [[4,4]]], ["lever", "lever-on", [[8,8]]]]
 ```
 
 ### Available Collectible Types
 
-Located in `assets/map/collectibles/`:
+Located in `assets/map/elements/`:
 
 | Type | File | Description |
 |------|------|-------------|
-| coin | collectible-coin.svg | Currency |
-| gem | collectible-gem.svg | Default collectible |
+| coin | collectible-coin.svg | Currency (gold coin) |
+| gem | collectible-gem.svg | Default collectible (precious gem) |
 | key | key.svg | Key item |
 | heart | heart.svg | Health/life |
 | star | star.svg | Special item |
 | apple | apple.svg | Food resource |
 | wood | wood.svg | Building material |
 
+### Available Element Types
+
+Located in `assets/map/elements.json`:
+
+| Type | Description |
+|------|-------------|
+| door | A closed door |
+| door-open | An open door |
+| lever | A lever (off position) |
+| lever-on | A lever (on position) |
+| button | A pressable button |
+| crate | A wooden crate |
+| sign | An informational sign |
+
+### Adding Custom Elements
+
+1. Add SVG file to `assets/map/objects/`
+2. Update `assets/map/elements.json`:
+
+```json
+{
+  "elements": {
+    "custom-element": {
+      "name": "custom-element",
+      "path": "objects/custom-element.svg",
+      "fallbackColor": "#hexcolor",
+      "description": "Description of the element"
+    }
+  }
+}
+```
+
 ### Adding Custom Collectibles
 
-1. Add SVG file to `assets/map/collectibles/`
+1. Add SVG file to `assets/map/elements/`
 2. Use the filename (without extension) as the type:
 
 ```
-collectibles: [[5,3,"custom-item"]]
+collectibles: ["custom-item", [[5,3]]]
 ```
 
-Ensure `assets/map/collectibles/custom-item.svg` exists.
+Ensure `assets/map/elements/custom-item.svg` exists.
 
 ---
 
@@ -322,6 +422,7 @@ Students write Python code using these commands:
 | Command | Description |
 |---------|-------------|
 | `player.collect()` | Collect item at current position |
+| `player.interact()` | Interact with element at current position (transforms) |
 | `player.push()` | Push object in facing direction |
 | `player.speak("text")` | Display speech bubble |
 | `player.build("structure")` | Build a structure |
@@ -353,14 +454,16 @@ For mission and quest levels, state persists across levels within a chapter.
 
 - **Inventory:** Collected resources (e.g., `{wood: 3, coin: 5}`)
 - **Collected Items:** Positions of already-collected items
+- **Element States:** Transformed elements (e.g., opened doors)
 - **Structures:** Built structures (future feature)
 
 ### How It Works
 
 1. **Level Load:** MissionState loads saved data from localStorage
 2. **Collect Action:** Items added to MissionState inventory
-3. **Level Complete:** State saved and carries to next level
-4. **Reset Button:** Returns to state when level was first entered
+3. **Interact Action:** Element transformations recorded in elementStates
+4. **Level Complete:** State saved and carries to next level
+5. **Reset Button:** Returns to state when level was first entered
 
 ### Technical Details
 
@@ -373,6 +476,9 @@ For mission and quest levels, state persists across levels within a chapter.
     { x: 14, y: 3, type: "wood" },
     { x: 8, y: 7, type: "wood" }
   ],
+  elementStates: {
+    "10,5": { type: "door-open", wasType: "door" }
+  },
   structures: []
 }
 ```
@@ -410,7 +516,13 @@ Exercise levels do NOT persist state. Each run starts fresh, making them ideal f
 
 1. **Logical Placement:** Items should be reachable
 2. **Type Consistency:** Use appropriate types for the story
-3. **Visible Markers:** Consider using flower tiles (7) to mark locations
+3. **Clean Backgrounds:** Place collectibles on grass (0) or path (2) tiles - avoid layering with decorative tiles like flowers (7) as this causes visual overlap
+
+### Water Tiles
+
+1. **Variety:** Mix water (5) and water-dark (8) for natural-looking oceans
+2. **Distribution:** Use ~85-95% light water with sparse dark patches
+3. **Island Maps:** Water tiles can replace trees for island-themed levels
 
 ---
 
@@ -586,6 +698,130 @@ collectibles: [[3,1,"apple"],[8,1,"apple"],[1,3,"apple"],[9,3,"apple"],[2,6,"app
 ---
 ```
 
+### Example 4: Mission with Interactive Elements
+
+```markdown
+--- <!-- Mission 2 -->
+## MISSION 2: THE SECRET DOOR
+
+### AVAILABLE AFTER
+Completing Mission 1
+
+### OBJECTIVE
+> Discover the hidden treasure room by opening a mysterious door!
+
+You've found a locked door blocking a treasure room! Use `player.interact()` to open the door, then collect the treasure inside.
+
+### SUCCESS CRITERIA
+- Navigate to the door
+- Use interact() to open the door
+- Collect the hidden treasure
+
+### REWARDS
+- Key: +1
+- Gems: +3
+
+<!-- Starter Code -->
+```
+import player
+
+# Find the door and open it!
+# Hint: Use player.interact() when at the door
+player.move_forward()
+```
+
+<!-- Solution -->
+```
+import player
+
+# Navigate to the door
+player.move_forward(3)
+player.turn_left()
+player.move_forward(3)
+
+# Open the door!
+player.interact()
+
+# Enter and collect treasure
+player.move_forward(2)
+player.collect()
+```
+
+<!-- Map -->
+```
+[3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+[3,0,0,0,0,0,0,3,0,0,0,0,0,0,3],
+[3,0,1,0,0,0,0,3,0,0,0,0,0,0,3],
+[3,0,0,0,0,0,0,3,0,0,0,0,0,0,3],
+[3,0,0,0,0,0,0,3,3,3,0,3,3,3,3],
+[3,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
+[3,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
+[3,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
+[3,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
+[3,3,3,3,3,3,3,3,3,3,3,3,3,3,3]
+startPos: 7,8
+goalPos: 10,2
+collectibles: ["key", [[10,2]]]
+transforms: ["door", "door-open", [[10,4]]]
+```
+---
+```
+
+### Example 5: Magic Stepping Stones (on_step trigger)
+
+```markdown
+--- <!-- Mission 3 -->
+## MISSION 3: THE MAGIC BRIDGE
+
+### OBJECTIVE
+> Cross the enchanted bridge where doors open automatically as you step on them!
+
+The ancient bridge has magical tiles that transform as you walk on them!
+
+### SUCCESS CRITERIA
+- Cross the magical bridge
+- Collect the star at the end
+
+<!-- Starter Code -->
+```
+import player
+
+# Walk across the magic bridge!
+# The doors will open automatically when you step on them
+player.move_forward()
+```
+
+<!-- Solution -->
+```
+import player
+
+# Cross the magical bridge - doors open as you step!
+player.move_forward(2)  # Step on first magic tile
+player.move_forward(2)  # Step on second magic tile
+player.turn_left()
+player.move_forward(2)
+player.collect()
+```
+
+<!-- Map -->
+```
+[3,3,3,3,3,3,3,3,3,3],
+[3,5,5,5,5,5,5,5,5,3],
+[3,5,5,5,5,0,0,0,5,3],
+[3,5,5,5,5,0,0,0,5,3],
+[3,5,5,5,5,5,5,0,5,3],
+[3,0,0,0,0,0,5,0,5,3],
+[3,0,0,5,5,5,5,5,5,3],
+[3,5,5,5,5,5,5,5,5,3],
+[3,3,3,3,3,3,3,3,3,3]
+startPos: 1,5
+goalPos: 5,2
+collectibles: ["star", [[5,2]]]
+transforms: ["door", "door-open", {"trigger": "on_step", "at": [[3,5],[5,5],[7,4],[7,3]]}]
+```
+---
+```
+
 ---
 
 ## Troubleshooting
@@ -599,6 +835,9 @@ collectibles: [[3,1,"apple"],[8,1,"apple"],[1,3,"apple"],[9,3,"apple"],[2,6,"app
 | Collectibles not showing | Wrong coordinates | Verify X,Y match walkable tiles |
 | Wrong level type | Title missing keyword | Include MISSION or QUEST in title |
 | Code not running | Missing import | Ensure `import player` in starter code |
+| Elements not parsing | Invalid JSON in triggers | Use double-quoted keys: `{"trigger": "on_step", "at": [[x,y]]}` |
+| Transforms not working | Wrong section name | Use `transforms:` not `transform:` |
+| Door not rendering | Missing element definition | Check `assets/map/elements.json` has the element type |
 
 ### Validation Checklist
 
@@ -607,6 +846,8 @@ collectibles: [[3,1,"apple"],[8,1,"apple"],[1,3,"apple"],[9,3,"apple"],[2,6,"app
 - [ ] Map layout is valid JSON arrays
 - [ ] startPos and goalPos are on walkable tiles
 - [ ] Collectible positions are on walkable tiles
+- [ ] Element/transform positions are on walkable tiles
+- [ ] Trigger objects use double-quoted keys (valid JSON)
 - [ ] Starter code includes `import player`
 - [ ] Solution code actually solves the level
 
@@ -619,20 +860,24 @@ collectibles: [[3,1,"apple"],[8,1,"apple"],[1,3,"apple"],[9,3,"apple"],[2,6,"app
 ```
 assets/
 ├── chapter1-master-map.md     # Main lesson file
+├── chapter1-elements-demo.md  # Demo of element interaction system
 ├── map/
 │   ├── tiles.json             # Tile definitions
+│   ├── elements.json          # Interactive element definitions
 │   ├── tiles/                 # Tile SVGs
-│   ├── objects/               # Object SVGs (trees, bushes)
-│   ├── collectibles/          # Collectible SVGs
+│   ├── objects/               # Static object SVGs (trees, bushes, flowers)
+│   ├── elements/              # All interactive element SVGs (collectibles, doors, etc.)
 │   └── special/               # Special items (star-goal)
 └── sprites/                   # Character sprites
 
 js/
 ├── lesson-parser.js           # Parses markdown to game data
-├── mission/
-│   ├── mission-detector.js    # Detects level types
-│   └── mission-state.js       # Manages persistent state
-└── game-commands.js           # Python command implementations
+├── game-commands.js           # Python command implementations
+├── game-engine/
+│   └── element-interaction-logic.js  # Element interaction system
+└── mission/
+    ├── mission-detector.js    # Detects level types
+    └── mission-state.js       # Manages persistent state
 ```
 
 ### Parser Regex Patterns

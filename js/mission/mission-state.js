@@ -5,7 +5,9 @@ const MissionState = (function() {
     let inventory = {};
     let collectedItems = [];
     let structures = [];
+    let elementStates = {};
     let initialized = false;
+    let isMissionLevel = false;
     
     function init(chapterNumber, savedState) {
         currentChapter = chapterNumber || 1;
@@ -29,6 +31,15 @@ const MissionState = (function() {
         inventory = {};
         collectedItems = [];
         structures = [];
+        elementStates = {};
+    }
+    
+    function setIsMissionLevel(value) {
+        isMissionLevel = !!value;
+    }
+    
+    function getIsMissionLevel() {
+        return isMissionLevel;
     }
     
     function getStoredState(chapterNum) {
@@ -55,7 +66,8 @@ const MissionState = (function() {
             chapter: currentChapter,
             inventory: { ...inventory },
             collectedItems: collectedItems.map(item => ({ ...item })),
-            structures: structures.map(s => ({ ...s }))
+            structures: structures.map(s => ({ ...s })),
+            elementStates: { ...elementStates }
         };
     }
     
@@ -75,6 +87,7 @@ const MissionState = (function() {
             type: item.type || 'unknown'
         }));
         structures = (state.structures || []).map(s => ({ ...s }));
+        elementStates = { ...(state.elementStates || {}) };
         initialized = true;
         
         saveToStorage();
@@ -158,6 +171,19 @@ const MissionState = (function() {
         return structures.map(s => ({ ...s }));
     }
     
+    function setElementStates(states) {
+        elementStates = { ...(states || {}) };
+        saveToStorage();
+    }
+    
+    function getElementStates() {
+        return { ...elementStates };
+    }
+    
+    function markItemCollected(x, y, type) {
+        recordCollectible(x, y, type);
+    }
+    
     function getCurrentChapter() {
         return currentChapter;
     }
@@ -196,6 +222,11 @@ const MissionState = (function() {
         addStructure: addStructure,
         hasStructure: hasStructure,
         getStructures: getStructures,
+        setElementStates: setElementStates,
+        getElementStates: getElementStates,
+        markItemCollected: markItemCollected,
+        setIsMissionLevel: setIsMissionLevel,
+        get isMissionLevel() { return isMissionLevel; },
         getCurrentChapter: getCurrentChapter,
         isInitialized: isInitialized,
         clearChapter: clearChapter

@@ -43,6 +43,7 @@ function parseCourseLevels(markdown) {
                 startPos: {x: 0, y: 0},
                 goalPos: {x: 0, y: 0},
                 collectibles: [],
+                transforms: [],
                 graphic: null  // Optional background graphic URL
             }
         };
@@ -110,15 +111,20 @@ function parseCourseLevels(markdown) {
                     };
                 } else if (line.includes('collectibles:')) {
                     try {
-                        const collectiblesStr = line.split(':')[1].trim();
+                        const collectiblesStr = line.split('collectibles:')[1].trim();
                         const collectiblesArray = JSON.parse(collectiblesStr);
-                        level.map.collectibles = collectiblesArray.map(c => ({
-                            x: c[0], 
-                            y: c[1],
-                            type: c[2] || 'gem'  // Default to 'gem' if no type specified
-                        }));
+                        // New format only: ["type", [[x,y],[x,y]]]
+                        level.map.collectibles = collectiblesArray;
                     } catch (e) {
                         console.log('Could not parse collectibles:', line);
+                    }
+                } else if (line.includes('transforms:')) {
+                    try {
+                        const transformsStr = line.split('transforms:')[1].trim();
+                        const transformsArray = JSON.parse(transformsStr);
+                        level.map.transforms = transformsArray;
+                    } catch (e) {
+                        console.log('Could not parse transforms:', line);
                     }
                 } else if (line.includes('graphic:')) {
                     // Extract the graphic URL

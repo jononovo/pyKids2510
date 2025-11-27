@@ -54,10 +54,51 @@ async function loadTilesManifest() {
         }
         
         console.log('Tiles manifest loaded:', Object.keys(tileManifest.tiles).length, 'tiles');
+        
+        // Build TILES constants from manifest
+        buildTileConstants();
     } catch (error) {
         console.error('Failed to load tiles manifest:', error);
         throw error;
     }
+}
+
+// Build TILES constant dynamically from manifest
+function buildTileConstants() {
+    TILES = {};
+    for (const [id, tile] of Object.entries(tileManifest.tiles)) {
+        const name = tile.name.toUpperCase().replace(/-/g, '_');
+        TILES[name] = parseInt(id);
+    }
+    console.log('Tile constants built:', TILES);
+}
+
+// Get tile ID by name (for dynamic tile lookup)
+function getTileIdByName(name) {
+    if (!tileManifest) return 0;
+    for (const [id, tile] of Object.entries(tileManifest.tiles)) {
+        if (tile.name === name) return parseInt(id);
+    }
+    return 0; // fallback to grass
+}
+
+// Check if inventory meets requirements for tile access
+function checkAccessRequirements(requires) {
+    const inventory = gameState.inventory || {};
+    
+    // Array of items: ["key", "axe"] - need at least 1 of each
+    if (Array.isArray(requires)) {
+        return requires.every(item => (inventory[item] || 0) >= 1);
+    }
+    
+    // Object with quantities: { wood: 100, stone: 50 }
+    if (typeof requires === "object") {
+        return Object.entries(requires).every(([item, qty]) => 
+            (inventory[item] || 0) >= qty
+        );
+    }
+    
+    return true;
 }
 
 // Load collectibles manifest from server
@@ -69,8 +110,8 @@ async function loadCollectiblesManifest() {
     } catch (error) {
         console.warn('Could not load collectibles manifest, using defaults');
         COLLECTIBLE_SVGS = {
-            gem: 'assets/map/collectibles/collectible-gem.svg',
-            coin: 'assets/map/collectibles/collectible-coin.svg'
+            gem: 'assets/map/elements/collectible-gem.svg',
+            coin: 'assets/map/elements/collectible-coin.svg'
         };
     }
 }
@@ -156,32 +197,39 @@ function isTileOverlay(tileId) {
 }
 
 // Drawing functions
-async function drawCollectibles() {
-    if (!gameState.collectibles) return;
+async function drawElements() {
+    if (!window.ElementInteractionManager) return;
     
-    const collectiblePromises = gameState.collectibles
-        .filter(c => !c.collected)
-        .map(async (collectible) => {
-            const px = collectible.x * TILE_SIZE;
-            const py = collectible.y * TILE_SIZE;
-            
-            const svgPath = COLLECTIBLE_SVGS[collectible.type];
-            
-            if (svgPath) {
-                const img = await loadSVGImage(svgPath);
-                if (img) {
-                    const grassImg = await loadSVGImage(getTilePath(TILES.GRASS));
-                    if (grassImg) {
-                        ctx.drawImage(grassImg, px, py, TILE_SIZE, TILE_SIZE);
-                    }
-                    ctx.drawImage(img, px, py, TILE_SIZE, TILE_SIZE);
-                } else {
-                    console.warn(`Collectible type "${collectible.type}" not found in manifest`);
-                }
+    const elements = ElementInteractionManager.getElementsForRender();
+    if (!elements || elements.length === 0) return;
+    
+    const elementPromises = elements.map(async (element) => {
+        const px = element.x * TILE_SIZE;
+        const py = element.y * TILE_SIZE;
+        
+        // Try to get element definition from manifest
+        const elementDef = ElementInteractionManager.getElementDefinition(element.type);
+        let svgPath = null;
+        
+        if (elementDef && elementDef.path) {
+            svgPath = 'assets/map/' + elementDef.path;
+        } else {
+            // Try collectibles as fallback (for collectible elements)
+            svgPath = COLLECTIBLE_SVGS[element.type];
+        }
+        
+        if (svgPath) {
+            const img = await loadSVGImage(svgPath);
+            if (img) {
+                ctx.drawImage(img, px, py, TILE_SIZE, TILE_SIZE);
+            } else if (elementDef && elementDef.fallbackColor) {
+                ctx.fillStyle = elementDef.fallbackColor;
+                ctx.fillRect(px + 4, py + 4, TILE_SIZE - 8, TILE_SIZE - 8);
             }
-        });
+        }
+    });
     
-    await Promise.all(collectiblePromises);
+    await Promise.all(elementPromises);
 }
 
 async function drawTile(x, y, type) {
@@ -405,8 +453,8 @@ async function render() {
     }
     await Promise.all(tilePromises);
     
-    // Draw collectibles using their types
-    await drawCollectibles();
+    // Draw all interactive elements (collectibles, transforms, etc.)
+    await drawElements();
     
     await drawStar(gameState.goalPos.x * TILE_SIZE + TILE_SIZE/2, 
                   gameState.goalPos.y * TILE_SIZE + TILE_SIZE/2);
@@ -498,8 +546,8 @@ function animateMove(fromX, fromY, toX, toY, direction) {
             }
             await Promise.all(tilePromises);
             
-            // Draw collectibles using their types
-            await drawCollectibles();
+            // Draw all interactive elements (collectibles, transforms, etc.)
+            await drawElements();
             
             // Draw goal star
             await drawStar(gameState.goalPos.x * TILE_SIZE + TILE_SIZE/2, 
@@ -533,8 +581,26 @@ function canMoveTo(x, y) {
     }
     
     const tile = gameState.mapData[y][x];
-    if (tile === TILES.TREE || tile === TILES.WATER || tile === TILES.ROCK) {
-        return false;
+    const tileInfo = tileManifest?.tiles[tile];
+    
+    // No manifest or no tile info = assume walkable
+    if (!tileInfo) return true;
+    
+    // No access restriction = walkable by default
+    if (!tileInfo.access) return true;
+    
+    // "blocked" = never passable
+    if (tileInfo.access === "blocked") return false;
+    
+    // Character type whitelist (e.g., ["boat", "ship", "fish"])
+    if (Array.isArray(tileInfo.access)) {
+        const charType = gameState.characterType || "player";
+        return tileInfo.access.includes(charType);
+    }
+    
+    // Inventory/resource requirements (e.g., { requires: ["key"] } or { requires: { wood: 100 } })
+    if (typeof tileInfo.access === "object" && tileInfo.access.requires) {
+        return checkAccessRequirements(tileInfo.access.requires);
     }
     
     return true;

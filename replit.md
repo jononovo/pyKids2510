@@ -274,7 +274,23 @@ Lessons are authored in Markdown files (`.md`), defining objectives, challenges,
 
 ### Map Graphics System
 
-SVG-based tile rendering system with assets organized in `assets/map/` (tiles, objects, special items). It supports automatic caching and preloading, with a fallback to programmatic rendering. A `tiles.json` manifest externalizes tile definitions, enabling easier customization. The system also supports full graphic maps (PNG/SVG backgrounds) where tiles can become transparent.
+SVG-based tile rendering system with assets organized in `assets/map/` (tiles, objects, elements, special items). It supports automatic caching and preloading, with a fallback to programmatic rendering. The system also supports full graphic maps (PNG/SVG backgrounds) where tiles can become transparent.
+
+**Asset Organization:**
+- `tiles/` - Static terrain tiles (grass, path, water, etc.)
+- `objects/` - Static decorative objects (trees, bushes, flowers)
+- `elements/` - All interactive elements (collectibles like coins/gems, transforms like doors/levers)
+- `special/` - Special items (star-goal)
+
+**Tile System (tiles.json)**: Single source of truth for all tile definitions:
+- `TILES` constant is dynamically generated from manifest at load time via `buildTileConstants()`
+- `getTileIdByName(name)` helper for looking up tile IDs by name
+- `access` property controls walkability:
+  - No access property = walkable by default
+  - `"blocked"` = never passable (tree, rock, bush)
+  - `["boat", "ship"]` = only these character types can pass (water)
+  - `{"requires": ["key"]}` or `{"requires": {"wood": 100}}` = inventory requirements
+- Adding new tiles requires only editing `assets/map/tiles.json` - no code changes needed
 
 ### Technical Implementations & Features
 
@@ -298,16 +314,32 @@ SVG-based tile rendering system with assets organized in `assets/map/` (tiles, o
   - **Mission State** (`mission-state.js`): Manages persistent chapter state including:
     - `inventory`: Collected resources (e.g., `{wood: 3, coin: 2}`)
     - `collectedItems`: Array of `{x, y, type}` for already-collected positions
+    - `elementStates`: Object tracking transformed elements (e.g., doors that have been opened)
     - `structures`: Array for built structures (future use)
   - **Level Types**: `exercise` (sandbox, no persistence) vs `mission/quest` (persistent inventory/progress)
   - **Map Inheritance**: Exercises use most recent map layout; missions prefer the last mission's map (via `lastMapCache`/`lastMissionMapCache`)
   - **Collect Command Integration**: `collect()` records items to MissionState inventory for mission levels, filtering already-collected positions
-  - **chapterState Format**: `{chapter: 1, inventory: {}, collectedItems: [], structures: []}`
+  - **chapterState Format**: `{chapter: 1, inventory: {}, collectedItems: [], structures: [], elementStates: {}}`
   - **Level Entry Snapshot** (`window.levelEntrySnapshot`): Reset functionality preserves the state when first entering a level:
     - `starterCode`: The code loaded when entering the level (saved code if available, otherwise starter code)
-    - `missionState`: Deep copy of MissionState at level entry (inventory, collectedItems, structures)
+    - `missionState`: Deep copy of MissionState at level entry (inventory, collectedItems, structures, elementStates)
     - `levelIndex`: Tracks which level the snapshot belongs to (prevents overwriting on same-level reloads)
     - Reset button restores code editor, MissionState, inventory UI, and collectible states to entry snapshot
+
+- **Element Interaction System** (`js/game-engine/element-interaction-logic.js`): Single source of truth for all interactive elements:
+  - **ElementInteractionManager**: Singleton class managing element loading, parsing, state, and interactions
+  - **Element Manifest** (`assets/map/elements.json`): Defines available elements (door, door-open, lever, button, etc.) with SVG paths and fallback colors
+  - **Syntax (outer array wrapper ALWAYS required)**:
+    - Single type: `[["type", [[coords...]]]]`
+    - Multiple types: `[["type1", [[coords...]]], ["type2", [[coords...]]]]`
+    - With trigger: `[["type", {"trigger": "on_step", "at": [[coords...]]}]]`
+  - **Element Types**:
+    - `collectibles:` - Items picked up with `collect()`, default trigger `on_collect`
+    - `transforms:` - Elements changed with `interact()`, default trigger `on_interact`
+  - **Transform Behavior**:
+    - Disappear: `["door", [[6,6]]]`
+    - Swap: `["door", "door-open", [[4,4]]]`
+  - **Trigger Types**: `on_collect`, `on_interact`, `on_step` (auto-trigger when player walks on tile)
 
 ## Documentation
 

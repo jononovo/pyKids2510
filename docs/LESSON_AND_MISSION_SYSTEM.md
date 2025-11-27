@@ -354,7 +354,7 @@ window.levelEntrySnapshot = {
 
 6. **Inventory panel doesn't use collectible icons**
    - Just shows text like "wood: 3"
-   - Could use SVG icons from `assets/map/collectibles/`
+   - Could use SVG icons from `assets/map/elements/`
 
 ---
 
