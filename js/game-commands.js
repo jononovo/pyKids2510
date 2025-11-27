@@ -438,6 +438,10 @@
     };
 
     window.resetGame = function() {
+        if (!confirm('Reset to starter code?\n\nYour code and level progress will be cleared.')) {
+            return;
+        }
+        
         gameState.playerPos = { x: gameState.startPos.x, y: gameState.startPos.y };
         gameState.playerDirection = 'right';
         gameState.isRunning = false;
