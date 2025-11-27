@@ -327,8 +327,7 @@ function canMoveTo(x, y) {
     }
     
     const tile = gameState.mapData[y][x];
-    const tileManifest = window.tileManifest;
-    const tileInfo = tileManifest?.tiles[tile];
+    const tileInfo = tileDataById[tile];
     
     if (!tileInfo) return true;
     if (!tileInfo.access) return true;

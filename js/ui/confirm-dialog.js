@@ -31,7 +31,6 @@ const ConfirmDialog = (function() {
         
         cancelBtn.addEventListener('click', function(e) {
             e.stopPropagation();
-            console.log('[ConfirmDialog] Cancel clicked');
             hide();
             if (resolveCallback) {
                 resolveCallback(false);
@@ -41,7 +40,6 @@ const ConfirmDialog = (function() {
         
         okBtn.addEventListener('click', function(e) {
             e.stopPropagation();
-            console.log('[ConfirmDialog] OK clicked');
             hide();
             if (resolveCallback) {
                 resolveCallback(true);
@@ -51,7 +49,6 @@ const ConfirmDialog = (function() {
         
         overlay.addEventListener('click', function(e) {
             if (e.target === overlay) {
-                console.log('[ConfirmDialog] Overlay background clicked');
                 hide();
                 if (resolveCallback) {
                     resolveCallback(false);
@@ -64,7 +61,6 @@ const ConfirmDialog = (function() {
     }
     
     function show(options) {
-        console.log('[ConfirmDialog] show() called');
         init();
         
         const title = options.title || 'Confirm';
@@ -80,8 +76,6 @@ const ConfirmDialog = (function() {
         const overlay = document.getElementById('confirm-dialog-overlay');
         overlay.style.display = 'flex';
         overlay.classList.add('show');
-        
-        console.log('[ConfirmDialog] Modal visible, waiting for user input');
         
         return new Promise(function(resolve) {
             resolveCallback = resolve;

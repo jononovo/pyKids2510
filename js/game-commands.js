@@ -477,8 +477,6 @@
     };
 
     window.resetGame = async function() {
-        console.log('[resetGame] Reset button clicked');
-        
         if (window.ConfirmDialog) {
             var confirmed = await ConfirmDialog.show({
                 title: 'Reset Level',
@@ -486,11 +484,8 @@
                 okText: 'Reset',
                 cancelText: 'Cancel'
             });
-            console.log('[resetGame] Dialog result:', confirmed);
             if (!confirmed) return;
         }
-        
-        console.log('[resetGame] Performing reset...');
         
         if (window.ResetManager) {
             ResetManager.fullReset(gameState);
@@ -506,7 +501,6 @@
         
         if (window.EditorManager) {
             EditorManager.updateCode(starterCode);
-            console.log('[resetGame] Editor reset to starter code, length:', starterCode.length);
         }
         
         // Handle Blockly mode if active
@@ -515,8 +509,6 @@
                 window.BlocklyIntegration.convertFromText(starterCode);
             }
         }
-        
-        console.log('[resetGame] Reset complete');
     };
 
     // ========== EXPORTS ==========
