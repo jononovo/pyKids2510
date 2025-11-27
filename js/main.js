@@ -106,22 +106,29 @@ function playStepSound() {
 function playBumpSound() {
     if (!audioContext) initAudio();
     
-    const duration = 0.15;
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
+    const t = audioContext.currentTime;
     
-    oscillator.type = 'sawtooth';
-    oscillator.frequency.setValueAtTime(250, audioContext.currentTime);
-    oscillator.frequency.exponentialRampToValueAtTime(60, audioContext.currentTime + 0.08);
+    const osc1 = audioContext.createOscillator();
+    const gain1 = audioContext.createGain();
+    osc1.type = 'sine';
+    osc1.frequency.value = 330;
+    gain1.gain.setValueAtTime(0.06, t);
+    gain1.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+    osc1.connect(gain1);
+    gain1.connect(audioContext.destination);
+    osc1.start(t);
+    osc1.stop(t + 0.08);
     
-    gainNode.gain.setValueAtTime(0.08, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + duration);
+    const osc2 = audioContext.createOscillator();
+    const gain2 = audioContext.createGain();
+    osc2.type = 'sine';
+    osc2.frequency.value = 262;
+    gain2.gain.setValueAtTime(0.06, t + 0.1);
+    gain2.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+    osc2.connect(gain2);
+    gain2.connect(audioContext.destination);
+    osc2.start(t + 0.1);
+    osc2.stop(t + 0.18);
 }
 
 // ============================================
