@@ -13,10 +13,11 @@ This comprehensive guide covers everything you need to know about creating lesso
 5. [Map System](#map-system)
 6. [Tile Reference](#tile-reference)
 7. [Elements System](#elements-system)
-8. [Available Python Commands](#available-python-commands)
-9. [Mission State System](#mission-state-system)
-10. [Best Practices](#best-practices)
-11. [Complete Examples](#complete-examples)
+8. [Mega-Elements System](#mega-elements-system)
+9. [Available Python Commands](#available-python-commands)
+10. [Mission State System](#mission-state-system)
+11. [Best Practices](#best-practices)
+12. [Complete Examples](#complete-examples)
 
 ---
 
@@ -403,6 +404,107 @@ collectibles: ["custom-item", [[5,3]]]
 ```
 
 Ensure `assets/map/elements/custom-item.svg` exists.
+
+---
+
+## Mega-Elements System
+
+Mega-elements are multi-tile graphics (2x2, 3x3, etc.) for structures like houses, shops, and landmarks.
+
+### Key Files
+
+| File | Purpose |
+|------|---------|
+| `assets/map/mega-elements.json` | Manifest defining all mega-elements |
+| `assets/map/mega-elements/*.svg` | SVG graphics (sized to tile dimensions) |
+| `js/game-engine/mega-element-manager.js` | Loading, parsing, collision detection |
+
+### Manifest Schema
+
+```json
+{
+  "megaElements": {
+    "house": {
+      "name": "house",
+      "path": "mega-elements/house-3x3.svg",
+      "width": 3,
+      "height": 3,
+      "fallbackColor": "#8B4513",
+      "blockedTiles": [[0,1], [1,1], [2,1], [0,2], [1,2], [2,2]],
+      "description": "A cozy cottage"
+    }
+  }
+}
+```
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `name` | string | Identifier for the mega-element |
+| `path` | string | Relative path from `assets/map/` |
+| `width` | number | Width in tiles |
+| `height` | number | Height in tiles |
+| `fallbackColor` | string | Hex color when SVG fails |
+| `blockedTiles` | array\|"all" | Tile offsets `[[dx,dy],...]` that block movement |
+| `description` | string | Optional description |
+
+### Map Syntax
+
+Place mega-elements using the `megaElements:` property in the map block:
+
+```
+megaElements: [["house", [[15,4]]], ["shop", [[1,4]]]]
+```
+
+**Format:** `[["type", [[x,y], [x2,y2], ...]]]`
+
+- Position is the **upper-left corner** of the mega-element
+- Element extends **right** and **down** from that position
+- Multiple instances: `["house", [[5,2], [12,8]]]`
+
+### Collision Detection
+
+`blockedTiles` defines which tiles within the mega-element block player movement:
+
+```
+blockedTiles: [[0,1], [1,1], [2,1], [0,2], [1,2], [2,2]]
+```
+
+- Offsets are relative to anchor position (upper-left)
+- Row 0 is often unblocked (roof overhang)
+- Use `"all"` to block entire footprint
+
+**Example 3x3 house at position (5,2):**
+```
+       x=5   x=6   x=7
+y=2  [ roof  roof  roof ]  <- row 0, unblocked (visual only)
+y=3  [ wall  door  wall ]  <- row 1, blocked
+y=4  [ wall  wall  wall ]  <- row 2, blocked
+```
+
+### SVG Requirements
+
+- **Dimensions:** `width * 32` x `height * 32` pixels (e.g., 3x3 = 96x96)
+- **ViewBox:** Match pixel dimensions `viewBox="0 0 96 96"`
+- **Style:** Use `shape-rendering="crispEdges"` for pixel art
+- **Visual style:** 3/4 RPG view (roof from above + front wall visible)
+
+### Rendering Order
+
+Mega-elements render after regular tiles but before the player:
+`background → tiles → elements → mega-elements → goal star → player`
+
+### Available Mega-Elements
+
+| Type | Size | Description |
+|------|------|-------------|
+| `house` | 3x3 | Cottage with sloped roof and front door |
+| `shop` | 3x3 | Trader stand with stone counter and awning |
+
+### Adding Custom Mega-Elements
+
+1. Create SVG in `assets/map/mega-elements/` (sized correctly)
+2. Add entry to `assets/map/mega-elements.json`
+3. Reference in level: `megaElements: [["my-element", [[x,y]]]]`
 
 ---
 
