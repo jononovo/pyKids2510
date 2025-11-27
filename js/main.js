@@ -106,14 +106,15 @@ function playStepSound() {
 function playBumpSound() {
     if (!audioContext) initAudio();
     
-    const duration = 0.12;
+    const duration = 0.15;
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
     
-    oscillator.frequency.value = 80;
-    oscillator.type = 'triangle';
+    oscillator.type = 'sawtooth';
+    oscillator.frequency.setValueAtTime(250, audioContext.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(60, audioContext.currentTime + 0.08);
     
-    gainNode.gain.setValueAtTime(0.03, audioContext.currentTime);
+    gainNode.gain.setValueAtTime(0.08, audioContext.currentTime);
     gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
     
     oscillator.connect(gainNode);
