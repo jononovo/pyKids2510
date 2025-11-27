@@ -2,8 +2,11 @@
 // GAME ENGINE - Rendering & Movement
 // ============================================
 
-// Tile type constants - generated dynamically from manifest
+// Tile type constants - generated from manifest
 let TILES = {};
+
+// Tile data lookup by ID - for rendering
+let tileDataById = {};
 
 // SVG tile cache to store loaded images
 const svgTileCache = new Map();
@@ -41,6 +44,15 @@ async function loadTilesManifest() {
     try {
         const response = await fetch('/assets/map/tiles.json');
         tileManifest = await response.json();
+        
+        // Build TILES constant and tileDataById lookup from manifest
+        TILES = {};
+        tileDataById = {};
+        for (const [name, data] of Object.entries(tileManifest.tiles)) {
+            TILES[name] = data.id;
+            tileDataById[data.id] = data;
+        }
+        
         console.log('Tiles manifest loaded:', Object.keys(tileManifest.tiles).length, 'tiles');
         
         // Build TILES constants from manifest
@@ -166,24 +178,21 @@ async function preloadSVGTiles() {
     console.log('SVG tiles preloaded');
 }
 
-// Helper to get tile SVG path from manifest
-function getTilePath(tileType) {
-    if (!tileManifest) return null;
-    const tile = tileManifest.tiles[tileType];
+// Helper to get tile SVG path by ID
+function getTilePath(tileId) {
+    const tile = tileDataById[tileId];
     return tile ? 'assets/map/' + tile.path : null;
 }
 
-// Helper to get tile fallback color from manifest
-function getTileFallbackColor(tileType) {
-    if (!tileManifest) return '#333';
-    const tile = tileManifest.tiles[tileType];
+// Helper to get tile fallback color by ID
+function getTileFallbackColor(tileId) {
+    const tile = tileDataById[tileId];
     return tile ? tile.fallbackColor : '#333';
 }
 
 // Helper to check if tile is an overlay (should draw on grass)
-function isTileOverlay(tileType) {
-    if (!tileManifest) return false;
-    const tile = tileManifest.tiles[tileType];
+function isTileOverlay(tileId) {
+    const tile = tileDataById[tileId];
     return tile ? tile.overlayOnGrass === true : false;
 }
 
