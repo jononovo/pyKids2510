@@ -44,9 +44,18 @@ Two parallel systems handle large multi-tile graphics:
 
 This ensures terrain features appear as background, while structures render in front of the player.
 
+### Reset System
+
+A centralized `ResetManager` (`js/game-engine/reset-manager.js`) handles all game state resets with two modes:
+
+-   **Full Reset** (`fullReset()`): Triggered by the Reset button. Clears everything: player position, vehicles, elements, collectibles, inventory, mission state, editor code, and UI.
+-   **Soft Reset** (`softReset()`): Triggered before running code. Only resets player position and vehicles, preserving the run-lock to prevent concurrent execution.
+
+This separation ensures the Run button stays disabled during code execution (preventing re-entry) while the Reset button fully restores the level to its starting state.
+
 ### Technical Implementations & Features
 
--   **Code Execution**: Python-like commands are parsed and executed visually. Skulpt integration consolidates game commands into `js/game-commands.js`, generating the Skulpt module source at load time. Commands support multi-argument and repetition, with simplified aliases and an auto-import prelude. The `Editor Manager` (`js/editor-manager.js`) handles editor functionalities.
+-   **Code Execution**: Python-like commands are parsed and executed visually. Skulpt integration consolidates game commands into `js/game-commands.js`, generating the Skulpt module source at load time. Commands support multi-argument and repetition, with simplified aliases and an auto-import prelude. The `Editor Manager` (`js/editor-manager.js`) handles editor functionalities with DOM element tracking to handle element recreation.
 -   **Visual Coding**: Integration with Blockly allows toggling between a Python text editor and visual blocks, with custom blocks for movement commands.
 -   **Coding Tutor**: An intelligent, rules-based tutor analyzes student code against solutions, providing contextual help and recommendations with an "Apply" button.
 -   **Code Book**: A slide-out panel provides documentation and examples for in-game functions.

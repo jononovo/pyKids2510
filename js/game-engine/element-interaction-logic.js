@@ -109,13 +109,26 @@
         _getDefaultTrigger(sectionName) {
             const defaults = {
                 'collectibles': 'on_collect',
-                'transforms': 'on_interact'
+                'transforms': 'on_interact',
+                'vehicles': 'on_interact'
             };
             return defaults[sectionName] || 'on_interact';
         },
 
         _generateId(type, x, y) {
             return `${type}_${x}_${y}`;
+        },
+
+        _getTargetX(x, direction) {
+            if (direction === 'left') return x - 1;
+            if (direction === 'right') return x + 1;
+            return x;
+        },
+
+        _getTargetY(y, direction) {
+            if (direction === 'up') return y - 1;
+            if (direction === 'down') return y + 1;
+            return y;
         },
 
         loadLevelElements(levelData) {
@@ -129,6 +142,10 @@
             if (levelData.map && levelData.map.transforms) {
                 const parsed = this.parseElementSection('transforms', levelData.map.transforms);
                 this.elements.push(...parsed);
+            }
+
+            if (window.VehicleInteractionManager) {
+                VehicleInteractionManager.loadLevelVehicles(levelData);
             }
 
             this.restoreStates();
@@ -183,6 +200,19 @@
         },
 
         handleInteract(x, y, gameState) {
+            if (window.VehicleInteractionManager) {
+                if (VehicleInteractionManager.isBoarded()) {
+                    return VehicleInteractionManager.handleInteract(x, y, gameState);
+                }
+                
+                const targetX = this._getTargetX(x, gameState.playerDirection);
+                const targetY = this._getTargetY(y, gameState.playerDirection);
+                const vehicle = VehicleInteractionManager.getVehicleAt(targetX, targetY);
+                if (vehicle) {
+                    return VehicleInteractionManager.handleBoard(vehicle, gameState);
+                }
+            }
+            
             const element = this.getElementAt(x, y);
             if (!element) return { success: false, message: 'Nothing to interact with here' };
             
@@ -269,9 +299,13 @@
             }
         },
 
-        reset() {
+        reset(gameState) {
             this.elements = [];
             this.elementStates = {};
+            
+            if (window.VehicleInteractionManager) {
+                VehicleInteractionManager.reset(gameState);
+            }
         },
 
         resetToSnapshot(snapshot) {

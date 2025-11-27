@@ -53,6 +53,8 @@ async function loadTilesManifest() {
             tileDataById[data.id] = data;
         }
         
+        window.tileDataById = tileDataById;
+        
         console.log('Tiles manifest loaded:', Object.keys(tileManifest.tiles).length, 'tiles');
         console.log('Tile constants built:', TILES);
     } catch (error) {
@@ -260,6 +262,40 @@ async function drawMegaElements() {
     await Promise.all(megaPromises);
 }
 
+async function drawVehicles() {
+    if (!window.VehicleInteractionManager) return;
+    
+    const vehicles = VehicleInteractionManager.getVehiclesForRender();
+    if (!vehicles || vehicles.length === 0) return;
+    
+    const vehiclePromises = vehicles.map(async (vehicle) => {
+        const px = vehicle.x * TILE_SIZE;
+        const py = vehicle.y * TILE_SIZE;
+        
+        const vehicleDef = VehicleInteractionManager.getVehicleDefinition(vehicle.type);
+        if (!vehicleDef) return;
+        
+        const width = (vehicleDef.width || 1) * TILE_SIZE;
+        const height = (vehicleDef.height || 1) * TILE_SIZE;
+        
+        if (vehicleDef.path) {
+            const svgPath = 'assets/map/' + vehicleDef.path;
+            const img = await loadSVGImage(svgPath);
+            if (img) {
+                ctx.drawImage(img, px, py, width, height);
+            } else if (vehicleDef.fallbackColor) {
+                ctx.fillStyle = vehicleDef.fallbackColor;
+                ctx.fillRect(px + 4, py + 4, width - 8, height - 8);
+            }
+        } else if (vehicleDef.fallbackColor) {
+            ctx.fillStyle = vehicleDef.fallbackColor;
+            ctx.fillRect(px + 4, py + 4, width - 8, height - 8);
+        }
+    });
+    
+    await Promise.all(vehiclePromises);
+}
+
 async function drawMegaObjects() {
     if (!window.MegaObjectManager) return;
     
@@ -380,7 +416,43 @@ function drawTileHover(x, y) {
     ctx.fillRect(px + TILE_SIZE - thickness, py + TILE_SIZE - cornerLength, thickness, cornerLength); // Vertical
 }
 
+async function drawCharacterVehicle(x, y) {
+    if (!window.VehicleInteractionManager) return;
+    
+    const currentVehicle = VehicleInteractionManager.getCurrentVehicle();
+    if (!currentVehicle) return;
+    
+    const vehicleDef = VehicleInteractionManager.getVehicleDefinition(currentVehicle.type);
+    if (!vehicleDef) return;
+    
+    const px = x * TILE_SIZE;
+    const py = y * TILE_SIZE;
+    const width = (vehicleDef.width || 1) * TILE_SIZE;
+    const height = (vehicleDef.height || 1) * TILE_SIZE;
+    
+    if (vehicleDef.path) {
+        const svgPath = 'assets/map/' + vehicleDef.path;
+        const img = await loadSVGImage(svgPath);
+        if (img) {
+            ctx.drawImage(img, px, py, width, height);
+        } else if (vehicleDef.fallbackColor) {
+            ctx.fillStyle = vehicleDef.fallbackColor;
+            ctx.fillRect(px + 4, py + 4, width - 8, height - 8);
+        }
+    } else if (vehicleDef.fallbackColor) {
+        ctx.fillStyle = vehicleDef.fallbackColor;
+        ctx.fillRect(px + 4, py + 4, width - 8, height - 8);
+    }
+}
+
 function drawCharacter(x, y, direction) {
+    const charType = gameState.characterType || 'player';
+    
+    if (charType !== 'player' && window.VehicleInteractionManager && VehicleInteractionManager.isBoarded()) {
+        drawCharacterVehicle(x, y);
+        return;
+    }
+    
     const cx = x * TILE_SIZE + TILE_SIZE / 2;
     const cy = y * TILE_SIZE + TILE_SIZE / 2;
     
@@ -437,6 +509,13 @@ function drawCharacter(x, y, direction) {
 }
 
 function drawCharacterWithHop(x, y, direction, hopHeight) {
+    const charType = gameState.characterType || 'player';
+    
+    if (charType !== 'player' && window.VehicleInteractionManager && VehicleInteractionManager.isBoarded()) {
+        drawCharacterVehicle(x, y);
+        return;
+    }
+    
     const cx = x * TILE_SIZE + TILE_SIZE / 2;
     const cy = y * TILE_SIZE + TILE_SIZE / 2;
     
@@ -516,6 +595,9 @@ async function render() {
     
     // Draw all interactive elements (collectibles, transforms, etc.)
     await drawElements();
+    
+    // Draw vehicles (boats, etc.) that are not currently boarded
+    await drawVehicles();
     
     // Draw mega-elements (multi-tile elements like houses, mountains)
     await drawMegaElements();
@@ -615,6 +697,9 @@ function animateMove(fromX, fromY, toX, toY, direction) {
             
             // Draw all interactive elements (collectibles, transforms, etc.)
             await drawElements();
+            
+            // Draw vehicles (boats, etc.) that are not currently boarded
+            await drawVehicles();
             
             // Draw mega-elements (multi-tile elements like houses, mountains)
             await drawMegaElements();
