@@ -107,28 +107,23 @@ function playBumpSound() {
     if (!audioContext) initAudio();
     
     const t = audioContext.currentTime;
+    const duration = 0.12;
     
-    const osc1 = audioContext.createOscillator();
-    const gain1 = audioContext.createGain();
-    osc1.type = 'sine';
-    osc1.frequency.value = 330;
-    gain1.gain.setValueAtTime(0.06, t);
-    gain1.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
-    osc1.connect(gain1);
-    gain1.connect(audioContext.destination);
-    osc1.start(t);
-    osc1.stop(t + 0.08);
+    const osc = audioContext.createOscillator();
+    const gain = audioContext.createGain();
     
-    const osc2 = audioContext.createOscillator();
-    const gain2 = audioContext.createGain();
-    osc2.type = 'sine';
-    osc2.frequency.value = 262;
-    gain2.gain.setValueAtTime(0.06, t + 0.1);
-    gain2.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
-    osc2.connect(gain2);
-    gain2.connect(audioContext.destination);
-    osc2.start(t + 0.1);
-    osc2.stop(t + 0.18);
+    osc.type = 'square';
+    osc.frequency.value = 150;
+    
+    gain.gain.setValueAtTime(0.04, t);
+    gain.gain.linearRampToValueAtTime(0.03, t + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + duration);
+    
+    osc.connect(gain);
+    gain.connect(audioContext.destination);
+    
+    osc.start(t);
+    osc.stop(t + duration);
 }
 
 // ============================================
