@@ -53,6 +53,8 @@ async function loadTilesManifest() {
             tileDataById[data.id] = data;
         }
         
+        window.tileDataById = tileDataById;
+        
         console.log('Tiles manifest loaded:', Object.keys(tileManifest.tiles).length, 'tiles');
         console.log('Tile constants built:', TILES);
     } catch (error) {
