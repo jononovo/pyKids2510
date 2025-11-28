@@ -23,6 +23,9 @@ This comprehensive guide covers everything you need to know about creating lesso
 15. [Tests System](#tests-system)
 16. [Best Practices](#best-practices)
 17. [Complete Examples](#complete-examples)
+18. [Troubleshooting](#troubleshooting)
+19. [Technical Reference](#technical-reference)
+20. [Quick Reference: All Features](#quick-reference-all-features)
 
 ---
 
@@ -1579,6 +1582,221 @@ The test system consists of three main components:
    - `element_state`: Checks transformed elements
 
 3. **test-runner.js**: Orchestrates test execution with fallback to goalPos when no tests defined
+
+---
+
+## Quick Reference: All Features
+
+A comprehensive summary of every feature available for lesson authoring.
+
+### Level Types
+
+| Type | Title Pattern | State Persistence |
+|------|---------------|-------------------|
+| Mission | `## MISSION 1: NAME` | Inventory/collected items carry forward |
+| Quest | `## QUEST 1: NAME` | Inventory/collected items carry forward |
+| Exercise | `## LESSON 1: NAME` | Fresh each run (no persistence) |
+
+### Template Sections
+
+| Section | Required | Purpose |
+|---------|----------|---------|
+| `## TITLE` | Yes | Level title (determines type) |
+| `### AVAILABLE AFTER` | No | Prerequisites |
+| `### OBJECTIVE` | Yes | Main goal (use `>` blockquote) |
+| `### SUCCESS CRITERIA` | No | Completion requirements |
+| `### REWARDS` | No | What player earns |
+| `<!-- Starter Code -->` | Yes | Initial editor code |
+| `<!-- Solution -->` | No | Reference solution |
+| `<!-- Map -->` | Yes | Map layout + config |
+| `<!-- Tests -->` | No | Custom completion tests |
+
+### Tile IDs
+
+| ID | Name | Behavior |
+|----|------|----------|
+| 0 | grass | walkable |
+| 1 | grass-dark | walkable |
+| 2 | path | walkable |
+| 3 | tree | blocked |
+| 4 | bush | blocked |
+| 5 | water | boat/ship only |
+| 6 | rock | blocked |
+| 7 | flower | walkable |
+| 8 | water-dark | boat/ship only |
+
+### Map Properties
+
+| Property | Syntax | Notes |
+|----------|--------|-------|
+| startPos | `startPos: X,Y` | Player spawn position |
+| goalPos | `goalPos: X,Y` | Star/goal location |
+| graphic | `graphic: path/to/bg.png` | Optional background image |
+| Map inheritance | Omit `[...]` rows | Level inherits previous mission's map |
+
+### Collectibles Syntax
+
+```
+# Simple position list
+collectibles: [["coin", [[5,3],[8,9]]]]
+
+# Multiple types
+collectibles: [["gem", [[5,3]]], ["coin", [[2,4]]]]
+
+# With config object
+collectibles: [["key", {"at": [[4,5]]}]]
+
+# Emit signal on collect
+collectibles: [["key", {"at": [[4,5]], "on_collect": "got_key"}]]
+
+# Auto-collect on step
+collectibles: [["gem", {"trigger": "on_step", "at": [[5,3]]}]]
+
+# Spawn-gated (starts hidden, appears on signal)
+collectibles: [["gem", {"spawn": "unlocked", "at": [[8,8]]}]]
+
+# Remove-gated (disappears on signal)
+collectibles: [["barrier", {"remove": "button_pressed", "at": [[10,5]]}]]
+```
+
+### Transforms Syntax
+
+```
+# Disappear on interact
+transforms: [["door", [[6,6]]]]
+
+# Replace with another element
+transforms: [["door", "door-open", [[4,4]]]]
+
+# Auto-trigger on step
+transforms: [["plate", "plate-down", {"trigger": "on_step", "at": [[7,7]]}]]
+
+# Signal-triggered transform
+transforms: [["door", "door-open", {"on": "lever_pulled", "at": [[8,8]]}]]
+
+# Emit signal on interact
+transforms: [["lever", "lever-on", {"at": [[3,3]], "on_interact": "lever_pulled"}]]
+
+# Emit signal on step
+transforms: [["plate", "plate-down", {"trigger": "on_step", "at": [[5,5]], "on_step": "plate_pressed"}]]
+```
+
+### Vehicles Syntax
+
+```
+# Simple position
+vehicles: [["boat", [[5,3]]]]
+
+# Multiple positions
+vehicles: [["boat", [[5,3],[10,8]]]]
+
+# Spawn-gated (hidden until signal)
+vehicles: [["boat", {"spawn": "got_key", "at": [[2,7]]}]]
+```
+
+### Mega-Elements & Mega-Objects Syntax
+
+```
+# Mega-elements (blocking multi-tile structures)
+megaElements: [["house", [[15,4]]], ["shop", [[1,4]]]]
+
+# Mega-objects (walkable multi-tile terrain)
+megaObjects: [["moderate-mountain", [[5,2]]], ["highland-plateau", [[15,8]]]]
+```
+
+### Signal Properties
+
+| Property | Context | Description |
+|----------|---------|-------------|
+| `on_collect` | collectibles | Emit signal when collected |
+| `on_step` | collectibles, transforms | Emit signal when stepped on |
+| `on_interact` | transforms | Emit signal when interacted with |
+| `spawn` | collectibles, vehicles, transforms | Start hidden; appear on signal |
+| `remove` | collectibles, transforms | Disappear on signal |
+| `on` | transforms | Trigger transform on signal |
+
+### Test Types
+
+```yaml
+# Position at goal
+- type: position
+  target: goal
+
+# Position at coordinates
+- type: position
+  target: [5, 3]
+
+# Inventory minimum
+- type: inventory
+  item: wood
+  min: 3
+
+# Inventory exact count
+- type: inventory
+  item: coin
+  exact: 10
+
+# Inventory maximum
+- type: inventory
+  item: gem
+  max: 5
+
+# All collectibles collected
+- type: collectibles
+  all: true
+
+# Collectible count
+- type: collectibles
+  count: 5
+
+# Specific collectible types
+- type: collectibles
+  types: ["wood", "gem"]
+
+# Code pattern match
+- type: code_regex
+  pattern: "for .* in range"
+  message: "Use a for loop"
+
+# Player facing direction
+- type: direction
+  facing: up  # up, down, left, right
+
+# Element transformed state
+- type: element_state
+  element: door
+  position: [6, 6]
+  state: door-open
+```
+
+### Map Inheritance Example
+
+**Level 1 (defines map):**
+```
+<!-- Map -->
+```
+[3,3,3,3,3,3,3,3,3,3],
+[3,0,0,0,5,5,5,0,0,3],
+[3,0,0,0,5,5,5,0,0,3],
+[3,3,3,3,3,3,3,3,3,3]
+startPos: 1,1
+goalPos: 8,2
+collectibles: [["coin", [[3,1]]]]
+```
+```
+
+**Level 2 (inherits map, no layout rows):**
+```
+<!-- Map -->
+```
+startPos: 1,2
+goalPos: 8,1
+collectibles: [["gem", [[5,2]]]]
+vehicles: [["boat", [[4,1]]]]
+```
+```
+
+Level 2 uses Level 1's tile layout but with different positions and elements.
 
 ---
 
