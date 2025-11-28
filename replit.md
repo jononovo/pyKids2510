@@ -116,7 +116,7 @@ A unified position validation system (`js/game-engine/proximity-guard.js`) that 
 **Usage in Commands:**
 - `collect()`: Uses check() with fallback to forward position
 - `backpack.append()`: Uses require() - must stand on collectible
-- `inventory["key"] += 1`: Uses require() with typeMatch validation
+- `inventory["key"] += 1`: Uses check() with typeMatch validation (forgiving - logs message but continues execution if no collectible found)
 
 **Script Loading Order**: After element-interaction-logic.js, before vehicle-interaction-logic.js
 

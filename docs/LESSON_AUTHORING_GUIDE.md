@@ -215,6 +215,50 @@ collectibles: [[X,Y,"type"],[X,Y,"type"]]  # Collectible items
 graphic: path/to/image.png  # Optional background image
 ```
 
+### Background Graphics
+
+You can use a custom image as a background behind the tile map. When a `graphic` is specified, tiles become transparent overlays, allowing the background image to show through.
+
+#### Tile Size Reference
+
+The engine uses **32×32 pixel tiles**. Calculate your background image dimensions based on your map size:
+
+```
+Image Width  = Map Width (tiles) × 32 pixels
+Image Height = Map Height (tiles) × 32 pixels
+```
+
+#### Standard Map Sizes
+
+| Size | Tiles | Pixel Dimensions |
+|------|-------|------------------|
+| Small | 16×11 | 512×352 pixels |
+| Medium (default) | 20×15 | 640×480 pixels |
+| Large | 24×24 | 768×768 pixels |
+| Extra Large | 60×60 | 1920×1920 pixels |
+
+**Note:** The default canvas is 640×480 pixels (20×15 tiles).
+
+#### Image Format Recommendations
+
+- **SVG** (recommended): Scales naturally without pixelation. Use `viewBox` matching your tile dimensions.
+- **PNG**: Use exact pixel dimensions to avoid scaling artifacts.
+
+#### Example Usage
+
+For a 20×20 tile map, create a 640×640 pixel background:
+
+```markdown
+<!-- Map -->
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+... (20 rows)
+startPos: 5,5
+goalPos: 15,15
+graphic: assets/backgrounds/forest-20x20.png
+```
+
+The `graphic` path is relative to the project root.
+
 ### Annotated Tiles
 
 You can mark tiles as interactive by adding an asterisk (`*`):
@@ -1008,6 +1052,12 @@ inventory["key"] = 5         # Direct assignment
 - Missing keys return `0` (no `KeyError`—beginner-safe)
 - Values clamp to `0` minimum (negative counts impossible)
 - Changes sync immediately to UI
+
+**Position-based collection (forgiving):**
+- `inventory["key"] += 1` requires the player to be standing on a matching collectible
+- If no collectible is found at the player's position, the command logs a message but **continues execution** (does not stop the program)
+- This "forgiving" behavior matches movement commands—the action doesn't happen, but subsequent code still runs
+- Students see feedback in the console: `[inventory] Nothing to collect here! Move to an item first.`
 
 #### Persistence
 - Mission/Quest levels: Source of truth is `MissionState.inventory`
