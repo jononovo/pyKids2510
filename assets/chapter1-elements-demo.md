@@ -132,8 +132,8 @@ player.move_forward(2)  # to (27,51)
 [5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5]
 startPos: 27,51
 goalPos: 27,51
-collectibles: [["coin", [[27,46],[27,44],[25,44],[29,44],[29,42]]]]
-vehicles: [["boat", [[17,51]]]]
+collectibles: [["coin", [[27,46],[27,44],[25,44],[29,44],[29,42]]], ["key", {"at": [[25,46]], "on_collect": "got_key"}]]
+vehicles: [["boat", {"spawn": "got_key", "at": [[17,51]]}]]
 megaObjects: [["large-mountain", [[42,8]]], ["moderate-mountain", [[3,33]]], ["highland-plateau", [[22,43]]]]
 megaElements: [["house", [[5,12]]]]
 ```
