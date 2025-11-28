@@ -295,6 +295,14 @@ async function loadLevel(levelIndex) {
             document.getElementById('run-btn').addEventListener('click', runCode);
             document.getElementById('reset-btn').addEventListener('click', resetGame);
             
+            // Add keyboard shortcut: Cmd+Enter (macOS) / Ctrl+Enter (Windows) to run code
+            document.addEventListener('keydown', function(e) {
+                if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+                    e.preventDefault();
+                    runCode();
+                }
+            });
+            
             // Initialize tutor toggle button
             const tutorToggle = document.getElementById('tutor-toggle');
             if (tutorToggle && window.toggleTutor) {
