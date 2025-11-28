@@ -166,40 +166,51 @@ function animateCollectSparkle(tileX, tileY) {
     const tilePixelX = tileX * TILE_SIZE + TILE_SIZE / 2;
     const tilePixelY = tileY * TILE_SIZE + TILE_SIZE / 2;
     
-    const startX = viewportRect.left + cam.panX + tilePixelX * cam.zoom;
-    const startY = viewportRect.top + cam.panY + tilePixelY * cam.zoom;
+    const baseX = viewportRect.left + cam.panX + tilePixelX * cam.zoom;
+    const baseY = viewportRect.top + cam.panY + tilePixelY * cam.zoom;
     
     const endX = invRect.left + invRect.width / 2;
     const endY = invRect.top + 20;
     
-    const sparkle = document.createElement('div');
-    sparkle.style.cssText = `
-        position: fixed;
-        left: ${startX}px;
-        top: ${startY}px;
-        width: 16px;
-        height: 16px;
-        background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,215,0,0.6) 40%, transparent 70%);
-        border-radius: 50%;
-        pointer-events: none;
-        z-index: 9999;
-        box-shadow: 0 0 8px rgba(255,215,0,0.6), 0 0 16px rgba(255,180,0,0.4);
-        transition: left 1.1s cubic-bezier(0.25, 0.1, 0.25, 1), 
-                    top 1.1s cubic-bezier(0.25, 0.1, 0.25, 1),
-                    transform 1.1s ease-out,
-                    opacity 1.1s ease-out;
-    `;
-    document.body.appendChild(sparkle);
+    const sparkles = [
+        { size: 16, delay: 0, offsetX: 0, offsetY: 0 },
+        { size: 10, delay: 70, offsetX: -6, offsetY: 4 },
+        { size: 8, delay: 140, offsetX: 5, offsetY: -3 }
+    ];
     
-    requestAnimationFrame(() => {
-        sparkle.style.left = endX + 'px';
-        sparkle.style.top = endY + 'px';
-        sparkle.style.transform = 'scale(0.5)';
-        sparkle.style.opacity = '0';
+    sparkles.forEach((cfg, i) => {
+        setTimeout(() => {
+            const sparkle = document.createElement('div');
+            sparkle.style.cssText = `
+                position: fixed;
+                left: ${baseX + cfg.offsetX}px;
+                top: ${baseY + cfg.offsetY}px;
+                width: ${cfg.size}px;
+                height: ${cfg.size}px;
+                background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,215,0,0.6) 40%, transparent 70%);
+                border-radius: 50%;
+                pointer-events: none;
+                z-index: ${9999 - i};
+                box-shadow: 0 0 ${cfg.size/2}px rgba(255,215,0,0.6), 0 0 ${cfg.size}px rgba(255,180,0,0.4);
+                transition: left 1.1s cubic-bezier(0.25, 0.1, 0.25, 1), 
+                            top 1.1s cubic-bezier(0.25, 0.1, 0.25, 1),
+                            transform 1.1s ease-out,
+                            opacity 1.1s ease-out;
+            `;
+            document.body.appendChild(sparkle);
+            
+            requestAnimationFrame(() => {
+                sparkle.style.left = endX + 'px';
+                sparkle.style.top = endY + 'px';
+                sparkle.style.transform = 'scale(0.5)';
+                sparkle.style.opacity = '0';
+            });
+            
+            setTimeout(() => sparkle.remove(), 1150);
+        }, cfg.delay);
     });
     
     setTimeout(() => {
-        sparkle.remove();
         inventoryPanel.style.transition = 'transform 0.2s ease-out';
         inventoryPanel.style.transform = 'scale(1.12)';
         setTimeout(() => {
