@@ -104,12 +104,12 @@
 }
 
 .run-btn.stop-btn {
-    background: #b0b0b0;
-    box-shadow: 0 3px 0 #888888;
+    background: #555;
+    box-shadow: 0 3px 0 #3a3a3a;
 }
 
 .run-btn.stop-btn:hover {
-    box-shadow: 0 2px 0 #888888;
+    box-shadow: 0 2px 0 #3a3a3a;
 }
 
 .secondary-btn {
