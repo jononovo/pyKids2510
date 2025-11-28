@@ -29,7 +29,7 @@ const SPEED_SETTINGS = {
     turbo: { duration: 100, label: 'Turbo', icon: '⚡' }
 };
 
-let currentSpeed = 'normal';
+let currentSpeed = 'fast';
 
 // Note: TILES and tileColors are now defined in game-engine.js
 
