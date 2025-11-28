@@ -154,30 +154,37 @@ tests:
 ---
 
 --- <!-- Mission 2 -->
-## MISSION 2: GEM HUNT
+## MISSION 2: KEY COLLECTION
 
 ### AVAILABLE AFTER
 Completing Mission 1
 
 ### OBJECTIVE
-> Explore the island and find hidden gems scattered across the terrain
+> Learn Python dictionary syntax by collecting keys with `inventory["key"] += 1`
 
-Search carefully across the island to discover 4 precious gems hidden in various locations.
+In this mission, you'll learn to track items using Python's dictionary syntax. The `inventory` is a Python dictionary that stores item counts. Instead of using `collect()`, you'll add items directly using:
+
+```python
+inventory["key"] += 1
+```
+
+Navigate to each key and use this syntax to add it to your inventory. This is how real Python programmers track quantities!
 
 ### SUCCESS CRITERIA
-- Find and collect all 4 hidden gems
-- Return to base camp
-- Face upward (north) when done
+- Find both keys on the island
+- Use `inventory["key"] += 1` to collect each one
+- Return to base camp facing north
 
 ### REWARDS
-- Gems: +4
+- Keys: +2
 - Unlocks Mission 3
 
 <!-- Starter Code -->
 ```
 import player
 
-# Find the hidden gems in the forest!
+# Navigate to the keys and collect them using:
+# inventory["key"] += 1
 player.move_forward()
 ```
 
@@ -185,42 +192,35 @@ player.move_forward()
 ```
 import player
 
-# Explore Starter Island for gems
-# Gem 1 - north then west
-player.move_forward(7)
+# Navigate to the first key at (24,46)
+player.move_forward(5)
 player.turn_left()
 player.move_forward(3)
-player.collect()  # Gem 1 at (24,44)
 
-# Gem 2 - continue west
-player.move_forward(3)
-player.collect()  # Gem 2 at (21,44)
+# Add the first key using dictionary syntax
+inventory["key"] += 1
 
-# Gem 3 - go east side
-player.turn_right()
-player.turn_right()
-player.move_forward(9)
-player.collect()  # Gem 3 at (30,44)
-
-# Gem 4 - north a bit
+# Move to the second key at (26,46)
 player.turn_left()
-player.move_forward(3)
-player.collect()  # Gem 4 at (30,41)
+player.turn_left()  # facing east
+player.move_forward(2)
 
-# Return to base camp facing north (currently at 30,41 facing north)
-player.turn_right()
+# Add the second key using dictionary syntax
+inventory["key"] += 1
+
+# Return to base camp facing north
+player.move_forward(1)  # to (27,46)
 player.turn_right()  # facing south
-player.move_forward(10)  # to (30,51)
-player.turn_right()  # facing west
-player.move_forward(3)  # to (27,51)
-player.turn_right()  # facing north
+player.move_forward(5)  # to (27,51)
+player.turn_left()
+player.turn_left()  # facing north
 ```
 
 <!-- Map -->
 ```
 startPos: 27,51
 goalPos: 27,51
-collectibles: [["gem", [[24,44],[21,44],[30,44],[30,41]]]]
+collectibles: [["key", [[24,46], [26,46]]]]
 ```
 
 <!-- Tests -->
@@ -229,8 +229,12 @@ pass_all: true
 tests:
   - type: position
     target: goal
-  - type: collectibles
-    all: true
+  - type: inventory
+    item: key
+    min: 2
+  - type: code_regex
+    pattern: "inventory\\[.key.\\]\\s*\\+=\\s*1"
+    message: "Use inventory[\"key\"] += 1 to add keys to your inventory"
   - type: direction
     facing: up
 ```

@@ -98,6 +98,28 @@ In this example, collecting the key emits "got_key" signal, which causes the boa
 
 **Signal Flow**: Element activated → emit signal → SignalManager notifies listeners → hidden elements spawn or visible elements get removed
 
+### ProximityGuard System
+
+A unified position validation system (`js/game-engine/proximity-guard.js`) that enforces proximity requirements for collection-related commands. Students must be standing on or near collectibles for inventory/backpack operations to work.
+
+**API Methods:**
+- `check(options)`: Validates position and returns element info (silent on failure)
+- `require(options)`: Validates position and throws user-friendly error on failure
+- `consume(element)`: Activates an element via ElementInteractionManager
+
+**Mode Options:**
+- `'self'`: Current player tile (default)
+- `'forward'`: Tile in front of player
+- `'adjacent'`: Any of the 4 surrounding tiles
+- `{radius: n}`: Any tile within n tiles (Manhattan distance)
+
+**Usage in Commands:**
+- `collect()`: Uses check() with fallback to forward position
+- `backpack.append()`: Uses require() - must stand on collectible
+- `inventory["key"] += 1`: Uses check() with typeMatch validation (forgiving - logs message but continues execution if no collectible found)
+
+**Script Loading Order**: After element-interaction-logic.js, before vehicle-interaction-logic.js
+
 ### Technical Implementations & Features
 
 -   **Code Execution**: Python-like commands are parsed and executed visually. Skulpt integration consolidates game commands into `js/game-commands.js`, generating the Skulpt module source at load time. Commands support multi-argument and repetition, with simplified aliases and an auto-import prelude. The `Editor Manager` (`js/editor-manager.js`) handles editor functionalities with DOM element tracking to handle element recreation.

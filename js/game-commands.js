@@ -216,15 +216,23 @@
             args: ['resource'],
             defaults: { resource: 'item' },
             execute: async function(resource) {
-                var pos = getTargetPosition();
+                // Use ProximityGuard to find collectible - check self first, then forward
+                var guardResult = window.ProximityGuard 
+                    ? ProximityGuard.check({ mode: 'self', sections: ['collectibles'] })
+                    : { success: false };
                 
-                // Use ElementInteractionManager for all collectibles
-                if (window.ElementInteractionManager) {
-                    var result = ElementInteractionManager.handleCollect(pos.px, pos.py, gameState);
-                    if (result.success) {
+                // Fallback: check the tile in front of player
+                if (!guardResult.success && window.ProximityGuard) {
+                    guardResult = ProximityGuard.check({ mode: 'forward', sections: ['collectibles'] });
+                }
+                
+                if (guardResult.success && guardResult.element) {
+                    // Consume the collectible
+                    var consumeResult = ProximityGuard.consume(guardResult.element);
+                    if (consumeResult.success) {
                         playCollectSound();
-                        animateCollectSparkle(pos.px, pos.py);
-                        console.log('[collect]', result.message);
+                        animateCollectSparkle(guardResult.position.x, guardResult.position.y);
+                        console.log('[collect]', consumeResult.message);
                         updateInventoryDisplay();
                         await render();
                     }
@@ -396,29 +404,22 @@
     // Special object methods: backpack.append() and backpack.remove()
     
     window.gameCommand_backpack_append = async function(itemType) {
-        var pos = getTargetPosition();
+        // Use ProximityGuard to validate position and find collectible
+        var guardResult = ProximityGuard.require({
+            mode: 'self',
+            sections: ['collectibles'],
+            errorTemplate: ProximityGuard.Messages.NOTHING_HERE
+        });
         
-        if (!window.ElementInteractionManager) {
-            console.log('[backpack.append] ElementInteractionManager not available');
-            return { success: false };
-        }
+        var element = guardResult.element;
         
-        var element = ElementInteractionManager.getElementAt(pos.px, pos.py);
-        if (!element) {
-            console.log('[backpack.append] Nothing to collect at current position');
-            return { success: false, message: 'Nothing to collect here' };
-        }
-        
-        if (element.section !== 'collectibles') {
-            console.log('[backpack.append] Element is not collectible');
-            return { success: false, message: 'This cannot be collected' };
-        }
-        
+        // Check if backpack is full
         if (window.MissionState && MissionState.isBackpackFull()) {
             console.log('[backpack.append] Backpack is full!');
-            return { success: false, message: 'Backpack is full!' };
+            throw new Error('Backpack is full! Remove an item first.');
         }
         
+        // Add to backpack
         var result = MissionState.addToBackpack(element.type);
         if (result.success) {
             ElementInteractionManager.elementStates[element.id] = { removed: true };
@@ -431,7 +432,7 @@
             gameState.backpack = MissionState.getBackpack();
             
             playCollectSound();
-            animateCollectSparkle(pos.px, pos.py);
+            animateCollectSparkle(element.x, element.y);
             updateBackpackDisplay();
             await render();
             console.log('[backpack.append]', result.message);
@@ -464,6 +465,105 @@
         
         await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
         return result;
+    };
+
+    // ========== INVENTORY DICTIONARY ACCESS ==========
+    // Allows students to use inventory["coin"] += 1 syntax
+    
+    window.gameCommand_inventory_get = function(key) {
+        if (window.MissionState && MissionState.isMissionLevel) {
+            return MissionState.getInventoryCount(key);
+        }
+        if (!gameState.inventory) {
+            gameState.inventory = {};
+        }
+        var value = gameState.inventory[key];
+        return (value !== undefined) ? value : 0;
+    };
+    
+    window.gameCommand_inventory_set = async function(key, value) {
+        value = parseInt(value) || 0;
+        value = Math.max(0, value);
+        
+        var currentValue = 0;
+        if (window.MissionState && MissionState.isMissionLevel) {
+            currentValue = MissionState.getInventoryCount(key);
+        } else if (gameState.inventory) {
+            currentValue = gameState.inventory[key] || 0;
+        }
+        
+        var diff = value - currentValue;
+        
+        // If trying to add items, check for a matching collectible (forgiving - no error thrown)
+        if (diff > 0) {
+            // Use ProximityGuard.check() - doesn't throw, just returns result
+            var guardResult = ProximityGuard.check({
+                mode: 'self',
+                sections: ['collectibles'],
+                typeMatch: key
+            });
+            
+            // If no collectible found, log message and continue (forgiving behavior)
+            if (!guardResult.success) {
+                var message = guardResult.message || 'Nothing to collect here! Move to an item first.';
+                console.log('[inventory]', message);
+                // Return current value unchanged - program continues
+                return currentValue;
+            }
+            
+            var element = guardResult.element;
+            
+            // Consume the collectible (removes it from the map)
+            var consumeResult = ProximityGuard.consume(element);
+            if (!consumeResult.success) {
+                console.log('[inventory] Failed to consume element - continuing');
+                // Return current value unchanged - program continues
+                return currentValue;
+            }
+            
+            // Note: activateElement already handles inventory updates
+            // But we sync to ensure consistency
+            console.log('[inventory] Collected', key, 'via inventory syntax at', element.x + ',' + element.y);
+            
+            // Get the updated inventory from the authoritative source
+            if (window.MissionState && MissionState.isMissionLevel) {
+                gameState.inventory = MissionState.getInventory();
+            }
+            
+            // Play collection feedback
+            playCollectSound();
+            animateCollectSparkle(element.x, element.y);
+            updateInventoryDisplay();
+            await render();
+            
+            var newValue = gameState.inventory[key] || 0;
+            console.log('[inventory]', key, 'now =', newValue);
+            return newValue;
+        } else if (diff < 0) {
+            // Decreasing inventory is allowed anywhere
+            if (window.MissionState && MissionState.isMissionLevel) {
+                var amountToRemove = Math.min(Math.abs(diff), currentValue);
+                if (amountToRemove > 0) {
+                    MissionState.removeFromInventory(key, amountToRemove);
+                }
+                gameState.inventory = MissionState.getInventory();
+            } else {
+                if (!gameState.inventory) {
+                    gameState.inventory = {};
+                }
+                if (value <= 0) {
+                    delete gameState.inventory[key];
+                } else {
+                    gameState.inventory[key] = value;
+                }
+            }
+            
+            updateInventoryDisplay();
+            await render();
+            console.log('[inventory] Set', key, '=', value);
+        }
+        
+        return value;
     };
 
     // ========== SKULPT MODULE SOURCE GENERATOR ==========
@@ -554,6 +654,32 @@
         lines.push('    }, "Backpack", []);');
         lines.push('');
         lines.push('    mod.backpack = Sk.misceval.callsim(BackpackClass);');
+        lines.push('');
+        
+        // Add inventory object using Sk.misceval.buildClass - Python dict-like interface
+        lines.push('    // Inventory object - Python dict-like interface with auto-init to 0');
+        lines.push('    var InventoryClass = Sk.misceval.buildClass(mod, function($gbl, $loc) {');
+        lines.push('        $loc.__init__ = new Sk.builtin.func(function(self) {});');
+        lines.push('');
+        lines.push('        $loc.__getitem__ = new Sk.builtin.func(function(self, key) {');
+        lines.push('            var js_key = Sk.ffi.remapToJs(key);');
+        lines.push('            var value = window.gameCommand_inventory_get(js_key);');
+        lines.push('            return Sk.ffi.remapToPy(value);');
+        lines.push('        });');
+        lines.push('');
+        lines.push('        $loc.__setitem__ = new Sk.builtin.func(function(self, key, value) {');
+        lines.push('            var js_key = Sk.ffi.remapToJs(key);');
+        lines.push('            var js_value = Sk.ffi.remapToJs(value);');
+        lines.push('            return Sk.misceval.promiseToSuspension(');
+        lines.push('                (async function() {');
+        lines.push('                    await window.gameCommand_inventory_set(js_key, js_value);');
+        lines.push('                    return Sk.builtin.none.none$;');
+        lines.push('                })()');
+        lines.push('            );');
+        lines.push('        });');
+        lines.push('    }, "Inventory", []);');
+        lines.push('');
+        lines.push('    mod.inventory = Sk.misceval.callsim(InventoryClass);');
         lines.push('');
         
         lines.push('    return mod;');
