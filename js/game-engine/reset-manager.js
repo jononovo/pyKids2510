@@ -13,6 +13,7 @@
             
             this.resetPlayerState(gameState);
             this.resetVehicles(gameState);
+            this.resetSignalListeners();
             this.resetElements(gameState);
             this.resetCollectibles(gameState);
             this.resetInventory(gameState);
@@ -31,6 +32,7 @@
             
             this.resetPlayerPosition(gameState);
             this.resetVehicles(gameState);
+            this.resetSignalListeners();
             
             if (typeof render === 'function') render();
             if (typeof updateViewport === 'function') updateViewport();
@@ -62,6 +64,18 @@
         resetVehicles(gameState) {
             if (window.VehicleInteractionManager) {
                 VehicleInteractionManager.reset(gameState);
+            }
+        },
+        
+        resetSignalListeners() {
+            if (window.SignalManager) {
+                SignalManager.reset();
+            }
+            if (window.ElementInteractionManager) {
+                ElementInteractionManager.reregisterSignalListeners();
+            }
+            if (window.VehicleInteractionManager) {
+                VehicleInteractionManager.reregisterSignalListeners();
             }
         },
 

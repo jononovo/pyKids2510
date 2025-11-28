@@ -61,8 +61,15 @@
                     if (Array.isArray(data)) {
                         const elements = this._parseCoordArray(elementType, replacement, data, sectionName);
                         parsed.push(...elements);
-                    } else if (typeof data === 'object' && data.trigger && data.at) {
-                        const elements = this._parseCoordArray(elementType, replacement, data.at, sectionName, data.trigger);
+                    } else if (typeof data === 'object' && data.at) {
+                        const options = {
+                            trigger: data.trigger || null,
+                            emit: data.emit || data.on_collect || data.on_step || data.on_interact || null,
+                            spawn: data.spawn || null,
+                            remove: data.remove || null,
+                            on: data.on || null
+                        };
+                        const elements = this._parseCoordArray(elementType, replacement, data.at, sectionName, options);
                         parsed.push(...elements);
                     }
                 }
@@ -71,9 +78,11 @@
             return parsed;
         },
 
-        _parseCoordArray(elementType, replacement, coords, sectionName, triggerOverride = null) {
+        _parseCoordArray(elementType, replacement, coords, sectionName, options = null) {
             const elements = [];
             const defaultTrigger = this._getDefaultTrigger(sectionName);
+            
+            const opts = (typeof options === 'object' && options !== null) ? options : { trigger: options };
             
             if (!Array.isArray(coords)) return elements;
 
@@ -82,10 +91,14 @@
                     type: elementType,
                     x: coords[0],
                     y: coords[1],
-                    trigger: triggerOverride || defaultTrigger,
+                    trigger: opts.trigger || defaultTrigger,
                     section: sectionName,
                     replacement: replacement,
-                    id: this._generateId(elementType, coords[0], coords[1])
+                    id: this._generateId(elementType, coords[0], coords[1]),
+                    emit: opts.emit || null,
+                    spawn: opts.spawn || null,
+                    remove: opts.remove || null,
+                    on: opts.on || null
                 });
             } else {
                 for (const coord of coords) {
@@ -94,10 +107,14 @@
                             type: elementType,
                             x: coord[0],
                             y: coord[1],
-                            trigger: triggerOverride || defaultTrigger,
+                            trigger: opts.trigger || defaultTrigger,
                             section: sectionName,
                             replacement: replacement,
-                            id: this._generateId(elementType, coord[0], coord[1])
+                            id: this._generateId(elementType, coord[0], coord[1]),
+                            emit: opts.emit || null,
+                            spawn: opts.spawn || null,
+                            remove: opts.remove || null,
+                            on: opts.on || null
                         });
                     }
                 }
@@ -133,6 +150,11 @@
 
         loadLevelElements(levelData) {
             this.elements = [];
+            this.elementStates = {};
+            
+            if (window.SignalManager) {
+                SignalManager.reset();
+            }
             
             if (levelData.map && levelData.map.collectibles) {
                 const parsed = this.parseElementSection('collectibles', levelData.map.collectibles);
@@ -148,25 +170,79 @@
                 VehicleInteractionManager.loadLevelVehicles(levelData);
             }
 
+            this._registerSignalListeners();
+
             this.restoreStates();
             
             console.log('[ElementInteraction] Loaded', this.elements.length, 'elements for level');
             return this.elements;
         },
+        
+        _registerSignalListeners() {
+            if (!window.SignalManager) return;
+            
+            for (const element of this.elements) {
+                if (element.spawn) {
+                    this.elementStates[element.id] = { ...this.elementStates[element.id], hidden: true };
+                    
+                    SignalManager.subscribe(element.spawn, () => {
+                        console.log('[ElementInteraction] Spawn triggered for:', element.type, 'at', element.x, element.y);
+                        const state = this.elementStates[element.id] || {};
+                        this.elementStates[element.id] = { ...state, hidden: false };
+                        this.persistStates();
+                    });
+                }
+                
+                if (element.remove) {
+                    SignalManager.subscribe(element.remove, () => {
+                        console.log('[ElementInteraction] Remove triggered for:', element.type, 'at', element.x, element.y);
+                        this.elementStates[element.id] = { removed: true };
+                        this.persistStates();
+                    });
+                }
+                
+                if (element.on && element.section === 'transforms') {
+                    SignalManager.subscribe(element.on, () => {
+                        console.log('[ElementInteraction] Transform triggered for:', element.type, 'at', element.x, element.y);
+                        if (element.replacement) {
+                            this.elementStates[element.id] = { 
+                                removed: false, 
+                                transformed: true,
+                                newType: element.replacement 
+                            };
+                            element.type = element.replacement;
+                            element.replacement = null;
+                            
+                            if (element.emit && window.SignalManager) {
+                                SignalManager.emit(element.emit);
+                            }
+                        } else {
+                            this.elementStates[element.id] = { removed: true };
+                        }
+                        this.persistStates();
+                    });
+                }
+            }
+        },
 
         getElementAt(x, y) {
             return this.elements.find(e => 
-                e.x === x && e.y === y && !this.isElementRemoved(e.id)
+                e.x === x && e.y === y && !this.isElementRemoved(e.id) && !this.isElementHidden(e.id)
             );
         },
 
         getElementsForRender() {
-            return this.elements.filter(e => !this.isElementRemoved(e.id));
+            return this.elements.filter(e => !this.isElementRemoved(e.id) && !this.isElementHidden(e.id));
         },
 
         isElementRemoved(elementId) {
             const state = this.elementStates[elementId];
             return state && state.removed;
+        },
+        
+        isElementHidden(elementId) {
+            const state = this.elementStates[elementId];
+            return state && state.hidden === true;
         },
 
         getElementState(elementId) {
@@ -269,6 +345,11 @@
                 }
             }
 
+            if (element.emit && window.SignalManager) {
+                console.log('[ElementInteraction] Emitting signal:', element.emit);
+                SignalManager.emit(element.emit);
+            }
+
             this.persistStates();
             
             return result;
@@ -306,6 +387,10 @@
             if (window.VehicleInteractionManager) {
                 VehicleInteractionManager.reset(gameState);
             }
+        },
+        
+        reregisterSignalListeners() {
+            this._registerSignalListeners();
         },
 
         resetToSnapshot(snapshot) {

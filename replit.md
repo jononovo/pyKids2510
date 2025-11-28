@@ -63,7 +63,28 @@ A centralized `ResetManager` (`js/game-engine/reset-manager.js`) handles all gam
 -   **Full Reset** (`fullReset()`): Triggered by the Reset button. Clears everything: player position, vehicles, elements, collectibles, inventory, mission state, editor code, and UI.
 -   **Soft Reset** (`softReset()`): Triggered before running code. Only resets player position and vehicles, preserving the run-lock to prevent concurrent execution.
 
+Both reset modes follow a unified pattern for signal handling: clear all signal listeners, then re-register them (same as level load). This ensures spawn-gated elements (those with `spawn` property) start hidden and only appear when their signal is emitted.
+
 This separation ensures the Run button stays disabled during code execution (preventing re-entry) while the Reset button fully restores the level to its starting state.
+
+### Signal System
+
+A pub/sub-based cross-element triggering system (`js/game-engine/signal-manager.js`) enables dynamic interactions between game elements using named signal variables:
+
+-   **Emitting Signals**: Elements can emit signals via `on_collect`, `on_step`, or `on_interact` properties. When an element is activated, it emits the specified signal name.
+-   **Listening for Signals**: Elements can listen via `spawn`, `remove`, or `on` properties:
+    -   `spawn: "signal_name"` - Element starts hidden, appears when signal is emitted
+    -   `remove: "signal_name"` - Element disappears when signal is emitted
+    -   `on: "signal_name"` - For transforms, triggers state change when signal is emitted
+
+**Example Config** (in lesson markdown):
+```yaml
+collectibles: [["key", {"at": [[4, 5]], "on_collect": "got_key"}]]
+vehicles: [["boat", {"spawn": "got_key", "at": [[2, 7]]}]]
+```
+In this example, collecting the key emits "got_key" signal, which causes the boat to spawn (appear) at position (2,7).
+
+**Signal Flow**: Element activated → emit signal → SignalManager notifies listeners → hidden elements spawn or visible elements get removed
 
 ### Technical Implementations & Features
 
