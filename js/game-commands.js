@@ -216,15 +216,18 @@
             args: ['resource'],
             defaults: { resource: 'item' },
             execute: async function(resource) {
-                var pos = getTargetPosition();
+                // Use ProximityGuard to find collectible at player position
+                var guardResult = window.ProximityGuard 
+                    ? ProximityGuard.check({ mode: 'self', sections: ['collectibles'] })
+                    : { success: false };
                 
-                // Use ElementInteractionManager for all collectibles
-                if (window.ElementInteractionManager) {
-                    var result = ElementInteractionManager.handleCollect(pos.px, pos.py, gameState);
-                    if (result.success) {
+                if (guardResult.success && guardResult.element) {
+                    // Consume the collectible
+                    var consumeResult = ProximityGuard.consume(guardResult.element);
+                    if (consumeResult.success) {
                         playCollectSound();
-                        animateCollectSparkle(pos.px, pos.py);
-                        console.log('[collect]', result.message);
+                        animateCollectSparkle(guardResult.position.x, guardResult.position.y);
+                        console.log('[collect]', consumeResult.message);
                         updateInventoryDisplay();
                         await render();
                     }
