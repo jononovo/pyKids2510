@@ -103,6 +103,15 @@
     cursor: not-allowed;
 }
 
+.run-btn.stop-btn {
+    background: #e74c3c;
+    box-shadow: 0 3px 0 #c0392b;
+}
+
+.run-btn.stop-btn:hover {
+    box-shadow: 0 2px 0 #c0392b;
+}
+
 .secondary-btn {
     background: transparent;
     color: #555;  /* Changed from green to gray to match border */

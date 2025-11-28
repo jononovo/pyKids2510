@@ -99,20 +99,47 @@
                 return Sk.importMainWithBody("<stdin>", false, fullCode, true);
             });
         } catch (error) {
-            executionError = formatSkulptError(error);
-            console.error('[Skulpt Error]', executionError.error);
+            var errorStr = error.toString();
+            if (errorStr.indexOf('__STOP__') !== -1) {
+                console.log('[Skulpt Runtime] Execution stopped by user');
+            } else {
+                executionError = formatSkulptError(error);
+                console.error('[Skulpt Error]', executionError.error);
+            }
         }
 
         var executedCommands = typeof window.getCommandCount === 'function' ? window.getCommandCount() : 0;
         return { executionError: executionError, executedCommands: executedCommands };
     }
 
+    function setButtonToRun(btn) {
+        if (!btn) return;
+        btn.innerHTML = '<span class="btn-icon">▶</span> <span class="btn-text">RUN CODE</span>';
+        btn.classList.remove('stop-btn');
+        btn.disabled = false;
+    }
+
+    function setButtonToStop(btn) {
+        if (!btn) return;
+        btn.innerHTML = '<span class="btn-icon">■</span> <span class="btn-text">STOP</span>';
+        btn.classList.add('stop-btn');
+        btn.disabled = false;
+    }
+
     async function runCodeWithSkulpt() {
-        if (typeof gameState === 'undefined' || gameState.isRunning) return;
+        var runBtn = document.getElementById('run-btn');
+        
+        if (typeof gameState === 'undefined') return;
+        
+        if (gameState.isRunning) {
+            window.shouldStopExecution = true;
+            if (runBtn) runBtn.disabled = true;
+            return;
+        }
         
         gameState.isRunning = true;
-        var runBtn = document.getElementById('run-btn');
-        if (runBtn) runBtn.disabled = true;
+        window.shouldStopExecution = false;
+        setButtonToStop(runBtn);
         
         var code;
         if (window.BlocklyModeSwitcher && window.BlocklyModeSwitcher.isBlockMode()) {
@@ -122,7 +149,7 @@
         } else {
             console.error('[Skulpt Runtime] No code source available');
             gameState.isRunning = false;
-            if (runBtn) runBtn.disabled = false;
+            setButtonToRun(runBtn);
             return;
         }
 
@@ -130,14 +157,17 @@
         var executionError = result.executionError;
         var executedCommands = result.executedCommands;
         
+        var wasStopped = window.shouldStopExecution;
+        window.shouldStopExecution = false;
+        
         var reachedGoal = typeof checkVictory === 'function' ? checkVictory() : false;
         
-        if (window.tutorEnabled && !reachedGoal && typeof analyzeCodeAndProvideHelp === 'function') {
+        if (!wasStopped && window.tutorEnabled && !reachedGoal && typeof analyzeCodeAndProvideHelp === 'function') {
             analyzeCodeAndProvideHelp(code, executionError, executedCommands);
         }
         
         gameState.isRunning = false;
-        if (runBtn) runBtn.disabled = false;
+        setButtonToRun(runBtn);
     }
 
     window.SkulptRuntime = {

@@ -430,6 +430,7 @@
             
             lines.push('        return Sk.misceval.promiseToSuspension(');
             lines.push('            (async function() {');
+            lines.push('                if (window.shouldStopExecution) throw new Error("__STOP__");');
             lines.push('                var result = await window.gameCommand_' + cmdName + '(' + jsArgsList.join(', ') + ');');
             
             if (countsAsMultiple) {
