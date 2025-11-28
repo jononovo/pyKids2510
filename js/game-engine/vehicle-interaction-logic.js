@@ -203,6 +203,11 @@
             console.log('[VehicleInteraction] Boarded', vehicle.type, 'at', vehicle.x, vehicle.y);
             console.log('[VehicleInteraction] characterType is now:', gameState.characterType);
             
+            if (vehicle.emit && window.SignalManager) {
+                console.log('[VehicleInteraction] Emitting signal:', vehicle.emit);
+                SignalManager.emit(vehicle.emit);
+            }
+            
             return { 
                 success: true, 
                 action: 'boarded',

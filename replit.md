@@ -65,6 +65,25 @@ A centralized `ResetManager` (`js/game-engine/reset-manager.js`) handles all gam
 
 This separation ensures the Run button stays disabled during code execution (preventing re-entry) while the Reset button fully restores the level to its starting state.
 
+### Signal System
+
+A pub/sub-based cross-element triggering system (`js/game-engine/signal-manager.js`) enables dynamic interactions between game elements using named signal variables:
+
+-   **Emitting Signals**: Elements can emit signals via `on_collect`, `on_step`, or `on_interact` properties. When an element is activated, it emits the specified signal name.
+-   **Listening for Signals**: Elements can listen via `spawn`, `remove`, or `on` properties:
+    -   `spawn: "signal_name"` - Element starts hidden, appears when signal is emitted
+    -   `remove: "signal_name"` - Element disappears when signal is emitted
+    -   `on: "signal_name"` - For transforms, triggers state change when signal is emitted
+
+**Example Config** (in lesson markdown):
+```yaml
+collectibles: [["key", {"at": [[4, 5]], "on_collect": "got_key"}]]
+vehicles: [["boat", {"spawn": "got_key", "at": [[2, 7]]}]]
+```
+In this example, collecting the key emits "got_key" signal, which causes the boat to spawn (appear) at position (2,7).
+
+**Signal Flow**: Element activated → emit signal → SignalManager notifies listeners → hidden elements spawn or visible elements get removed
+
 ### Technical Implementations & Features
 
 -   **Code Execution**: Python-like commands are parsed and executed visually. Skulpt integration consolidates game commands into `js/game-commands.js`, generating the Skulpt module source at load time. Commands support multi-argument and repetition, with simplified aliases and an auto-import prelude. The `Editor Manager` (`js/editor-manager.js`) handles editor functionalities with DOM element tracking to handle element recreation.
