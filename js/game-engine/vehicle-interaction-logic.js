@@ -21,13 +21,18 @@
 
         getVehicleAt(x, y) {
             return this.vehicles.find(v => 
-                v.x === x && v.y === y && !this.isVehicleRemoved(v.id)
+                v.x === x && v.y === y && !this.isVehicleRemoved(v.id) && !this.isVehicleHidden(v.id)
             );
         },
 
         isVehicleRemoved(vehicleId) {
             const state = this.vehicleStates[vehicleId];
             return state && state.removed;
+        },
+        
+        isVehicleHidden(vehicleId) {
+            const state = this.vehicleStates[vehicleId];
+            return state && state.hidden === true;
         },
 
         loadLevelVehicles(levelData) {
@@ -43,8 +48,33 @@
             const parsed = this.parseVehicleSection(levelData.map.vehicles);
             this.vehicles.push(...parsed);
             
+            this._registerSignalListeners();
+            
             console.log('[VehicleInteraction] Loaded', this.vehicles.length, 'vehicles for level');
             return this.vehicles;
+        },
+        
+        _registerSignalListeners() {
+            if (!window.SignalManager) return;
+            
+            for (const vehicle of this.vehicles) {
+                if (vehicle.spawn) {
+                    this.vehicleStates[vehicle.id] = { ...this.vehicleStates[vehicle.id], hidden: true };
+                    
+                    SignalManager.subscribe(vehicle.spawn, () => {
+                        console.log('[VehicleInteraction] Spawn triggered for:', vehicle.type, 'at', vehicle.x, vehicle.y);
+                        const state = this.vehicleStates[vehicle.id] || {};
+                        this.vehicleStates[vehicle.id] = { ...state, hidden: false };
+                    });
+                }
+                
+                if (vehicle.remove) {
+                    SignalManager.subscribe(vehicle.remove, () => {
+                        console.log('[VehicleInteraction] Remove triggered for:', vehicle.type, 'at', vehicle.x, vehicle.y);
+                        this.vehicleStates[vehicle.id] = { removed: true };
+                    });
+                }
+            }
         },
 
         parseVehicleSection(sectionData) {
@@ -64,6 +94,14 @@
                     if (Array.isArray(data)) {
                         const elements = this._parseCoordArray(vehicleType, data);
                         parsed.push(...elements);
+                    } else if (typeof data === 'object' && data.at) {
+                        const options = {
+                            emit: data.emit || null,
+                            spawn: data.spawn || null,
+                            remove: data.remove || null
+                        };
+                        const elements = this._parseCoordArray(vehicleType, data.at, options);
+                        parsed.push(...elements);
                     }
                 }
             }
@@ -71,8 +109,9 @@
             return parsed;
         },
 
-        _parseCoordArray(vehicleType, coords) {
+        _parseCoordArray(vehicleType, coords, options = null) {
             const elements = [];
+            const opts = options || {};
             
             if (!Array.isArray(coords)) return elements;
 
@@ -84,7 +123,10 @@
                     originalX: coords[0],
                     originalY: coords[1],
                     section: 'vehicles',
-                    id: this._generateId(vehicleType, coords[0], coords[1])
+                    id: this._generateId(vehicleType, coords[0], coords[1]),
+                    emit: opts.emit || null,
+                    spawn: opts.spawn || null,
+                    remove: opts.remove || null
                 });
             } else {
                 for (const coord of coords) {
@@ -96,7 +138,10 @@
                             originalX: coord[0],
                             originalY: coord[1],
                             section: 'vehicles',
-                            id: this._generateId(vehicleType, coord[0], coord[1])
+                            id: this._generateId(vehicleType, coord[0], coord[1]),
+                            emit: opts.emit || null,
+                            spawn: opts.spawn || null,
+                            remove: opts.remove || null
                         });
                     }
                 }
@@ -262,6 +307,7 @@
         getVehiclesForRender() {
             return this.vehicles.filter(v => {
                 if (this.isVehicleRemoved(v.id)) return false;
+                if (this.isVehicleHidden(v.id)) return false;
                 
                 if (this.currentVehicle && this.currentVehicle.id === v.id) {
                     return false;
