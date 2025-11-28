@@ -388,6 +388,10 @@
                 VehicleInteractionManager.reset(gameState);
             }
         },
+        
+        reregisterSignalListeners() {
+            this._registerSignalListeners();
+        },
 
         resetToSnapshot(snapshot) {
             if (snapshot && snapshot.elementStates) {

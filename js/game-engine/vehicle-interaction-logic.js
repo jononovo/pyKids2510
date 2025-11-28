@@ -347,6 +347,10 @@
                 }
             }
         },
+        
+        reregisterSignalListeners() {
+            this._registerSignalListeners();
+        },
 
         resetToSnapshot(snapshot, gameState) {
             this.reset(gameState);
