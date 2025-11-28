@@ -86,6 +86,7 @@
                 if (window.MissionState) {
                     MissionState.loadState(window.levelEntrySnapshot.missionState);
                     gameState.inventory = MissionState.getInventory();
+                    gameState.backpack = MissionState.getBackpack();
                     console.log('[ResetManager] Restored MissionState from snapshot');
                     
                     if (gameState.collectibles) {
@@ -97,6 +98,7 @@
                 }
             } else {
                 gameState.inventory = {};
+                gameState.backpack = [];
             }
         },
 
@@ -135,6 +137,10 @@
                         inventoryPanel.appendChild(itemSpan);
                     }
                 }
+            }
+            
+            if (window.LevelLoader && LevelLoader.updateBackpackUI) {
+                LevelLoader.updateBackpackUI();
             }
         },
 

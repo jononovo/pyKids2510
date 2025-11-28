@@ -881,16 +881,22 @@ body {
 /* ========================================
    GAME INFO PANEL (Inventory & Messages)
    ======================================== */
-#game-info-panel {
+#game-info-container {
     position: absolute;
     bottom: 10px;
     left: 10px;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    z-index: 5;
+}
+
+#game-info-panel {
     background: rgba(0, 0, 0, 0.8);
     border: 2px solid #7fc542;
     border-radius: 4px;
     padding: 10px;
-    max-width: 300px;
-    z-index: 5;
+    max-width: 200px;
 }
 
 #game-info-panel .info-section {
@@ -919,6 +925,22 @@ body {
 #inventory-panel {
     color: #7fc542;
     font-weight: bold;
+}
+
+#backpack-panel {
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid #7fc542;
+    border-radius: 4px;
+    padding: 10px;
+    max-width: 150px;
+    font-size: 12px;
+    color: #7fc542;
+    font-weight: bold;
+}
+
+#backpack-panel .backpack-item {
+    display: block;
+    padding: 2px 0;
 }
 
 /* ========================================

@@ -1,8 +1,10 @@
 const MissionState = (function() {
     const STORAGE_KEY = 'missionChapterState';
+    const BACKPACK_CAPACITY = 4;
     
     let currentChapter = null;
     let inventory = {};
+    let backpack = [];
     let collectedItems = [];
     let structures = [];
     let elementStates = {};
@@ -29,6 +31,7 @@ const MissionState = (function() {
     
     function reset() {
         inventory = {};
+        backpack = [];
         collectedItems = [];
         structures = [];
         elementStates = {};
@@ -65,6 +68,7 @@ const MissionState = (function() {
         return {
             chapter: currentChapter,
             inventory: { ...inventory },
+            backpack: [...backpack],
             collectedItems: collectedItems.map(item => ({ ...item })),
             structures: structures.map(s => ({ ...s })),
             elementStates: { ...elementStates }
@@ -81,6 +85,7 @@ const MissionState = (function() {
         
         // Make deep copies to avoid modifying the original state object (e.g., snapshot)
         inventory = { ...(state.inventory || {}) };
+        backpack = [...(state.backpack || [])];
         collectedItems = (state.collectedItems || []).map(item => ({
             x: item.x,
             y: item.y,
@@ -120,6 +125,41 @@ const MissionState = (function() {
         }
         saveToStorage();
         return true;
+    }
+    
+    function getBackpack() {
+        return [...backpack];
+    }
+    
+    function getBackpackCapacity() {
+        return BACKPACK_CAPACITY;
+    }
+    
+    function isBackpackFull() {
+        return backpack.length >= BACKPACK_CAPACITY;
+    }
+    
+    function addToBackpack(item) {
+        if (!item) return { success: false, message: 'No item specified' };
+        if (isBackpackFull()) {
+            return { success: false, message: 'Backpack is full! (max ' + BACKPACK_CAPACITY + ' items)' };
+        }
+        backpack.push(item);
+        console.log('[MissionState] Added to backpack:', item, '- Backpack:', [...backpack]);
+        saveToStorage();
+        return { success: true, message: 'Added ' + item + ' to backpack' };
+    }
+    
+    function removeFromBackpack(item) {
+        if (!item) return { success: false, message: 'No item specified' };
+        const index = backpack.indexOf(item);
+        if (index === -1) {
+            return { success: false, message: item + ' not found in backpack' };
+        }
+        backpack.splice(index, 1);
+        console.log('[MissionState] Removed from backpack:', item, '- Backpack:', [...backpack]);
+        saveToStorage();
+        return { success: true, message: 'Removed ' + item + ' from backpack', item: item };
     }
     
     function recordCollectible(x, y, type) {
@@ -216,6 +256,11 @@ const MissionState = (function() {
         getInventoryCount: getInventoryCount,
         addToInventory: addToInventory,
         removeFromInventory: removeFromInventory,
+        getBackpack: getBackpack,
+        getBackpackCapacity: getBackpackCapacity,
+        isBackpackFull: isBackpackFull,
+        addToBackpack: addToBackpack,
+        removeFromBackpack: removeFromBackpack,
         recordCollectible: recordCollectible,
         isCollected: isCollected,
         filterCollectibles: filterCollectibles,

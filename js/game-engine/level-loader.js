@@ -169,9 +169,12 @@
             
             if (isMission && window.MissionState && MissionState.isInitialized()) {
                 gameState.inventory = MissionState.getInventory();
+                gameState.backpack = MissionState.getBackpack();
                 console.log('[LevelLoader] Mission level - loaded inventory from MissionState:', gameState.inventory);
+                console.log('[LevelLoader] Mission level - loaded backpack from MissionState:', gameState.backpack);
             } else {
                 gameState.inventory = {};
+                gameState.backpack = [];
             }
         },
 
@@ -187,6 +190,7 @@
                         window.levelEntrySnapshot.missionState = {
                             chapter: MissionState.getCurrentChapter(),
                             inventory: {},
+                            backpack: [],
                             collectedItems: [],
                             structures: []
                         };
@@ -253,6 +257,32 @@
             const messagePanel = document.getElementById('message-panel');
             if (messagePanel) {
                 messagePanel.innerHTML = '';
+            }
+            
+            this.updateBackpackUI();
+        },
+        
+        updateBackpackUI() {
+            const gameState = window.gameState;
+            if (!gameState) return;
+            
+            const backpackPanel = document.getElementById('backpack-panel');
+            if (!backpackPanel) return;
+            
+            const backpack = gameState.backpack || [];
+            const capacity = window.MissionState ? MissionState.getBackpackCapacity() : 4;
+            
+            if (backpack.length === 0) {
+                backpackPanel.style.display = 'none';
+            } else {
+                backpackPanel.style.display = 'block';
+                backpackPanel.innerHTML = `<strong>Backpack (${backpack.length}/${capacity}):</strong>`;
+                for (const item of backpack) {
+                    const itemSpan = document.createElement('span');
+                    itemSpan.className = 'backpack-item';
+                    itemSpan.textContent = ` ${item}`;
+                    backpackPanel.appendChild(itemSpan);
+                }
             }
         },
 

@@ -27,6 +27,12 @@
             }
         }
     }
+    
+    function updateBackpackDisplay() {
+        if (window.LevelLoader && LevelLoader.updateBackpackUI) {
+            LevelLoader.updateBackpackUI();
+        }
+    }
 
     function getTargetPosition() {
         var pos = gameState.playerPos;
@@ -385,6 +391,80 @@
             };
         })(cmdName, GameCommands[cmdName]);
     }
+    
+    // ========== BACKPACK COMMANDS ==========
+    // Special object methods: backpack.append() and backpack.remove()
+    
+    window.gameCommand_backpack_append = async function(itemType) {
+        var pos = getTargetPosition();
+        
+        if (!window.ElementInteractionManager) {
+            console.log('[backpack.append] ElementInteractionManager not available');
+            return { success: false };
+        }
+        
+        var element = ElementInteractionManager.getElementAt(pos.px, pos.py);
+        if (!element) {
+            console.log('[backpack.append] Nothing to collect at current position');
+            return { success: false, message: 'Nothing to collect here' };
+        }
+        
+        if (element.section !== 'collectibles') {
+            console.log('[backpack.append] Element is not collectible');
+            return { success: false, message: 'This cannot be collected' };
+        }
+        
+        if (window.MissionState && MissionState.isBackpackFull()) {
+            console.log('[backpack.append] Backpack is full!');
+            return { success: false, message: 'Backpack is full!' };
+        }
+        
+        var result = MissionState.addToBackpack(element.type);
+        if (result.success) {
+            ElementInteractionManager.elementStates[element.id] = { removed: true };
+            
+            if (MissionState.isMissionLevel) {
+                MissionState.markItemCollected(element.x, element.y, element.type);
+            }
+            
+            if (!gameState.backpack) gameState.backpack = [];
+            gameState.backpack = MissionState.getBackpack();
+            
+            playCollectSound();
+            animateCollectSparkle(pos.px, pos.py);
+            updateBackpackDisplay();
+            await render();
+            console.log('[backpack.append]', result.message);
+        }
+        
+        await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
+        return result;
+    };
+    
+    window.gameCommand_backpack_remove = async function(itemType) {
+        if (!itemType) {
+            console.log('[backpack.remove] No item specified');
+            return { success: false, message: 'No item specified' };
+        }
+        
+        if (!window.MissionState) {
+            console.log('[backpack.remove] MissionState not available');
+            return { success: false };
+        }
+        
+        var result = MissionState.removeFromBackpack(itemType);
+        if (result.success) {
+            gameState.backpack = MissionState.getBackpack();
+            updateBackpackDisplay();
+            await render();
+            console.log('[backpack.remove]', result.message);
+        } else {
+            console.log('[backpack.remove]', result.message);
+        }
+        
+        await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
+        return result;
+    };
 
     // ========== SKULPT MODULE SOURCE GENERATOR ==========
     // Generates a self-contained module source string at load time
@@ -444,6 +524,41 @@
             lines.push('    });');
             lines.push('');
         }
+        
+        // Add backpack object with append() and remove() methods
+        lines.push('    // Backpack object - Python list-like interface');
+        lines.push('    var BackpackClass = function() {};');
+        lines.push('    BackpackClass.prototype.tp$name = "backpack";');
+        lines.push('');
+        lines.push('    BackpackClass.prototype.append = new Sk.builtin.func(function(self, item) {');
+        lines.push('        return Sk.misceval.promiseToSuspension(');
+        lines.push('            (async function() {');
+        lines.push('                await window.gameCommand_backpack_append();');
+        lines.push('                incrementCounter(1);');
+        lines.push('                return Sk.builtin.none.none$;');
+        lines.push('            })()');
+        lines.push('        );');
+        lines.push('    });');
+        lines.push('');
+        lines.push('    BackpackClass.prototype.remove = new Sk.builtin.func(function(self, item) {');
+        lines.push('        var js_item = Sk.ffi.remapToJs(item);');
+        lines.push('        return Sk.misceval.promiseToSuspension(');
+        lines.push('            (async function() {');
+        lines.push('                await window.gameCommand_backpack_remove(js_item);');
+        lines.push('                incrementCounter(1);');
+        lines.push('                return Sk.builtin.none.none$;');
+        lines.push('            })()');
+        lines.push('        );');
+        lines.push('    });');
+        lines.push('');
+        lines.push('    BackpackClass.prototype.tp$getattr = function(name) {');
+        lines.push('        if (name === "append") return this.append;');
+        lines.push('        if (name === "remove") return this.remove;');
+        lines.push('        return undefined;');
+        lines.push('    };');
+        lines.push('');
+        lines.push('    mod.backpack = new BackpackClass();');
+        lines.push('');
         
         lines.push('    return mod;');
         lines.push('};');

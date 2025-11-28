@@ -101,11 +101,16 @@
                     <button id="reset-view-btn" onclick="window.resetCamera()" title="Reset view to follow player">Reset</button>
                 </div>
             </div>
-            <div id="game-info-panel">
-                <div id="inventory-panel" class="info-section">
-                    <strong>Inventory:</strong>
+            <div id="game-info-container">
+                <div id="game-info-panel">
+                    <div id="inventory-panel" class="info-section">
+                        <strong>Inventory:</strong>
+                    </div>
+                    <div id="message-panel" class="info-section message-log">
+                    </div>
                 </div>
-                <div id="message-panel" class="info-section message-log">
+                <div id="backpack-panel" class="info-section" style="display: none;">
+                    <strong>Backpack (0/4):</strong>
                 </div>
             </div>
         </div>
