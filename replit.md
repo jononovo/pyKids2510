@@ -83,6 +83,7 @@ This separation ensures the Run button stays disabled during code execution (pre
 -   **Visual Coding**: Integration with Blockly allows toggling between a Python text editor and visual blocks, with custom blocks for movement commands.
 -   **Coding Tutor**: An intelligent, rules-based tutor analyzes student code against solutions, providing contextual help and recommendations with an "Apply" button.
 -   **Code Book**: A slide-out panel provides documentation and examples for in-game functions.
+-   **Backpack System**: A 4-item capacity backpack for Chapter 2 curriculum, teaching Python list methods. Students use `backpack.append()` to collect items and `backpack.remove("item")` to drop them. The backpack persists across mission levels via MissionState, displays in a green-bordered panel alongside inventory when populated, and properly resets with the Reset button.
 -   **Sprite Selection**: A dropdown allows dynamic selection of character sprites.
 -   **Integration**: Designed for embedding, the application communicates with parent platforms via `window.parent.postMessage` for progress tracking and uses `localStorage` for session caching. A `User Progress System` (`js/user-progress.js`) manages saving and loading user progress and chapter states.
 -   **Test System**: A modular testing system (`js/tests/`) parses `<!-- Tests -->` YAML sections from lesson markdown, supporting various test types (position, inventory, collectibles, code regex, direction, element state) and providing fallback to goal position checking.
