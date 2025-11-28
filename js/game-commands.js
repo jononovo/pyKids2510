@@ -240,6 +240,8 @@
                     var disembarkResult = VehicleInteractionManager.handleDisembark(gameState);
                     console.log('[interact]', disembarkResult.message);
                     if (disembarkResult.success) {
+                        playInteractSound();
+                        animateInteractPop(px, py);
                         await render();
                     }
                     await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
@@ -261,6 +263,8 @@
                     if (window.VehicleInteractionManager) {
                         var vehicleResult = VehicleInteractionManager.handleInteract(tile.x, tile.y, gameState);
                         if (vehicleResult.success) {
+                            playInteractSound();
+                            animateInteractPop(tile.x, tile.y);
                             console.log('[interact]', vehicleResult.message);
                             await render();
                             await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
@@ -272,6 +276,8 @@
                     if (window.ElementInteractionManager) {
                         var result = ElementInteractionManager.handleInteract(tile.x, tile.y, gameState);
                         if (result.success) {
+                            playInteractSound();
+                            animateInteractPop(tile.x, tile.y);
                             console.log('[interact]', result.message);
                             await render();
                             await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });

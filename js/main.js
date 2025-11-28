@@ -153,6 +153,64 @@ function playCollectSound() {
     osc.stop(t + 0.15);
 }
 
+function playInteractSound() {
+    if (!audioContext) initAudio();
+    
+    const t = audioContext.currentTime;
+    
+    const osc = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(600, t);
+    osc.frequency.exponentialRampToValueAtTime(400, t + 0.08);
+    
+    gain.gain.setValueAtTime(0.05, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+    
+    osc.connect(gain);
+    gain.connect(audioContext.destination);
+    
+    osc.start(t);
+    osc.stop(t + 0.12);
+}
+
+function animateInteractPop(tileX, tileY) {
+    const viewport = document.getElementById('game-viewport');
+    if (!viewport) return;
+    
+    const viewportRect = viewport.getBoundingClientRect();
+    const cam = window.camera || { zoom: 1, panX: 0, panY: 0 };
+    
+    const centerX = viewportRect.left + cam.panX + (tileX * TILE_SIZE + TILE_SIZE / 2) * cam.zoom;
+    const centerY = viewportRect.top + cam.panY + (tileY * TILE_SIZE + TILE_SIZE / 2) * cam.zoom;
+    const size = TILE_SIZE * cam.zoom;
+    
+    const pop = document.createElement('div');
+    pop.style.cssText = `
+        position: fixed;
+        left: ${centerX - size/2}px;
+        top: ${centerY - size/2}px;
+        width: ${size}px;
+        height: ${size}px;
+        background: transparent;
+        border: 2px solid rgba(255,255,255,0.6);
+        border-radius: 4px;
+        pointer-events: none;
+        z-index: 9998;
+        transform: scale(1);
+        transition: transform 0.15s ease-out, opacity 0.15s ease-out;
+    `;
+    document.body.appendChild(pop);
+    
+    requestAnimationFrame(() => {
+        pop.style.transform = 'scale(1.08)';
+        pop.style.opacity = '0';
+    });
+    
+    setTimeout(() => pop.remove(), 180);
+}
+
 function animateCollectSparkle(tileX, tileY) {
     const viewport = document.getElementById('game-viewport');
     const inventoryPanel = document.getElementById('inventory-panel');
