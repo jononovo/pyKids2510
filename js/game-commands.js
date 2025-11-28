@@ -400,23 +400,23 @@
         
         if (!window.ElementInteractionManager) {
             console.log('[backpack.append] ElementInteractionManager not available');
-            return { success: false };
+            throw new Error('Cannot access items right now. Try again.');
         }
         
         var element = ElementInteractionManager.getElementAt(pos.px, pos.py);
         if (!element) {
             console.log('[backpack.append] Nothing to collect at current position');
-            return { success: false, message: 'Nothing to collect here' };
+            throw new Error('Nothing to collect here! Move to an item first.');
         }
         
         if (element.section !== 'collectibles') {
             console.log('[backpack.append] Element is not collectible');
-            return { success: false, message: 'This cannot be collected' };
+            throw new Error('This cannot be collected!');
         }
         
         if (window.MissionState && MissionState.isBackpackFull()) {
             console.log('[backpack.append] Backpack is full!');
-            return { success: false, message: 'Backpack is full!' };
+            throw new Error('Backpack is full! Remove an item first.');
         }
         
         var result = MissionState.addToBackpack(element.type);
@@ -499,30 +499,39 @@
             var playerY = gameState.playerPos.y;
             
             // Check for matching collectible at player position
-            if (window.ElementInteractionManager) {
-                var element = ElementInteractionManager.getElementAt(playerX, playerY);
-                
-                if (!element || element.type !== key || element.section !== 'collectibles') {
-                    console.log('[inventory] Cannot add', key, '- no matching collectible at position');
-                    throw new Error('You must be standing on a ' + key + ' to add it to your inventory!');
-                }
-                
-                // Consume the collectible using the existing activation system
-                var result = ElementInteractionManager.activateElement(element, gameState);
-                if (result.success) {
-                    console.log('[inventory] Collected', key, 'via inventory syntax at', playerX + ',' + playerY);
-                    
-                    // Sync inventory display
-                    if (window.MissionState && MissionState.isMissionLevel) {
-                        gameState.inventory = MissionState.getInventory();
-                    }
-                    updateInventoryDisplay();
-                    await render();
-                    return gameState.inventory[key] || 0;
-                }
-            } else {
+            if (!window.ElementInteractionManager) {
                 console.log('[inventory] ElementInteractionManager not available');
+                throw new Error('Cannot access items right now. Try again.');
             }
+            
+            var element = ElementInteractionManager.getElementAt(playerX, playerY);
+            
+            if (!element || element.section !== 'collectibles') {
+                console.log('[inventory] Cannot add', key, '- no collectible at position');
+                throw new Error('Nothing to collect here! Move to an item first.');
+            }
+            
+            if (element.type !== key) {
+                console.log('[inventory] Cannot add', key, '- wrong collectible type:', element.type);
+                throw new Error('This is a ' + element.type + ', not a ' + key + '!');
+            }
+            
+            // Consume the collectible using the existing activation system
+            var result = ElementInteractionManager.activateElement(element, gameState);
+            if (!result.success) {
+                console.log('[inventory] Failed to activate element');
+                throw new Error('Could not collect the ' + key + '. Try again.');
+            }
+            
+            console.log('[inventory] Collected', key, 'via inventory syntax at', playerX + ',' + playerY);
+            
+            // Sync inventory display
+            if (window.MissionState && MissionState.isMissionLevel) {
+                gameState.inventory = MissionState.getInventory();
+            }
+            updateInventoryDisplay();
+            await render();
+            return gameState.inventory[key] || 0;
         } else if (diff < 0) {
             // Decreasing inventory is allowed anywhere
             if (window.MissionState && MissionState.isMissionLevel) {
