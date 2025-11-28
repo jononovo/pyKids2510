@@ -199,7 +199,7 @@ async function loadLevel(levelIndex) {
                             <button class="btn run-btn" id="run-btn">
                                 <span class="btn-icon">▶</span> <span class="btn-text">RUN CODE</span>
                             </button>
-                            <span class="run-tooltip">Run with keyboard: ⌘/Ctrl + Enter</span>
+                            <span class="run-tooltip">Run with keyboard: ⌘ / Ctrl + Enter</span>
                         </div>
                         <span class="infinity-symbol">∞</span>
                     </div>
