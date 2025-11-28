@@ -20,12 +20,13 @@ This comprehensive guide covers everything you need to know about creating lesso
 12. [Signal System](#signal-system)
 13. [Available Python Commands](#available-python-commands)
 14. [Mission State System](#mission-state-system)
-15. [Tests System](#tests-system)
-16. [Best Practices](#best-practices)
-17. [Complete Examples](#complete-examples)
-18. [Troubleshooting](#troubleshooting)
-19. [Technical Reference](#technical-reference)
-20. [Quick Reference: All Features](#quick-reference-all-features)
+15. [Backpack and Inventory Systems](#backpack-and-inventory-systems)
+16. [Tests System](#tests-system)
+17. [Best Practices](#best-practices)
+18. [Complete Examples](#complete-examples)
+19. [Troubleshooting](#troubleshooting)
+20. [Technical Reference](#technical-reference)
+21. [Quick Reference: All Features](#quick-reference-all-features)
 
 ---
 
@@ -949,6 +950,122 @@ For mission and quest levels, state persists across levels within a chapter.
 ### Exercise Levels
 
 Exercise levels do NOT persist state. Each run starts fresh, making them ideal for practice.
+
+---
+
+## Backpack and Inventory Systems
+
+The platform provides two data structure systems for teaching Python fundamentals: a **Backpack** (list) and an **Inventory** (dictionary). Each supports two interaction methods—simplified commands and real Python syntax—enabling progressive curriculum design.
+
+### Backpack (Python Lists)
+
+A 4-item capacity list for teaching `append()` and `remove()` methods.
+
+#### Simplified Method: `collect()`
+```python
+player.collect()  # Adds item at current position to backpack
+```
+- Item auto-added if backpack has space
+- Silently fails if backpack is full
+
+#### Real Python Syntax
+```python
+backpack.append("apple")     # Add item
+backpack.remove("apple")     # Remove specific item
+len(backpack)                # Check count
+"apple" in backpack          # Check membership
+```
+
+#### Persistence
+- Mission/Quest levels: Persists across levels via `MissionState.backpack`
+- Exercise levels: Resets each run
+
+#### UI Display
+Green-bordered panel showing backpack contents (max 4 items).
+
+---
+
+### Inventory (Python Dictionaries)
+
+A key-value store for teaching dictionary operations with numeric counts.
+
+#### Simplified Method: `collect()`
+```python
+player.collect()  # Increments inventory[itemType] by 1
+```
+- Automatically initializes missing keys to 0
+- Item type determined by collectible at player position
+
+#### Real Python Dictionary Syntax
+```python
+inventory["coin"] += 1       # Increment count
+inventory["coin"] -= 2       # Decrement (clamps to 0)
+count = inventory["gem"]     # Read value (returns 0 if missing)
+inventory["key"] = 5         # Direct assignment
+```
+
+**Key behaviors:**
+- Missing keys return `0` (no `KeyError`—beginner-safe)
+- Values clamp to `0` minimum (negative counts impossible)
+- Changes sync immediately to UI
+
+#### Persistence
+- Mission/Quest levels: Source of truth is `MissionState.inventory`
+- Exercise levels: Stored in `gameState.inventory`, resets each run
+
+#### UI Display
+"Inventory:" panel showing item counts (e.g., `coin: 5`).
+
+---
+
+### Teaching Progression
+
+Design curriculum to progress from simplified commands to real Python syntax:
+
+| Stage | Backpack (Lists) | Inventory (Dicts) |
+|-------|------------------|-------------------|
+| **Intro** | `collect()` adds items | `collect()` increments counts |
+| **Intermediate** | `backpack.append("item")` | `inventory["item"] += 1` |
+| **Advanced** | `backpack.remove("item")`, loops | `inventory["item"] -= n`, conditionals |
+
+#### Example Lesson Progression
+
+**Level 1: Introduction**
+```python
+# Collect 3 coins using the collect() command
+player.move_forward(3)
+player.collect()
+```
+
+**Level 5: List Methods**
+```python
+# Manage your backpack inventory
+backpack.append("torch")
+backpack.append("rope")
+if "torch" in backpack:
+    player.move_forward()
+```
+
+**Level 10: Dictionary Operations**
+```python
+# Track resources precisely
+inventory["coin"] += 5
+if inventory["coin"] >= 10:
+    inventory["coin"] -= 10
+    player.build("bridge")
+```
+
+---
+
+### Implementation Files
+
+| File | Purpose |
+|------|---------|
+| `js/game-commands.js` | `gameCommand_inventory_get/set`, backpack commands |
+| `js/skulpt-runtime.js` | Skulpt `InventoryClass` with `__getitem__`/`__setitem__` |
+| `js/mission/mission-state.js` | Persistent storage for mission levels |
+| `js/game-engine/level-loader.js` | Loads backpack/inventory from MissionState on level init |
+| `js/game-engine/reset-manager.js` | Handles reset behavior for both systems |
 
 ---
 
