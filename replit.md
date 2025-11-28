@@ -63,6 +63,8 @@ A centralized `ResetManager` (`js/game-engine/reset-manager.js`) handles all gam
 -   **Full Reset** (`fullReset()`): Triggered by the Reset button. Clears everything: player position, vehicles, elements, collectibles, inventory, mission state, editor code, and UI.
 -   **Soft Reset** (`softReset()`): Triggered before running code. Only resets player position and vehicles, preserving the run-lock to prevent concurrent execution.
 
+Both reset modes follow a unified pattern for signal handling: clear all signal listeners, then re-register them (same as level load). This ensures spawn-gated elements (those with `spawn` property) start hidden and only appear when their signal is emitted.
+
 This separation ensures the Run button stays disabled during code execution (preventing re-entry) while the Reset button fully restores the level to its starting state.
 
 ### Signal System
