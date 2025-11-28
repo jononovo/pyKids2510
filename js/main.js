@@ -195,9 +195,12 @@ async function loadLevel(levelIndex) {
             <div class="embedded-editor-container full-width">
                 <div class="controls">
                     <div class="controls-top">
-                        <button class="btn run-btn" id="run-btn">
-                            <span class="btn-icon">▶</span> <span class="btn-text">RUN CODE</span>
-                        </button>
+                        <div class="run-btn-wrapper">
+                            <button class="btn run-btn" id="run-btn">
+                                <span class="btn-icon">▶</span> <span class="btn-text">RUN CODE</span>
+                            </button>
+                            <span class="run-tooltip">Run with keyboard: ⌘/Ctrl + Enter</span>
+                        </div>
                         <span class="infinity-symbol">∞</span>
                     </div>
                     <div class="controls-bottom">
