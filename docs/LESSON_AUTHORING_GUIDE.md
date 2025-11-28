@@ -17,11 +17,12 @@ This comprehensive guide covers everything you need to know about creating lesso
 9. [Vehicles System](#vehicles-system)
 10. [Mega-Elements System](#mega-elements-system)
 11. [Mega-Objects System](#mega-objects-system)
-12. [Available Python Commands](#available-python-commands)
-13. [Mission State System](#mission-state-system)
-14. [Tests System](#tests-system)
-15. [Best Practices](#best-practices)
-16. [Complete Examples](#complete-examples)
+12. [Signal System](#signal-system)
+13. [Available Python Commands](#available-python-commands)
+14. [Mission State System](#mission-state-system)
+15. [Tests System](#tests-system)
+16. [Best Practices](#best-practices)
+17. [Complete Examples](#complete-examples)
 
 ---
 
@@ -784,6 +785,72 @@ This ensures terrain features like mountains appear as background visuals that t
 1. Create SVG in `assets/map/mega-objects/` (sized correctly)
 2. Add entry to `assets/map/mega-objects.json`
 3. Reference in level: `megaObjects: [["my-object", [[x,y]]]]`
+
+---
+
+## Signal System
+
+Signals enable cross-element triggering via a pub/sub pattern. Elements emit named signals; other elements listen and react.
+
+### Signal Properties
+
+| Property | Context | Description |
+|----------|---------|-------------|
+| `on_collect` | collectibles | Emit signal when collected |
+| `on_step` | collectibles, transforms | Emit signal when stepped on |
+| `on_interact` | transforms | Emit signal when interacted with |
+| `spawn` | collectibles, vehicles, transforms | Start hidden; appear when signal received |
+| `remove` | collectibles, transforms | Disappear when signal received |
+| `on` | transforms | Trigger transform when signal received |
+
+### Syntax
+
+Signals are added as properties in the element config object:
+
+```
+collectibles: [["key", {"at": [[4,5]], "on_collect": "got_key"}]]
+vehicles: [["boat", {"spawn": "got_key", "at": [[2,7]]}]]
+transforms: [["door", "door-open", {"on": "lever_pulled", "at": [[6,6]]}]]
+```
+
+### Examples
+
+**Key unlocks boat:**
+```
+collectibles: [["key", {"at": [[25,46]], "on_collect": "got_key"}]]
+vehicles: [["boat", {"spawn": "got_key", "at": [[17,51]]}]]
+```
+Player collects key → emits `got_key` → boat appears.
+
+**Lever opens door:**
+```
+transforms: [["lever", "lever-on", {"at": [[3,3]], "on_interact": "lever_pulled"}]]
+transforms: [["door", "door-open", {"on": "lever_pulled", "at": [[8,8]]}]]
+```
+Player interacts with lever → emits `lever_pulled` → door transforms to open.
+
+**Stepping on plate removes barrier:**
+```
+transforms: [["plate", "plate-down", {"trigger": "on_step", "at": [[5,5]], "on_step": "plate_pressed"}]]
+collectibles: [["barrier", {"remove": "plate_pressed", "at": [[10,5]]}]]
+```
+Player steps on plate → emits `plate_pressed` → barrier disappears.
+
+**Chain reaction:**
+```
+collectibles: [["gem", {"at": [[2,2]], "on_collect": "gem_collected"}]]
+collectibles: [["key", {"spawn": "gem_collected", "at": [[5,5]], "on_collect": "key_collected"}]]
+vehicles: [["boat", {"spawn": "key_collected", "at": [[8,8]]}]]
+```
+Collect gem → key appears → collect key → boat appears.
+
+### Technical Notes
+
+- Signal names are arbitrary strings (use descriptive names like `got_key`, `door_opened`)
+- Elements with `spawn` start hidden (`vehicleStates[id].hidden = true`)
+- On reset, all signals are cleared and listeners re-registered (elements return to initial state)
+- Multiple elements can listen to the same signal
+- One element can emit and listen to different signals
 
 ---
 
