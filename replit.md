@@ -56,6 +56,18 @@ Two parallel systems handle large multi-tile graphics:
 
 This ensures terrain features appear as background, while structures render in front of the player.
 
+### Level Loader
+
+The `LevelLoader` module (`js/game-engine/level-loader.js`, 268 lines) centralizes all game state initialization for levels, separating it from UI/editor concerns in main.js. It handles:
+- Camera reset to default state
+- Map inheritance logic (caching layouts for levels without explicit maps)
+- Game state setup (mapData, player position, direction, level type)
+- Collectibles processing with mission state filtering
+- Manager initialization (ElementInteractionManager, MegaElementManager, MegaObjectManager)
+- Mission inventory loading from persistent MissionState
+- Reset snapshot capture for full reset functionality
+- Canvas resizing and background graphic loading
+
 ### Reset System
 
 A centralized `ResetManager` (`js/game-engine/reset-manager.js`) handles all game state resets with two modes:
