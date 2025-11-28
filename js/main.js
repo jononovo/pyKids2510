@@ -184,7 +184,7 @@ function animateInteractPop(tileX, tileY) {
     
     const centerX = viewportRect.left + cam.panX + (tileX * TILE_SIZE + TILE_SIZE / 2) * cam.zoom;
     const centerY = viewportRect.top + cam.panY + (tileY * TILE_SIZE + TILE_SIZE / 2) * cam.zoom;
-    const size = TILE_SIZE * cam.zoom;
+    const size = TILE_SIZE * cam.zoom * 1.2;
     
     const pop = document.createElement('div');
     pop.style.cssText = `
@@ -193,22 +193,22 @@ function animateInteractPop(tileX, tileY) {
         top: ${centerY - size/2}px;
         width: ${size}px;
         height: ${size}px;
-        background: transparent;
-        border: 2px solid rgba(255,255,255,0.6);
-        border-radius: 4px;
+        background: radial-gradient(circle, rgba(255,255,255,0.5) 0%, rgba(255,255,200,0.3) 50%, transparent 70%);
+        border-radius: 50%;
         pointer-events: none;
         z-index: 9998;
-        transform: scale(1);
-        transition: transform 0.15s ease-out, opacity 0.15s ease-out;
+        transform: scale(0.8);
+        opacity: 1;
+        transition: transform 0.25s ease-out, opacity 0.25s ease-out;
     `;
     document.body.appendChild(pop);
     
     requestAnimationFrame(() => {
-        pop.style.transform = 'scale(1.08)';
+        pop.style.transform = 'scale(1.3)';
         pop.style.opacity = '0';
     });
     
-    setTimeout(() => pop.remove(), 180);
+    setTimeout(() => pop.remove(), 280);
 }
 
 function animateCollectSparkle(tileX, tileY) {
