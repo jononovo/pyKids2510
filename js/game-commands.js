@@ -494,23 +494,31 @@
         
         var diff = value - currentValue;
         
-        // If trying to add items, require standing on a matching collectible
+        // If trying to add items, check for a matching collectible (forgiving - no error thrown)
         if (diff > 0) {
-            // Use ProximityGuard to validate position and find matching collectible
-            var guardResult = ProximityGuard.require({
+            // Use ProximityGuard.check() - doesn't throw, just returns result
+            var guardResult = ProximityGuard.check({
                 mode: 'self',
                 sections: ['collectibles'],
-                typeMatch: key,
-                errorTemplate: ProximityGuard.Messages.NOTHING_HERE
+                typeMatch: key
             });
+            
+            // If no collectible found, log message and continue (forgiving behavior)
+            if (!guardResult.success) {
+                var message = guardResult.message || 'Nothing to collect here! Move to an item first.';
+                console.log('[inventory]', message);
+                // Return current value unchanged - program continues
+                return currentValue;
+            }
             
             var element = guardResult.element;
             
             // Consume the collectible (removes it from the map)
             var consumeResult = ProximityGuard.consume(element);
             if (!consumeResult.success) {
-                console.log('[inventory] Failed to consume element');
-                throw new Error('Could not collect the ' + key + '. Try again.');
+                console.log('[inventory] Failed to consume element - continuing');
+                // Return current value unchanged - program continues
+                return currentValue;
             }
             
             // Note: activateElement already handles inventory updates
