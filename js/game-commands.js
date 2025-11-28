@@ -216,10 +216,15 @@
             args: ['resource'],
             defaults: { resource: 'item' },
             execute: async function(resource) {
-                // Use ProximityGuard to find collectible at player position
+                // Use ProximityGuard to find collectible - check self first, then forward
                 var guardResult = window.ProximityGuard 
                     ? ProximityGuard.check({ mode: 'self', sections: ['collectibles'] })
                     : { success: false };
+                
+                // Fallback: check the tile in front of player
+                if (!guardResult.success && window.ProximityGuard) {
+                    guardResult = ProximityGuard.check({ mode: 'forward', sections: ['collectibles'] });
+                }
                 
                 if (guardResult.success && guardResult.element) {
                     // Consume the collectible
