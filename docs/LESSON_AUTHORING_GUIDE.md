@@ -11,21 +11,17 @@ This comprehensive guide covers everything you need to know about creating lesso
 3. [Lesson File Structure](#lesson-file-structure)
 4. [Lesson Template](#lesson-template)
 5. [Map System](#map-system)
-6. [Tile Reference](#tile-reference)
-7. [Elements System](#elements-system)
-8. [Mega-Elements System](#mega-elements-system)
-9. [Available Python Commands](#available-python-commands)
-10. [Mission State System](#mission-state-system)
-11. [Best Practices](#best-practices)
-12. [Complete Examples](#complete-examples)
 6. [Map Inheritance](#map-inheritance)
 7. [Tile Reference](#tile-reference)
 8. [Elements System](#elements-system)
-9. [Available Python Commands](#available-python-commands)
-10. [Mission State System](#mission-state-system)
-11. [Tests System](#tests-system)
-12. [Best Practices](#best-practices)
-13. [Complete Examples](#complete-examples)
+9. [Vehicles System](#vehicles-system)
+10. [Mega-Elements System](#mega-elements-system)
+11. [Mega-Objects System](#mega-objects-system)
+12. [Available Python Commands](#available-python-commands)
+13. [Mission State System](#mission-state-system)
+14. [Tests System](#tests-system)
+15. [Best Practices](#best-practices)
+16. [Complete Examples](#complete-examples)
 
 ---
 
@@ -487,6 +483,122 @@ collectibles: ["custom-item", [[5,3]]]
 ```
 
 Ensure `assets/map/elements/custom-item.svg` exists.
+
+---
+
+## Vehicles System
+
+Vehicles are boardable elements that change the player's `characterType`, enabling traversal of otherwise inaccessible tiles (e.g., water).
+
+### Key Files
+
+| File | Purpose |
+|------|---------|
+| `assets/map/elements.json` | Vehicle definitions (requires `vehicleType` property) |
+| `js/game-engine/vehicle-interaction-logic.js` | `VehicleInteractionManager` - boarding, disembarking, state |
+| `js/map/element-renderer.js` | `drawVehicles()`, `drawCharacterVehicle()` |
+
+### Vehicle Definition Schema
+
+Vehicles are defined in `elements.json` with a `vehicleType` property:
+
+```json
+{
+  "elements": {
+    "boat": {
+      "name": "boat",
+      "path": "elements/boat.svg",
+      "fallbackColor": "#8B5A2B",
+      "width": 1,
+      "height": 2,
+      "vehicleType": "boat",
+      "description": "A wooden sailing boat for water travel"
+    }
+  }
+}
+```
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `name` | string | Vehicle identifier |
+| `path` | string | Relative path from `assets/map/` |
+| `width` | number | Width in tiles (default: 1) |
+| `height` | number | Height in tiles (default: 1) |
+| `vehicleType` | string | **Required.** Character type when boarded (must match tile `access` arrays) |
+| `fallbackColor` | string | Hex color when SVG fails |
+
+### Map Syntax
+
+Place vehicles using the `vehicles:` property in the map block:
+
+```
+vehicles: [["boat", [[5,3]]]]
+```
+
+**Multiple vehicles:**
+```
+vehicles: [["boat", [[5,3],[10,8]]], ["raft", [[2,6]]]]
+```
+
+**Format:** `[["type", [[x,y], [x2,y2], ...]]]`
+
+### Interaction Flow
+
+1. **Board:** Player stands adjacent to vehicle and calls `player.interact()`
+   - System checks all 4 adjacent tiles for a vehicle
+   - `gameState.characterType` changes to `vehicleType` (e.g., `"boat"`)
+   - Player position moves to vehicle tile
+   - Vehicle is hidden from render (player "becomes" the vehicle)
+
+2. **Move:** Player can now traverse tiles where `access` includes the vehicle type
+   - Example: Water tiles have `access: ["boat", "ship", "fish"]`
+
+3. **Disembark:** Player calls `player.interact()` while boarded
+   - System finds adjacent tile with `access` including `"player"`
+   - Player teleports to that tile; `characterType` resets to `"player"`
+   - Vehicle remains at disembark water tile
+
+### Tile Access Integration
+
+For vehicles to work, tile definitions in `tiles.json` must include the vehicle type in their `access` array:
+
+```json
+"WATER": { "id": 5, "path": "tiles/water.svg", "access": ["boat", "ship", "fish"] }
+```
+
+When `gameState.characterType === "boat"`, the player can traverse any tile where `access.includes("boat")`.
+
+### Reset Behavior
+
+- **Full Reset:** Vehicles return to original positions; player disembarks
+- **Soft Reset:** Same behavior (vehicles reset before code execution)
+
+### Example: Island-Hopping Mission
+
+```markdown
+<!-- Map -->
+```
+[5,5,5,5,5,5,5,5,5,5],
+[5,0,0,0,5,5,5,0,0,5],
+[5,0,0,0,5,5,5,0,0,5],
+[5,0,0,5,5,5,5,5,0,5],
+[5,5,5,5,5,5,5,5,5,5]
+startPos: 1,1
+goalPos: 8,2
+vehicles: [["boat", [[3,2]]]]
+```
+```
+
+**Solution:**
+```python
+import player
+
+player.move_forward(2)
+player.interact()       # Board boat
+player.move_forward(4)
+player.interact()       # Disembark
+player.move_forward()
+```
 
 ---
 
