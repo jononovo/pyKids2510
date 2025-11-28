@@ -466,6 +466,56 @@
         return result;
     };
 
+    // ========== INVENTORY DICTIONARY ACCESS ==========
+    // Allows students to use inventory["coin"] += 1 syntax
+    
+    window.gameCommand_inventory_get = function(key) {
+        if (window.MissionState && MissionState.isMissionLevel) {
+            return MissionState.getInventoryCount(key);
+        }
+        if (!gameState.inventory) {
+            gameState.inventory = {};
+        }
+        var value = gameState.inventory[key];
+        return (value !== undefined) ? value : 0;
+    };
+    
+    window.gameCommand_inventory_set = async function(key, value) {
+        value = parseInt(value) || 0;
+        value = Math.max(0, value);
+        
+        if (window.MissionState && MissionState.isMissionLevel) {
+            var missionInventory = MissionState.getInventory();
+            var currentValue = missionInventory[key] || 0;
+            var diff = value - currentValue;
+            
+            if (diff > 0) {
+                MissionState.addToInventory(key, diff);
+            } else if (diff < 0) {
+                var amountToRemove = Math.min(Math.abs(diff), currentValue);
+                if (amountToRemove > 0) {
+                    MissionState.removeFromInventory(key, amountToRemove);
+                }
+            }
+            gameState.inventory = MissionState.getInventory();
+        } else {
+            if (!gameState.inventory) {
+                gameState.inventory = {};
+            }
+            if (value <= 0) {
+                delete gameState.inventory[key];
+            } else {
+                gameState.inventory[key] = value;
+            }
+        }
+        
+        updateInventoryDisplay();
+        await render();
+        
+        console.log('[inventory] Set', key, '=', value);
+        return value;
+    };
+
     // ========== SKULPT MODULE SOURCE GENERATOR ==========
     // Generates a self-contained module source string at load time
     
@@ -554,6 +604,32 @@
         lines.push('    }, "Backpack", []);');
         lines.push('');
         lines.push('    mod.backpack = Sk.misceval.callsim(BackpackClass);');
+        lines.push('');
+        
+        // Add inventory object using Sk.misceval.buildClass - Python dict-like interface
+        lines.push('    // Inventory object - Python dict-like interface with auto-init to 0');
+        lines.push('    var InventoryClass = Sk.misceval.buildClass(mod, function($gbl, $loc) {');
+        lines.push('        $loc.__init__ = new Sk.builtin.func(function(self) {});');
+        lines.push('');
+        lines.push('        $loc.__getitem__ = new Sk.builtin.func(function(self, key) {');
+        lines.push('            var js_key = Sk.ffi.remapToJs(key);');
+        lines.push('            var value = window.gameCommand_inventory_get(js_key);');
+        lines.push('            return Sk.ffi.remapToPy(value);');
+        lines.push('        });');
+        lines.push('');
+        lines.push('        $loc.__setitem__ = new Sk.builtin.func(function(self, key, value) {');
+        lines.push('            var js_key = Sk.ffi.remapToJs(key);');
+        lines.push('            var js_value = Sk.ffi.remapToJs(value);');
+        lines.push('            return Sk.misceval.promiseToSuspension(');
+        lines.push('                (async function() {');
+        lines.push('                    await window.gameCommand_inventory_set(js_key, js_value);');
+        lines.push('                    return Sk.builtin.none.none$;');
+        lines.push('                })()');
+        lines.push('            );');
+        lines.push('        });');
+        lines.push('    }, "Inventory", []);');
+        lines.push('');
+        lines.push('    mod.inventory = Sk.misceval.callsim(InventoryClass);');
         lines.push('');
         
         lines.push('    return mod;');

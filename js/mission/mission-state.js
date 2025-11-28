@@ -127,6 +127,12 @@ const MissionState = (function() {
         return true;
     }
     
+    function setInventory(newInventory) {
+        inventory = { ...(newInventory || {}) };
+        saveToStorage();
+        return { ...inventory };
+    }
+    
     function getBackpack() {
         return [...backpack];
     }
@@ -256,6 +262,7 @@ const MissionState = (function() {
         getInventoryCount: getInventoryCount,
         addToInventory: addToInventory,
         removeFromInventory: removeFromInventory,
+        setInventory: setInventory,
         getBackpack: getBackpack,
         getBackpackCapacity: getBackpackCapacity,
         isBackpackFull: isBackpackFull,
