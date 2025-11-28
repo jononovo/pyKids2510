@@ -399,29 +399,22 @@
     // Special object methods: backpack.append() and backpack.remove()
     
     window.gameCommand_backpack_append = async function(itemType) {
-        var pos = getTargetPosition();
+        // Use ProximityGuard to validate position and find collectible
+        var guardResult = ProximityGuard.require({
+            mode: 'self',
+            sections: ['collectibles'],
+            errorTemplate: ProximityGuard.Messages.NOTHING_HERE
+        });
         
-        if (!window.ElementInteractionManager) {
-            console.log('[backpack.append] ElementInteractionManager not available');
-            throw new Error('Cannot access items right now. Try again.');
-        }
+        var element = guardResult.element;
         
-        var element = ElementInteractionManager.getElementAt(pos.px, pos.py);
-        if (!element) {
-            console.log('[backpack.append] Nothing to collect at current position');
-            throw new Error('Nothing to collect here! Move to an item first.');
-        }
-        
-        if (element.section !== 'collectibles') {
-            console.log('[backpack.append] Element is not collectible');
-            throw new Error('This cannot be collected!');
-        }
-        
+        // Check if backpack is full
         if (window.MissionState && MissionState.isBackpackFull()) {
             console.log('[backpack.append] Backpack is full!');
             throw new Error('Backpack is full! Remove an item first.');
         }
         
+        // Add to backpack
         var result = MissionState.addToBackpack(element.type);
         if (result.success) {
             ElementInteractionManager.elementStates[element.id] = { removed: true };
@@ -434,7 +427,7 @@
             gameState.backpack = MissionState.getBackpack();
             
             playCollectSound();
-            animateCollectSparkle(pos.px, pos.py);
+            animateCollectSparkle(element.x, element.y);
             updateBackpackDisplay();
             await render();
             console.log('[backpack.append]', result.message);
@@ -498,43 +491,41 @@
         
         // If trying to add items, require standing on a matching collectible
         if (diff > 0) {
-            var playerX = gameState.playerPos.x;
-            var playerY = gameState.playerPos.y;
+            // Use ProximityGuard to validate position and find matching collectible
+            var guardResult = ProximityGuard.require({
+                mode: 'self',
+                sections: ['collectibles'],
+                typeMatch: key,
+                errorTemplate: ProximityGuard.Messages.NOTHING_HERE
+            });
             
-            // Check for matching collectible at player position
-            if (!window.ElementInteractionManager) {
-                console.log('[inventory] ElementInteractionManager not available');
-                throw new Error('Cannot access items right now. Try again.');
-            }
+            var element = guardResult.element;
             
-            var element = ElementInteractionManager.getElementAt(playerX, playerY);
-            
-            if (!element || element.section !== 'collectibles') {
-                console.log('[inventory] Cannot add', key, '- no collectible at position');
-                throw new Error('Nothing to collect here! Move to an item first.');
-            }
-            
-            if (element.type !== key) {
-                console.log('[inventory] Cannot add', key, '- wrong collectible type:', element.type);
-                throw new Error('This is a ' + element.type + ', not a ' + key + '!');
-            }
-            
-            // Consume the collectible using the existing activation system
-            var result = ElementInteractionManager.activateElement(element, gameState);
-            if (!result.success) {
-                console.log('[inventory] Failed to activate element');
+            // Consume the collectible (removes it from the map)
+            var consumeResult = ProximityGuard.consume(element);
+            if (!consumeResult.success) {
+                console.log('[inventory] Failed to consume element');
                 throw new Error('Could not collect the ' + key + '. Try again.');
             }
             
-            console.log('[inventory] Collected', key, 'via inventory syntax at', playerX + ',' + playerY);
+            // Note: activateElement already handles inventory updates
+            // But we sync to ensure consistency
+            console.log('[inventory] Collected', key, 'via inventory syntax at', element.x + ',' + element.y);
             
-            // Sync inventory display
+            // Get the updated inventory from the authoritative source
             if (window.MissionState && MissionState.isMissionLevel) {
                 gameState.inventory = MissionState.getInventory();
             }
+            
+            // Play collection feedback
+            playCollectSound();
+            animateCollectSparkle(element.x, element.y);
             updateInventoryDisplay();
             await render();
-            return gameState.inventory[key] || 0;
+            
+            var newValue = gameState.inventory[key] || 0;
+            console.log('[inventory]', key, 'now =', newValue);
+            return newValue;
         } else if (diff < 0) {
             // Decreasing inventory is allowed anywhere
             if (window.MissionState && MissionState.isMissionLevel) {
