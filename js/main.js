@@ -6,10 +6,7 @@
 var courseData = null;
 var currentLevel = 0;
 
-// Map inheritance cache
-let lastMapCache = null;         // Most recent map from any level
-let lastMissionMapCache = null;  // Most recent map from a Mission/Quest level
-let lastChapterNumber = null;    // Track chapter changes to reset caches
+// Note: Map inheritance caches are now managed by js/game-engine/level-loader.js
 
 // Level entry snapshot for reset functionality (exposed globally for game-commands.js)
 window.levelEntrySnapshot = {
@@ -74,19 +71,7 @@ ctx.imageSmoothingEnabled = false;
 // FILE LOADING
 // ============================================
 
-// Load background graphic for the level
-function loadBackgroundGraphic(graphicUrl) {
-    const img = new Image();
-    img.onload = function() {
-        gameState.backgroundImage = img;
-        render();  // Re-render with the background
-    };
-    img.onerror = function() {
-        console.warn('Failed to load background graphic:', graphicUrl);
-        gameState.backgroundImage = null;
-    };
-    img.src = graphicUrl;
-}
+// Note: loadBackgroundGraphic is now in js/game-engine/level-loader.js
 
 function loadMarkdownFile(event) {
     const file = event.target.files[0];
@@ -146,15 +131,6 @@ function loadSpriteFile(event) {
 async function loadLevel(levelIndex) {
     if (!courseData || levelIndex < 0 || levelIndex >= courseData.levels.length) return;
     
-    // Reset camera to default state when loading a new level
-    if (window.camera) {
-        window.camera.zoom = 1.0;
-        window.camera.panX = 0;
-        window.camera.panY = 0;
-        window.camera.isManualPan = false;
-        window.camera.isDragging = false;
-    }
-    
     currentLevel = levelIndex;
     const level = courseData.levels[levelIndex];
     
@@ -168,29 +144,27 @@ async function loadLevel(levelIndex) {
     // Store the current level's starter code globally for Blockly to access
     window.currentLessonStarterCode = level.starterCode;
     
-    // Update header UI - show category name (e.g., "INTRODUCTION TO PYTHON") instead of course name
+    // Update header UI
     document.getElementById('chapter-title').textContent = courseData.categoryName || courseData.chapterName;
     document.getElementById('level-info').textContent = `CHAPTER ${courseData.chapterNumber} • LEVEL ${levelIndex + 1}`;
     document.getElementById('victory-level-text').textContent = `LEVEL ${levelIndex + 1}`;
     
-    // Update navigation buttons
     updateNavigationButtons();
-    
-    // Update progress indicators
     updateProgressIndicators();
     
-    // Check if we need to create the editor infrastructure for the first time
+    // Initialize game state using LevelLoader
+    if (window.LevelLoader) {
+        await LevelLoader.initialize(level, levelIndex, courseData);
+        LevelLoader.updateInventoryUI();
+    }
+    
+    // Handle UI/Editor setup
     const contentContainer = document.getElementById('content');
     const hasEditorInfrastructure = document.querySelector('.embedded-editor-container');
     
     if (!hasEditorInfrastructure) {
-        // First time - create the full structure
         let htmlContent = '';
-        
-        // Convert markdown to HTML (no need for chapter title since it's in the header)
         htmlContent += `<div id="lesson-content">${markdownToHTML(level.markdown)}</div>`;
-        
-        // Add the embedded editor controls and code editor
         htmlContent += `
             <div class="embedded-editor-container full-width">
                 <div class="controls">
@@ -228,44 +202,33 @@ async function loadLevel(levelIndex) {
                 </div>
             </div>
         `;
-        
         contentContainer.innerHTML = htmlContent;
     } else {
-        // Infrastructure exists - just update the lesson content
         const lessonContentElement = document.getElementById('lesson-content');
         if (lessonContentElement) {
             lessonContentElement.innerHTML = markdownToHTML(level.markdown);
         }
-        
-        // Update category title if it exists
         const categoryTitle = contentContainer.querySelector('h1');
         if (courseData.categoryName && categoryTitle) {
             categoryTitle.textContent = courseData.categoryName;
         }
     }
     
-    // Update editors and controls
+    // Update editors and controls (deferred to allow DOM updates)
     setTimeout(() => {
         const isFirstLoad = !hasEditorInfrastructure;
         
         if (isFirstLoad) {
-            // First time - initialize everything
             EditorManager.init();
-            
-            // Check for saved code, otherwise use starter code
             const savedCode = window.UserProgressManager ? UserProgressManager.getSavedCode() : null;
             const codeToLoad = savedCode || level.starterCode;
             EditorManager.updateCode(codeToLoad);
             
-            // Always save starterCode snapshot for reset functionality
-            // This ensures reset works even after page reload
             window.levelEntrySnapshot.starterCode = level.starterCode;
             console.log('[loadLevel] Saved starterCode snapshot for level', currentLevel + 1);
-            
-            // Update currentLessonStarterCode for Blockly compatibility
             window.currentLessonStarterCode = codeToLoad;
             
-            // Load CSS for Blockly if needed
+            // Load Blockly CSS if needed
             if (window.BlocklyModeSwitcher) {
                 if (!document.querySelector('link[href*="blockly-integration/ui/styles.css"]')) {
                     const link = document.createElement('link');
@@ -273,28 +236,22 @@ async function loadLevel(levelIndex) {
                     link.href = 'blockly-integration/ui/styles.css';
                     document.head.appendChild(link);
                 }
-                
                 if (!document.querySelector('link[href*="blockly-integration/ui/settings-dialog.css"]')) {
                     const link = document.createElement('link');
                     link.rel = 'stylesheet';
                     link.href = 'blockly-integration/ui/settings-dialog.css';
                     document.head.appendChild(link);
                 }
-                
-                // Add toggle buttons
                 const controlsTop = document.querySelector('.controls-top');
                 if (controlsTop) {
                     window.BlocklyModeSwitcher.addToggleButtons(controlsTop);
                 }
-                
-                // Initialize settings
                 if (window.BlocklySettings && !window.BlocklySettings.initialized) {
                     window.BlocklySettings.init();
                     window.BlocklySettings.initialized = true;
                 }
             }
             
-            // Attach event listeners
             document.getElementById('run-btn').addEventListener('click', runCode);
             document.getElementById('reset-btn').addEventListener('click', resetGame);
             
@@ -311,13 +268,12 @@ async function loadLevel(levelIndex) {
             if (tutorToggle && window.toggleTutor) {
                 tutorToggle.addEventListener('click', window.toggleTutor);
                 const toggleText = tutorToggle.querySelector('.toggle-text');
-                // Ensure the dog emoji icon is present
                 const toggleIcon = tutorToggle.querySelector('.toggle-icon');
                 if (!toggleIcon) {
                     const icon = document.createElement('span');
                     icon.className = 'toggle-icon';
                     icon.textContent = '🐶';
-                    tutorToggle.appendChild(icon);  // Add after the text
+                    tutorToggle.appendChild(icon);
                 }
                 if (window.tutorEnabled) {
                     tutorToggle.classList.remove('off');
@@ -328,29 +284,19 @@ async function loadLevel(levelIndex) {
                 }
             }
         } else {
-            // Infrastructure exists - just update content
-            // Check for saved code, otherwise use starter code
             const savedCode = window.UserProgressManager ? UserProgressManager.getSavedCode() : null;
             const codeToLoad = savedCode || level.starterCode;
             EditorManager.updateCode(codeToLoad);
             
-            // Always save starterCode snapshot for reset functionality
-            // This ensures reset works even after page reload
             window.levelEntrySnapshot.starterCode = level.starterCode;
             console.log('[loadLevel] Saved starterCode snapshot for level', currentLevel + 1);
-            
-            // Update currentLessonStarterCode for Blockly compatibility
             window.currentLessonStarterCode = codeToLoad;
             
-            // Handle Blockly mode persistence
             if (window.BlocklyModeSwitcher) {
                 const wasInBlockMode = window.BlocklyModeSwitcher.isBlockMode();
-                
                 if (wasInBlockMode) {
-                    // Clear blocks but keep workspace
                     if (window.BlocklyWorkspace && window.BlocklyWorkspace.workspace) {
                         window.BlocklyWorkspace.workspace.clear();
-                        // Load saved/starter code into existing workspace
                         if (window.BlocklyIntegration && codeToLoad) {
                             setTimeout(() => {
                                 window.BlocklyIntegration.convertFromText(codeToLoad);
@@ -361,7 +307,6 @@ async function loadLevel(levelIndex) {
             }
         }
         
-        // Check for auto-start in blocks mode (only on first load)
         if (isFirstLoad && window.BlocklySettings && window.BlocklySettings.getSetting('startInBlocksMode')) {
             setTimeout(() => {
                 console.log('Auto-switching to Blockly mode (Start in Blocks Mode is ON)');
@@ -370,179 +315,11 @@ async function loadLevel(levelIndex) {
         }
     }, 0);
     
-    // Reset map caches if chapter changed
-    if (lastChapterNumber !== courseData.chapterNumber) {
-        lastMapCache = null;
-        lastMissionMapCache = null;
-        lastChapterNumber = courseData.chapterNumber;
-        
-        // Initialize MissionState for new chapter (only if not already initialized for this chapter)
-        if (window.MissionState) {
-            const currentMissionChapter = MissionState.getCurrentChapter();
-            if (currentMissionChapter !== courseData.chapterNumber) {
-                MissionState.init(courseData.chapterNumber);
-            }
-        }
-    }
-    
-    // Determine map layout to use (inheritance logic)
-    let mapLayout = level.map.layout;
-    
-    if (!level.hasOwnMap || mapLayout.length === 0) {
-        // No map defined, use inheritance
-        const isMission = level.type === 'mission' || level.type === 'quest';
-        
-        if (isMission && lastMissionMapCache) {
-            // Mission prefers last mission map
-            mapLayout = lastMissionMapCache;
-            console.log('[Map Inheritance] Mission using last mission map');
-        } else if (lastMapCache) {
-            // Fall back to most recent map
-            mapLayout = lastMapCache;
-            console.log('[Map Inheritance] Using last available map');
-        }
-    } else {
-        // Level has its own map, update caches
-        lastMapCache = level.map.layout;
-        
-        const isMission = level.type === 'mission' || level.type === 'quest';
-        if (isMission) {
-            lastMissionMapCache = level.map.layout;
-        }
-    }
-    
-    // Load map
-    gameState.mapData = mapLayout;
-    gameState.mapHeight = mapLayout.length;
-    gameState.mapWidth = mapLayout[0] ? mapLayout[0].length : 0;
-    gameState.startPos = {...level.map.startPos};
-    gameState.goalPos = {...level.map.goalPos};
-    gameState.playerPos = {...level.map.startPos};
-    gameState.playerDirection = 'right';
-    gameState.characterType = 'player';
-    gameState.levelType = level.type || 'exercise';
-    
-    // Get collectibles from level
-    let collectibles = (level.map.collectibles || []).map(c => ({
-        x: c.x !== undefined ? c.x : c[0],
-        y: c.y !== undefined ? c.y : c[1],
-        type: c.type || 'gem',
-        collected: false
-    }));
-    
-    // For missions, filter out already-collected items
-    const isMission = level.type === 'mission' || level.type === 'quest';
-    if (isMission && window.MissionState && MissionState.isInitialized()) {
-        collectibles = collectibles.map(c => {
-            if (MissionState.isCollected(c.x, c.y)) {
-                return { ...c, collected: true };
-            }
-            return c;
-        });
-    }
-    
-    // Initialize collectibles
-    gameState.collectibles = collectibles;
-    
-    // Initialize ElementInteractionManager with level data
-    if (window.ElementInteractionManager) {
-        ElementInteractionManager.loadLevelElements(level);
-        
-        // Set mission level flag for persistence
-        if (window.MissionState) {
-            MissionState.setIsMissionLevel(isMission);
-        }
-    }
-    
-    // Initialize MegaElementManager with level data (multi-tile elements)
-    if (window.MegaElementManager) {
-        await MegaElementManager.loadLevelMegaElements(level);
-    }
-    
-    // Initialize MegaObjectManager with level data (multi-tile walkable objects)
-    if (window.MegaObjectManager) {
-        await MegaObjectManager.loadLevelMegaObjects(level);
-    }
-    
-    // Reset objects and inventory for new level
-    gameState.objects = [];
-    gameState.messageLog = [];
-    
-    // For mission levels, load inventory from MissionState; otherwise start fresh
-    if (isMission && window.MissionState && MissionState.isInitialized()) {
-        gameState.inventory = MissionState.getInventory();
-        console.log('[loadLevel] Mission level - loaded inventory from MissionState:', gameState.inventory);
-    } else {
-        gameState.inventory = {};
-    }
-    
-    // Check if this is a new level entry (not a reset/reload of same level)
-    const isNewLevelEntry = window.levelEntrySnapshot.levelIndex !== levelIndex;
-    window._isNewLevelEntry = isNewLevelEntry; // Expose for setTimeout callback
-    
-    // Save MissionState snapshot for reset functionality (only on new level entry)
-    if (isNewLevelEntry) {
-        if (isMission && window.MissionState && MissionState.isInitialized()) {
-            // For level 1 (index 0), always capture a fresh/empty snapshot
-            // This ensures reset returns to a clean state from the MD file
-            // For subsequent levels, capture current MissionState (items from previous levels persist)
-            if (levelIndex === 0) {
-                window.levelEntrySnapshot.missionState = {
-                    chapter: MissionState.getCurrentChapter(),
-                    inventory: {},
-                    collectedItems: [],
-                    structures: []
-                };
-                console.log('[loadLevel] Level 1 - captured fresh empty snapshot for reset');
-            } else {
-                window.levelEntrySnapshot.missionState = MissionState.getState();
-                console.log('[loadLevel] Level', levelIndex + 1, '- captured MissionState snapshot for reset:', window.levelEntrySnapshot.missionState);
-            }
-        } else {
-            window.levelEntrySnapshot.missionState = null;
-        }
-        window.levelEntrySnapshot.levelIndex = levelIndex;
-    }
-    
-    // Update UI panels
-    const inventoryPanel = document.getElementById('inventory-panel');
-    if (inventoryPanel) {
-        inventoryPanel.innerHTML = '<strong>Inventory:</strong>';
-        // Display existing inventory items
-        for (const [type, count] of Object.entries(gameState.inventory)) {
-            if (count > 0) {
-                const itemSpan = document.createElement('span');
-                itemSpan.className = 'inventory-item';
-                itemSpan.textContent = ` ${type}: ${count}`;
-                inventoryPanel.appendChild(itemSpan);
-            }
-        }
-    }
-    const messagePanel = document.getElementById('message-panel');
-    if (messagePanel) {
-        messagePanel.innerHTML = '';
-    }
-    
-    // Load background graphic if specified
-    if (level.map.graphic) {
-        loadBackgroundGraphic(level.map.graphic);
-    } else {
-        gameState.backgroundImage = null;
-    }
-    
-    // Resize canvas if needed
-    const canvasWidth = gameState.mapWidth * TILE_SIZE;
-    const canvasHeight = gameState.mapHeight * TILE_SIZE;
-    if (canvas.width !== canvasWidth || canvas.height !== canvasHeight) {
-        canvas.width = canvasWidth;
-        canvas.height = canvasHeight;
-    }
-    
     // Render the game
     render();
     
     // Initialize viewport position
-    updateViewport();
+    if (window.updateViewport) updateViewport();
 }
 
 // ============================================
