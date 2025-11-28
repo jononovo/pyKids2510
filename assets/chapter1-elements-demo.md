@@ -160,19 +160,19 @@ tests:
 Completing Mission 1
 
 ### OBJECTIVE
-> Collect a key and practice using Python dictionary syntax to track your items
+> Learn Python dictionary syntax by collecting keys with `inventory["key"] += 1`
 
-In this mission, you'll learn to track items using Python's dictionary syntax. First, collect the key using `collect()`, then practice adding more keys using dictionary syntax:
+In this mission, you'll learn to track items using Python's dictionary syntax. The `inventory` is a Python dictionary that stores item counts. Instead of using `collect()`, you'll add items directly using:
 
 ```python
 inventory["key"] += 1
 ```
 
-The `inventory` is a Python dictionary that stores item counts. This is how real Python programmers track quantities!
+Navigate to each key and use this syntax to add it to your inventory. This is how real Python programmers track quantities!
 
 ### SUCCESS CRITERIA
-- Find and collect the key using `collect()`
-- Add another key using `inventory["key"] += 1`
+- Find both keys on the island
+- Use `inventory["key"] += 1` to collect each one
 - Return to base camp facing north
 
 ### REWARDS
@@ -183,8 +183,8 @@ The `inventory` is a Python dictionary that stores item counts. This is how real
 ```
 import player
 
-# Find the key and collect it!
-# Then add another using: inventory["key"] += 1
+# Navigate to the keys and collect them using:
+# inventory["key"] += 1
 player.move_forward()
 ```
 
@@ -192,21 +192,24 @@ player.move_forward()
 ```
 import player
 
-# Navigate to the key location
+# Navigate to the first key at (24,46)
 player.move_forward(5)
 player.turn_left()
 player.move_forward(3)
 
-# Collect the key from the map
-player.collect()
+# Add the first key using dictionary syntax
+inventory["key"] += 1
 
-# Add another key using dictionary syntax
+# Move to the second key at (26,46)
+player.turn_left()
+player.turn_left()  # facing east
+player.move_forward(2)
+
+# Add the second key using dictionary syntax
 inventory["key"] += 1
 
 # Return to base camp facing north
-player.turn_left()
-player.turn_left()  # facing east
-player.move_forward(3)  # back to (27,46)
+player.move_forward(1)  # to (27,46)
 player.turn_right()  # facing south
 player.move_forward(5)  # to (27,51)
 player.turn_left()
@@ -217,7 +220,7 @@ player.turn_left()  # facing north
 ```
 startPos: 27,51
 goalPos: 27,51
-collectibles: [["key", [[24,46]]]]
+collectibles: [["key", [[24,46], [26,46]]]]
 ```
 
 <!-- Tests -->
@@ -226,14 +229,12 @@ pass_all: true
 tests:
   - type: position
     target: goal
-  - type: collectibles
-    all: true
   - type: inventory
     item: key
     min: 2
   - type: code_regex
     pattern: "inventory\\[.key.\\]\\s*\\+=\\s*1"
-    message: "Use inventory[\"key\"] += 1 to add a key to your inventory"
+    message: "Use inventory[\"key\"] += 1 to add keys to your inventory"
   - type: direction
     facing: up
 ```

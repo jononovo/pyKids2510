@@ -484,35 +484,69 @@
         value = parseInt(value) || 0;
         value = Math.max(0, value);
         
+        var currentValue = 0;
         if (window.MissionState && MissionState.isMissionLevel) {
-            var missionInventory = MissionState.getInventory();
-            var currentValue = missionInventory[key] || 0;
-            var diff = value - currentValue;
+            currentValue = MissionState.getInventoryCount(key);
+        } else if (gameState.inventory) {
+            currentValue = gameState.inventory[key] || 0;
+        }
+        
+        var diff = value - currentValue;
+        
+        // If trying to add items, require standing on a matching collectible
+        if (diff > 0) {
+            var playerX = gameState.playerPos.x;
+            var playerY = gameState.playerPos.y;
             
-            if (diff > 0) {
-                MissionState.addToInventory(key, diff);
-            } else if (diff < 0) {
+            // Check for matching collectible at player position
+            if (window.ElementInteractionManager) {
+                var element = ElementInteractionManager.getElementAt(playerX, playerY);
+                
+                if (!element || element.type !== key || element.section !== 'collectibles') {
+                    console.log('[inventory] Cannot add', key, '- no matching collectible at position');
+                    throw new Error('You must be standing on a ' + key + ' to add it to your inventory!');
+                }
+                
+                // Consume the collectible using the existing activation system
+                var result = ElementInteractionManager.activateElement(element, gameState);
+                if (result.success) {
+                    console.log('[inventory] Collected', key, 'via inventory syntax at', playerX + ',' + playerY);
+                    
+                    // Sync inventory display
+                    if (window.MissionState && MissionState.isMissionLevel) {
+                        gameState.inventory = MissionState.getInventory();
+                    }
+                    updateInventoryDisplay();
+                    await render();
+                    return gameState.inventory[key] || 0;
+                }
+            } else {
+                console.log('[inventory] ElementInteractionManager not available');
+            }
+        } else if (diff < 0) {
+            // Decreasing inventory is allowed anywhere
+            if (window.MissionState && MissionState.isMissionLevel) {
                 var amountToRemove = Math.min(Math.abs(diff), currentValue);
                 if (amountToRemove > 0) {
                     MissionState.removeFromInventory(key, amountToRemove);
                 }
-            }
-            gameState.inventory = MissionState.getInventory();
-        } else {
-            if (!gameState.inventory) {
-                gameState.inventory = {};
-            }
-            if (value <= 0) {
-                delete gameState.inventory[key];
+                gameState.inventory = MissionState.getInventory();
             } else {
-                gameState.inventory[key] = value;
+                if (!gameState.inventory) {
+                    gameState.inventory = {};
+                }
+                if (value <= 0) {
+                    delete gameState.inventory[key];
+                } else {
+                    gameState.inventory[key] = value;
+                }
             }
+            
+            updateInventoryDisplay();
+            await render();
+            console.log('[inventory] Set', key, '=', value);
         }
         
-        updateInventoryDisplay();
-        await render();
-        
-        console.log('[inventory] Set', key, '=', value);
         return value;
     };
 
