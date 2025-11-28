@@ -173,9 +173,9 @@ function animateCollectSparkle(tileX, tileY) {
     const endY = invRect.top + 20;
     
     const sparkles = [
-        { size: 16, delay: 0, offsetX: 0, offsetY: 0 },
-        { size: 10, delay: 70, offsetX: -6, offsetY: 4 },
-        { size: 8, delay: 140, offsetX: 5, offsetY: -3 }
+        { size: 20, delay: 0, offsetX: 0, offsetY: 0 },
+        { size: 14, delay: 70, offsetX: -7, offsetY: 5 },
+        { size: 10, delay: 140, offsetX: 6, offsetY: -4 }
     ];
     
     sparkles.forEach((cfg, i) => {
