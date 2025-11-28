@@ -573,34 +573,6 @@ When `gameState.characterType === "boat"`, the player can traverse any tile wher
 - **Full Reset:** Vehicles return to original positions; player disembarks
 - **Soft Reset:** Same behavior (vehicles reset before code execution)
 
-### Trigger/Spawn System
-
-Vehicles can be hidden at level start and spawn when a trigger is fired. This enables puzzle mechanics where collecting one item unlocks another.
-
-**Syntax:**
-
-- **Firing element:** Use `fires` property to define a trigger name
-- **Spawned vehicle:** Use `spawn` property to link to that trigger
-
-```
-collectibles: [["axe", {"at": [[2,4]], "fires": "unlock-boat"}]]
-vehicles: [["boat", {"at": [[4,5]], "spawn": "unlock-boat"}]]
-```
-
-**How it works:**
-
-1. At level start, the boat is hidden (not rendered, not interactable)
-2. Player collects the axe at (2,4)
-3. The `"unlock-boat"` trigger fires
-4. The boat appears at (4,5) and becomes interactable
-
-**Decoupled Design:** The trigger name (`"unlock-boat"`) is a simple string that links the two elements. Each element type stays in its proper section (collectibles, transforms, vehicles), making the map data clean and maintainable.
-
-**Works with:**
-- `collectibles` - Collect an item to fire a trigger
-- `transforms` - Interact with an element to fire a trigger  
-- `vehicles` - Spawn when a trigger fires
-
 ### Example: Island-Hopping Mission
 
 ```markdown

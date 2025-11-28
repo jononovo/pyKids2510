@@ -10,7 +10,6 @@
         manifest: null,
         elements: [],
         elementStates: {},
-        firedTriggers: {},
         
         async init() {
             await this.loadManifest();
@@ -62,16 +61,8 @@
                     if (Array.isArray(data)) {
                         const elements = this._parseCoordArray(elementType, replacement, data, sectionName);
                         parsed.push(...elements);
-                    } else if (typeof data === 'object' && data.at) {
-                        const elements = this._parseCoordArray(
-                            elementType, 
-                            replacement, 
-                            data.at, 
-                            sectionName, 
-                            data.trigger || null,
-                            data.fires || null,
-                            data.spawn || null
-                        );
+                    } else if (typeof data === 'object' && data.trigger && data.at) {
+                        const elements = this._parseCoordArray(elementType, replacement, data.at, sectionName, data.trigger);
                         parsed.push(...elements);
                     }
                 }
@@ -80,7 +71,7 @@
             return parsed;
         },
 
-        _parseCoordArray(elementType, replacement, coords, sectionName, triggerOverride = null, fires = null, spawnTrigger = null) {
+        _parseCoordArray(elementType, replacement, coords, sectionName, triggerOverride = null) {
             const elements = [];
             const defaultTrigger = this._getDefaultTrigger(sectionName);
             
@@ -94,8 +85,6 @@
                     trigger: triggerOverride || defaultTrigger,
                     section: sectionName,
                     replacement: replacement,
-                    fires: fires,
-                    spawnTrigger: spawnTrigger,
                     id: this._generateId(elementType, coords[0], coords[1])
                 });
             } else {
@@ -108,8 +97,6 @@
                             trigger: triggerOverride || defaultTrigger,
                             section: sectionName,
                             replacement: replacement,
-                            fires: fires,
-                            spawnTrigger: spawnTrigger,
                             id: this._generateId(elementType, coord[0], coord[1])
                         });
                     }
@@ -146,7 +133,6 @@
 
         loadLevelElements(levelData) {
             this.elements = [];
-            this.firedTriggers = {};
             
             if (levelData.map && levelData.map.collectibles) {
                 const parsed = this.parseElementSection('collectibles', levelData.map.collectibles);
@@ -170,37 +156,12 @@
 
         getElementAt(x, y) {
             return this.elements.find(e => 
-                e.x === x && e.y === y && 
-                !this.isElementRemoved(e.id) &&
-                this.isElementSpawned(e)
+                e.x === x && e.y === y && !this.isElementRemoved(e.id)
             );
-        },
-        
-        isElementSpawned(element) {
-            if (!element.spawnTrigger) return true;
-            return this.isTriggerFired(element.spawnTrigger);
         },
 
         getElementsForRender() {
-            return this.elements.filter(e => {
-                if (this.isElementRemoved(e.id)) return false;
-                if (e.spawnTrigger && !this.isTriggerFired(e.spawnTrigger)) return false;
-                return true;
-            });
-        },
-        
-        fireTrigger(triggerName) {
-            if (!triggerName) return;
-            this.firedTriggers[triggerName] = true;
-            console.log('[ElementInteraction] Trigger fired:', triggerName);
-            
-            if (window.VehicleInteractionManager) {
-                VehicleInteractionManager.onTriggerFired(triggerName);
-            }
-        },
-        
-        isTriggerFired(triggerName) {
-            return this.firedTriggers[triggerName] === true;
+            return this.elements.filter(e => !this.isElementRemoved(e.id));
         },
 
         isElementRemoved(elementId) {
@@ -308,10 +269,6 @@
                 }
             }
 
-            if (element.fires) {
-                this.fireTrigger(element.fires);
-            }
-
             this.persistStates();
             
             return result;
@@ -345,7 +302,6 @@
         reset(gameState) {
             this.elements = [];
             this.elementStates = {};
-            this.firedTriggers = {};
             
             if (window.VehicleInteractionManager) {
                 VehicleInteractionManager.reset(gameState);

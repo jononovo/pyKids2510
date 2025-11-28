@@ -21,25 +21,8 @@
 
         getVehicleAt(x, y) {
             return this.vehicles.find(v => 
-                v.x === x && v.y === y && 
-                !this.isVehicleRemoved(v.id) &&
-                this.isVehicleSpawned(v)
+                v.x === x && v.y === y && !this.isVehicleRemoved(v.id)
             );
-        },
-        
-        isVehicleSpawned(vehicle) {
-            if (!vehicle.spawnTrigger) return true;
-            if (window.ElementInteractionManager) {
-                return ElementInteractionManager.isTriggerFired(vehicle.spawnTrigger);
-            }
-            return false;
-        },
-        
-        onTriggerFired(triggerName) {
-            const affectedVehicles = this.vehicles.filter(v => v.spawnTrigger === triggerName);
-            if (affectedVehicles.length > 0) {
-                console.log('[VehicleInteraction] Vehicles spawned by trigger', triggerName + ':', affectedVehicles.map(v => v.type));
-            }
         },
 
         isVehicleRemoved(vehicleId) {
@@ -81,9 +64,6 @@
                     if (Array.isArray(data)) {
                         const elements = this._parseCoordArray(vehicleType, data);
                         parsed.push(...elements);
-                    } else if (typeof data === 'object' && data.at) {
-                        const elements = this._parseCoordArray(vehicleType, data.at, data.spawn || null);
-                        parsed.push(...elements);
                     }
                 }
             }
@@ -91,7 +71,7 @@
             return parsed;
         },
 
-        _parseCoordArray(vehicleType, coords, spawnTrigger = null) {
+        _parseCoordArray(vehicleType, coords) {
             const elements = [];
             
             if (!Array.isArray(coords)) return elements;
@@ -104,7 +84,6 @@
                     originalX: coords[0],
                     originalY: coords[1],
                     section: 'vehicles',
-                    spawnTrigger: spawnTrigger,
                     id: this._generateId(vehicleType, coords[0], coords[1])
                 });
             } else {
@@ -117,7 +96,6 @@
                             originalX: coord[0],
                             originalY: coord[1],
                             section: 'vehicles',
-                            spawnTrigger: spawnTrigger,
                             id: this._generateId(vehicleType, coord[0], coord[1])
                         });
                     }
@@ -284,7 +262,6 @@
         getVehiclesForRender() {
             return this.vehicles.filter(v => {
                 if (this.isVehicleRemoved(v.id)) return false;
-                if (!this.isVehicleSpawned(v)) return false;
                 
                 if (this.currentVehicle && this.currentVehicle.id === v.id) {
                     return false;
