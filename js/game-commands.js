@@ -525,39 +525,34 @@
             lines.push('');
         }
         
-        // Add backpack object with append() and remove() methods
+        // Add backpack object using Sk.misceval.buildClass - proper Skulpt pattern
         lines.push('    // Backpack object - Python list-like interface');
-        lines.push('    var BackpackClass = function() {};');
-        lines.push('    BackpackClass.prototype.tp$name = "backpack";');
+        lines.push('    var BackpackClass = Sk.misceval.buildClass(mod, function($gbl, $loc) {');
+        lines.push('        $loc.__init__ = new Sk.builtin.func(function(self) {});');
         lines.push('');
-        lines.push('    BackpackClass.prototype.append = new Sk.builtin.func(function(self, item) {');
-        lines.push('        return Sk.misceval.promiseToSuspension(');
-        lines.push('            (async function() {');
-        lines.push('                await window.gameCommand_backpack_append();');
-        lines.push('                incrementCounter(1);');
-        lines.push('                return Sk.builtin.none.none$;');
-        lines.push('            })()');
-        lines.push('        );');
-        lines.push('    });');
+        lines.push('        $loc.append = new Sk.builtin.func(function(self) {');
+        lines.push('            return Sk.misceval.promiseToSuspension(');
+        lines.push('                (async function() {');
+        lines.push('                    await window.gameCommand_backpack_append();');
+        lines.push('                    incrementCounter(1);');
+        lines.push('                    return Sk.builtin.none.none$;');
+        lines.push('                })()');
+        lines.push('            );');
+        lines.push('        });');
         lines.push('');
-        lines.push('    BackpackClass.prototype.remove = new Sk.builtin.func(function(self, item) {');
-        lines.push('        var js_item = Sk.ffi.remapToJs(item);');
-        lines.push('        return Sk.misceval.promiseToSuspension(');
-        lines.push('            (async function() {');
-        lines.push('                await window.gameCommand_backpack_remove(js_item);');
-        lines.push('                incrementCounter(1);');
-        lines.push('                return Sk.builtin.none.none$;');
-        lines.push('            })()');
-        lines.push('        );');
-        lines.push('    });');
+        lines.push('        $loc.remove = new Sk.builtin.func(function(self, item) {');
+        lines.push('            var js_item = item ? Sk.ffi.remapToJs(item) : null;');
+        lines.push('            return Sk.misceval.promiseToSuspension(');
+        lines.push('                (async function() {');
+        lines.push('                    await window.gameCommand_backpack_remove(js_item);');
+        lines.push('                    incrementCounter(1);');
+        lines.push('                    return Sk.builtin.none.none$;');
+        lines.push('                })()');
+        lines.push('            );');
+        lines.push('        });');
+        lines.push('    }, "Backpack", []);');
         lines.push('');
-        lines.push('    BackpackClass.prototype.tp$getattr = function(name) {');
-        lines.push('        if (name === "append") return this.append;');
-        lines.push('        if (name === "remove") return this.remove;');
-        lines.push('        return undefined;');
-        lines.push('    };');
-        lines.push('');
-        lines.push('    mod.backpack = new BackpackClass();');
+        lines.push('    mod.backpack = Sk.misceval.callsim(BackpackClass);');
         lines.push('');
         
         lines.push('    return mod;');
