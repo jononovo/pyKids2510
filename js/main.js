@@ -29,7 +29,7 @@ const SPEED_SETTINGS = {
     turbo: { duration: 100, label: 'Turbo', icon: '⚡' }
 };
 
-let currentSpeed = 'normal';
+let currentSpeed = 'fast';
 
 // Note: TILES and tileColors are now defined in game-engine.js
 
@@ -195,9 +195,12 @@ async function loadLevel(levelIndex) {
             <div class="embedded-editor-container full-width">
                 <div class="controls">
                     <div class="controls-top">
-                        <button class="btn run-btn" id="run-btn">
-                            <span class="btn-icon">▶</span> <span class="btn-text">RUN CODE</span>
-                        </button>
+                        <div class="run-btn-wrapper">
+                            <button class="btn run-btn" id="run-btn">
+                                <span class="btn-icon">▶</span> <span class="btn-text">RUN CODE</span>
+                            </button>
+                            <span class="run-tooltip">Run with keyboard: ⌘/Ctrl + Enter</span>
+                        </div>
                         <span class="infinity-symbol">∞</span>
                     </div>
                     <div class="controls-bottom">
@@ -294,6 +297,14 @@ async function loadLevel(levelIndex) {
             // Attach event listeners
             document.getElementById('run-btn').addEventListener('click', runCode);
             document.getElementById('reset-btn').addEventListener('click', resetGame);
+            
+            // Add keyboard shortcut: Cmd+Enter (macOS) / Ctrl+Enter (Windows) to run code
+            document.addEventListener('keydown', function(e) {
+                if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+                    e.preventDefault();
+                    runCode();
+                }
+            });
             
             // Initialize tutor toggle button
             const tutorToggle = document.getElementById('tutor-toggle');
