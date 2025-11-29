@@ -16,7 +16,7 @@ This comprehensive guide covers everything you need to know about creating lesso
 8. [Elements System](#elements-system)
 9. [Vehicles System](#vehicles-system)
 10. [Mega-Elements System](#mega-elements-system)
-11. [Mega-Objects System](#mega-objects-system)
+11. [Scenery System](#scenery-system)
 12. [Signal System](#signal-system)
 13. [Available Python Commands](#available-python-commands)
 14. [Mission State System](#mission-state-system)
@@ -752,8 +752,8 @@ y=4  [ wall  wall  wall ]  <- row 2, blocked
 
 ### Rendering Order
 
-Mega-elements render after tiles and mega-objects but before the player:
-`background → tiles → mega-objects → elements → mega-elements → goal star → player`
+Mega-elements render after tiles and scenery but before the player:
+`background → tiles → scenery → elements → mega-elements → goal star → player`
 
 ### Available Mega-Elements
 
@@ -770,30 +770,38 @@ Mega-elements render after tiles and mega-objects but before the player:
 
 ---
 
-## Mega-Objects System
+## Scenery System
 
-Mega-objects are multi-tile walkable graphics for terrain features like hills, mountains, and decorative landscapes. Unlike mega-elements, mega-objects do NOT block player movement - the character can walk over them.
+Scenery includes multi-tile walkable graphics for terrain features like hills, mountains, trees, and decorative landscapes. Unlike mega-elements, scenery does NOT block player movement - the character can walk over them.
 
 ### Key Files
 
 | File | Purpose |
 |------|---------|
-| `assets/map/mega-objects.json` | Manifest defining all mega-objects |
-| `assets/map/mega-objects/*.svg` | SVG graphics (sized to tile dimensions) |
-| `js/game-engine/mega-object-manager.js` | Loading and rendering |
+| `assets/map/scenery.json` | Manifest defining all scenery items |
+| `assets/map/scenery/*.svg` | SVG graphics (sized to tile dimensions) |
+| `js/game-engine/scenery-manager.js` | Loading and rendering |
 
 ### Manifest Schema
 
 ```json
 {
-  "megaObjects": {
+  "scenery": {
     "moderate-mountain": {
       "name": "moderate-mountain",
-      "path": "mega-objects/moderate-mountain-6x7.svg",
+      "path": "scenery/moderate-mountain-6x7.svg",
       "width": 6,
       "height": 7,
       "fallbackColor": "#7a8b6e",
       "description": "A moderate-sized mountain with rocky terrain"
+    },
+    "tree": {
+      "name": "tree",
+      "path": "scenery/tree.svg",
+      "width": 1,
+      "height": 1,
+      "fallbackColor": "#4a7c4e",
+      "description": "A single tile tree"
     }
   }
 }
@@ -801,27 +809,27 @@ Mega-objects are multi-tile walkable graphics for terrain features like hills, m
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `name` | string | Identifier for the mega-object |
+| `name` | string | Identifier for the scenery item |
 | `path` | string | Relative path from `assets/map/` |
-| `width` | number | Width in tiles |
-| `height` | number | Height in tiles |
+| `width` | number | Width in tiles (default: 1) |
+| `height` | number | Height in tiles (default: 1) |
 | `fallbackColor` | string | Hex color when SVG fails |
 | `description` | string | Optional description |
 
-**Note:** Unlike mega-elements, mega-objects have no `blockedTiles` property - they are always walkable.
+**Note:** Unlike mega-elements, scenery has no `blockedTiles` property - they are always walkable.
 
 ### Map Syntax
 
-Place mega-objects using the `megaObjects:` property in the map block:
+Place scenery using the `scenery:` property in the map block:
 
 ```
-megaObjects: [["moderate-mountain", [[5,2]]], ["hill", [[15,8]]]]
+scenery: [["moderate-mountain", [[5,2]]], ["highland-plateau", [[15,8]]]]
 ```
 
 **Format:** `[["type", [[x,y], [x2,y2], ...]]]`
 
-- Position is the **upper-left corner** of the mega-object
-- Object extends **right** and **down** from that position
+- Position is the **upper-left corner** of the scenery item
+- Item extends **right** and **down** from that position
 - Multiple instances: `["moderate-mountain", [[5,2], [18,10]]]`
 
 ### SVG Requirements
@@ -833,24 +841,27 @@ megaObjects: [["moderate-mountain", [[5,2]]], ["hill", [[15,8]]]]
 
 ### Rendering Order
 
-Mega-objects render after tiles but before elements, mega-elements, and the player:
-`background → tiles → mega-objects → elements → mega-elements → goal star → player`
+Scenery renders after tiles but before elements, mega-elements, and the player:
+`background → tiles → scenery → elements → mega-elements → goal star → player`
 
 This ensures terrain features like mountains appear as background visuals that the player walks over.
 
-### Available Mega-Objects
+### Available Scenery
 
 | Type | Size | Description |
 |------|------|-------------|
+| `tree` | 1x1 | Single tile tree |
+| `bush` | 1x1 | Single tile bush |
+| `flower` | 1x1 | Single tile flower decoration |
 | `highland-plateau` | 5x4 | Flat-topped grassy plateau with cliff edges and pine trees |
 | `moderate-mountain` | 6x7 | Rocky mountain terrain with grass patches, walkable |
 | `large-mountain` | 8x9 | Isometric mountain with snow-capped peaks, cliff faces, and pine trees |
 
-### Adding Custom Mega-Objects
+### Adding Custom Scenery
 
-1. Create SVG in `assets/map/mega-objects/` (sized correctly)
-2. Add entry to `assets/map/mega-objects.json`
-3. Reference in level: `megaObjects: [["my-object", [[x,y]]]]`
+1. Create SVG in `assets/map/scenery/` (sized correctly)
+2. Add entry to `assets/map/scenery.json`
+3. Reference in level: `scenery: [["my-scenery", [[x,y]]]]`
 
 ---
 
@@ -1999,14 +2010,14 @@ vehicles: [["boat", [[5,3],[10,8]]]]
 vehicles: [["boat", {"spawn": "got_key", "at": [[2,7]]}]]
 ```
 
-### Mega-Elements & Mega-Objects Syntax
+### Mega-Elements & Scenery Syntax
 
 ```
 # Mega-elements (blocking multi-tile structures)
 megaElements: [["house", [[15,4]]], ["shop", [[1,4]]]]
 
-# Mega-objects (walkable multi-tile terrain)
-megaObjects: [["moderate-mountain", [[5,2]]], ["highland-plateau", [[15,8]]]]
+# Scenery (walkable multi-tile terrain)
+scenery: [["moderate-mountain", [[5,2]]], ["highland-plateau", [[15,8]]]]
 ```
 
 ### Signal Properties

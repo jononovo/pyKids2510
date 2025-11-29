@@ -91,7 +91,7 @@ function parseCourseLevels(markdown) {
                 transforms: [],
                 vehicles: [],
                 megaElements: [],
-                megaObjects: [],
+                scenery: [],
                 graphic: null
             }
         };
@@ -190,13 +190,13 @@ function parseCourseLevels(markdown) {
                     } catch (e) {
                         console.log('Could not parse megaElements:', line);
                     }
-                } else if (line.includes('megaObjects:')) {
+                } else if (line.includes('scenery:')) {
                     try {
-                        const megaObjectsStr = line.split('megaObjects:')[1].trim();
-                        const megaObjectsArray = JSON.parse(megaObjectsStr);
-                        level.map.megaObjects = megaObjectsArray;
+                        const sceneryStr = line.split('scenery:')[1].trim();
+                        const sceneryArray = JSON.parse(sceneryStr);
+                        level.map.scenery = sceneryArray;
                     } catch (e) {
-                        console.log('Could not parse megaObjects:', line);
+                        console.log('Could not parse scenery:', line);
                     }
                 } else if (line.includes('graphic:')) {
                     // Extract the graphic URL

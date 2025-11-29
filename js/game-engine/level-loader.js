@@ -159,8 +159,8 @@
                 await MegaElementManager.loadLevelMegaElements(levelData);
             }
             
-            if (window.MegaObjectManager) {
-                await MegaObjectManager.loadLevelMegaObjects(levelData);
+            if (window.SceneryManager) {
+                await SceneryManager.loadLevelScenery(levelData);
             }
         },
 

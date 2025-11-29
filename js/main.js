@@ -573,9 +573,9 @@ if (typeof preloadSVGTiles === 'function') {
             await MegaElementManager.init();
         }
         
-        // Initialize MegaObjectManager (multi-tile walkable objects)
-        if (window.MegaObjectManager) {
-            await MegaObjectManager.init();
+        // Initialize SceneryManager (multi-tile walkable scenery)
+        if (window.SceneryManager) {
+            await SceneryManager.init();
         }
         
         console.log('SVG tiles loaded, starting game');

@@ -1,6 +1,6 @@
 // ============================================
 // ELEMENT RENDERER
-// Handles drawing of interactive elements, mega-elements, mega-objects, and vehicles
+// Handles drawing of interactive elements, mega-elements, scenery, and vehicles
 // ============================================
 
 (function() {
@@ -159,11 +159,11 @@
         await Promise.all(builtPromises);
     }
     
-    async function drawMegaObjects() {
-        if (!window.MegaObjectManager) return;
+    async function drawScenery() {
+        if (!window.SceneryManager) return;
         
-        const megaObjects = MegaObjectManager.getObjectsForRender();
-        if (!megaObjects || megaObjects.length === 0) return;
+        const sceneryItems = SceneryManager.getSceneryForRender();
+        if (!sceneryItems || sceneryItems.length === 0) return;
         
         const canvas = document.getElementById('game-canvas');
         const ctx = canvas ? canvas.getContext('2d') : null;
@@ -171,28 +171,28 @@
         
         const TILE_SIZE = window.TILE_SIZE || 32;
         
-        const objectPromises = megaObjects.map(async (obj) => {
-            const px = obj.x * TILE_SIZE;
-            const py = obj.y * TILE_SIZE;
-            const width = obj.width * TILE_SIZE;
-            const height = obj.height * TILE_SIZE;
+        const sceneryPromises = sceneryItems.map(async (item) => {
+            const px = item.x * TILE_SIZE;
+            const py = item.y * TILE_SIZE;
+            const width = item.width * TILE_SIZE;
+            const height = item.height * TILE_SIZE;
             
-            if (obj.path && window.loadSVGImage) {
-                const svgPath = 'assets/map/' + obj.path;
+            if (item.path && window.loadSVGImage) {
+                const svgPath = 'assets/map/' + item.path;
                 const img = await window.loadSVGImage(svgPath);
                 if (img) {
                     ctx.drawImage(img, px, py, width, height);
-                } else if (obj.fallbackColor) {
-                    ctx.fillStyle = obj.fallbackColor;
+                } else if (item.fallbackColor) {
+                    ctx.fillStyle = item.fallbackColor;
                     ctx.fillRect(px + 4, py + 4, width - 8, height - 8);
                 }
-            } else if (obj.fallbackColor) {
-                ctx.fillStyle = obj.fallbackColor;
+            } else if (item.fallbackColor) {
+                ctx.fillStyle = item.fallbackColor;
                 ctx.fillRect(px + 4, py + 4, width - 8, height - 8);
             }
         });
         
-        await Promise.all(objectPromises);
+        await Promise.all(sceneryPromises);
     }
     
     async function drawCharacterVehicle(x, y) {
@@ -266,7 +266,7 @@
     window.drawElements = drawElements;
     window.drawMegaElements = drawMegaElements;
     window.drawVehicles = drawVehicles;
-    window.drawMegaObjects = drawMegaObjects;
+    window.drawScenery = drawScenery;
     window.drawBuiltElements = drawBuiltElements;
     window.drawCharacterVehicle = drawCharacterVehicle;
     window.drawFarmPlots = drawFarmPlots;

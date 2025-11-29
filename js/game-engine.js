@@ -199,7 +199,7 @@ async function render() {
     await Promise.all(tilePromises);
     
     if (window.drawFarmPlots) await window.drawFarmPlots();
-    if (window.drawMegaObjects) await window.drawMegaObjects();
+    if (window.drawScenery) await window.drawScenery();
     if (window.drawElements) await window.drawElements();
     if (window.drawBuiltElements) await window.drawBuiltElements();
     if (window.drawVehicles) await window.drawVehicles();
@@ -289,7 +289,7 @@ function animateMove(fromX, fromY, toX, toY, direction) {
             await Promise.all(tilePromises);
             
             if (window.drawFarmPlots) await window.drawFarmPlots();
-            if (window.drawMegaObjects) await window.drawMegaObjects();
+            if (window.drawScenery) await window.drawScenery();
             if (window.drawElements) await window.drawElements();
             if (window.drawBuiltElements) await window.drawBuiltElements();
             if (window.drawVehicles) await window.drawVehicles();
