@@ -98,7 +98,7 @@
             const px = vehicle.x * TILE_SIZE;
             const py = vehicle.y * TILE_SIZE;
             
-            const vehicleDef = VehicleInteractionManager.getVehicleDefinition(vehicle.type);
+            const vehicleDef = ElementInteractionManager.getElementDefinition(vehicle.type);
             if (!vehicleDef) return;
             
             const width = (vehicleDef.width || 1) * TILE_SIZE;
@@ -201,7 +201,7 @@
         const currentVehicle = VehicleInteractionManager.getCurrentVehicle();
         if (!currentVehicle) return;
         
-        const vehicleDef = VehicleInteractionManager.getVehicleDefinition(currentVehicle.type);
+        const vehicleDef = ElementInteractionManager.getElementDefinition(currentVehicle.type);
         if (!vehicleDef) return;
         
         const canvas = document.getElementById('game-canvas');
