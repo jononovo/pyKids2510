@@ -4,6 +4,15 @@
 
 // State
 let codeBookOpen = false;
+let activeTab = 'commands';
+const loadedTabs = {};
+
+// Tab content sources
+const TAB_SOURCES = {
+    commands: '/assets/codebook/codebook-markdown.md',
+    authoring: '/docs/authoring.md',
+    tech: '/docs/technical.md'
+};
 
 // Open Code Book
 function openCodeBook() {
@@ -13,11 +22,8 @@ function openCodeBook() {
         codeBookOpen = true;
         console.log('Code Book opened');
         
-        // Load documentation if not already loaded
-        if (!panel.dataset.loaded) {
-            loadCodeBookContent();
-            panel.dataset.loaded = 'true';
-        }
+        // Load the active tab content if not already loaded
+        loadTabContent(activeTab);
     }
 }
 
@@ -40,17 +46,59 @@ function toggleCodeBook() {
     }
 }
 
-// Load Code Book content from markdown file
-async function loadCodeBookContent() {
-    const sectionsContainer = document.getElementById('codeBookSections');
-    if (!sectionsContainer) return;
+// Switch between tabs
+function switchCodeBookTab(tabName) {
+    if (activeTab === tabName) return;
+    
+    // Update active tab state
+    activeTab = tabName;
+    
+    // Update tab button styles
+    document.querySelectorAll('.code-book-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.tab === tabName);
+    });
+    
+    // Update tab content visibility
+    document.querySelectorAll('.code-book-tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    
+    const activeContent = document.getElementById(tabName + 'Tab');
+    if (activeContent) {
+        activeContent.classList.add('active');
+    }
+    
+    // Load content for this tab if not already loaded
+    loadTabContent(tabName);
+}
+
+// Load content for a specific tab
+async function loadTabContent(tabName) {
+    // Skip if already loaded
+    if (loadedTabs[tabName]) {
+        console.log(`Tab '${tabName}' already loaded`);
+        return;
+    }
+    
+    const containerIds = {
+        commands: 'codeBookSections',
+        authoring: 'authoringSections',
+        tech: 'techSections'
+    };
+    
+    const containerId = containerIds[tabName];
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    
+    const source = TAB_SOURCES[tabName];
+    if (!source) return;
     
     try {
         // Show loading indicator
-        sectionsContainer.innerHTML = '<p style="color: #7fc542;">Loading documentation...</p>';
+        container.innerHTML = '<p style="color: #7fc542;">Loading documentation...</p>';
         
         // Fetch markdown content
-        const response = await fetch('/assets/codebook/codebook-markdown.md');
+        const response = await fetch(source);
         if (!response.ok) {
             throw new Error('Failed to load documentation');
         }
@@ -60,7 +108,7 @@ async function loadCodeBookContent() {
         // Check if marked library is available
         if (typeof marked === 'undefined') {
             console.error('Marked library not available');
-            sectionsContainer.innerHTML = '<p style="color: #f88;">Markdown parser not available.</p>';
+            container.innerHTML = '<p style="color: #f88;">Markdown parser not available.</p>';
             return;
         }
         
@@ -71,7 +119,6 @@ async function loadCodeBookContent() {
             tables: true,
             sanitize: false,
             highlight: function(code, lang) {
-                // Simple Python syntax highlighting
                 if (lang === 'python' || !lang) {
                     return highlightPython(code);
                 }
@@ -80,21 +127,36 @@ async function loadCodeBookContent() {
         });
         
         // Parse and render markdown
-        const htmlContent = marked.parse(markdownContent);
-        sectionsContainer.innerHTML = htmlContent;
+        let htmlContent = marked.parse(markdownContent);
+        
+        // Post-process: Add IDs to headings for anchor navigation
+        htmlContent = htmlContent.replace(/<h([1-6])>([^<]+)<\/h[1-6]>/g, function(match, level, text) {
+            const id = text
+                .toLowerCase()
+                .replace(/<[^>]*>/g, '')           // Remove HTML tags
+                .replace(/[^\w\s-]/g, '')          // Remove special characters
+                .replace(/\s+/g, '-')              // Replace spaces with hyphens
+                .replace(/-+/g, '-')               // Collapse multiple hyphens
+                .trim();
+            return `<h${level} id="${id}">${text}</h${level}>`;
+        });
+        container.innerHTML = htmlContent;
         
         // Style the rendered content
-        styleCodeBookContent(sectionsContainer);
+        styleCodeBookContent(container);
+        
+        // Mark as loaded
+        loadedTabs[tabName] = true;
+        console.log(`Tab '${tabName}' loaded successfully`);
         
     } catch (error) {
-        console.error('Error loading Code Book:', error);
-        sectionsContainer.innerHTML = '<p style="color: #f88;">Failed to load documentation. Please try again.</p>';
+        console.error('Error loading Code Book tab:', error);
+        container.innerHTML = '<p style="color: #f88;">Failed to load documentation. Please try again.</p>';
     }
 }
 
 // Simple Python syntax highlighting
 function highlightPython(code) {
-    // Python keywords
     const keywords = ['import', 'def', 'class', 'if', 'else', 'elif', 'for', 'while', 
                      'return', 'await', 'async', 'try', 'except', 'with', 'as', 
                      'from', 'in', 'and', 'or', 'not', 'is', 'None', 'True', 'False',
@@ -152,10 +214,8 @@ function styleCodeBookContent(container) {
     const images = container.querySelectorAll('img');
     images.forEach(img => {
         img.classList.add('codebook-image');
-        // Handle image loading errors gracefully
         img.onerror = function() {
             this.style.display = 'none';
-            // Optionally add a placeholder
             const placeholder = document.createElement('div');
             placeholder.className = 'image-placeholder';
             placeholder.textContent = '[Image: ' + this.alt + ']';
@@ -180,11 +240,24 @@ function styleCodeBookContent(container) {
     hrs.forEach(hr => {
         hr.classList.add('section-divider');
     });
+    
+    // Handle anchor links - scroll within panel instead of page
+    const panel = document.getElementById('codeBookPanel');
+    container.querySelectorAll('a[href^="#"]').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = link.getAttribute('href').substring(1);
+            const target = container.querySelector('#' + CSS.escape(targetId));
+            if (target && panel) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
 }
 
 // Initialize Code Book button
 function initializeCodeBook() {
-    console.log('Code Book button initialized');
+    console.log('Code Book initialized');
     
     // Add keyboard shortcut (Escape to close)
     document.addEventListener('keydown', function(event) {
@@ -205,3 +278,4 @@ if (document.readyState === 'loading') {
 window.openCodeBook = openCodeBook;
 window.closeCodeBook = closeCodeBook;
 window.toggleCodeBook = toggleCodeBook;
+window.switchCodeBookTab = switchCodeBookTab;

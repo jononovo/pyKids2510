@@ -939,6 +939,29 @@ Students write Python code using these commands:
 | `player.close()` | Close door/container |
 | `player.water()` | Water plants |
 
+### Backpack Commands (Python Lists)
+
+The backpack is a 4-item capacity list for teaching list methods.
+
+| Command | Description |
+|---------|-------------|
+| `collect()` | Add item at current position to backpack |
+| `backpack.append("item")` | Add item to backpack |
+| `backpack.remove("item")` | Remove specific item from backpack |
+| `len(backpack)` | Check number of items |
+| `"item" in backpack` | Check if item exists |
+
+### Inventory Commands (Python Dictionaries)
+
+The inventory tracks item counts using dictionary syntax.
+
+| Command | Description |
+|---------|-------------|
+| `inventory["item"] += 1` | Increment item count |
+| `inventory["item"] -= 1` | Decrement item count (clamps to 0) |
+| `count = inventory["item"]` | Read item count (returns 0 if missing) |
+| `inventory["item"] = 5` | Set item count directly |
+
 ### Code Structure
 
 All student code should start with:
