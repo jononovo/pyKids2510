@@ -24,6 +24,7 @@ Comprehensive technical documentation for the Python Learning Platform game engi
 13. [User Progress Management](#user-progress-management)
 14. [Testing System](#testing-system)
 15. [Rendering Pipeline](#rendering-pipeline)
+16. [Game Message Display System](#game-message-display-system)
 
 ---
 
@@ -915,6 +916,35 @@ async function render() {
 │  (Reset reference point)                                 │
 │  • starterCode, missionState snapshot                    │
 └─────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Game Message Display System
+
+Use `showGameMessage(text, type)` to display user-facing feedback in the Message Panel.
+
+**When to use:**
+- Player feedback for game actions (collecting, interacting, errors)
+- Output from student code (`print()`, `speak()`)
+
+**When NOT to use:**
+- Developer debug logs (use `console.log` instead)
+- Internal state tracking or diagnostics
+
+**Message Types:**
+| Type | Color | Use Case |
+|------|-------|----------|
+| `'success'` | Green | Successful actions (collected item, boarded vehicle) |
+| `'error'` | Red | Failed actions (nothing to collect, backpack full) |
+| `'info'` | Blue | Informational (nothing to interact with) |
+| `'player'` | White | Student code output (`print()`, `speak()`) |
+
+**Example:**
+```javascript
+showGameMessage('Collected coin', 'success');
+showGameMessage('Nothing to collect here!', 'error');
+showGameMessage('Hello world', 'player');
 ```
 
 ---
