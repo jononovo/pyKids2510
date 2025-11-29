@@ -921,9 +921,11 @@ Students write Python code using these commands:
 
 | Alias | Equivalent |
 |-------|------------|
-| `player.forward()` or `player.forward(n)` | `player.move_forward(n)` |
-| `player.left()` or `player.left(n)` | `player.turn_left(n)` |
-| `player.right()` or `player.right(n)` | `player.turn_right(n)` |
+| `forward()` or `forward(n)` | `move_forward(n)` |
+| `left()` or `left(n)` | `turn_left(n)` |
+| `right()` or `right(n)` | `turn_right(n)` |
+
+**Note:** All commands work with or without the `player.` prefix.
 
 ### Interaction Commands
 
@@ -944,15 +946,17 @@ Students write Python code using these commands:
 The farming system allows players to plant, grow, and harvest crops. Crops progress through three stages with 10-second intervals between each stage.
 
 **Growth Stages:**
-1. **Dirt** - Immediately after `player.plant()` is called
+1. **Dirt** - Immediately after `plant()` is called
 2. **Sprout** - Appears 10 seconds after planting
-3. **Grown** - Appears 10 seconds after watering the sprout with `player.water()`
+3. **Grown** - Appears 10 seconds after watering the sprout with `water()`
 
-| Command | Description |
-|---------|-------------|
-| `player.plant("cropName")` | Plant a crop at current position (creates dirt plot) |
-| `player.water()` | Water a sprout at current position (triggers growth to full crop) |
-| `player.harvest()` | Harvest a fully grown crop and add it to inventory |
+| Command | Alternative | Description |
+|---------|-------------|-------------|
+| `plant("cropName")` | `player.plant("cropName")` | Plant a crop at current position (creates dirt plot) |
+| `water()` | `player.water()` | Water a sprout at current position (triggers growth to full crop) |
+| `harvest()` | `player.harvest()` | Harvest a fully grown crop and add it to inventory |
+
+**Note:** Both forms work - you can use either `plant("corn")` or `player.plant("corn")`.
 
 **Example - Full Farming Cycle:**
 ```python
@@ -960,19 +964,19 @@ import player
 import time
 
 # Plant corn at current position
-player.plant("corn")
+plant("corn")
 
 # Wait 10 seconds for sprout to appear
 time.sleep(10)
 
 # Water the sprout
-player.water()
+water()
 
 # Wait 10 seconds for crop to fully grow
 time.sleep(10)
 
 # Harvest the grown crop
-player.harvest()
+harvest()
 ```
 
 **Notes:**
@@ -986,9 +990,11 @@ player.harvest()
 
 The `build()` command allows players to construct elements using inventory materials.
 
-| Command | Description |
-|---------|-------------|
-| `player.build("elementName")` | Build an element in front of the player |
+| Command | Alternative | Description |
+|---------|-------------|-------------|
+| `build("elementName")` | `player.build("elementName")` | Build an element in front of the player |
+
+**Note:** Both forms work - you can use either `build("bridge")` or `player.build("bridge")`.
 
 **Defining Buildable Elements:**
 
@@ -1016,12 +1022,12 @@ Elements become buildable by adding a `cost` property in `assets/map/elements.js
 import player
 
 # Collect enough wood first
-player.move_forward(2)
-player.collect()  # Get wood
+move_forward(2)
+collect()  # Get wood
 
 # Move to build location and build
-player.move_forward(3)
-player.build("bridge")
+move_forward(3)
+build("bridge")
 ```
 
 **Notes:**
@@ -2052,18 +2058,20 @@ megaObjects: [["moderate-mountain", [[5,2]]], ["highland-plateau", [[15,8]]]]
 
 ### Python Commands Summary
 
+All commands work with or without the `player.` prefix (e.g., both `move_forward()` and `player.move_forward()` are valid).
+
 | Category | Commands |
 |----------|----------|
-| Movement | `player.move_forward(n)`, `player.turn_left(n)`, `player.turn_right(n)` |
-| Aliases | `player.forward(n)`, `player.left(n)`, `player.right(n)` |
-| Interaction | `player.collect()`, `player.interact()`, `player.push()`, `player.speak("text")` |
-| Doors | `player.open()`, `player.close()` |
-| Building | `player.build("element")` - requires `cost` in elements.json |
-| Farming | `player.plant("crop")`, `player.water()`, `player.harvest()` |
-| Backpack | `player.backpack.append("item")`, `player.backpack.remove("item")` |
-| Inventory | `player.inventory["item"]`, `player.inventory["item"] += 1` |
+| Movement | `move_forward(n)`, `turn_left(n)`, `turn_right(n)` |
+| Aliases | `forward(n)`, `left(n)`, `right(n)` |
+| Interaction | `collect()`, `interact()`, `push()`, `speak("text")` |
+| Doors | `open()`, `close()` |
+| Building | `build("element")` - requires `cost` in elements.json |
+| Farming | `plant("crop")`, `water()`, `harvest()` |
+| Backpack | `backpack.append("item")`, `backpack.remove("item")` |
+| Inventory | `inventory["item"]`, `inventory["item"] += 1` |
 
-**Farming Growth Cycle:** `player.plant()` → 10 sec → sprout → `player.water()` → 10 sec → grown → `player.harvest()`
+**Farming Growth Cycle:** `plant()` → 10 sec → sprout → `water()` → 10 sec → grown → `harvest()`
 
 ### Map Inheritance Example
 
