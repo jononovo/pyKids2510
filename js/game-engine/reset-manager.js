@@ -150,12 +150,24 @@
             
             const messagePanel = document.getElementById('message-panel');
             if (messagePanel) {
-                messagePanel.innerHTML = '';
+                let messagesContainer = messagePanel.querySelector('.console-messages');
+                if (messagesContainer) {
+                    messagesContainer.innerHTML = '';
+                } else {
+                    // Rebuild the console structure if missing
+                    messagePanel.innerHTML = `
+                        <div class="console-header">
+                            <span class="console-title">Console Log</span>
+                            <button class="console-toggle" onclick="toggleConsoleLog()" title="Expand/Collapse">−</button>
+                        </div>
+                        <div class="console-messages"></div>
+                    `;
+                }
             }
             
             const inventoryPanel = document.getElementById('inventory-panel');
             if (inventoryPanel && gameState) {
-                inventoryPanel.innerHTML = '<strong>Inventory:</strong>';
+                inventoryPanel.innerHTML = '<strong>📦 Inventory:</strong>';
                 for (const item in gameState.inventory) {
                     if (gameState.inventory[item] > 0) {
                         const itemSpan = document.createElement('span');
