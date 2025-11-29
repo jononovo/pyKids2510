@@ -228,6 +228,19 @@ function styleCodeBookContent(container) {
     hrs.forEach(hr => {
         hr.classList.add('section-divider');
     });
+    
+    // Handle anchor links - scroll within panel instead of page
+    const panel = document.getElementById('codeBookPanel');
+    container.querySelectorAll('a[href^="#"]').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = link.getAttribute('href').substring(1);
+            const target = container.querySelector('#' + CSS.escape(targetId));
+            if (target && panel) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
 }
 
 // Initialize Code Book button
