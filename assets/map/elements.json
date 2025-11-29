@@ -125,7 +125,7 @@
     },
     "farm": {
       "name": "farm",
-      "path": "elements/landscaping/farm-dirt.svg",
+      "path": "elements/landscaping/farm.svg",
       "fallbackColor": "#228B22",
       "width": 2,
       "height": 2,
