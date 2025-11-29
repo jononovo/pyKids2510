@@ -196,16 +196,20 @@
                 if (!message) return;
                 message = String(message).replace(/^["']|["']$/g, '');
                 
-                if (!gameState.messageLog) gameState.messageLog = [];
-                gameState.messageLog.push(message);
-                
-                var messagePanel = document.getElementById('message-panel');
-                if (messagePanel) {
-                    var msgDiv = document.createElement('div');
-                    msgDiv.className = 'message-item';
-                    msgDiv.textContent = message;
-                    messagePanel.appendChild(msgDiv);
-                    messagePanel.scrollTop = messagePanel.scrollHeight;
+                if (window.showGameMessage) {
+                    showGameMessage(message, 'player');
+                } else {
+                    if (!gameState.messageLog) gameState.messageLog = [];
+                    gameState.messageLog.push(message);
+                    
+                    var messagePanel = document.getElementById('message-panel');
+                    if (messagePanel) {
+                        var msgDiv = document.createElement('div');
+                        msgDiv.className = 'message-item message-player';
+                        msgDiv.textContent = message;
+                        messagePanel.appendChild(msgDiv);
+                        messagePanel.scrollTop = messagePanel.scrollHeight;
+                    }
                 }
                 
                 await new Promise(function(r) { setTimeout(r, getAnimationDuration(1)); });
@@ -232,7 +236,7 @@
                     if (consumeResult.success) {
                         playCollectSound();
                         animateCollectSparkle(guardResult.position.x, guardResult.position.y);
-                        console.log('[collect]', consumeResult.message);
+                        if (window.showGameMessage) showGameMessage(consumeResult.message, 'success');
                         updateInventoryDisplay();
                         await render();
                     }
@@ -252,7 +256,7 @@
                 // If aboard a vehicle, try to disembark
                 if (window.VehicleInteractionManager && VehicleInteractionManager.isBoarded()) {
                     var disembarkResult = VehicleInteractionManager.handleDisembark(gameState);
-                    console.log('[interact]', disembarkResult.message);
+                    if (window.showGameMessage) showGameMessage(disembarkResult.message, disembarkResult.success ? 'success' : 'error');
                     if (disembarkResult.success) {
                         playInteractSound();
                         animateInteractPop(px, py);
@@ -279,7 +283,7 @@
                         if (vehicleResult.success) {
                             playInteractSound();
                             animateInteractPop(tile.x, tile.y);
-                            console.log('[interact]', vehicleResult.message);
+                            if (window.showGameMessage) showGameMessage(vehicleResult.message, 'success');
                             await render();
                             await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
                             return;
@@ -292,7 +296,7 @@
                         if (result.success) {
                             playInteractSound();
                             animateInteractPop(tile.x, tile.y);
-                            console.log('[interact]', result.message);
+                            if (window.showGameMessage) showGameMessage(result.message, 'success');
                             await render();
                             await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
                             return;
@@ -300,7 +304,7 @@
                     }
                 }
                 
-                console.log('[interact]', 'Nothing to interact with nearby');
+                if (window.showGameMessage) showGameMessage('Nothing to interact with nearby', 'info');
                 await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
             }
         },
@@ -415,7 +419,7 @@
         
         // Check if backpack is full
         if (window.MissionState && MissionState.isBackpackFull()) {
-            console.log('[backpack.append] Backpack is full!');
+            if (window.showGameMessage) showGameMessage('Backpack is full!', 'error');
             throw new Error('Backpack is full! Remove an item first.');
         }
         
@@ -435,7 +439,7 @@
             animateCollectSparkle(element.x, element.y);
             updateBackpackDisplay();
             await render();
-            console.log('[backpack.append]', result.message);
+            if (window.showGameMessage) showGameMessage(result.message, 'success');
         }
         
         await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
@@ -444,12 +448,11 @@
     
     window.gameCommand_backpack_remove = async function(itemType) {
         if (!itemType) {
-            console.log('[backpack.remove] No item specified');
+            if (window.showGameMessage) showGameMessage('No item specified', 'error');
             return { success: false, message: 'No item specified' };
         }
         
         if (!window.MissionState) {
-            console.log('[backpack.remove] MissionState not available');
             return { success: false };
         }
         
@@ -458,9 +461,9 @@
             gameState.backpack = MissionState.getBackpack();
             updateBackpackDisplay();
             await render();
-            console.log('[backpack.remove]', result.message);
+            if (window.showGameMessage) showGameMessage(result.message, 'success');
         } else {
-            console.log('[backpack.remove]', result.message);
+            if (window.showGameMessage) showGameMessage(result.message, 'error');
         }
         
         await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
@@ -503,10 +506,10 @@
                 typeMatch: key
             });
             
-            // If no collectible found, log message and continue (forgiving behavior)
+            // If no collectible found, show message and continue (forgiving behavior)
             if (!guardResult.success) {
                 var message = guardResult.message || 'Nothing to collect here! Move to an item first.';
-                console.log('[inventory]', message);
+                if (window.showGameMessage) showGameMessage(message, 'error');
                 // Return current value unchanged - program continues
                 return currentValue;
             }
@@ -516,14 +519,14 @@
             // Consume the collectible (removes it from the map)
             var consumeResult = ProximityGuard.consume(element);
             if (!consumeResult.success) {
-                console.log('[inventory] Failed to consume element - continuing');
+                if (window.showGameMessage) showGameMessage('Failed to collect item', 'error');
                 // Return current value unchanged - program continues
                 return currentValue;
             }
             
             // Note: activateElement already handles inventory updates
             // But we sync to ensure consistency
-            console.log('[inventory] Collected', key, 'via inventory syntax at', element.x + ',' + element.y);
+            if (window.showGameMessage) showGameMessage('Collected ' + key, 'success');
             
             // Get the updated inventory from the authoritative source
             if (window.MissionState && MissionState.isMissionLevel) {
@@ -537,7 +540,6 @@
             await render();
             
             var newValue = gameState.inventory[key] || 0;
-            console.log('[inventory]', key, 'now =', newValue);
             return newValue;
         } else if (diff < 0) {
             // Decreasing inventory is allowed anywhere
@@ -560,7 +562,6 @@
             
             updateInventoryDisplay();
             await render();
-            console.log('[inventory] Set', key, '=', value);
         }
         
         return value;

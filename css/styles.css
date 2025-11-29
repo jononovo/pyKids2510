@@ -922,6 +922,22 @@ body {
     border-bottom: none;
 }
 
+#game-info-panel .message-item.message-error {
+    color: #ff6b6b;
+}
+
+#game-info-panel .message-item.message-success {
+    color: #51cf66;
+}
+
+#game-info-panel .message-item.message-info {
+    color: #74c0fc;
+}
+
+#game-info-panel .message-item.message-player {
+    color: #ffffff;
+}
+
 #inventory-panel {
     color: #7fc542;
     font-weight: bold;

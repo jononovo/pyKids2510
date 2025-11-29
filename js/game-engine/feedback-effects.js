@@ -211,12 +211,42 @@
         }, 1100);
     }
     
+    function showGameMessage(text, type) {
+        if (!text) return;
+        
+        var messagePanel = document.getElementById('message-panel');
+        if (!messagePanel) return;
+        
+        var msgDiv = document.createElement('div');
+        msgDiv.className = 'message-item';
+        
+        if (type === 'error') {
+            msgDiv.classList.add('message-error');
+        } else if (type === 'success') {
+            msgDiv.classList.add('message-success');
+        } else if (type === 'info') {
+            msgDiv.classList.add('message-info');
+        } else if (type === 'player') {
+            msgDiv.classList.add('message-player');
+        }
+        
+        msgDiv.textContent = text;
+        messagePanel.appendChild(msgDiv);
+        messagePanel.scrollTop = messagePanel.scrollHeight;
+        
+        if (typeof gameState !== 'undefined') {
+            if (!gameState.messageLog) gameState.messageLog = [];
+            gameState.messageLog.push({ text: text, type: type || 'info' });
+        }
+    }
+    
     window.playStepSound = playStepSound;
     window.playBumpSound = playBumpSound;
     window.playCollectSound = playCollectSound;
     window.playInteractSound = playInteractSound;
     window.animateInteractPop = animateInteractPop;
     window.animateCollectSparkle = animateCollectSparkle;
+    window.showGameMessage = showGameMessage;
     
     console.log('[FeedbackEffects] Module loaded');
 })();

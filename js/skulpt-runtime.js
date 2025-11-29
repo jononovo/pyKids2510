@@ -28,13 +28,19 @@
         Sk.configure({
             output: function(text) {
                 console.log('[Python]', text);
-                var messagePanel = document.getElementById('message-panel');
-                if (messagePanel && text.trim()) {
-                    var msgDiv = document.createElement('div');
-                    msgDiv.className = 'message-item';
-                    msgDiv.textContent = text.trim();
-                    messagePanel.appendChild(msgDiv);
-                    messagePanel.scrollTop = messagePanel.scrollHeight;
+                if (text.trim()) {
+                    if (window.showGameMessage) {
+                        window.showGameMessage(text.trim(), 'player');
+                    } else {
+                        var messagePanel = document.getElementById('message-panel');
+                        if (messagePanel) {
+                            var msgDiv = document.createElement('div');
+                            msgDiv.className = 'message-item message-player';
+                            msgDiv.textContent = text.trim();
+                            messagePanel.appendChild(msgDiv);
+                            messagePanel.scrollTop = messagePanel.scrollHeight;
+                        }
+                    }
                 }
             },
             read: builtinRead,
