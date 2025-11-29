@@ -339,6 +339,20 @@
     font-size: 0.9em;
 }
 
+/* Anchor Links in Markdown Content */
+.code-book-sections a,
+.code-book-sections a:visited {
+    color: #ddd;
+    text-decoration: underline;
+    text-decoration-color: rgba(221, 221, 221, 0.5);
+}
+
+.code-book-sections a:hover,
+.code-book-sections a:focus {
+    color: #fff;
+    text-decoration-color: #fff;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .code-book-panel {
