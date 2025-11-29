@@ -241,29 +241,32 @@ tests:
 ---
 
 --- <!-- Mission 3 -->
-## MISSION 3: STAR QUEST
+## MISSION 3: BUILD A HOUSE
 
 ### AVAILABLE AFTER
 Completing Mission 2
 
 ### OBJECTIVE
-> Find the legendary star hidden on the island!
+> Collect wood and build your first house!
 
-You've mastered exploring the island. Now locate the legendary star that's hidden somewhere special. Navigate carefully to claim your prize!
+Now you'll learn to build! Collect 4 pieces of wood scattered near the beach, then use the `build("house")` command to construct a house. Building requires resources from your inventory.
 
 ### SUCCESS CRITERIA
-- Find and collect the star
+- Collect 4 wood pieces
+- Build a house using `build("house")`
 - Return to base camp
 
 ### REWARDS
-- Star: +1
+- House: +1
 - Chapter Complete!
 
 <!-- Starter Code -->
 ```
 import player
 
-# Find the legendary star!
+# Collect wood and build a house!
+# Use collect() to gather wood
+# Use build("house") to construct
 player.move_forward()
 ```
 
@@ -271,24 +274,42 @@ player.move_forward()
 ```
 import player
 
-# Navigate to the star location on Starter Island
-player.move_forward(10)  # to (27,41)
-player.turn_left()  # facing west
-player.move_forward(2)  # to (25,41)
-player.collect()  # Star at (25,41)
+# Collect the 4 wood pieces near base camp
+# Wood 1 at (27,50) - one step north
+player.move_forward()
+player.collect()
 
-# Return to base camp (currently at 25,41 facing west)
-player.turn_left()  # facing south
-player.move_forward(10)  # to (25,51)
-player.turn_left()  # facing east
-player.move_forward(2)  # to (27,51)
+# Wood 2 at (27,49) - continue north
+player.move_forward()
+player.collect()
+
+# Wood 3 at (28,49) - turn right and move
+player.turn_right()
+player.move_forward()
+player.collect()
+
+# Wood 4 at (28,50) - move south
+player.turn_right()
+player.move_forward()
+player.collect()
+
+# Now we have 4 wood - build a house!
+# Face the empty spot and build
+player.turn_right()
+player.move_forward()
+player.build("house")
+
+# Return to base camp
+player.turn_left()
+player.turn_left()
+player.move_forward(2)
 ```
 
 <!-- Map -->
 ```
 startPos: 27,51
 goalPos: 27,51
-collectibles: [["star", [[25,41]]]]
+collectibles: [["wood", [[27,50], [27,49], [28,49], [28,50]]]]
 ```
 
 <!-- Tests -->
@@ -298,7 +319,7 @@ tests:
   - type: position
     target: goal
   - type: inventory
-    item: star
-    min: 1
+    item: wood
+    min: 0
 ```
 ---

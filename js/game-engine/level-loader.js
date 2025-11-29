@@ -203,6 +203,14 @@
                     window.levelEntrySnapshot.missionState = null;
                 }
                 window.levelEntrySnapshot.levelIndex = levelIndex;
+                
+                // Capture built elements state for reset
+                const gameState = window.gameState;
+                if (gameState && gameState.builtElements) {
+                    window.levelEntrySnapshot.builtElements = JSON.parse(JSON.stringify(gameState.builtElements));
+                } else {
+                    window.levelEntrySnapshot.builtElements = [];
+                }
             }
         },
 

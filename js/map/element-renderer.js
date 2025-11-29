@@ -122,6 +122,43 @@
         await Promise.all(vehiclePromises);
     }
     
+    async function drawBuiltElements() {
+        if (!window.gameState || !gameState.builtElements || gameState.builtElements.length === 0) return;
+        if (!window.ElementInteractionManager) return;
+        
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas ? canvas.getContext('2d') : null;
+        if (!ctx) return;
+        
+        const TILE_SIZE = window.TILE_SIZE || 32;
+        
+        const builtPromises = gameState.builtElements.map(async (element) => {
+            const elementDef = ElementInteractionManager.getElementDefinition(element.type);
+            if (!elementDef) return;
+            
+            const px = element.x * TILE_SIZE;
+            const py = element.y * TILE_SIZE;
+            const width = (elementDef.width || 1) * TILE_SIZE;
+            const height = (elementDef.height || 1) * TILE_SIZE;
+            
+            if (elementDef.path && window.loadSVGImage) {
+                const svgPath = 'assets/map/' + elementDef.path;
+                const img = await window.loadSVGImage(svgPath);
+                if (img) {
+                    ctx.drawImage(img, px, py, width, height);
+                } else if (elementDef.fallbackColor) {
+                    ctx.fillStyle = elementDef.fallbackColor;
+                    ctx.fillRect(px + 4, py + 4, width - 8, height - 8);
+                }
+            } else if (elementDef.fallbackColor) {
+                ctx.fillStyle = elementDef.fallbackColor;
+                ctx.fillRect(px + 4, py + 4, width - 8, height - 8);
+            }
+        });
+        
+        await Promise.all(builtPromises);
+    }
+    
     async function drawMegaObjects() {
         if (!window.MegaObjectManager) return;
         
@@ -196,6 +233,7 @@
     window.drawMegaElements = drawMegaElements;
     window.drawVehicles = drawVehicles;
     window.drawMegaObjects = drawMegaObjects;
+    window.drawBuiltElements = drawBuiltElements;
     window.drawCharacterVehicle = drawCharacterVehicle;
     
     console.log('[ElementRenderer] Module loaded');
