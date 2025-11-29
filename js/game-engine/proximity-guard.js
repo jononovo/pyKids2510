@@ -89,6 +89,62 @@
         return { x: x, y: y };
     }
 
+    function canPlaceAt(x, y, width, height, options) {
+        width = width || 1;
+        height = height || 1;
+        options = options || {};
+        
+        if (typeof gameState === 'undefined') {
+            return { valid: false, reason: 'Game not ready' };
+        }
+        
+        for (let dx = 0; dx < width; dx++) {
+            for (let dy = 0; dy < height; dy++) {
+                const tx = x + dx;
+                const ty = y + dy;
+                
+                if (tx < 0 || tx >= gameState.mapWidth || ty < 0 || ty >= gameState.mapHeight) {
+                    return { valid: false, reason: 'Outside map boundaries' };
+                }
+                
+                if (window.MegaElementManager && MegaElementManager.isTileBlocked(tx, ty)) {
+                    return { valid: false, reason: 'Blocked by existing structure' };
+                }
+                
+                if (gameState.builtElements && window.ElementInteractionManager) {
+                    for (const built of gameState.builtElements) {
+                        const builtDef = ElementInteractionManager.getElementDefinition(built.type);
+                        const bw = (builtDef && builtDef.width) || 1;
+                        const bh = (builtDef && builtDef.height) || 1;
+                        if (tx >= built.x && tx < built.x + bw && ty >= built.y && ty < built.y + bh) {
+                            return { valid: false, reason: 'Something already built here' };
+                        }
+                    }
+                }
+                
+                if (!options.bypassTerrainCheck) {
+                    const tileId = gameState.mapData[ty] ? gameState.mapData[ty][tx] : undefined;
+                    if (tileId !== undefined && window.tileDataById) {
+                        const tileInfo = window.tileDataById[tileId];
+                        if (tileInfo && tileInfo.access === 'blocked') {
+                            return { valid: false, reason: 'Cannot build on this terrain' };
+                        }
+                        if (tileInfo && Array.isArray(tileInfo.access) && !tileInfo.access.includes('player')) {
+                            return { valid: false, reason: 'Cannot build on this terrain' };
+                        }
+                        if (tileInfo && typeof tileInfo.access === 'object' && tileInfo.access.requires) {
+                            if (typeof checkAccessRequirements === 'function' && !checkAccessRequirements(tileInfo.access.requires)) {
+                                return { valid: false, reason: 'Cannot build here - requirements not met' };
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        return { valid: true };
+    }
+
     function getPositionsForMode(mode) {
         if (mode === 'self') {
             const pos = getPlayerPosition();
@@ -269,7 +325,8 @@
         getPlayerPosition: getPlayerPosition,
         getForwardPosition: getForwardPosition,
         getAdjacentPositions: getAdjacentPositions,
-        getPlacementPosition: getPlacementPosition
+        getPlacementPosition: getPlacementPosition,
+        canPlaceAt: canPlaceAt
     };
 
     console.log('[ProximityGuard] Module loaded');

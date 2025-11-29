@@ -405,6 +405,17 @@
                     }
                 }
                 
+                var elWidth = elementDef.width || 1;
+                var elHeight = elementDef.height || 1;
+                var placement = ProximityGuard.getPlacementPosition(elWidth, elHeight);
+                
+                var placeOptions = { bypassTerrainCheck: elementDef.bypassTerrainCheck || false };
+                var placeCheck = ProximityGuard.canPlaceAt(placement.x, placement.y, elWidth, elHeight, placeOptions);
+                if (!placeCheck.valid) {
+                    if (window.showGameMessage) showGameMessage(placeCheck.reason || 'Cannot build here', 'error');
+                    return;
+                }
+                
                 for (var material in cost) {
                     var amount = cost[material];
                     if (window.MissionState && MissionState.isMissionLevel) {
@@ -418,10 +429,6 @@
                         }
                     }
                 }
-                
-                var elWidth = elementDef.width || 1;
-                var elHeight = elementDef.height || 1;
-                var placement = ProximityGuard.getPlacementPosition(elWidth, elHeight);
                 
                 if (!gameState.builtElements) gameState.builtElements = [];
                 var builtElement = {
