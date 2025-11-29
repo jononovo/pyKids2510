@@ -1004,13 +1004,17 @@ body {
 
 #game-info-panel #inventory-panel {
     color: #c0c0c0;
-    font-weight: bold;
+    font-weight: normal;
     flex: 1;
     min-width: 90px;
     padding: 6px 8px;
     margin: 0;
     background: #3a3a3a;
     border-radius: 6px;
+}
+
+#game-info-panel #inventory-panel strong {
+    font-weight: bold;
 }
 
 #game-info-panel #backpack-panel {
