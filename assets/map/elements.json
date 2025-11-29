@@ -2,91 +2,91 @@
   "elements": {
     "door": {
       "name": "door",
-      "path": "elements/door.svg",
+      "path": "elements/interactive/door.svg",
       "fallbackColor": "#8B4513",
       "description": "A closed door that can be opened"
     },
     "door-open": {
       "name": "door-open",
-      "path": "elements/door-open.svg",
+      "path": "elements/interactive/door-open.svg",
       "fallbackColor": "#D2691E",
       "description": "An open door"
     },
     "lever": {
       "name": "lever",
-      "path": "elements/lever.svg",
+      "path": "elements/interactive/lever.svg",
       "fallbackColor": "#696969",
       "description": "A lever that can be pulled"
     },
     "lever-on": {
       "name": "lever-on",
-      "path": "elements/lever-on.svg",
+      "path": "elements/interactive/lever-on.svg",
       "fallbackColor": "#228B22",
       "description": "A lever in the on position"
     },
     "button": {
       "name": "button",
-      "path": "elements/button.svg",
+      "path": "elements/interactive/button.svg",
       "fallbackColor": "#DC143C",
       "description": "A button that can be pressed"
     },
     "crate": {
       "name": "crate",
-      "path": "elements/crate.svg",
+      "path": "elements/interactive/crate.svg",
       "fallbackColor": "#DEB887",
       "description": "A wooden crate"
     },
     "sign": {
       "name": "sign",
-      "path": "elements/sign.svg",
+      "path": "elements/interactive/sign.svg",
       "fallbackColor": "#8B4513",
       "description": "A sign with information"
     },
     "coin": {
       "name": "coin",
-      "path": "elements/collectible-coin.svg",
+      "path": "elements/collectibles/collectible-coin.svg",
       "fallbackColor": "#FFD700",
       "description": "A gold coin"
     },
     "gem": {
       "name": "gem",
-      "path": "elements/collectible-gem.svg",
+      "path": "elements/collectibles/collectible-gem.svg",
       "fallbackColor": "#9400D3",
       "description": "A precious gem"
     },
     "key": {
       "name": "key",
-      "path": "elements/key.svg",
+      "path": "elements/collectibles/key.svg",
       "fallbackColor": "#DAA520",
       "description": "A key to unlock doors"
     },
     "wood": {
       "name": "wood",
-      "path": "elements/wood.svg",
+      "path": "elements/collectibles/wood.svg",
       "fallbackColor": "#8B4513",
       "description": "A piece of wood"
     },
     "apple": {
       "name": "apple",
-      "path": "elements/apple.svg",
+      "path": "elements/collectibles/apple.svg",
       "fallbackColor": "#FF0000",
       "description": "A red apple"
     },
     "heart": {
       "name": "heart",
-      "path": "elements/heart.svg",
+      "path": "elements/collectibles/heart.svg",
       "fallbackColor": "#FF69B4",
       "description": "A heart for health"
     },
     "star": {
       "name": "star",
-      "path": "elements/star.svg",
+      "path": "elements/collectibles/star.svg",
       "fallbackColor": "#FFD700",
       "description": "A shining star"
     },
     "boat": {
       "name": "boat",
-      "path": "elements/boat.svg",
+      "path": "elements/vehicles/boat.svg",
       "fallbackColor": "#8B5A2B",
       "width": 1,
       "height": 2,
@@ -96,28 +96,28 @@
     },
     "fence": {
       "name": "fence",
-      "path": "elements/fence.svg",
+      "path": "elements/landscaping/fence.svg",
       "fallbackColor": "#8B4513",
       "description": "A wooden fence section",
       "cost": { "wood": 2 }
     },
     "fence-gate": {
       "name": "fence-gate",
-      "path": "elements/fence-gate.svg",
+      "path": "elements/landscaping/fence-gate.svg",
       "fallbackColor": "#A0522D",
       "description": "A gate in a fence",
       "cost": { "wood": 2 }
     },
     "path": {
       "name": "path",
-      "path": "elements/path.svg",
+      "path": "elements/landscaping/path.svg",
       "fallbackColor": "#D2B48C",
       "description": "A dirt path tile",
       "cost": { "wood": 2 }
     },
     "bridge": {
       "name": "bridge",
-      "path": "elements/bridge.svg",
+      "path": "elements/landscaping/bridge.svg",
       "fallbackColor": "#8B4513",
       "description": "A wooden bridge over water",
       "cost": { "wood": 4 },
@@ -125,7 +125,7 @@
     },
     "farm": {
       "name": "farm",
-      "path": "elements/farm.svg",
+      "path": "elements/landscaping/farm.svg",
       "fallbackColor": "#228B22",
       "width": 2,
       "height": 2,
@@ -134,7 +134,7 @@
     },
     "trading-post": {
       "name": "trading-post",
-      "path": "elements/trading-post.svg",
+      "path": "elements/buildings/trading-post.svg",
       "fallbackColor": "#8B4513",
       "width": 2,
       "height": 2,
@@ -143,7 +143,7 @@
     },
     "docks": {
       "name": "docks",
-      "path": "elements/docks.svg",
+      "path": "elements/buildings/docks.svg",
       "fallbackColor": "#8B4513",
       "width": 3,
       "height": 2,
@@ -152,7 +152,7 @@
     },
     "zoo": {
       "name": "zoo",
-      "path": "elements/zoo.svg",
+      "path": "elements/buildings/zoo.svg",
       "fallbackColor": "#228B22",
       "width": 4,
       "height": 4,
@@ -161,7 +161,7 @@
     },
     "roller-coaster": {
       "name": "roller-coaster",
-      "path": "elements/roller-coaster.svg",
+      "path": "elements/buildings/roller-coaster.svg",
       "fallbackColor": "#FF4500",
       "width": 5,
       "height": 3,
@@ -170,7 +170,7 @@
     },
     "helicopter": {
       "name": "helicopter",
-      "path": "elements/helicopter.svg",
+      "path": "elements/vehicles/helicopter.svg",
       "fallbackColor": "#4169E1",
       "width": 2,
       "height": 2,
@@ -179,12 +179,43 @@
     },
     "house": {
       "name": "house",
-      "path": "elements/house.svg",
+      "path": "elements/buildings/house-3x3.svg",
+      "fallbackColor": "#8B4513",
+      "width": 3,
+      "height": 3,
+      "blockedTiles": [[0,1], [1,1], [2,1], [0,2], [1,2], [2,2]],
+      "description": "A cozy cottage with isometric 3D view",
+      "cost": { "wood": 6 }
+    },
+    "house-small": {
+      "name": "house-small",
+      "path": "elements/buildings/house-2x2.svg",
       "fallbackColor": "#8B4513",
       "width": 2,
       "height": 2,
+      "blockedTiles": "all",
       "description": "A small house",
       "cost": { "wood": 4 }
+    },
+    "shop": {
+      "name": "shop",
+      "path": "elements/buildings/shop-stand-3x3.svg",
+      "fallbackColor": "#707070",
+      "width": 3,
+      "height": 3,
+      "blockedTiles": [[0,1], [1,1], [2,1], [0,2], [1,2], [2,2]],
+      "description": "A trader stand with stone counter and wooden awning",
+      "cost": { "wood": 6, "coin": 5 }
+    },
+    "shop-small": {
+      "name": "shop-small",
+      "path": "elements/buildings/shop-stand-2x2.svg",
+      "fallbackColor": "#707070",
+      "width": 2,
+      "height": 2,
+      "blockedTiles": "all",
+      "description": "A small trader stand",
+      "cost": { "wood": 4, "coin": 3 }
     }
   }
 }

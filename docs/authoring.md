@@ -655,24 +655,40 @@ player.move_forward()
 
 ## Mega-Elements System
 
-Mega-elements are multi-tile graphics (2x2, 3x3, etc.) for structures like houses, shops, and landmarks.
+Mega-elements are multi-tile graphics (2x2, 3x3, etc.) for structures like houses, shops, and landmarks. **They are now defined in the unified `elements.json` file** alongside single-tile elements.
 
 ### Key Files
 
 | File | Purpose |
 |------|---------|
-| `assets/map/mega-elements.json` | Manifest defining all mega-elements |
-| `assets/map/mega-elements/*.svg` | SVG graphics (sized to tile dimensions) |
+| `assets/map/elements.json` | Unified manifest defining ALL elements (both single-tile and mega-elements) |
+| `assets/map/elements/buildings/*.svg` | Building SVG graphics (houses, shops, etc.) |
+| `assets/map/elements/landscaping/*.svg` | Landscaping elements (decorative structures) |
 | `js/game-engine/mega-element-manager.js` | Loading, parsing, collision detection |
+| `js/game-engine/element-interaction-logic.js` | Provides element definitions to MegaElementManager |
 
-### Manifest Schema
+### Element Categories
+
+SVG assets are organized into category folders under `assets/map/elements/`:
+
+| Category | Description | Examples |
+|----------|-------------|----------|
+| `buildings/` | Structures with blocking tiles | house, shop |
+| `collectibles/` | Items players can pick up | coins, gems, keys |
+| `interactive/` | Elements that change state | doors, levers, buttons |
+| `vehicles/` | Boardable transport | boats, carts |
+| `landscaping/` | Decorative elements | signs, fences |
+
+### Manifest Schema (Unified)
+
+Mega-elements are defined in `elements.json` with `width`, `height`, and `blockedTiles` properties:
 
 ```json
 {
-  "megaElements": {
+  "elements": {
     "house": {
       "name": "house",
-      "path": "mega-elements/house-3x3.svg",
+      "path": "elements/buildings/house-3x3.svg",
       "width": 3,
       "height": 3,
       "fallbackColor": "#8B4513",
@@ -748,8 +764,8 @@ Mega-elements render after tiles and mega-objects but before the player:
 
 ### Adding Custom Mega-Elements
 
-1. Create SVG in `assets/map/mega-elements/` (sized correctly)
-2. Add entry to `assets/map/mega-elements.json`
+1. Create SVG in appropriate category folder under `assets/map/elements/` (e.g., `buildings/`, `landscaping/`)
+2. Add entry to `assets/map/elements.json` with `width`, `height`, and `blockedTiles` properties
 3. Reference in level: `megaElements: [["my-element", [[x,y]]]]`
 
 ---
