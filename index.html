@@ -177,13 +177,32 @@
             </button>
         </div>
         
+        <div class="code-book-tabs">
+            <button class="code-book-tab active" data-tab="commands" onclick="switchCodeBookTab('commands')">Commands</button>
+            <button class="code-book-tab" data-tab="authoring" onclick="switchCodeBookTab('authoring')">Authoring</button>
+            <button class="code-book-tab" data-tab="tech" onclick="switchCodeBookTab('tech')">Tech</button>
+        </div>
+        
         <div class="code-book-content">
-            <div class="code-book-intro">
-                <p>Learn how to control your character with these Python commands!</p>
+            <div id="commandsTab" class="code-book-tab-content active">
+                <div class="code-book-intro">
+                    <p>Learn how to control your character with these Python commands!</p>
+                </div>
+                <div class="code-book-sections" id="codeBookSections">
+                    <!-- Commands content loaded here -->
+                </div>
             </div>
             
-            <div class="code-book-sections" id="codeBookSections">
-                <!-- Content will be populated by JavaScript -->
+            <div id="authoringTab" class="code-book-tab-content">
+                <div class="code-book-sections" id="authoringSections">
+                    <!-- Authoring guide content loaded here -->
+                </div>
+            </div>
+            
+            <div id="techTab" class="code-book-tab-content">
+                <div class="code-book-sections" id="techSections">
+                    <!-- Technical docs content loaded here -->
+                </div>
             </div>
         </div>
         
