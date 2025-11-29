@@ -959,9 +959,11 @@ body {
     padding-left: 15px;
 }
 
-#backpack-panel .backpack-item {
+#backpack-panel .backpack-list {
     display: block;
     padding: 2px 0;
+    font-weight: normal;
+    word-wrap: break-word;
 }
 
 /* ========================================

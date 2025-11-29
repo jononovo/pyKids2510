@@ -285,12 +285,10 @@
             } else {
                 backpackPanel.style.display = 'block';
                 backpackPanel.innerHTML = `<strong>Backpack (${backpack.length}/${capacity}):</strong>`;
-                for (const item of backpack) {
-                    const itemSpan = document.createElement('span');
-                    itemSpan.className = 'backpack-item';
-                    itemSpan.textContent = ` ${item}`;
-                    backpackPanel.appendChild(itemSpan);
-                }
+                const listSpan = document.createElement('span');
+                listSpan.className = 'backpack-list';
+                listSpan.textContent = JSON.stringify(backpack);
+                backpackPanel.appendChild(listSpan);
             }
         },
 
