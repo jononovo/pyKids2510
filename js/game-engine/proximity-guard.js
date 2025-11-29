@@ -90,6 +90,10 @@
     }
 
     function canPlaceAt(x, y, width, height, elementAccess) {
+        if (window.TileAccess) {
+            return TileAccess.canPlaceElement(x, y, width, height, elementAccess, gameState);
+        }
+        
         width = width || 1;
         height = height || 1;
         
