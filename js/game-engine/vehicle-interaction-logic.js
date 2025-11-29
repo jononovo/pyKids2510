@@ -245,6 +245,8 @@
         },
 
         findAdjacentWalkableTile(x, y, gameState) {
+            if (!window.TileAccess) return null;
+            
             const directions = [
                 { dx: 1, dy: 0 },
                 { dx: 0, dy: -1 },
@@ -256,17 +258,12 @@
                 const checkX = x + dir.dx;
                 const checkY = y + dir.dy;
                 
-                if (this.canPlayerWalkTo(checkX, checkY, gameState)) {
+                if (TileAccess.canActorMoveTo(checkX, checkY, 'player', gameState)) {
                     return { x: checkX, y: checkY };
                 }
             }
 
             return null;
-        },
-
-        canPlayerWalkTo(x, y, gameState) {
-            if (!window.TileAccess) return false;
-            return TileAccess.canActorMoveTo(x, y, 'player', gameState);
         },
 
         getVehiclesForRender() {
