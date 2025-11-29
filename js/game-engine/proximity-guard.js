@@ -207,7 +207,7 @@
         
         if (!result.success) {
             const errorMsg = config.errorMessage || result.message || Messages.NOTHING_HERE;
-            console.log('[ProximityGuard]', result.errorCode, '-', errorMsg);
+            if (window.showGameMessage) window.showGameMessage(errorMsg, 'error');
             throw new Error(errorMsg);
         }
         
