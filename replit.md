@@ -120,6 +120,28 @@ A unified position validation system (`js/game-engine/proximity-guard.js`) that 
 
 **Script Loading Order**: After element-interaction-logic.js, before vehicle-interaction-logic.js
 
+### Game Message Display System
+
+A unified messaging system (`js/game-engine/feedback-effects.js`) displays user-facing feedback directly in the game's Message Panel (bottom-left of the game view), making game feedback visible to students instead of only appearing in the browser console.
+
+**API:**
+- `showGameMessage(text, type)`: Displays a message in the message panel with optional color styling
+
+**Message Types:**
+- `'success'`: Green text - for successful actions (collecting items, boarding vehicles)
+- `'error'`: Red text - for failed actions (nothing to collect, backpack full)
+- `'info'`: Blue text - for informational messages (nothing to interact with)
+
+**Messages are displayed for:**
+- `collect()`: Success/failure feedback
+- `interact()`: Boarding vehicles, element interactions, or "nothing to interact with"
+- `backpack.append()`/`backpack.remove()`: Success/failure with backpack operations
+- `inventory["item"] += 1`: Collection feedback or proximity errors
+- `speak()`: Custom messages from student code
+- Python `print()`: Output from student code
+
+**CSS Classes:** `.message-error`, `.message-success`, `.message-info` in `css/styles.css`
+
 ### Technical Implementations & Features
 
 -   **Code Execution**: Python-like commands are parsed and executed visually. Skulpt integration consolidates game commands into `js/game-commands.js`, generating the Skulpt module source at load time. Commands support multi-argument and repetition, with simplified aliases and an auto-import prelude. The `Editor Manager` (`js/editor-manager.js`) handles editor functionalities with DOM element tracking to handle element recreation.
