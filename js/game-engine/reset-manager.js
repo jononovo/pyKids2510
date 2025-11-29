@@ -16,6 +16,7 @@
             this.resetSignalListeners();
             this.resetElements(gameState);
             this.resetCollectibles(gameState);
+            this.resetBuiltElements(gameState);
             this.resetInventory(gameState);
             this.resetMissionState(gameState);
             this.resetEditor();
@@ -90,6 +91,18 @@
             
             for (let i = 0; i < gameState.collectibles.length; i++) {
                 gameState.collectibles[i].collected = false;
+            }
+        },
+
+        resetBuiltElements(gameState) {
+            if (!gameState) return;
+            
+            // Restore built elements from level snapshot if available
+            if (window.levelEntrySnapshot && window.levelEntrySnapshot.builtElements) {
+                gameState.builtElements = JSON.parse(JSON.stringify(window.levelEntrySnapshot.builtElements));
+                console.log('[ResetManager] Restored builtElements from snapshot');
+            } else {
+                gameState.builtElements = [];
             }
         },
 

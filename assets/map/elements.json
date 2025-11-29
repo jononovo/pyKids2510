@@ -91,7 +91,99 @@
       "width": 1,
       "height": 2,
       "vehicleType": "boat",
-      "description": "A wooden sailing boat for water travel"
+      "description": "A wooden sailing boat for water travel",
+      "cost": { "wood": 4 }
+    },
+    "fence": {
+      "name": "fence",
+      "path": "elements/fence.svg",
+      "fallbackColor": "#8B4513",
+      "description": "A wooden fence section",
+      "cost": { "wood": 2 }
+    },
+    "fence-gate": {
+      "name": "fence-gate",
+      "path": "elements/fence-gate.svg",
+      "fallbackColor": "#A0522D",
+      "description": "A gate in a fence",
+      "cost": { "wood": 2 }
+    },
+    "path": {
+      "name": "path",
+      "path": "elements/path.svg",
+      "fallbackColor": "#D2B48C",
+      "description": "A dirt path tile",
+      "cost": { "wood": 2 }
+    },
+    "bridge": {
+      "name": "bridge",
+      "path": "elements/bridge.svg",
+      "fallbackColor": "#8B4513",
+      "description": "A wooden bridge over water",
+      "cost": { "wood": 4 }
+    },
+    "farm": {
+      "name": "farm",
+      "path": "elements/farm.svg",
+      "fallbackColor": "#228B22",
+      "width": 2,
+      "height": 2,
+      "description": "A small farm plot",
+      "cost": { "wood": 4 }
+    },
+    "trading-post": {
+      "name": "trading-post",
+      "path": "elements/trading-post.svg",
+      "fallbackColor": "#8B4513",
+      "width": 2,
+      "height": 2,
+      "description": "A trading post for commerce",
+      "cost": { "wood": 4 }
+    },
+    "docks": {
+      "name": "docks",
+      "path": "elements/docks.svg",
+      "fallbackColor": "#8B4513",
+      "width": 3,
+      "height": 2,
+      "description": "Wooden docks for boats",
+      "cost": { "wood": 4 }
+    },
+    "zoo": {
+      "name": "zoo",
+      "path": "elements/zoo.svg",
+      "fallbackColor": "#228B22",
+      "width": 4,
+      "height": 4,
+      "description": "A zoo with animal enclosures",
+      "cost": { "coin": 10, "food": 20 }
+    },
+    "roller-coaster": {
+      "name": "roller-coaster",
+      "path": "elements/roller-coaster.svg",
+      "fallbackColor": "#FF4500",
+      "width": 5,
+      "height": 3,
+      "description": "An exciting roller coaster ride",
+      "cost": { "coin": 10, "food": 20 }
+    },
+    "helicopter": {
+      "name": "helicopter",
+      "path": "elements/helicopter.svg",
+      "fallbackColor": "#4169E1",
+      "width": 2,
+      "height": 2,
+      "description": "A helicopter for air travel",
+      "cost": { "coin": 10, "food": 20 }
+    },
+    "house": {
+      "name": "house",
+      "path": "elements/house.svg",
+      "fallbackColor": "#8B4513",
+      "width": 2,
+      "height": 2,
+      "description": "A small house",
+      "cost": { "wood": 4 }
     }
   }
 }

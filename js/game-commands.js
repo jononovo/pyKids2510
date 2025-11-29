@@ -370,18 +370,94 @@
         },
 
         build: {
-            args: ['objectName'],
-            defaults: { objectName: null },
-            execute: async function(objectName) {
-                if (!objectName) return;
+            args: ['elementName'],
+            defaults: { elementName: null },
+            execute: async function(elementName) {
+                if (!elementName) {
+                    if (window.showGameMessage) showGameMessage('No element specified', 'error');
+                    return;
+                }
+                
+                // Look up element definition
+                var elementDef = null;
+                if (window.ElementInteractionManager && ElementInteractionManager.getElementDefinition) {
+                    elementDef = ElementInteractionManager.getElementDefinition(elementName);
+                }
+                
+                // Check if element exists
+                if (!elementDef) {
+                    if (window.showGameMessage) showGameMessage('Element does not exist: ' + elementName, 'error');
+                    return;
+                }
+                
+                // Check if element has a cost (is buildable)
+                if (!elementDef.cost) {
+                    if (window.showGameMessage) showGameMessage("Can't build that: " + elementName, 'error');
+                    return;
+                }
+                
+                // Check inventory for required materials
+                var cost = elementDef.cost;
+                var inventory = gameState.inventory || {};
+                if (window.MissionState && MissionState.isMissionLevel) {
+                    inventory = MissionState.getInventory();
+                }
+                
+                for (var material in cost) {
+                    var required = cost[material];
+                    var available = inventory[material] || 0;
+                    if (available < required) {
+                        if (window.showGameMessage) {
+                            showGameMessage('Not enough ' + material + ' (need ' + required + ', have ' + available + ')', 'error');
+                        }
+                        return;
+                    }
+                }
+                
+                // Deduct materials from inventory
+                for (var material in cost) {
+                    var amount = cost[material];
+                    if (window.MissionState && MissionState.isMissionLevel) {
+                        MissionState.removeFromInventory(material, amount);
+                        gameState.inventory = MissionState.getInventory();
+                    } else {
+                        if (!gameState.inventory) gameState.inventory = {};
+                        gameState.inventory[material] = (gameState.inventory[material] || 0) - amount;
+                        if (gameState.inventory[material] <= 0) {
+                            delete gameState.inventory[material];
+                        }
+                    }
+                }
+                
+                // Get position in front of player
                 var pos = getTargetPosition();
                 
-                if (!gameState.objects) gameState.objects = [];
-                gameState.objects.push({ type: objectName, x: pos.targetX, y: pos.targetY, built: true });
+                // Add element to gameState.builtElements for rendering
+                if (!gameState.builtElements) gameState.builtElements = [];
+                var builtElement = {
+                    type: elementName,
+                    x: pos.targetX,
+                    y: pos.targetY,
+                    id: 'built_' + elementName + '_' + Date.now()
+                };
+                gameState.builtElements.push(builtElement);
                 
-                if (objectName === 'bridge' && gameState.mapData[pos.targetY]) {
+                // Special case: bridge changes underlying tile to path
+                if (elementName === 'bridge' && gameState.mapData[pos.targetY]) {
                     gameState.mapData[pos.targetY][pos.targetX] = getTileIdByName('path');
                 }
+                
+                // Update displays and persist mission state
+                updateInventoryDisplay();
+                updateBackpackDisplay();
+                
+                // Persist mission state changes if in mission mode
+                if (window.MissionState && MissionState.isMissionLevel) {
+                    // Record built structure in mission state
+                    MissionState.addStructure(pos.targetX, pos.targetY, elementName);
+                }
+                
+                if (window.showGameMessage) showGameMessage('Built ' + elementName, 'success');
                 
                 await render();
                 await new Promise(function(r) { setTimeout(r, getAnimationDuration(1)); });

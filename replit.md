@@ -52,9 +52,35 @@ Two parallel systems handle large multi-tile graphics:
 
 -   **Mega-Objects** (`js/game-engine/mega-object-manager.js`): Multi-tile walkable terrain features like mountains and hills. Defined in `assets/map/mega-objects.json` without blocking. SVGs in `assets/map/mega-objects/`.
 
-**Rendering Order**: `tiles → mega-objects → elements → mega-elements → goal star → player`
+**Rendering Order**: `tiles → mega-objects → elements → built-elements → vehicles → mega-elements → goal star → player`
 
 This ensures terrain features appear as background, while structures render in front of the player.
+
+### Build System
+
+The `build()` command allows students to construct elements using inventory materials. Buildable elements are defined in `assets/map/elements.json` with a `cost` property.
+
+**Cost Tiers:**
+- Objects (2 wood): fence, fence-gate, path
+- Mega-objects-simple (4 wood): house, bridge, farm, trading-post, docks, boat
+- Mega-objects-complex (10 coins + 20 food): zoo, roller-coaster, helicopter
+
+**Build Flow:**
+1. `build("fence")` - Look up element in elements.json
+2. Check element exists and has `cost` property
+3. Validate inventory has required materials
+4. Deduct materials from inventory
+5. Add element to `gameState.builtElements` for rendering
+6. Record in `MissionState.structures` for mission tracking
+7. Show success/error feedback via `showGameMessage()`
+
+**Two-Collection Architecture:**
+- `gameState.builtElements`: Level-scoped rendering array, restored from snapshot on reset
+- `MissionState.structures`: Mission-wide metadata for tracking built structures across levels (not auto-rendered)
+
+**Persistence:** Built objects reset to starting snapshot. Structures built in previous levels persist in MissionState but don't auto-render in new levels.
+
+**Rendering:** `drawBuiltElements()` in `js/map/element-renderer.js` renders built elements using the same SVG system as regular elements.
 
 ### Level Loader
 

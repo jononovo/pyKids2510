@@ -200,6 +200,7 @@ async function render() {
     
     if (window.drawMegaObjects) await window.drawMegaObjects();
     if (window.drawElements) await window.drawElements();
+    if (window.drawBuiltElements) await window.drawBuiltElements();
     if (window.drawVehicles) await window.drawVehicles();
     if (window.drawMegaElements) await window.drawMegaElements();
     
@@ -288,6 +289,7 @@ function animateMove(fromX, fromY, toX, toY, direction) {
             
             if (window.drawMegaObjects) await window.drawMegaObjects();
             if (window.drawElements) await window.drawElements();
+            if (window.drawBuiltElements) await window.drawBuiltElements();
             if (window.drawVehicles) await window.drawVehicles();
             if (window.drawMegaElements) await window.drawMegaElements();
             
