@@ -33,6 +33,7 @@
         
         oscillator.start(audioContext.currentTime);
         oscillator.stop(audioContext.currentTime + duration);
+        oscillator.onended = () => { oscillator.disconnect(); gainNode.disconnect(); };
     }
     
     function playBumpSound() {
@@ -50,6 +51,7 @@
         gain1.connect(audioContext.destination);
         osc1.start(t);
         osc1.stop(t + 0.08);
+        osc1.onended = () => { osc1.disconnect(); gain1.disconnect(); };
         
         const osc2 = audioContext.createOscillator();
         const gain2 = audioContext.createGain();
@@ -61,6 +63,7 @@
         gain2.connect(audioContext.destination);
         osc2.start(t + 0.1);
         osc2.stop(t + 0.18);
+        osc2.onended = () => { osc2.disconnect(); gain2.disconnect(); };
     }
     
     function playCollectSound() {
@@ -83,6 +86,7 @@
         
         osc.start(t);
         osc.stop(t + 0.15);
+        osc.onended = () => { osc.disconnect(); gain.disconnect(); };
     }
     
     function playInteractSound() {
@@ -105,6 +109,7 @@
         
         osc.start(t);
         osc.stop(t + 0.12);
+        osc.onended = () => { osc.disconnect(); gain.disconnect(); };
     }
     
     function animateInteractPop(tileX, tileY) {
