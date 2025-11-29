@@ -56,6 +56,10 @@ A `ResetManager` (`js/game-engine/reset-manager.js`) provides two reset modes:
 -   **Soft Reset**: Resets player position and vehicles only, preserving run-lock.
 Both clear and re-register signal listeners to ensure consistent state.
 
+### Coordinate Utilities
+
+A shared utility (`js/game-engine/coord-utils.js`) provides `expandCoordinates()` for parsing the `[[x,y], [x2,y2]]` coordinate format used throughout the system. Both `ElementInteractionLogic` and `MegaElementManager` use this utility to eliminate duplicated parsing logic.
+
 ### Signal System
 
 A pub/sub system (`js/game-engine/signal-manager.js`) enables dynamic interactions via named signals. Elements emit signals (`on_collect`, `on_step`, `on_interact`) and listen for them to `spawn`, `remove`, or trigger `on` state changes.
