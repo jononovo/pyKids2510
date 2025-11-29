@@ -112,27 +112,12 @@ async function loadTabContent(tabName) {
             return;
         }
         
-        // Custom renderer to add IDs to headings for anchor navigation
-        const renderer = new marked.Renderer();
-        renderer.heading = function(text, level) {
-            // Generate ID: lowercase, replace spaces with hyphens, remove special chars
-            const id = text
-                .toLowerCase()
-                .replace(/<[^>]*>/g, '')           // Remove HTML tags
-                .replace(/[^\w\s-]/g, '')          // Remove special characters
-                .replace(/\s+/g, '-')              // Replace spaces with hyphens
-                .replace(/-+/g, '-')               // Collapse multiple hyphens
-                .trim();
-            return `<h${level} id="${id}">${text}</h${level}>`;
-        };
-        
         // Configure marked for better rendering
         marked.setOptions({
             breaks: true,
             gfm: true,
             tables: true,
             sanitize: false,
-            renderer: renderer,
             highlight: function(code, lang) {
                 if (lang === 'python' || !lang) {
                     return highlightPython(code);
@@ -142,7 +127,19 @@ async function loadTabContent(tabName) {
         });
         
         // Parse and render markdown
-        const htmlContent = marked.parse(markdownContent);
+        let htmlContent = marked.parse(markdownContent);
+        
+        // Post-process: Add IDs to headings for anchor navigation
+        htmlContent = htmlContent.replace(/<h([1-6])>([^<]+)<\/h[1-6]>/g, function(match, level, text) {
+            const id = text
+                .toLowerCase()
+                .replace(/<[^>]*>/g, '')           // Remove HTML tags
+                .replace(/[^\w\s-]/g, '')          // Remove special characters
+                .replace(/\s+/g, '-')              // Replace spaces with hyphens
+                .replace(/-+/g, '-')               // Collapse multiple hyphens
+                .trim();
+            return `<h${level} id="${id}">${text}</h${level}>`;
+        });
         container.innerHTML = htmlContent;
         
         // Style the rendered content
