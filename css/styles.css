@@ -902,6 +902,7 @@ body {
     flex-direction: row;
     gap: 15px;
     margin-bottom: 6px;
+    align-items: flex-start;
 }
 
 #game-info-panel .info-section {
