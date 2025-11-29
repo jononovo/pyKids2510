@@ -61,6 +61,34 @@
         ];
     }
 
+    function getPlacementPosition(width, height) {
+        const pos = getPlayerPosition();
+        if (!pos) return null;
+        
+        width = width || 1;
+        height = height || 1;
+        
+        let x = pos.x;
+        let y = pos.y;
+        
+        switch (gameState.playerDirection) {
+            case 'up':
+                y = pos.y - height;
+                break;
+            case 'down':
+                y = pos.y + 1;
+                break;
+            case 'left':
+                x = pos.x - width;
+                break;
+            case 'right':
+                x = pos.x + 1;
+                break;
+        }
+        
+        return { x: x, y: y };
+    }
+
     function getPositionsForMode(mode) {
         if (mode === 'self') {
             const pos = getPlayerPosition();
@@ -240,7 +268,8 @@
         
         getPlayerPosition: getPlayerPosition,
         getForwardPosition: getForwardPosition,
-        getAdjacentPositions: getAdjacentPositions
+        getAdjacentPositions: getAdjacentPositions,
+        getPlacementPosition: getPlacementPosition
     };
 
     console.log('[ProximityGuard] Module loaded');
