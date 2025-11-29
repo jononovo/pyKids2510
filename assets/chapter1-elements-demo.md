@@ -154,73 +154,76 @@ tests:
 ---
 
 --- <!-- Mission 2 -->
-## MISSION 2: KEY COLLECTION
+## MISSION 2: FARMING TEST
 
 ### AVAILABLE AFTER
 Completing Mission 1
 
 ### OBJECTIVE
-> Learn Python dictionary syntax by collecting keys with `inventory["key"] += 1`
+> Test the farming mechanism - plant crops, water them, and harvest!
 
-In this mission, you'll learn to track items using Python's dictionary syntax. The `inventory` is a Python dictionary that stores item counts. Instead of using `collect()`, you'll add items directly using:
+Welcome to the farm! In this mission you'll learn to grow your own food using Python. The farming commands are:
 
-```python
-inventory["key"] += 1
-```
+- `plant("corn")` - Plants a crop at your current position
+- `water()` - Waters a sprout to help it grow
+- `harvest()` - Harvests a fully grown crop
 
-Navigate to each key and use this syntax to add it to your inventory. This is how real Python programmers track quantities!
+After planting, wait for the sprout to appear (30 seconds), then water it. After watering, wait for the crop to grow (30 seconds), then harvest!
 
 ### SUCCESS CRITERIA
-- Find both keys on the island
-- Use `inventory["key"] += 1` to collect each one
-- Return to base camp facing north
+- Plant at least one crop
+- Use the farming commands: plant(), water(), harvest()
 
 ### REWARDS
-- Keys: +2
-- Unlocks Mission 3
+- Corn: +1
+- Farming knowledge!
 
 <!-- Starter Code -->
 ```
 import player
 
-# Navigate to the keys and collect them using:
-# inventory["key"] += 1
-player.move_forward()
+# Welcome to the farm!
+# Try the farming commands:
+# plant("corn") - plant a crop
+# water() - water a sprout  
+# harvest() - harvest grown crops
+
+# Walk to a good spot and plant!
+player.move_forward(2)
+plant("corn")
+
+# Now wait 30 seconds for sprout...
+# Then run: water()
+# Wait 30 more seconds...
+# Then run: harvest()
 ```
 
 <!-- Solution -->
 ```
 import player
 
-# Navigate to the first key at (24,46)
-player.move_forward(5)
-player.turn_left()
-player.move_forward(3)
-
-# Add the first key using dictionary syntax
-inventory["key"] += 1
-
-# Move to the second key at (26,46)
-player.turn_left()
-player.turn_left()  # facing east
+# Walk to the farming area
 player.move_forward(2)
 
-# Add the second key using dictionary syntax
-inventory["key"] += 1
+# Plant some corn
+plant("corn")
 
-# Return to base camp facing north
-player.move_forward(1)  # to (27,46)
-player.turn_right()  # facing south
-player.move_forward(5)  # to (27,51)
-player.turn_left()
-player.turn_left()  # facing north
+# NOTE: In real gameplay, you'd wait 30 seconds
+# then run water(), wait 30 more seconds,
+# then run harvest()
+
+# For testing, you can run this code,
+# wait for the messages, then run:
+# water()
+# ...wait...
+# harvest()
 ```
 
 <!-- Map -->
 ```
 startPos: 27,51
-goalPos: 27,51
-collectibles: [["key", [[24,46], [26,46]]]]
+goalPos: 27,49
+collectibles: []
 ```
 
 <!-- Tests -->
@@ -229,14 +232,9 @@ pass_all: true
 tests:
   - type: position
     target: goal
-  - type: inventory
-    item: key
-    min: 2
   - type: code_regex
-    pattern: "inventory\\[.key.\\]\\s*\\+=\\s*1"
-    message: "Use inventory[\"key\"] += 1 to add keys to your inventory"
-  - type: direction
-    facing: up
+    pattern: "plant\\("
+    message: "Use plant() to plant a crop"
 ```
 ---
 
