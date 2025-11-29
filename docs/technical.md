@@ -124,7 +124,7 @@ project/
 │   │   ├── vehicle-interaction-logic.js
 │   │   ├── proximity-guard.js    # Collectible detection
 │   │   ├── mega-element-manager.js
-│   │   ├── mega-object-manager.js
+│   │   ├── scenery-manager.js    # Multi-tile walkable scenery
 │   │   └── feedback-effects.js   # Audio/visual effects
 │   │
 │   ├── map/
@@ -476,7 +476,7 @@ position: 4,1
         transforms: [],
         vehicles: [],
         megaElements: [],
-        megaObjects: [],
+        scenery: [],
         graphic: null
     },
     tests: [...]
@@ -527,7 +527,7 @@ collectibles: [...]     # Items to collect
 transforms: [...]       # Interactive elements
 vehicles: [...]         # Boats, etc.
 megaElements: [...]     # Multi-tile blocking structures
-megaObjects: [...]      # Multi-tile walkable terrain
+scenery: [...]          # Multi-tile walkable terrain
 ```
 
 ---
@@ -846,7 +846,7 @@ async function render() {
     }
     
     // 4. Draw layers in order
-    await drawMegaObjects();   // Background terrain
+    await drawScenery();        // Background terrain
     await drawElements();       // Collectibles, interactive
     await drawVehicles();       // Boats, etc.
     await drawMegaElements();   // Structures
@@ -869,7 +869,7 @@ async function render() {
 
 1. Background image (graphic maps)
 2. Tiles
-3. Mega-objects (walkable terrain features)
+3. Scenery (walkable terrain features)
 4. Elements (collectibles, interactive items)
 5. Vehicles
 6. Mega-elements (blocking structures)

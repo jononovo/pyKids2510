@@ -204,13 +204,13 @@ vehicles: [["boat", {"spawn": "got_key", "at": [[14,10]]}]]
 megaElements: [["house", [[1,4]]]]
 
 <!-- ============================================================================
-     MEGA-OBJECTS (walkable multi-tile terrain)
+     SCENERY (walkable multi-tile terrain)
      
      Format: [["type", [[x,y]]]]
      Position is upper-left corner of the object.
      Player can walk over these (no blocking).
 ============================================================================ -->
-megaObjects: [["highland-plateau", [[15,5]]]]
+scenery: [["highland-plateau", [[15,5]]]]
 ```
 
 <!-- ============================================================================

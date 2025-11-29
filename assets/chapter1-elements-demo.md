@@ -134,7 +134,7 @@ startPos: 27,51
 goalPos: 27,51
 collectibles: [["coin", [[27,46],[27,44],[25,44],[29,44],[29,42]]], ["key", {"at": [[24,46]], "on_collect": "got_key"}]]
 vehicles: [["boat", {"spawn": "got_key", "at": [[17,51]]}]]
-megaObjects: [["large-mountain", [[42,8]]], ["moderate-mountain", [[3,33]]], ["highland-plateau", [[22,43]]]]
+scenery: [["large-mountain", [[42,8]]], ["moderate-mountain", [[3,33]]], ["highland-plateau", [[22,43]]]]
 megaElements: [["house", [[5,12]]]]
 ```
 

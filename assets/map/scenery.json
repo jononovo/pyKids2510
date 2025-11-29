@@ -1,0 +1,52 @@
+{
+  "scenery": {
+    "tree": {
+      "name": "tree",
+      "path": "scenery/tree.svg",
+      "width": 1,
+      "height": 1,
+      "fallbackColor": "#4a7c4e",
+      "description": "A single tile tree"
+    },
+    "bush": {
+      "name": "bush",
+      "path": "scenery/bush.svg",
+      "width": 1,
+      "height": 1,
+      "fallbackColor": "#5a8c5e",
+      "description": "A single tile bush"
+    },
+    "flower": {
+      "name": "flower",
+      "path": "scenery/flower.svg",
+      "width": 1,
+      "height": 1,
+      "fallbackColor": "#7fc97f",
+      "description": "A single tile flower decoration"
+    },
+    "moderate-mountain": {
+      "name": "moderate-mountain",
+      "path": "scenery/moderate-mountain-6x7.svg",
+      "width": 6,
+      "height": 7,
+      "fallbackColor": "#7a8b6e",
+      "description": "A moderate-sized mountain with rocky terrain, walkable"
+    },
+    "large-mountain": {
+      "name": "large-mountain",
+      "path": "scenery/moderate-mountain-8x9.svg",
+      "width": 8,
+      "height": 9,
+      "fallbackColor": "#5a6a4a",
+      "description": "A large isometric mountain with snow-capped peaks, cliff faces, and pine trees"
+    },
+    "highland-plateau": {
+      "name": "highland-plateau",
+      "path": "scenery/highland-plateau-5x4.svg",
+      "width": 5,
+      "height": 4,
+      "fallbackColor": "#4a8a3a",
+      "description": "Flat-topped highland plateau with grass, cliff edges, and pine trees"
+    }
+  }
+}

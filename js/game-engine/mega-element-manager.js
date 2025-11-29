@@ -49,23 +49,24 @@
                 }
 
                 const coordsData = item[1];
+                const expandedCoords = window.CoordUtils 
+                    ? CoordUtils.expandCoordinates(coordsData) 
+                    : this._fallbackExpandCoordinates(coordsData);
                 
-                if (Array.isArray(coordsData)) {
-                    if (coordsData.length === 2 && 
-                        typeof coordsData[0] === 'number' && 
-                        typeof coordsData[1] === 'number') {
-                        parsed.push(this._createMegaElement(elementType, definition, coordsData[0], coordsData[1]));
-                    } else {
-                        for (const coord of coordsData) {
-                            if (Array.isArray(coord) && coord.length >= 2) {
-                                parsed.push(this._createMegaElement(elementType, definition, coord[0], coord[1]));
-                            }
-                        }
-                    }
+                for (const coord of expandedCoords) {
+                    parsed.push(this._createMegaElement(elementType, definition, coord.x, coord.y));
                 }
             }
 
             return parsed;
+        },
+        
+        _fallbackExpandCoordinates(coords) {
+            if (!Array.isArray(coords)) return [];
+            if (coords.length === 2 && typeof coords[0] === 'number' && typeof coords[1] === 'number') {
+                return [{ x: coords[0], y: coords[1] }];
+            }
+            return coords.filter(c => Array.isArray(c) && c.length >= 2).map(c => ({ x: c[0], y: c[1] }));
         },
 
         _createMegaElement(type, definition, x, y) {
