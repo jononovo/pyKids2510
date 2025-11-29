@@ -167,7 +167,7 @@
             
             const inventoryPanel = document.getElementById('inventory-panel');
             if (inventoryPanel && gameState) {
-                inventoryPanel.innerHTML = '<strong>Inventory:</strong>';
+                inventoryPanel.innerHTML = '<strong>📦 Inventory:</strong>';
                 for (const item in gameState.inventory) {
                     if (gameState.inventory[item] > 0) {
                         const itemSpan = document.createElement('span');

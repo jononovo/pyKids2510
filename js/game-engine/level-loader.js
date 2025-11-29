@@ -251,7 +251,7 @@
             
             const inventoryPanel = document.getElementById('inventory-panel');
             if (inventoryPanel) {
-                inventoryPanel.innerHTML = '<strong>Inventory:</strong>';
+                inventoryPanel.innerHTML = '<strong>📦 Inventory:</strong>';
                 for (const [type, count] of Object.entries(gameState.inventory)) {
                     if (count > 0) {
                         const itemSpan = document.createElement('span');
@@ -296,7 +296,7 @@
                 backpackPanel.style.display = 'none';
             } else {
                 backpackPanel.style.display = 'block';
-                backpackPanel.innerHTML = `<strong>Backpack (${backpack.length}/${capacity}):</strong>`;
+                backpackPanel.innerHTML = `<strong>🎒 Backpack (${backpack.length}/${capacity}):</strong>`;
                 const listSpan = document.createElement('span');
                 listSpan.className = 'backpack-list';
                 listSpan.textContent = JSON.stringify(backpack);
