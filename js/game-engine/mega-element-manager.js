@@ -97,7 +97,7 @@
                 this._buildBlockedTileCache();
             }
             
-            console.log('[MegaElement] Loaded', this.elements.length, 'mega-elements for level');
+            console.log('[Element] Loaded', this.elements.length, 'elements for level');
             return this.elements;
         },
 
