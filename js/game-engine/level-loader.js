@@ -264,7 +264,19 @@
             
             const messagePanel = document.getElementById('message-panel');
             if (messagePanel) {
-                messagePanel.innerHTML = '';
+                let messagesContainer = messagePanel.querySelector('.console-messages');
+                if (messagesContainer) {
+                    messagesContainer.innerHTML = '';
+                } else {
+                    // Rebuild the console structure if missing
+                    messagePanel.innerHTML = `
+                        <div class="console-header">
+                            <span class="console-title">Console Log</span>
+                            <button class="console-toggle" onclick="toggleConsoleLog()" title="Expand/Collapse">−</button>
+                        </div>
+                        <div class="console-messages"></div>
+                    `;
+                }
             }
             
             this.updateBackpackUI();

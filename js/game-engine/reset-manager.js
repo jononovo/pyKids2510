@@ -150,11 +150,18 @@
             
             const messagePanel = document.getElementById('message-panel');
             if (messagePanel) {
-                const messagesContainer = messagePanel.querySelector('.console-messages');
+                let messagesContainer = messagePanel.querySelector('.console-messages');
                 if (messagesContainer) {
                     messagesContainer.innerHTML = '';
                 } else {
-                    messagePanel.innerHTML = '';
+                    // Rebuild the console structure if missing
+                    messagePanel.innerHTML = `
+                        <div class="console-header">
+                            <span class="console-title">Console Log</span>
+                            <button class="console-toggle" onclick="toggleConsoleLog()" title="Expand/Collapse">−</button>
+                        </div>
+                        <div class="console-messages"></div>
+                    `;
                 }
             }
             
