@@ -948,6 +948,8 @@ body {
     font-weight: bold;
     flex: 1;
     min-width: 90px;
+    padding: 0;
+    margin: 0;
 }
 
 #backpack-panel {
@@ -957,7 +959,8 @@ body {
     color: #7fc542;
     font-weight: bold;
     border-left: 1px solid rgba(127, 197, 66, 0.3);
-    padding-left: 15px;
+    padding: 0 0 0 15px;
+    margin: 0;
 }
 
 #backpack-panel .backpack-list {
