@@ -131,6 +131,7 @@ A unified messaging system (`js/game-engine/feedback-effects.js`) displays user-
 - `'success'`: Green text - for successful actions (collecting items, boarding vehicles)
 - `'error'`: Red text - for failed actions (nothing to collect, backpack full)
 - `'info'`: Blue text - for informational messages (nothing to interact with)
+- `'player'`: White text - for player messages from `speak()` and `print()`
 
 **Messages are displayed for:**
 - `collect()`: Success/failure feedback
@@ -140,7 +141,7 @@ A unified messaging system (`js/game-engine/feedback-effects.js`) displays user-
 - `speak()`: Custom messages from student code
 - Python `print()`: Output from student code
 
-**CSS Classes:** `.message-error`, `.message-success`, `.message-info` in `css/styles.css`
+**CSS Classes:** `.message-error`, `.message-success`, `.message-info`, `.message-player` in `css/styles.css`
 
 ### Technical Implementations & Features
 

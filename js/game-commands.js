@@ -196,16 +196,20 @@
                 if (!message) return;
                 message = String(message).replace(/^["']|["']$/g, '');
                 
-                if (!gameState.messageLog) gameState.messageLog = [];
-                gameState.messageLog.push(message);
-                
-                var messagePanel = document.getElementById('message-panel');
-                if (messagePanel) {
-                    var msgDiv = document.createElement('div');
-                    msgDiv.className = 'message-item';
-                    msgDiv.textContent = message;
-                    messagePanel.appendChild(msgDiv);
-                    messagePanel.scrollTop = messagePanel.scrollHeight;
+                if (window.showGameMessage) {
+                    showGameMessage(message, 'player');
+                } else {
+                    if (!gameState.messageLog) gameState.messageLog = [];
+                    gameState.messageLog.push(message);
+                    
+                    var messagePanel = document.getElementById('message-panel');
+                    if (messagePanel) {
+                        var msgDiv = document.createElement('div');
+                        msgDiv.className = 'message-item message-player';
+                        msgDiv.textContent = message;
+                        messagePanel.appendChild(msgDiv);
+                        messagePanel.scrollTop = messagePanel.scrollHeight;
+                    }
                 }
                 
                 await new Promise(function(r) { setTimeout(r, getAnimationDuration(1)); });

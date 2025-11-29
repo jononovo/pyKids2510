@@ -934,6 +934,10 @@ body {
     color: #74c0fc;
 }
 
+#game-info-panel .message-item.message-player {
+    color: #ffffff;
+}
+
 #inventory-panel {
     color: #7fc542;
     font-weight: bold;

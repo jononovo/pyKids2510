@@ -226,6 +226,8 @@
             msgDiv.classList.add('message-success');
         } else if (type === 'info') {
             msgDiv.classList.add('message-info');
+        } else if (type === 'player') {
+            msgDiv.classList.add('message-player');
         }
         
         msgDiv.textContent = text;
