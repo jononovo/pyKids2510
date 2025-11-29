@@ -90,7 +90,7 @@
       "fallbackColor": "#8B5A2B",
       "width": 1,
       "height": 2,
-      "vehicleType": "boat",
+      "access": "water",
       "description": "A wooden sailing boat for water travel",
       "cost": { "wood": 4 }
     },
@@ -121,7 +121,7 @@
       "fallbackColor": "#8B4513",
       "description": "A wooden bridge over water",
       "cost": { "wood": 4 },
-      "bypassTerrainCheck": true
+      "access": "water"
     },
     "farm": {
       "name": "farm",

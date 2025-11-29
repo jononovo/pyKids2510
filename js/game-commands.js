@@ -409,8 +409,7 @@
                 var elHeight = elementDef.height || 1;
                 var placement = ProximityGuard.getPlacementPosition(elWidth, elHeight);
                 
-                var placeOptions = { bypassTerrainCheck: elementDef.bypassTerrainCheck || false };
-                var placeCheck = ProximityGuard.canPlaceAt(placement.x, placement.y, elWidth, elHeight, placeOptions);
+                var placeCheck = ProximityGuard.canPlaceAt(placement.x, placement.y, elWidth, elHeight, elementDef.access);
                 if (!placeCheck.valid) {
                     if (window.showGameMessage) showGameMessage(placeCheck.reason || 'Cannot build here', 'error');
                     return;

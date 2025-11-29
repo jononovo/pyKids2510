@@ -89,10 +89,9 @@
         return { x: x, y: y };
     }
 
-    function canPlaceAt(x, y, width, height, options) {
+    function canPlaceAt(x, y, width, height, elementAccess) {
         width = width || 1;
         height = height || 1;
-        options = options || {};
         
         if (typeof gameState === 'undefined') {
             return { valid: false, reason: 'Game not ready' };
@@ -122,27 +121,42 @@
                     }
                 }
                 
-                if (!options.bypassTerrainCheck) {
-                    const tileId = gameState.mapData[ty] ? gameState.mapData[ty][tx] : undefined;
-                    if (tileId !== undefined && window.tileDataById) {
-                        const tileInfo = window.tileDataById[tileId];
-                        if (tileInfo && tileInfo.access === 'blocked') {
-                            return { valid: false, reason: 'Cannot build on this terrain' };
-                        }
-                        if (tileInfo && Array.isArray(tileInfo.access) && !tileInfo.access.includes('player')) {
-                            return { valid: false, reason: 'Cannot build on this terrain' };
-                        }
-                        if (tileInfo && typeof tileInfo.access === 'object' && tileInfo.access.requires) {
-                            if (typeof checkAccessRequirements === 'function' && !checkAccessRequirements(tileInfo.access.requires)) {
-                                return { valid: false, reason: 'Cannot build here - requirements not met' };
-                            }
-                        }
+                const tileId = gameState.mapData[ty] ? gameState.mapData[ty][tx] : undefined;
+                if (tileId === undefined) {
+                    return { valid: false, reason: 'Invalid tile' };
+                }
+                
+                if (elementAccess) {
+                    if (!isTileOfType(tileId, elementAccess)) {
+                        return { valid: false, reason: 'Must be placed on ' + elementAccess };
+                    }
+                } else {
+                    if (typeof canMoveTo === 'function' && !canMoveTo(tx, ty)) {
+                        return { valid: false, reason: 'Cannot build on this terrain' };
                     }
                 }
             }
         }
         
         return { valid: true };
+    }
+    
+    const ACCESS_TILE_MAP = {
+        'water': [5, 8]
+    };
+    
+    function isTileOfType(tileId, accessType) {
+        const allowedTiles = ACCESS_TILE_MAP[accessType.toLowerCase()];
+        if (allowedTiles) {
+            return allowedTiles.includes(tileId);
+        }
+        
+        if (!window.tileDataById) return false;
+        const tileInfo = window.tileDataById[tileId];
+        if (!tileInfo) return false;
+        
+        const tileName = (tileInfo.name || '').toLowerCase();
+        return tileName.indexOf(accessType.toLowerCase()) !== -1;
     }
 
     function getPositionsForMode(mode) {
