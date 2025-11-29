@@ -239,9 +239,9 @@
         const TILE_SIZE = window.TILE_SIZE || 32;
         
         const FARM_SVGS = {
-            'dirt': 'assets/map/elements/farm-dirt.svg',
-            'sprout': 'assets/map/elements/farm-sprout.svg',
-            'grown': 'assets/map/elements/farm-grown.svg'
+            'dirt': 'assets/map/elements/landscaping/farm-dirt.svg',
+            'sprout': 'assets/map/elements/landscaping/farm-sprout.svg',
+            'grown': 'assets/map/elements/landscaping/farm-grown.svg'
         };
         
         const plotPromises = gameState.farmPlots.map(async (plot) => {

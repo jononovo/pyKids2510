@@ -33,7 +33,7 @@ An SVG-based tile rendering system loads assets from `assets/map/`, supporting c
 ### Multi-Tile Rendering Systems
 
 Two systems manage large multi-tile graphics:
--   **Mega-Elements**: Blocking structures (e.g., houses) defined in `assets/map/mega-elements.json` with collision detection.
+-   **Mega-Elements**: Blocking structures (e.g., houses) now defined in the unified `assets/map/elements.json` with `blockedTiles` property for collision detection. SVG assets are organized in category folders under `assets/map/elements/` (buildings, vehicles, collectibles, interactive, landscaping).
 -   **Mega-Objects**: Walkable terrain features (e.g., mountains) defined in `assets/map/mega-objects.json`.
 Rendering order ensures proper layering: `tiles → farm-plots → mega-objects → elements → built-elements → vehicles → mega-elements → goal star → player`.
 

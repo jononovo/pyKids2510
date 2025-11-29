@@ -2,36 +2,33 @@
 // MEGA ELEMENT MANAGER
 // Handles multi-tile elements (houses, mountains, etc.)
 // Placed by upper-left corner, extends right and down
+// Now uses unified elements.json via ElementInteractionManager
 // ============================================
 
 (function() {
     'use strict';
 
     const MegaElementManager = {
-        manifest: null,
         elements: [],
         blockedTileCache: new Map(),
         
         async init() {
-            await this.loadManifest();
-            console.log('[MegaElement] Initialized');
-        },
-
-        async loadManifest() {
-            try {
-                const response = await fetch('/assets/map/mega-elements.json');
-                this.manifest = await response.json();
-                console.log('[MegaElement] Manifest loaded:', 
-                    Object.keys(this.manifest.megaElements || {}).length, 'mega-elements');
-            } catch (error) {
-                console.warn('[MegaElement] Could not load manifest, using defaults');
-                this.manifest = { megaElements: {} };
-            }
+            console.log('[MegaElement] Initialized (using unified elements.json)');
         },
 
         getDefinition(type) {
-            if (!this.manifest || !this.manifest.megaElements) return null;
-            return this.manifest.megaElements[type] || null;
+            if (window.ElementInteractionManager && ElementInteractionManager.manifest && ElementInteractionManager.getElementDefinition) {
+                return ElementInteractionManager.getElementDefinition(type);
+            }
+            return null;
+        },
+        
+        async ensureManifestLoaded() {
+            if (window.ElementInteractionManager) {
+                if (!ElementInteractionManager.manifest) {
+                    await ElementInteractionManager.loadManifest();
+                }
+            }
         },
 
         parseMegaElements(megaElementsData) {
@@ -93,10 +90,7 @@
             this.elements = [];
             this.blockedTileCache.clear();
             
-            // Ensure manifest is loaded before parsing
-            if (!this.manifest) {
-                await this.loadManifest();
-            }
+            await this.ensureManifestLoaded();
             
             if (levelData.map && levelData.map.megaElements) {
                 this.elements = this.parseMegaElements(levelData.map.megaElements);
