@@ -132,3 +132,5 @@ Then ProximityGuard reads from element definitions instead of command-level conf
 - `js/game-engine/proximity-guard.js` - Element interaction range checks
 - `assets/map/tiles.json` - Tile definitions with access rules
 - `assets/map/elements.json` - Element definitions with `requires` and interaction properties
+
+The end.
