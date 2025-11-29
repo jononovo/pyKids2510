@@ -81,46 +81,37 @@
         _parseCoordArray(elementType, replacement, coords, sectionName, options = null) {
             const elements = [];
             const defaultTrigger = this._getDefaultTrigger(sectionName);
-            
             const opts = (typeof options === 'object' && options !== null) ? options : { trigger: options };
             
-            if (!Array.isArray(coords)) return elements;
-
-            if (coords.length === 2 && typeof coords[0] === 'number' && typeof coords[1] === 'number') {
+            const expandedCoords = window.CoordUtils 
+                ? CoordUtils.expandCoordinates(coords) 
+                : this._fallbackExpandCoordinates(coords);
+            
+            for (const coord of expandedCoords) {
                 elements.push({
                     type: elementType,
-                    x: coords[0],
-                    y: coords[1],
+                    x: coord.x,
+                    y: coord.y,
                     trigger: opts.trigger || defaultTrigger,
                     section: sectionName,
                     replacement: replacement,
-                    id: this._generateId(elementType, coords[0], coords[1]),
+                    id: this._generateId(elementType, coord.x, coord.y),
                     emit: opts.emit || null,
                     spawn: opts.spawn || null,
                     remove: opts.remove || null,
                     on: opts.on || null
                 });
-            } else {
-                for (const coord of coords) {
-                    if (Array.isArray(coord) && coord.length >= 2) {
-                        elements.push({
-                            type: elementType,
-                            x: coord[0],
-                            y: coord[1],
-                            trigger: opts.trigger || defaultTrigger,
-                            section: sectionName,
-                            replacement: replacement,
-                            id: this._generateId(elementType, coord[0], coord[1]),
-                            emit: opts.emit || null,
-                            spawn: opts.spawn || null,
-                            remove: opts.remove || null,
-                            on: opts.on || null
-                        });
-                    }
-                }
             }
 
             return elements;
+        },
+        
+        _fallbackExpandCoordinates(coords) {
+            if (!Array.isArray(coords)) return [];
+            if (coords.length === 2 && typeof coords[0] === 'number' && typeof coords[1] === 'number') {
+                return [{ x: coords[0], y: coords[1] }];
+            }
+            return coords.filter(c => Array.isArray(c) && c.length >= 2).map(c => ({ x: c[0], y: c[1] }));
         },
 
         _getDefaultTrigger(sectionName) {
