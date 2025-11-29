@@ -296,7 +296,7 @@
                 backpackPanel.style.display = 'none';
             } else {
                 backpackPanel.style.display = 'block';
-                backpackPanel.innerHTML = `<strong>🎒 Backpack (${backpack.length}/${capacity}):</strong>`;
+                backpackPanel.innerHTML = `<strong>🎒 Backpack</strong> (${backpack.length}/${capacity}):`;
                 const listSpan = document.createElement('span');
                 listSpan.className = 'backpack-list';
                 listSpan.textContent = JSON.stringify(backpack);
