@@ -150,7 +150,12 @@
             
             const messagePanel = document.getElementById('message-panel');
             if (messagePanel) {
-                messagePanel.innerHTML = '';
+                const messagesContainer = messagePanel.querySelector('.console-messages');
+                if (messagesContainer) {
+                    messagesContainer.innerHTML = '';
+                } else {
+                    messagePanel.innerHTML = '';
+                }
             }
             
             const inventoryPanel = document.getElementById('inventory-panel');

@@ -217,6 +217,11 @@
         var messagePanel = document.getElementById('message-panel');
         if (!messagePanel) return;
         
+        var messagesContainer = messagePanel.querySelector('.console-messages');
+        if (!messagesContainer) {
+            messagesContainer = messagePanel;
+        }
+        
         var msgDiv = document.createElement('div');
         msgDiv.className = 'message-item';
         
@@ -231,12 +236,25 @@
         }
         
         msgDiv.textContent = text;
-        messagePanel.appendChild(msgDiv);
-        messagePanel.scrollTop = messagePanel.scrollHeight;
+        messagesContainer.appendChild(msgDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
         
         if (typeof gameState !== 'undefined') {
             if (!gameState.messageLog) gameState.messageLog = [];
             gameState.messageLog.push({ text: text, type: type || 'info' });
+        }
+    }
+    
+    function toggleConsoleLog() {
+        var messagePanel = document.getElementById('message-panel');
+        if (!messagePanel) return;
+        
+        var toggleBtn = messagePanel.querySelector('.console-toggle');
+        var isMinimized = messagePanel.classList.toggle('minimized');
+        
+        if (toggleBtn) {
+            toggleBtn.textContent = isMinimized ? '+' : '−';
+            toggleBtn.title = isMinimized ? 'Expand' : 'Collapse';
         }
     }
     
@@ -247,6 +265,7 @@
     window.animateInteractPop = animateInteractPop;
     window.animateCollectSparkle = animateCollectSparkle;
     window.showGameMessage = showGameMessage;
+    window.toggleConsoleLog = toggleConsoleLog;
     
     console.log('[FeedbackEffects] Module loaded');
 })();
