@@ -280,14 +280,40 @@
 
         water: {
             execute: async function() {
-                var pos = getTargetPosition();
-                var crop = findObjectAt(pos.px, pos.py, 'crop');
+                var px = Math.floor(gameState.playerPos.x);
+                var py = Math.floor(gameState.playerPos.y);
                 
-                if (crop && !crop.watered) {
-                    crop.watered = true;
-                    await render();
+                if (gameState.farmPlots) {
+                    var plot = gameState.farmPlots.find(function(p) { return p.x === px && p.y === py; });
+                    if (plot && plot.stage === 'sprout' && !plot.watered) {
+                        plot.watered = true;
+                        if (window.showGameMessage) showGameMessage('Watered the sprout!', 'success');
+                        await render();
+                        
+                        plot.timerId = setTimeout(function() {
+                            if (plot.cancelled) return;
+                            if (plot.stage === 'sprout' && plot.watered && gameState.farmPlots && gameState.farmPlots.includes(plot)) {
+                                plot.stage = 'grown';
+                                plot.timerId = null;
+                                if (window.showGameMessage) showGameMessage(plot.crop + ' is ready to harvest!', 'success');
+                                render();
+                            }
+                        }, 30000);
+                        
+                        await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
+                        return;
+                    } else if (plot && plot.stage === 'dirt') {
+                        if (window.showGameMessage) showGameMessage('Wait for sprout to appear first!', 'info');
+                        await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
+                        return;
+                    } else if (plot && plot.watered) {
+                        if (window.showGameMessage) showGameMessage('Already watered!', 'info');
+                        await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
+                        return;
+                    }
                 }
                 
+                if (window.showGameMessage) showGameMessage('Nothing to water here', 'info');
                 await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
             }
         },
@@ -419,6 +445,97 @@
                 
                 await render();
                 await new Promise(function(r) { setTimeout(r, getAnimationDuration(1)); });
+            }
+        },
+
+        plant: {
+            args: ['cropName'],
+            defaults: { cropName: 'wheat' },
+            execute: async function(cropName) {
+                cropName = String(cropName || 'wheat').replace(/^["']|["']$/g, '');
+                
+                var px = Math.floor(gameState.playerPos.x);
+                var py = Math.floor(gameState.playerPos.y);
+                
+                if (!gameState.farmPlots) gameState.farmPlots = [];
+                
+                var existingPlot = gameState.farmPlots.find(function(p) { return p.x === px && p.y === py; });
+                if (existingPlot) {
+                    if (window.showGameMessage) showGameMessage('Already planted here!', 'error');
+                    await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
+                    return;
+                }
+                
+                var plot = {
+                    x: px,
+                    y: py,
+                    crop: cropName,
+                    stage: 'dirt',
+                    id: 'farm_' + px + '_' + py + '_' + Date.now()
+                };
+                gameState.farmPlots.push(plot);
+                
+                if (window.showGameMessage) showGameMessage('Planted ' + cropName + '!', 'success');
+                await render();
+                
+                plot.timerId = setTimeout(function() {
+                    if (plot.cancelled) return;
+                    if (plot.stage === 'dirt' && gameState.farmPlots && gameState.farmPlots.includes(plot)) {
+                        plot.stage = 'sprout';
+                        plot.timerId = null;
+                        if (window.showGameMessage) showGameMessage('Sprout appeared!', 'info');
+                        render();
+                    }
+                }, 30000);
+                
+                await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
+            }
+        },
+
+        harvest: {
+            execute: async function() {
+                var px = Math.floor(gameState.playerPos.x);
+                var py = Math.floor(gameState.playerPos.y);
+                
+                if (!gameState.farmPlots) {
+                    if (window.showGameMessage) showGameMessage('Nothing to harvest here', 'error');
+                    await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
+                    return;
+                }
+                
+                var plotIndex = gameState.farmPlots.findIndex(function(p) { return p.x === px && p.y === py; });
+                if (plotIndex === -1) {
+                    if (window.showGameMessage) showGameMessage('Nothing to harvest here', 'error');
+                    await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
+                    return;
+                }
+                
+                var plot = gameState.farmPlots[plotIndex];
+                if (plot.stage !== 'grown') {
+                    if (window.showGameMessage) showGameMessage('Not ready to harvest yet!', 'error');
+                    await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
+                    return;
+                }
+                
+                var cropName = plot.crop;
+                
+                if (window.MissionState && MissionState.isMissionLevel) {
+                    MissionState.addToInventory(cropName, 1);
+                    gameState.inventory = MissionState.getInventory();
+                } else {
+                    if (!gameState.inventory) gameState.inventory = {};
+                    gameState.inventory[cropName] = (gameState.inventory[cropName] || 0) + 1;
+                }
+                
+                gameState.farmPlots.splice(plotIndex, 1);
+                
+                playCollectSound();
+                animateCollectSparkle(px, py);
+                updateInventoryDisplay();
+                if (window.showGameMessage) showGameMessage('Harvested ' + cropName + '!', 'success');
+                await render();
+                
+                await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
             }
         }
     };

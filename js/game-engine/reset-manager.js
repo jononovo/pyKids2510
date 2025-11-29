@@ -17,6 +17,7 @@
             this.resetElements(gameState);
             this.resetCollectibles(gameState);
             this.resetBuiltElements(gameState);
+            this.resetFarmPlots(gameState);
             this.resetInventory(gameState);
             this.resetMissionState(gameState);
             this.resetEditor();
@@ -34,6 +35,7 @@
             this.resetPlayerPosition(gameState);
             this.resetVehicles(gameState);
             this.resetSignalListeners();
+            this.resetFarmPlots(gameState);
             
             if (typeof render === 'function') render();
             if (typeof updateViewport === 'function') updateViewport();
@@ -104,6 +106,21 @@
             } else {
                 gameState.builtElements = [];
             }
+        },
+
+        resetFarmPlots(gameState) {
+            if (!gameState || !gameState.farmPlots) return;
+            
+            for (var i = 0; i < gameState.farmPlots.length; i++) {
+                var plot = gameState.farmPlots[i];
+                plot.cancelled = true;
+                if (plot.timerId) {
+                    clearTimeout(plot.timerId);
+                    plot.timerId = null;
+                }
+            }
+            gameState.farmPlots = [];
+            console.log('[ResetManager] Cleared farm plots and timers');
         },
 
         resetInventory(gameState) {

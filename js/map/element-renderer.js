@@ -229,12 +229,47 @@
         }
     }
     
+    async function drawFarmPlots() {
+        if (!window.gameState || !gameState.farmPlots || gameState.farmPlots.length === 0) return;
+        
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas ? canvas.getContext('2d') : null;
+        if (!ctx) return;
+        
+        const TILE_SIZE = window.TILE_SIZE || 32;
+        
+        const FARM_SVGS = {
+            'dirt': 'assets/map/elements/farm-dirt.svg',
+            'sprout': 'assets/map/elements/farm-sprout.svg',
+            'grown': 'assets/map/elements/farm-grown.svg'
+        };
+        
+        const plotPromises = gameState.farmPlots.map(async (plot) => {
+            const px = plot.x * TILE_SIZE;
+            const py = plot.y * TILE_SIZE;
+            const svgPath = FARM_SVGS[plot.stage] || FARM_SVGS['dirt'];
+            
+            if (window.loadSVGImage) {
+                const img = await window.loadSVGImage(svgPath);
+                if (img) {
+                    ctx.drawImage(img, px, py, TILE_SIZE, TILE_SIZE);
+                } else {
+                    ctx.fillStyle = plot.stage === 'dirt' ? '#6B4423' : '#32CD32';
+                    ctx.fillRect(px + 2, py + 2, TILE_SIZE - 4, TILE_SIZE - 4);
+                }
+            }
+        });
+        
+        await Promise.all(plotPromises);
+    }
+    
     window.drawElements = drawElements;
     window.drawMegaElements = drawMegaElements;
     window.drawVehicles = drawVehicles;
     window.drawMegaObjects = drawMegaObjects;
     window.drawBuiltElements = drawBuiltElements;
     window.drawCharacterVehicle = drawCharacterVehicle;
+    window.drawFarmPlots = drawFarmPlots;
     
     console.log('[ElementRenderer] Module loaded');
 })();
