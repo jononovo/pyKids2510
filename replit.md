@@ -60,6 +60,10 @@ Both clear and re-register signal listeners to ensure consistent state.
 
 A pub/sub system (`js/game-engine/signal-manager.js`) enables dynamic interactions via named signals. Elements emit signals (`on_collect`, `on_step`, `on_interact`) and listen for them to `spawn`, `remove`, or trigger `on` state changes.
 
+### TileAccess System
+
+A unified utility (`js/game-engine/tile-access.js`) for all tile availability checking. Determines whether an actor (player or vehicle) can occupy a tile based on tile properties, mega-element blocking, and actor-specific requirements. Vehicles define `requires: "water"` in `elements.json` to traverse water tiles. See `docs/TILE_ACCESS_NOTES.md` for architecture details and future unification plans.
+
 ### ProximityGuard System
 
 This system (`js/game-engine/proximity-guard.js`) enforces proximity for collection commands. `check()` validates position silently, `require()` throws errors, and `consume()` activates elements. It supports 'self', 'forward', 'adjacent', and radius-based checks.

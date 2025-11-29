@@ -322,6 +322,10 @@ function animateMove(fromX, fromY, toX, toY, direction) {
 }
 
 function canMoveTo(x, y) {
+    if (window.TileAccess) {
+        return TileAccess.canActorMoveTo(x, y, gameState.characterType, gameState);
+    }
+    
     if (x < 0 || x >= gameState.mapWidth || y < 0 || y >= gameState.mapHeight) {
         return false;
     }

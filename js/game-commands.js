@@ -405,6 +405,16 @@
                     }
                 }
                 
+                var elWidth = elementDef.width || 1;
+                var elHeight = elementDef.height || 1;
+                var placement = ProximityGuard.getPlacementPosition(elWidth, elHeight);
+                
+                var placeCheck = ProximityGuard.canPlaceAt(placement.x, placement.y, elWidth, elHeight, elementDef.access);
+                if (!placeCheck.valid) {
+                    if (window.showGameMessage) showGameMessage(placeCheck.reason || 'Cannot build here', 'error');
+                    return;
+                }
+                
                 for (var material in cost) {
                     var amount = cost[material];
                     if (window.MissionState && MissionState.isMissionLevel) {
@@ -419,26 +429,24 @@
                     }
                 }
                 
-                var pos = getTargetPosition();
-                
                 if (!gameState.builtElements) gameState.builtElements = [];
                 var builtElement = {
                     type: elementName,
-                    x: pos.targetX,
-                    y: pos.targetY,
+                    x: placement.x,
+                    y: placement.y,
                     id: 'built_' + elementName + '_' + Date.now()
                 };
                 gameState.builtElements.push(builtElement);
                 
-                if (elementName === 'bridge' && gameState.mapData[pos.targetY]) {
-                    gameState.mapData[pos.targetY][pos.targetX] = getTileIdByName('path');
+                if (elementName === 'bridge' && gameState.mapData[placement.y]) {
+                    gameState.mapData[placement.y][placement.x] = getTileIdByName('path');
                 }
                 
                 updateInventoryDisplay();
                 updateBackpackDisplay();
                 
                 if (window.MissionState && MissionState.isMissionLevel) {
-                    MissionState.addStructure(pos.targetX, pos.targetY, elementName);
+                    MissionState.addStructure(placement.x, placement.y, elementName);
                 }
                 
                 if (window.showGameMessage) showGameMessage('Built ' + elementName, 'success');

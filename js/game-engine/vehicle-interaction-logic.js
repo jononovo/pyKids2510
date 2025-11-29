@@ -154,20 +154,6 @@
             return `vehicle_${type}_${x}_${y}`;
         },
 
-        getVehicleDefinition(type) {
-            if (!window.ElementInteractionManager || !window.ElementInteractionManager.manifest) {
-                return null;
-            }
-            const elements = window.ElementInteractionManager.manifest.elements;
-            if (!elements) return null;
-            
-            const def = elements[type];
-            if (def && def.vehicleType) {
-                return def;
-            }
-            return null;
-        },
-
         handleInteract(x, y, gameState) {
             if (this.isBoarded()) {
                 return this.handleDisembark(gameState);
@@ -182,18 +168,13 @@
         },
 
         handleBoard(vehicle, gameState) {
-            const vehicleDef = this.getVehicleDefinition(vehicle.type);
-            if (!vehicleDef) {
-                return { success: false, message: `Unknown vehicle type: ${vehicle.type}` };
-            }
-
             this.originalPlayerSprite = gameState.spriteImage;
             this.originalSpriteFrameWidth = gameState.spriteFrameWidth;
             this.originalSpriteFrameHeight = gameState.spriteFrameHeight;
 
             this.currentVehicle = vehicle;
 
-            gameState.characterType = vehicleDef.vehicleType || vehicle.type;
+            gameState.characterType = vehicle.type;
 
             gameState.playerPos.x = vehicle.x;
             gameState.playerPos.y = vehicle.y;
@@ -264,6 +245,8 @@
         },
 
         findAdjacentWalkableTile(x, y, gameState) {
+            if (!window.TileAccess) return null;
+            
             const directions = [
                 { dx: 1, dy: 0 },
                 { dx: 0, dy: -1 },
@@ -275,38 +258,12 @@
                 const checkX = x + dir.dx;
                 const checkY = y + dir.dy;
                 
-                if (this.canPlayerWalkTo(checkX, checkY, gameState)) {
+                if (TileAccess.canActorMoveTo(checkX, checkY, 'player', gameState)) {
                     return { x: checkX, y: checkY };
                 }
             }
 
             return null;
-        },
-
-        canPlayerWalkTo(x, y, gameState) {
-            if (x < 0 || x >= gameState.mapWidth || y < 0 || y >= gameState.mapHeight) {
-                return false;
-            }
-
-            if (window.MegaElementManager && window.MegaElementManager.isTileBlocked(x, y)) {
-                return false;
-            }
-
-            const tileId = gameState.mapData[y]?.[x];
-            if (tileId === undefined) return false;
-
-            const tileInfo = window.tileDataById ? window.tileDataById[tileId] : null;
-            if (!tileInfo) return false;
-
-            if (tileInfo.access === "blocked") {
-                return false;
-            }
-
-            if (Array.isArray(tileInfo.access)) {
-                return tileInfo.access.includes('player');
-            }
-
-            return true;
         },
 
         getVehiclesForRender() {

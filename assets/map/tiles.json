@@ -1,14 +1,14 @@
 {
   "tiles": {
-    "GRASS":      { "id": 0, "path": "tiles/grass.svg", "fallbackColor": "#7fc97f", "access": ["player"] },
-    "GRASS_DARK": { "id": 1, "path": "tiles/grass-dark.svg", "fallbackColor": "#6fb96f", "access": ["player"] },
-    "PATH":       { "id": 2, "path": "tiles/path.svg", "fallbackColor": "#d4b896", "access": ["player"] },
-    "TREE":       { "id": 3, "path": "objects/tree.svg", "fallbackColor": "#4a7c4e", "access": "blocked" },
-    "BUSH":       { "id": 4, "path": "objects/bush.svg", "fallbackColor": "#5a8c5e", "overlayOnGrass": true, "access": "blocked" },
-    "WATER":      { "id": 5, "path": "tiles/water.svg", "fallbackColor": "#6fa8dc", "access": ["boat", "ship", "fish"] },
-    "ROCK":       { "id": 6, "path": "tiles/rock.svg", "fallbackColor": "#888888", "access": "blocked" },
-    "FLOWER":     { "id": 7, "path": "objects/flower.svg", "fallbackColor": "#7fc97f", "overlayOnGrass": true, "access": ["player"] },
-    "WATER_DARK": { "id": 8, "path": "tiles/water-dark.svg", "fallbackColor": "#5a9acc", "access": ["boat", "ship", "fish"] }
+    "GRASS":      { "id": 0, "name": "grass", "path": "tiles/grass.svg", "fallbackColor": "#7fc97f", "access": ["player"] },
+    "GRASS_DARK": { "id": 1, "name": "grass_dark", "path": "tiles/grass-dark.svg", "fallbackColor": "#6fb96f", "access": ["player"] },
+    "PATH":       { "id": 2, "name": "path", "path": "tiles/path.svg", "fallbackColor": "#d4b896", "access": ["player"] },
+    "TREE":       { "id": 3, "name": "tree", "path": "objects/tree.svg", "fallbackColor": "#4a7c4e", "access": "blocked" },
+    "BUSH":       { "id": 4, "name": "bush", "path": "objects/bush.svg", "fallbackColor": "#5a8c5e", "overlay": "grass", "access": "blocked" },
+    "WATER":      { "id": 5, "name": "water", "path": "tiles/water.svg", "fallbackColor": "#6fa8dc", "access": ["boat", "ship", "fish"] },
+    "ROCK":       { "id": 6, "name": "rock", "path": "tiles/rock.svg", "fallbackColor": "#888888", "access": "blocked" },
+    "FLOWER":     { "id": 7, "name": "flower", "path": "objects/flower.svg", "fallbackColor": "#7fc97f", "overlay": "grass", "access": ["player"] },
+    "WATER_DARK": { "id": 8, "name": "water_dark", "path": "tiles/water-dark.svg", "fallbackColor": "#5a9acc", "access": ["boat", "ship", "fish"] }
   },
   "special": {
     "star": "special/star-goal.svg"

@@ -120,9 +120,15 @@
         return tile ? tile.fallbackColor : '#333';
     }
     
-    function isTileOverlay(tileId) {
+    function getTileOverlay(tileId) {
         const tile = tileDataById[tileId];
-        return tile ? tile.overlayOnGrass === true : false;
+        return tile ? tile.overlay : null;
+    }
+    
+    function getBaseTileId(overlayType) {
+        if (overlayType === 'grass') return TILES.GRASS;
+        if (overlayType === 'water') return TILES.WATER;
+        return TILES.GRASS;
     }
     
     async function drawTile(x, y, type) {
@@ -134,12 +140,14 @@
         const px = x * TILE_SIZE;
         const py = y * TILE_SIZE;
         
-        if (isTileOverlay(type)) {
-            const grassImg = await loadSVGImage(getTilePath(TILES.GRASS));
-            if (grassImg) {
-                ctx.drawImage(grassImg, px, py, TILE_SIZE, TILE_SIZE);
+        const overlay = getTileOverlay(type);
+        if (overlay) {
+            const baseTileId = getBaseTileId(overlay);
+            const baseImg = await loadSVGImage(getTilePath(baseTileId));
+            if (baseImg) {
+                ctx.drawImage(baseImg, px, py, TILE_SIZE, TILE_SIZE);
             } else {
-                ctx.fillStyle = getTileFallbackColor(TILES.GRASS);
+                ctx.fillStyle = getTileFallbackColor(baseTileId);
                 ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
             }
             
@@ -229,7 +237,7 @@
     window.preloadSVGTiles = preloadSVGTiles;
     window.getTilePath = getTilePath;
     window.getTileFallbackColor = getTileFallbackColor;
-    window.isTileOverlay = isTileOverlay;
+    window.getTileOverlay = getTileOverlay;
     window.drawTile = drawTile;
     window.drawStar = drawStar;
     window.drawTileHover = drawTileHover;

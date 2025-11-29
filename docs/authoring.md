@@ -386,11 +386,12 @@ The `access` property in `tiles.json` controls who can traverse a tile:
 ```json
 {
   "tiles": {
-    "8": { 
+    "CUSTOM": { 
+      "id": 9,
       "name": "custom-tile", 
       "path": "tiles/custom.svg", 
       "fallbackColor": "#hexcolor",
-      "overlayOnGrass": false,
+      "overlay": "grass",
       "access": "blocked"
     }
   }
@@ -398,10 +399,11 @@ The `access` property in `tiles.json` controls who can traverse a tile:
 ```
 
 **Properties:**
-- `name`: Identifier for the tile (used for dynamic lookup)
+- `id`: Unique numeric ID for the tile
+- `name`: Identifier for the tile (used for dynamic lookup and placement matching)
 - `path`: Relative path from `assets/map/`
 - `fallbackColor`: Color when SVG fails to load
-- `overlayOnGrass`: If true, grass renders underneath
+- `overlay`: Base tile to render underneath ("grass" or "water")
 - `access`: (optional) Access restriction - see table above
 
 ### Access Property Examples

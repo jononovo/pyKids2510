@@ -307,7 +307,7 @@ player.move_forward(2)
 ```
 startPos: 27,51
 goalPos: 27,51
-collectibles: [["wood", [[27,50], [27,49], [28,49], [28,50]]]]
+collectibles: [["wood", [[27,52], [27,53], [28,53], [28,52]]]]
 ```
 
 <!-- Tests -->

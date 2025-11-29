@@ -61,6 +61,108 @@
         ];
     }
 
+    function getPlacementPosition(width, height) {
+        const pos = getPlayerPosition();
+        if (!pos) return null;
+        
+        width = width || 1;
+        height = height || 1;
+        
+        let x = pos.x;
+        let y = pos.y;
+        
+        switch (gameState.playerDirection) {
+            case 'up':
+                y = pos.y - height;
+                break;
+            case 'down':
+                y = pos.y + 1;
+                break;
+            case 'left':
+                x = pos.x - width;
+                break;
+            case 'right':
+                x = pos.x + 1;
+                break;
+        }
+        
+        return { x: x, y: y };
+    }
+
+    function canPlaceAt(x, y, width, height, elementAccess) {
+        if (window.TileAccess) {
+            return TileAccess.canPlaceElement(x, y, width, height, elementAccess, gameState);
+        }
+        
+        width = width || 1;
+        height = height || 1;
+        
+        if (typeof gameState === 'undefined') {
+            return { valid: false, reason: 'Game not ready' };
+        }
+        
+        for (let dx = 0; dx < width; dx++) {
+            for (let dy = 0; dy < height; dy++) {
+                const tx = x + dx;
+                const ty = y + dy;
+                
+                if (tx < 0 || tx >= gameState.mapWidth || ty < 0 || ty >= gameState.mapHeight) {
+                    return { valid: false, reason: 'Outside map boundaries' };
+                }
+                
+                if (window.MegaElementManager && MegaElementManager.isTileBlocked(tx, ty)) {
+                    return { valid: false, reason: 'Blocked by existing structure' };
+                }
+                
+                if (gameState.builtElements && window.ElementInteractionManager) {
+                    for (const built of gameState.builtElements) {
+                        const builtDef = ElementInteractionManager.getElementDefinition(built.type);
+                        const bw = (builtDef && builtDef.width) || 1;
+                        const bh = (builtDef && builtDef.height) || 1;
+                        if (tx >= built.x && tx < built.x + bw && ty >= built.y && ty < built.y + bh) {
+                            return { valid: false, reason: 'Something already built here' };
+                        }
+                    }
+                }
+                
+                const tileId = gameState.mapData[ty] ? gameState.mapData[ty][tx] : undefined;
+                if (tileId === undefined) {
+                    return { valid: false, reason: 'Invalid tile' };
+                }
+                
+                if (elementAccess) {
+                    if (!isTileOfType(tileId, elementAccess)) {
+                        return { valid: false, reason: 'Must be placed on ' + elementAccess };
+                    }
+                } else {
+                    if (typeof canMoveTo === 'function' && !canMoveTo(tx, ty)) {
+                        return { valid: false, reason: 'Cannot build on this terrain' };
+                    }
+                }
+            }
+        }
+        
+        return { valid: true };
+    }
+    
+    const ACCESS_TILE_MAP = {
+        'water': [5, 8]
+    };
+    
+    function isTileOfType(tileId, accessType) {
+        const allowedTiles = ACCESS_TILE_MAP[accessType.toLowerCase()];
+        if (allowedTiles) {
+            return allowedTiles.includes(tileId);
+        }
+        
+        if (!window.tileDataById) return false;
+        const tileInfo = window.tileDataById[tileId];
+        if (!tileInfo) return false;
+        
+        const tileName = (tileInfo.name || '').toLowerCase();
+        return tileName.indexOf(accessType.toLowerCase()) !== -1;
+    }
+
     function getPositionsForMode(mode) {
         if (mode === 'self') {
             const pos = getPlayerPosition();
@@ -240,7 +342,9 @@
         
         getPlayerPosition: getPlayerPosition,
         getForwardPosition: getForwardPosition,
-        getAdjacentPositions: getAdjacentPositions
+        getAdjacentPositions: getAdjacentPositions,
+        getPlacementPosition: getPlacementPosition,
+        canPlaceAt: canPlaceAt
     };
 
     console.log('[ProximityGuard] Module loaded');
