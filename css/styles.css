@@ -1002,7 +1002,7 @@ body {
     color: #ffffff;
 }
 
-#inventory-panel {
+#game-info-panel #inventory-panel {
     color: #c0c0c0;
     font-weight: bold;
     flex: 1;
@@ -1013,7 +1013,7 @@ body {
     border-radius: 6px;
 }
 
-#backpack-panel {
+#game-info-panel #backpack-panel {
     flex: 1;
     min-width: 90px;
     font-size: 12px;
@@ -1025,11 +1025,12 @@ body {
     border-radius: 6px;
 }
 
-#backpack-panel .backpack-list {
+#game-info-panel #backpack-panel .backpack-list {
     display: block;
     padding: 2px 0;
     font-weight: normal;
     word-wrap: break-word;
+    color: #c0c0c0;
 }
 
 /* ========================================
