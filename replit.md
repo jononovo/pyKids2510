@@ -39,7 +39,7 @@ Rendering order ensures proper layering: `tiles → farm-plots → mega-objects 
 
 ### Farming System
 
-Players can plant, water, and harvest crops using Python commands (`plant()`, `water()`, `harvest()`). Crops progress through 'dirt', 'sprout', and 'grown' stages, with state managed in `gameState.farmPlots` and rendered dynamically.
+Players can plant, water, and harvest crops using Python commands (`plant()`, `water()`, `harvest()`). Crops progress through 'dirt', 'sprout', and 'grown' stages with 10-second intervals between each stage. State is managed in `gameState.farmPlots` and rendered dynamically. Use `time.sleep(10)` in Python code to wait for growth transitions.
 
 ### Build System
 
