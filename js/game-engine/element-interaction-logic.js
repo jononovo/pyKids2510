@@ -384,6 +384,17 @@
             this._registerSignalListeners();
         },
 
+        resetStates() {
+            if (window.levelEntrySnapshot && window.levelEntrySnapshot.missionState && 
+                window.levelEntrySnapshot.missionState.elementStates) {
+                this.elementStates = JSON.parse(JSON.stringify(window.levelEntrySnapshot.missionState.elementStates));
+                console.log('[ElementInteraction] Restored elementStates from snapshot');
+            } else {
+                this.elementStates = {};
+                console.log('[ElementInteraction] Reset elementStates to empty');
+            }
+        },
+
         resetToSnapshot(snapshot) {
             if (snapshot && snapshot.elementStates) {
                 this.elementStates = JSON.parse(JSON.stringify(snapshot.elementStates));

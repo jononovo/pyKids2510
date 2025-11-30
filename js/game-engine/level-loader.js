@@ -192,7 +192,8 @@
                             inventory: {},
                             backpack: [],
                             collectedItems: [],
-                            structures: []
+                            structures: [],
+                            elementStates: {}
                         };
                         console.log('[LevelLoader] Level 1 - captured fresh empty snapshot for reset');
                     } else {
