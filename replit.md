@@ -89,7 +89,8 @@ A unified system (`js/game-engine/feedback-effects.js`) displays user-facing fee
 -   **Visual Coding**: Integration with Blockly allows switching between text and block-based coding.
 -   **Coding Tutor**: A rules-based tutor analyzes student code and offers contextual help.
 -   **Code Book**: A slide-out panel provides documentation for in-game commands, authoring guidelines (`docs/authoring.md`), and technical details (`docs/technical.md`).
--   **Backpack System**: A 4-item capacity backpack, persisting across mission levels via MissionState, teaching Python list methods.
+-   **Backpack System**: A 4-item capacity backpack, persisting across mission levels via MissionState, teaching Python list methods. `backpack.append()` collects items from the **forward tile only** (advanced behavior).
+-   **Collection Commands**: `collect()` is beginner-friendly (checks standing tile, then forward tile). Advanced commands like `backpack.append()` and `inventory[key] = value` only work on the **forward tile**.
 -   **Sprite Selection**: Dynamic character sprite selection.
 -   **Integration**: Communicates with parent platforms via `postMessage` for progress tracking and uses `localStorage` for session caching. A `User Progress System` manages state.
 -   **Test System**: Parses YAML sections from lesson Markdown for various test types (position, inventory, code regex, etc.).
