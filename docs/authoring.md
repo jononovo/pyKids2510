@@ -972,12 +972,12 @@ Students write Python code using these commands:
 
 ### Farming Commands
 
-The farming system allows players to plant, grow, and harvest crops. Crops progress through three stages with 10-second intervals between each stage.
+The farming system allows players to plant, grow, and harvest crops. Crops progress through three stages with 5-second intervals between each stage.
 
 **Growth Stages:**
 1. **Dirt** - Immediately after `plant()` is called
-2. **Sprout** - Appears 10 seconds after planting
-3. **Grown** - Appears 10 seconds after watering the sprout with `water()`
+2. **Sprout** - Appears 5 seconds after planting
+3. **Grown** - Appears 5 seconds after watering the sprout with `water()`
 
 | Command | Alternative | Description |
 |---------|-------------|-------------|
@@ -989,23 +989,15 @@ The farming system allows players to plant, grow, and harvest crops. Crops progr
 
 **Example - Full Farming Cycle:**
 ```python
-# Plant corn at current position
 plant("corn")
-
-# Wait 10 seconds for sprout to appear
-time.sleep(10)
-
-# Water the sprout
+time.sleep(5)  # Wait for sprout
 water()
-
-# Wait 10 seconds for crop to fully grow
-time.sleep(10)
-
-# Harvest the grown crop
+time.sleep(5)  # Wait for growth
 harvest()
 ```
 
 **Notes:**
+- The `time` module is auto-imported (no `import time` needed)
 - Players must be standing on the tile to plant, water, or harvest
 - Growth timers run in real-time (not affected by game speed settings)
 - Harvested crops are added to the player's inventory
@@ -1100,22 +1092,20 @@ The `import player` is required and automatically handled by the runtime.
 
 ### Loops and Timing
 
-Standard Python loops work with all game commands. Each command animates normally within loops.
+Standard Python loops work with all game commands. Each command animates normally within loops. The `time` module is auto-imported.
 
-**For loop example:**
+**Farming loop example:**
 ```python
-import time
-
 for i in range(3):
     forward(2)
     plant("corn")
     forward(2)
-    time.sleep(5)
+    time.sleep(5)  # Wait for sprout
     left(2)
     forward(2)
     water()
     forward(2)
-    time.sleep(5)
+    time.sleep(5)  # Wait for growth
     left(2)
     forward(2)
     harvest()
