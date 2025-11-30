@@ -86,7 +86,7 @@ function drawCharacter(x, y, direction) {
     
     if (charType !== 'player' && window.VehicleInteractionManager && VehicleInteractionManager.isBoarded()) {
         if (window.drawCharacterVehicle) {
-            window.drawCharacterVehicle(x, y);
+            window.drawCharacterVehicle(x, y, direction);
         }
         return;
     }
@@ -145,7 +145,7 @@ function drawCharacterWithHop(x, y, direction, hopHeight) {
     
     if (charType !== 'player' && window.VehicleInteractionManager && VehicleInteractionManager.isBoarded()) {
         if (window.drawCharacterVehicle) {
-            window.drawCharacterVehicle(x, y);
+            window.drawCharacterVehicle(x, y, direction);
         }
         return;
     }
