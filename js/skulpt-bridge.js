@@ -94,6 +94,17 @@
         lines.push('                })()');
         lines.push('            );');
         lines.push('        });');
+        lines.push('');
+        lines.push('        $loc.pop = new Sk.builtin.func(function(self, arg) {');
+        lines.push('            var js_arg = arg !== undefined ? Sk.ffi.remapToJs(arg) : undefined;');
+        lines.push('            return Sk.misceval.promiseToSuspension(');
+        lines.push('                (async function() {');
+        lines.push('                    await window.gameCommand_backpack_pop(js_arg);');
+        lines.push('                    incrementCounter(1);');
+        lines.push('                    return Sk.builtin.none.none$;');
+        lines.push('                })()');
+        lines.push('            );');
+        lines.push('        });');
         lines.push('    }, "Backpack", []);');
         lines.push('');
         lines.push('    mod.backpack = Sk.misceval.callsim(BackpackClass);');
