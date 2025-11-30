@@ -45,7 +45,8 @@
             },
             read: builtinRead,
             __future__: Sk.python3,
-            execLimit: null,
+            execLimit: 120000,
+            yieldLimit: 100,
             killableWhile: true,
             killableFor: true
         });
@@ -110,13 +111,27 @@
         var executionError = null;
 
         try {
-            await Sk.misceval.asyncToPromise(function() {
-                return Sk.importMainWithBody("<stdin>", false, fullCode, true);
-            });
+            await Sk.misceval.asyncToPromise(
+                function() {
+                    return Sk.importMainWithBody("<stdin>", false, fullCode, true);
+                },
+                {
+                    "*": function() {
+                        if (window.shouldStopExecution) {
+                            throw new Error("__STOP__");
+                        }
+                    }
+                }
+            );
         } catch (error) {
             var errorStr = error.toString();
             if (errorStr.indexOf('__STOP__') !== -1) {
                 console.log('[Skulpt Runtime] Execution stopped by user');
+            } else if (errorStr.indexOf('TimeLimitError') !== -1) {
+                console.log('[Skulpt Runtime] Execution timed out (120 second limit)');
+                if (window.showGameMessage) {
+                    showGameMessage('Code stopped - ran too long (2 minute limit)', 'error');
+                }
             } else {
                 executionError = formatSkulptError(error);
                 console.error('[Skulpt Error]', executionError.error);
