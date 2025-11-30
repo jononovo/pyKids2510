@@ -598,7 +598,7 @@
     
     window.gameCommand_backpack_append = async function(itemType) {
         var guardResult = ProximityGuard.require({
-            mode: 'self',
+            mode: 'forward',
             sections: ['collectibles'],
             errorTemplate: ProximityGuard.Messages.NOTHING_HERE
         });
@@ -684,7 +684,7 @@
         
         if (diff > 0) {
             var guardResult = ProximityGuard.check({
-                mode: 'self',
+                mode: 'forward',
                 sections: ['collectibles'],
                 typeMatch: key
             });
