@@ -12,8 +12,7 @@
         const elements = ElementInteractionManager.getElementsForRender();
         if (!elements || elements.length === 0) return;
         
-        const canvas = document.getElementById('game-canvas');
-        const ctx = canvas ? canvas.getContext('2d') : null;
+        const ctx = window.getRenderContext ? window.getRenderContext() : null;
         if (!ctx) return;
         
         const TILE_SIZE = window.TILE_SIZE || 32;
@@ -52,8 +51,7 @@
         const megaElements = MegaElementManager.getElementsForRender();
         if (!megaElements || megaElements.length === 0) return;
         
-        const canvas = document.getElementById('game-canvas');
-        const ctx = canvas ? canvas.getContext('2d') : null;
+        const ctx = window.getRenderContext ? window.getRenderContext() : null;
         if (!ctx) return;
         
         const TILE_SIZE = window.TILE_SIZE || 32;
@@ -88,8 +86,7 @@
         const vehicles = VehicleInteractionManager.getVehiclesForRender();
         if (!vehicles || vehicles.length === 0) return;
         
-        const canvas = document.getElementById('game-canvas');
-        const ctx = canvas ? canvas.getContext('2d') : null;
+        const ctx = window.getRenderContext ? window.getRenderContext() : null;
         if (!ctx) return;
         
         const TILE_SIZE = window.TILE_SIZE || 32;
@@ -126,8 +123,7 @@
         if (!window.gameState || !gameState.builtElements || gameState.builtElements.length === 0) return;
         if (!window.ElementInteractionManager) return;
         
-        const canvas = document.getElementById('game-canvas');
-        const ctx = canvas ? canvas.getContext('2d') : null;
+        const ctx = window.getRenderContext ? window.getRenderContext() : null;
         if (!ctx) return;
         
         const TILE_SIZE = window.TILE_SIZE || 32;
@@ -165,8 +161,7 @@
         const sceneryItems = SceneryManager.getSceneryForRender();
         if (!sceneryItems || sceneryItems.length === 0) return;
         
-        const canvas = document.getElementById('game-canvas');
-        const ctx = canvas ? canvas.getContext('2d') : null;
+        const ctx = window.getRenderContext ? window.getRenderContext() : null;
         if (!ctx) return;
         
         const TILE_SIZE = window.TILE_SIZE || 32;
@@ -204,8 +199,7 @@
         const vehicleDef = ElementInteractionManager.getElementDefinition(currentVehicle.type);
         if (!vehicleDef) return;
         
-        const canvas = document.getElementById('game-canvas');
-        const ctx = canvas ? canvas.getContext('2d') : null;
+        const ctx = window.getRenderContext ? window.getRenderContext() : null;
         if (!ctx) return;
         
         const TILE_SIZE = window.TILE_SIZE || 32;
@@ -232,8 +226,7 @@
     async function drawFarmPlots() {
         if (!window.gameState || !gameState.farmPlots || gameState.farmPlots.length === 0) return;
         
-        const canvas = document.getElementById('game-canvas');
-        const ctx = canvas ? canvas.getContext('2d') : null;
+        const ctx = window.getRenderContext ? window.getRenderContext() : null;
         if (!ctx) return;
         
         const TILE_SIZE = window.TILE_SIZE || 32;

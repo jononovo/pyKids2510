@@ -22,6 +22,8 @@ The application is a single-page, vanilla JavaScript and HTML5 Canvas web applic
 
 A 2D tile-based rendering system supports character movement (`move_forward()`, `turn_left()`, `turn_right()`), collision detection, and objective tracking. A Camera System provides pan/zoom functionality and auto-follow.
 
+**Double-Buffered Rendering**: The rendering system uses an offscreen canvas to prevent visual flicker during async operations like SVG tile loading and farming timer updates. All draw operations target the offscreen buffer via `getRenderContext()`, which atomically copies to the visible canvas after a complete frame is rendered. A re-entry guard (`renderInProgress`) prevents race conditions when mouse events trigger overlapping render calls. Note: Rendering modules (tile-renderer.js, element-renderer.js) define draw functions but rely on game-engine's `render()` entry point rather than firing during module load.
+
 ### Lesson System
 
 Lessons are defined in Markdown files, specifying objectives, starter code, solutions, tile maps, character positions, and collectibles. The system includes a dynamic chapter dropdown and a "Mission System" for persistent state across levels.

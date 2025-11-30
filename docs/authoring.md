@@ -989,9 +989,6 @@ The farming system allows players to plant, grow, and harvest crops. Crops progr
 
 **Example - Full Farming Cycle:**
 ```python
-import player
-import time
-
 # Plant corn at current position
 plant("corn")
 
