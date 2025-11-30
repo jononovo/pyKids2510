@@ -228,9 +228,17 @@
         ctx.fillRect(px + TILE_SIZE - thickness, py + TILE_SIZE - cornerLength, thickness, cornerLength);
     }
     
+    function getCachedSVG(path) {
+        if (svgTileCache.has(path)) {
+            return svgTileCache.get(path);
+        }
+        return null;
+    }
+
     window.loadTilesManifest = loadTilesManifest;
     window.loadCollectiblesManifest = loadCollectiblesManifest;
     window.loadSVGImage = loadSVGImage;
+    window.getCachedSVG = getCachedSVG;
     window.preloadSVGTiles = preloadSVGTiles;
     window.getTilePath = getTilePath;
     window.getTileFallbackColor = getTileFallbackColor;

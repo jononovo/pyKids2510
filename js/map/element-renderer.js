@@ -190,7 +190,7 @@
         await Promise.all(sceneryPromises);
     }
     
-    async function drawCharacterVehicle(x, y) {
+    function drawCharacterVehicle(x, y) {
         if (!window.VehicleInteractionManager) return;
         
         const currentVehicle = VehicleInteractionManager.getCurrentVehicle();
@@ -208,14 +208,20 @@
         const width = (vehicleDef.width || 1) * TILE_SIZE;
         const height = (vehicleDef.height || 1) * TILE_SIZE;
         
-        if (vehicleDef.path && window.loadSVGImage) {
+        if (vehicleDef.path) {
             const svgPath = 'assets/map/' + vehicleDef.path;
-            const img = await window.loadSVGImage(svgPath);
-            if (img) {
-                ctx.drawImage(img, px, py, width, height);
-            } else if (vehicleDef.fallbackColor) {
-                ctx.fillStyle = vehicleDef.fallbackColor;
-                ctx.fillRect(px + 4, py + 4, width - 8, height - 8);
+            const cachedImg = window.getCachedSVG ? window.getCachedSVG(svgPath) : null;
+            
+            if (cachedImg) {
+                ctx.drawImage(cachedImg, px, py, width, height);
+            } else {
+                if (vehicleDef.fallbackColor) {
+                    ctx.fillStyle = vehicleDef.fallbackColor;
+                    ctx.fillRect(px + 4, py + 4, width - 8, height - 8);
+                }
+                if (window.loadSVGImage) {
+                    window.loadSVGImage(svgPath);
+                }
             }
         } else if (vehicleDef.fallbackColor) {
             ctx.fillStyle = vehicleDef.fallbackColor;
