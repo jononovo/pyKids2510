@@ -1094,26 +1094,45 @@ The `import player` is required and automatically handled by the runtime.
 
 Standard Python loops work with all game commands. Each command animates normally within loops. The `time` module is auto-imported.
 
-**Farming loop example:**
+**For loop:**
 ```python
 for i in range(3):
-    forward(2)
+    forward()
+    collect()
+```
+
+**While loop with counter:**
+```python
+count = 0
+while count < 3:
+    forward()
+    collect()
+    count = count + 1
+```
+
+**Dynamic loop variable** - use the loop variable to control behavior:
+```python
+for x in range(4):
+    forward(x + 1)  # Moves 1, then 2, then 3, then 4 steps
+```
+
+**Farming loop example:**
+```python
+count = 0
+while count < 2:
     plant("corn")
-    forward(2)
-    time.sleep(5)  # Wait for sprout
-    left(2)
-    forward(2)
+    time.sleep(5)
     water()
-    forward(2)
-    time.sleep(5)  # Wait for growth
-    left(2)
-    forward(2)
+    time.sleep(5)
     harvest()
+    forward()
+    count = count + 1
 ```
 
 **Execution limits:**
 - Max execution time: 120 seconds
 - Loops can be stopped with the STOP button during `time.sleep()`
+- While loops need a stopping condition to avoid infinite loops
 
 ---
 
