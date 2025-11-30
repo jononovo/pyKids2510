@@ -961,3 +961,232 @@ showGameMessage('Hello world', 'player');
 | SignalManager | Event system for element interactions |
 | LevelLoader | Initializes levels and captures snapshots |
 | ResetManager | Handles full and soft resets |
+
+---
+
+## LMS Integration (Embedded Mode)
+
+The platform is designed to be embedded within a Learning Management System (LMS) via an iframe. When embedded, it communicates with the parent LMS through a bidirectional `postMessage` API.
+
+### Detecting Embedded Mode
+
+The platform automatically detects if it's running inside an iframe:
+
+```javascript
+isEmbedded = window.parent !== window;
+```
+
+When embedded, the platform:
+- Registers a message listener for incoming LMS commands
+- Sends progress updates to the parent LMS
+- Uses localStorage as a local cache, with the LMS as the source of truth
+
+---
+
+### Outbound Messages (Platform → LMS)
+
+The platform sends these message types to the parent LMS:
+
+#### 1. `app-ready`
+Sent when the platform has initialized and is ready to receive data.
+
+```javascript
+window.parent.postMessage({
+    type: 'app-ready',
+    currentLevelId: 'chapter1-level3'
+}, '*');
+```
+
+#### 2. `save-progress`
+Sent when student code changes (debounced by 500ms) or other progress updates occur.
+
+```javascript
+window.parent.postMessage({
+    type: 'save-progress',
+    levelId: 'chapter1-level3',
+    data: {
+        code: 'move_forward()\nturn_left()'
+    },
+    // Included for mission/quest levels:
+    chapterState: {
+        chapter: 1,
+        inventory: { coin: 5, key: 2 },
+        backpack: ['sword', 'potion'],
+        collectedItems: [{ x: 5, y: 3, type: 'coin' }],
+        structures: [{ x: 4, y: 6, type: 'bridge' }],
+        elementStates: { 'door_5_3': 'open' }
+    }
+}, '*');
+```
+
+#### 3. `checker-validation`
+Sent when a student successfully completes a level.
+
+```javascript
+window.parent.postMessage({
+    type: 'checker-validation',
+    checkerId: 'level 3',
+    valid: true,
+    // Included for mission/quest levels:
+    chapterState: { ... }
+}, '*');
+```
+
+---
+
+### Inbound Messages (LMS → Platform)
+
+The LMS sends these message types to restore student progress:
+
+#### 1. `load-progress`
+Loads progress for a specific level. Send this after receiving `app-ready`.
+
+```javascript
+// LMS sends to iframe:
+iframe.contentWindow.postMessage({
+    type: 'load-progress',
+    levelId: 'chapter1-level3',
+    code: 'move_forward()\nturn_left()',
+    completed: false,
+    // For mission/quest levels, include full chapter state:
+    chapterState: {
+        chapter: 1,
+        inventory: { coin: 5, key: 2 },
+        backpack: ['sword', 'potion'],
+        collectedItems: [{ x: 5, y: 3, type: 'coin' }],
+        structures: [],
+        elementStates: {}
+    }
+}, '*');
+```
+
+**Behavior:**
+- Updates localStorage cache
+- If `levelId` matches current level, updates the code editor immediately
+- If `chapterState` provided, loads it into `MissionState`
+
+#### 2. `load-all-progress`
+Bulk loads all progress data (useful for initial page load).
+
+```javascript
+iframe.contentWindow.postMessage({
+    type: 'load-all-progress',
+    progress: {
+        'chapter1-level1': { code: '...', completed: true },
+        'chapter1-level2': { code: '...', completed: true },
+        'chapter1-level3': { code: '...', completed: false }
+    }
+}, '*');
+```
+
+---
+
+### Recommended LMS Integration Flow
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                         LMS (Parent)                             │
+│                                                                  │
+│  1. Embed platform in iframe                                     │
+│  2. Listen for 'app-ready' message                              │
+│  3. On 'app-ready': Send 'load-progress' with saved data        │
+│  4. Listen for 'save-progress' → Store to database              │
+│  5. Listen for 'checker-validation' → Mark level complete       │
+│                                                                  │
+└──────────────────────────┬──────────────────────────────────────┘
+                           │ postMessage
+                           ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    Python Learning Platform                      │
+│                                                                  │
+│  1. Initialize and detect embedded mode                         │
+│  2. Send 'app-ready' to parent                                  │
+│  3. Receive 'load-progress' → Restore code & state              │
+│  4. On code change → Send 'save-progress'                       │
+│  5. On level complete → Send 'checker-validation'               │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### LMS Implementation Example
+
+```javascript
+// In your LMS code:
+const iframe = document.getElementById('python-learning-iframe');
+
+// Listen for messages from the platform
+window.addEventListener('message', (event) => {
+    const data = event.data;
+    if (!data || !data.type) return;
+    
+    switch (data.type) {
+        case 'app-ready':
+            // Platform is ready - send saved progress
+            const savedProgress = await fetchFromDatabase(userId, data.currentLevelId);
+            iframe.contentWindow.postMessage({
+                type: 'load-progress',
+                levelId: savedProgress.levelId,
+                code: savedProgress.code,
+                completed: savedProgress.completed,
+                chapterState: savedProgress.chapterState
+            }, '*');
+            break;
+            
+        case 'save-progress':
+            // Save student code to database
+            await saveToDatabase(userId, {
+                levelId: data.levelId,
+                code: data.data.code,
+                chapterState: data.chapterState
+            });
+            break;
+            
+        case 'checker-validation':
+            // Mark level as complete
+            await markLevelComplete(userId, data.checkerId);
+            if (data.chapterState) {
+                await saveChapterState(userId, data.chapterState);
+            }
+            break;
+    }
+});
+```
+
+---
+
+### Data to Store Per User Per Level
+
+| Data Field | Description | When to Save |
+|------------|-------------|--------------|
+| `levelId` | Unique level identifier (e.g., `chapter1-level3`) | Always |
+| `code` | Student's Python code in the editor | On every `save-progress` |
+| `completed` | Whether level was successfully completed | On `checker-validation` |
+| `chapterState` | Full mission state (inventory, collected items, etc.) | On `save-progress` and `checker-validation` for mission/quest levels |
+
+### Level ID Format
+
+Level IDs follow the format: `chapter{N}-level{M}` or a custom slug if provided in the lesson markdown.
+
+Examples:
+- `chapter1-level1`
+- `chapter1-level2`
+- `mission-collect-coins` (if slug specified in lesson file)
+
+---
+
+### Notes for LMS Developers
+
+1. **Wait for `app-ready`**: Don't send progress data until the platform signals it's ready.
+
+2. **Handle `chapterState` carefully**: Mission levels share state. When loading a mission level, include the latest `chapterState` so inventory and collected items persist.
+
+3. **Debounced saves**: The platform debounces code saves by 500ms. Your database won't be flooded with updates.
+
+4. **Local cache**: The platform uses `localStorage` as a cache. The LMS database should be the authoritative source; send `load-progress` on each session start.
+
+5. **Security**: In production, validate the message origin instead of using `'*'`:
+   ```javascript
+   if (event.origin !== 'https://your-lms-domain.com') return;
+   ```
