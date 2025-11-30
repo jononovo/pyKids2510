@@ -280,8 +280,15 @@
 
         water: {
             execute: async function() {
-                var px = Math.floor(gameState.playerPos.x);
-                var py = Math.floor(gameState.playerPos.y);
+                var placement = ProximityGuard.getPlacementPosition(1, 1);
+                if (!placement) {
+                    if (window.showGameMessage) showGameMessage('Nothing to water here', 'info');
+                    await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
+                    return;
+                }
+                
+                var px = placement.x;
+                var py = placement.y;
                 
                 if (gameState.farmPlots) {
                     var plot = gameState.farmPlots.find(function(p) { return p.x === px && p.y === py; });
@@ -462,16 +469,34 @@
             execute: async function(cropName) {
                 cropName = String(cropName || 'wheat').replace(/^["']|["']$/g, '');
                 
-                var px = Math.floor(gameState.playerPos.x);
-                var py = Math.floor(gameState.playerPos.y);
+                var placement = ProximityGuard.getPlacementPosition(1, 1);
+                if (!placement) {
+                    if (window.showGameMessage) showGameMessage('Cannot plant here', 'error');
+                    await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
+                    return;
+                }
+                
+                var px = placement.x;
+                var py = placement.y;
+                
+                var placeCheck = ProximityGuard.canPlaceAt(px, py, 1, 1);
+                if (!placeCheck.valid) {
+                    if (window.showGameMessage) showGameMessage(placeCheck.reason || 'Cannot plant here', 'error');
+                    await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
+                    return;
+                }
                 
                 if (!gameState.farmPlots) gameState.farmPlots = [];
                 
-                var existingPlot = gameState.farmPlots.find(function(p) { return p.x === px && p.y === py; });
-                if (existingPlot) {
-                    if (window.showGameMessage) showGameMessage('Already planted here!', 'error');
-                    await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
-                    return;
+                var existingPlotIndex = gameState.farmPlots.findIndex(function(p) { return p.x === px && p.y === py; });
+                if (existingPlotIndex !== -1) {
+                    var oldPlot = gameState.farmPlots[existingPlotIndex];
+                    oldPlot.cancelled = true;
+                    if (oldPlot.timerId) {
+                        clearTimeout(oldPlot.timerId);
+                        oldPlot.timerId = null;
+                    }
+                    gameState.farmPlots.splice(existingPlotIndex, 1);
                 }
                 
                 var plot = {
@@ -502,8 +527,15 @@
 
         harvest: {
             execute: async function() {
-                var px = Math.floor(gameState.playerPos.x);
-                var py = Math.floor(gameState.playerPos.y);
+                var placement = ProximityGuard.getPlacementPosition(1, 1);
+                if (!placement) {
+                    if (window.showGameMessage) showGameMessage('Nothing to harvest here', 'error');
+                    await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
+                    return;
+                }
+                
+                var px = placement.x;
+                var py = placement.y;
                 
                 if (!gameState.farmPlots) {
                     if (window.showGameMessage) showGameMessage('Nothing to harvest here', 'error');
@@ -566,7 +598,7 @@
     
     window.gameCommand_backpack_append = async function(itemType) {
         var guardResult = ProximityGuard.require({
-            mode: 'self',
+            mode: 'forward',
             sections: ['collectibles'],
             errorTemplate: ProximityGuard.Messages.NOTHING_HERE
         });
@@ -623,6 +655,115 @@
         await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
         return result;
     };
+    
+    window.gameCommand_backpack_pop = async function(arg) {
+        var backpack = window.MissionState ? MissionState.getBackpack() : (gameState.backpack || []);
+        
+        if (backpack.length === 0) {
+            if (window.showGameMessage) showGameMessage('Backpack is empty!', 'error');
+            return { success: false, message: 'Backpack is empty' };
+        }
+        
+        var placement = ProximityGuard.getPlacementPosition(1, 1);
+        if (!placement) {
+            if (window.showGameMessage) showGameMessage('Cannot drop item here', 'error');
+            return { success: false, message: 'Cannot drop item here' };
+        }
+        
+        var placeCheck = ProximityGuard.canPlaceAt(placement.x, placement.y, 1, 1);
+        if (!placeCheck.valid) {
+            if (window.showGameMessage) showGameMessage(placeCheck.reason || 'Cannot drop item here', 'error');
+            return { success: false, message: placeCheck.reason || 'Cannot drop item here' };
+        }
+        
+        var removeIndex = -1;
+        var useIndexRemoval = false;
+        var searchItemName = null;
+        
+        if (arg === undefined || arg === null) {
+            removeIndex = backpack.length - 1;
+            useIndexRemoval = true;
+        } else if (typeof arg === 'number') {
+            removeIndex = arg;
+            if (removeIndex < 0) {
+                removeIndex = backpack.length + removeIndex;
+            }
+            if (removeIndex < 0 || removeIndex >= backpack.length) {
+                if (window.showGameMessage) showGameMessage('Invalid backpack index: ' + arg, 'error');
+                return { success: false, message: 'Invalid backpack index' };
+            }
+            useIndexRemoval = true;
+        } else {
+            var cleanedArg = String(arg).replace(/^["']|["']$/g, '');
+            
+            if (/^-?\d+$/.test(cleanedArg)) {
+                var numericIndex = parseInt(cleanedArg, 10);
+                if (numericIndex < 0) {
+                    numericIndex = backpack.length + numericIndex;
+                }
+                if (numericIndex >= 0 && numericIndex < backpack.length) {
+                    removeIndex = numericIndex;
+                    useIndexRemoval = true;
+                } else {
+                    if (window.showGameMessage) showGameMessage('Invalid backpack index: ' + arg, 'error');
+                    return { success: false, message: 'Invalid backpack index' };
+                }
+            } else {
+                searchItemName = cleanedArg;
+                removeIndex = backpack.indexOf(searchItemName);
+                if (removeIndex === -1) {
+                    if (window.showGameMessage) showGameMessage(searchItemName + ' not found in backpack', 'error');
+                    return { success: false, message: searchItemName + ' not found in backpack' };
+                }
+                useIndexRemoval = false;
+            }
+        }
+        
+        var removalResult;
+        if (window.MissionState) {
+            if (useIndexRemoval) {
+                removalResult = MissionState.removeFromBackpackAt(removeIndex);
+            } else {
+                removalResult = MissionState.removeFromBackpack(searchItemName);
+            }
+            gameState.backpack = MissionState.getBackpack();
+        } else {
+            var removedItem = backpack.splice(removeIndex, 1)[0];
+            removalResult = { success: true, item: removedItem };
+            gameState.backpack = backpack;
+        }
+        
+        if (!removalResult || !removalResult.success) {
+            var errorMsg = (removalResult && removalResult.message) || 'Failed to remove item from backpack';
+            if (window.showGameMessage) showGameMessage(errorMsg, 'error');
+            return { success: false, message: errorMsg };
+        }
+        
+        var droppedItemType = removalResult.item;
+        
+        var droppedElement = {
+            x: placement.x,
+            y: placement.y,
+            type: droppedItemType,
+            section: 'collectibles',
+            id: 'dropped_' + droppedItemType + '_' + placement.x + '_' + placement.y + '_' + Date.now(),
+            trigger: 'on_step'
+        };
+        
+        if (window.ElementInteractionManager) {
+            ElementInteractionManager.elements.push(droppedElement);
+            if (ElementInteractionManager.elementStates[droppedElement.id]) {
+                delete ElementInteractionManager.elementStates[droppedElement.id];
+            }
+        }
+        
+        updateBackpackDisplay();
+        await render();
+        if (window.showGameMessage) showGameMessage('Dropped ' + droppedItemType, 'success');
+        
+        await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
+        return { success: true, message: 'Dropped ' + droppedItemType, item: droppedItemType };
+    };
 
     // ========== INVENTORY DICTIONARY ACCESS ==========
     
@@ -652,7 +793,7 @@
         
         if (diff > 0) {
             var guardResult = ProximityGuard.check({
-                mode: 'self',
+                mode: 'forward',
                 sections: ['collectibles'],
                 typeMatch: key
             });
