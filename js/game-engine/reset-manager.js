@@ -14,12 +14,12 @@
             this.resetPlayerState(gameState);
             this.resetVehicles(gameState);
             this.resetSignalListeners();
+            this.resetMissionState(gameState);
             this.resetElements(gameState);
             this.resetCollectibles(gameState);
             this.resetBuiltElements(gameState);
             this.resetFarmPlots(gameState);
             this.resetInventory(gameState);
-            this.resetMissionState(gameState);
             this.resetEditor();
             this.resetUI(gameState);
             
