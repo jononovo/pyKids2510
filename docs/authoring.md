@@ -1098,6 +1098,33 @@ player.move_forward()
 
 The `import player` is required and automatically handled by the runtime.
 
+### Loops and Timing
+
+Standard Python loops work with all game commands. Each command animates normally within loops.
+
+**For loop example:**
+```python
+import time
+
+for i in range(3):
+    forward(2)
+    plant("corn")
+    forward(2)
+    time.sleep(5)
+    left(2)
+    forward(2)
+    water()
+    forward(2)
+    time.sleep(5)
+    left(2)
+    forward(2)
+    harvest()
+```
+
+**Execution limits:**
+- Max execution time: 120 seconds
+- Loops can be stopped with the STOP button during `time.sleep()`
+
 ---
 
 ## Mission State System
