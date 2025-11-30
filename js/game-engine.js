@@ -3,6 +3,33 @@
 // Note: Tile/element rendering is in js/map/ modules
 // ============================================
 
+// Double-buffering setup - prevents flicker during async rendering
+let offscreenCanvas = null;
+let offscreenCtx = null;
+let isBufferedRendering = false;
+let renderInProgress = false;
+let renderPending = false;
+
+function ensureOffscreenCanvas(width, height) {
+    if (!offscreenCanvas || offscreenCanvas.width !== width || offscreenCanvas.height !== height) {
+        offscreenCanvas = document.createElement('canvas');
+        offscreenCanvas.width = width;
+        offscreenCanvas.height = height;
+        offscreenCtx = offscreenCanvas.getContext('2d');
+    }
+    return offscreenCtx;
+}
+
+function getRenderContext() {
+    if (isBufferedRendering && offscreenCtx) {
+        return offscreenCtx;
+    }
+    const canvas = document.getElementById('game-canvas');
+    return canvas ? canvas.getContext('2d') : null;
+}
+
+window.getRenderContext = getRenderContext;
+
 // Get tile ID by name (for dynamic tile lookup)
 function getTileIdByName(name) {
     const tileManifest = window.tileManifest;
@@ -32,8 +59,7 @@ function checkAccessRequirements(requires) {
 
 // Draw fallback pink pixel character when no sprite is loaded
 function drawFallbackCharacter(cx, animY) {
-    const canvas = document.getElementById('game-canvas');
-    const ctx = canvas ? canvas.getContext('2d') : null;
+    const ctx = getRenderContext();
     if (!ctx) return;
     
     ctx.fillStyle = '#ff69b4';
@@ -52,8 +78,7 @@ function drawFallbackCharacter(cx, animY) {
 }
 
 function drawCharacter(x, y, direction) {
-    const canvas = document.getElementById('game-canvas');
-    const ctx = canvas ? canvas.getContext('2d') : null;
+    const ctx = getRenderContext();
     if (!ctx) return;
     
     const TILE_SIZE = window.TILE_SIZE || 32;
@@ -112,8 +137,7 @@ function drawCharacter(x, y, direction) {
 }
 
 function drawCharacterWithHop(x, y, direction, hopHeight) {
-    const canvas = document.getElementById('game-canvas');
-    const ctx = canvas ? canvas.getContext('2d') : null;
+    const ctx = getRenderContext();
     if (!ctx) return;
     
     const TILE_SIZE = window.TILE_SIZE || 32;
@@ -157,22 +181,36 @@ function drawCharacterWithHop(x, y, direction, hopHeight) {
 
 async function render() {
     const canvas = document.getElementById('game-canvas');
-    const ctx = canvas ? canvas.getContext('2d') : null;
-    if (!ctx) return;
+    const visibleCtx = canvas ? canvas.getContext('2d') : null;
+    if (!visibleCtx) return;
+    
+    // Prevent re-entry: if render is in progress, queue one for later
+    if (renderInProgress) {
+        renderPending = true;
+        return;
+    }
+    renderInProgress = true;
     
     const TILE_SIZE = window.TILE_SIZE || 32;
     
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
+    // Handle empty state directly on visible canvas (no flicker risk)
     if (!courseData || gameState.mapData.length === 0) {
-        ctx.fillStyle = '#2a3f2a';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = '#7fc542';
-        ctx.font = '20px Courier New';
-        ctx.textAlign = 'center';
-        ctx.fillText('Load a chapter to begin', canvas.width/2, canvas.height/2);
+        visibleCtx.fillStyle = '#2a3f2a';
+        visibleCtx.fillRect(0, 0, canvas.width, canvas.height);
+        visibleCtx.fillStyle = '#7fc542';
+        visibleCtx.font = '20px Courier New';
+        visibleCtx.textAlign = 'center';
+        visibleCtx.fillText('Load a chapter to begin', canvas.width/2, canvas.height/2);
+        renderInProgress = false;
         return;
     }
+    
+    // Enable double-buffering: draw to offscreen canvas first
+    ensureOffscreenCanvas(canvas.width, canvas.height);
+    isBufferedRendering = true;
+    const ctx = offscreenCtx;
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     
     if (gameState.backgroundImage) {
         ctx.drawImage(gameState.backgroundImage, 0, 0, canvas.width, canvas.height);
@@ -218,7 +256,18 @@ async function render() {
         }
     }
     
+    // Copy finished frame to visible canvas in one atomic operation
+    isBufferedRendering = false;
+    visibleCtx.drawImage(offscreenCanvas, 0, 0);
+    
     if (window.updateViewport) window.updateViewport();
+    
+    // Check if another render was requested while we were busy
+    renderInProgress = false;
+    if (renderPending) {
+        renderPending = false;
+        render();
+    }
 }
 
 function animateMove(fromX, fromY, toX, toY, direction) {
@@ -237,8 +286,8 @@ function animateMove(fromX, fromY, toX, toY, direction) {
         
         async function animate() {
             const canvas = document.getElementById('game-canvas');
-            const ctx = canvas ? canvas.getContext('2d') : null;
-            if (!ctx) return;
+            const visibleCtx = canvas ? canvas.getContext('2d') : null;
+            if (!visibleCtx) return;
             
             const elapsed = Date.now() - startTime;
             const progress = Math.min(elapsed / moveDuration, 1);
@@ -261,6 +310,11 @@ function animateMove(fromX, fromY, toX, toY, direction) {
             gameState.playerPos.y = fromY + (toY - fromY) * easeProgress;
             
             if (window.updateViewport) window.updateViewport();
+            
+            // Enable double-buffering for animation frame
+            ensureOffscreenCanvas(canvas.width, canvas.height);
+            isBufferedRendering = true;
+            const ctx = offscreenCtx;
             
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
@@ -308,6 +362,10 @@ function animateMove(fromX, fromY, toX, toY, direction) {
                     window.drawTileHover(gameState.hoveredTile.x, gameState.hoveredTile.y);
                 }
             }
+            
+            // Copy finished frame to visible canvas
+            isBufferedRendering = false;
+            visibleCtx.drawImage(offscreenCanvas, 0, 0);
             
             if (progress < 1) {
                 requestAnimationFrame(() => animate());

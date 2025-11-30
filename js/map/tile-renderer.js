@@ -132,8 +132,7 @@
     }
     
     async function drawTile(x, y, type) {
-        const canvas = document.getElementById('game-canvas');
-        const ctx = canvas ? canvas.getContext('2d') : null;
+        const ctx = window.getRenderContext ? window.getRenderContext() : null;
         if (!ctx) return;
         
         const TILE_SIZE = window.TILE_SIZE || 32;
@@ -185,8 +184,7 @@
     }
     
     async function drawStar(x, y) {
-        const canvas = document.getElementById('game-canvas');
-        const ctx = canvas ? canvas.getContext('2d') : null;
+        const ctx = window.getRenderContext ? window.getRenderContext() : null;
         if (!ctx) return;
         
         const TILE_SIZE = window.TILE_SIZE || 32;
@@ -206,8 +204,7 @@
     }
     
     function drawTileHover(x, y) {
-        const canvas = document.getElementById('game-canvas');
-        const ctx = canvas ? canvas.getContext('2d') : null;
+        const ctx = window.getRenderContext ? window.getRenderContext() : null;
         if (!ctx) return;
         
         const TILE_SIZE = window.TILE_SIZE || 32;
