@@ -10,6 +10,7 @@
         manifest: null,
         elements: [],
         elementStates: {},
+        currentLevelData: null,
         
         async init() {
             await this.loadManifest();
@@ -140,22 +141,11 @@
         },
 
         loadLevelElements(levelData) {
+            this.currentLevelData = levelData;
             this.elements = [];
             this.elementStates = {};
             
-            if (window.SignalManager) {
-                SignalManager.reset();
-            }
-            
-            if (levelData.map && levelData.map.collectibles) {
-                const parsed = this.parseElementSection('collectibles', levelData.map.collectibles);
-                this.elements.push(...parsed);
-            }
-
-            if (levelData.map && levelData.map.transforms) {
-                const parsed = this.parseElementSection('transforms', levelData.map.transforms);
-                this.elements.push(...parsed);
-            }
+            this._parseElementsFromLevelData(levelData);
 
             if (window.VehicleInteractionManager) {
                 VehicleInteractionManager.loadLevelVehicles(levelData);
@@ -169,12 +159,26 @@
             return this.elements;
         },
         
+        _parseElementsFromLevelData(levelData) {
+            this.elements = [];
+            
+            if (levelData.map && levelData.map.collectibles) {
+                const parsed = this.parseElementSection('collectibles', levelData.map.collectibles);
+                this.elements.push(...parsed);
+            }
+
+            if (levelData.map && levelData.map.transforms) {
+                const parsed = this.parseElementSection('transforms', levelData.map.transforms);
+                this.elements.push(...parsed);
+            }
+        },
+        
         _registerSignalListeners() {
             if (!window.SignalManager) return;
             
             for (const element of this.elements) {
                 if (element.spawn) {
-                    this.elementStates[element.id] = { ...this.elementStates[element.id], hidden: true };
+                    this.elementStates[element.id] = { ...(this.elementStates[element.id] || {}), hidden: true };
                     
                     SignalManager.subscribe(element.spawn, () => {
                         console.log('[ElementInteraction] Spawn triggered for:', element.type, 'at', element.x, element.y);
@@ -382,6 +386,27 @@
         
         reregisterSignalListeners() {
             this._registerSignalListeners();
+        },
+
+        resetStates() {
+            if (this.currentLevelData) {
+                this._parseElementsFromLevelData(this.currentLevelData);
+                console.log('[ElementInteraction] Reloaded', this.elements.length, 'elements from level data');
+            }
+            
+            this.elementStates = {};
+            
+            this._registerSignalListeners();
+            console.log('[ElementInteraction] Re-registered signal listeners (set hidden defaults)');
+            
+            if (window.levelEntrySnapshot && window.levelEntrySnapshot.missionState && 
+                window.levelEntrySnapshot.missionState.elementStates) {
+                const snapshotStates = window.levelEntrySnapshot.missionState.elementStates;
+                for (const key in snapshotStates) {
+                    this.elementStates[key] = { ...(this.elementStates[key] || {}), ...snapshotStates[key] };
+                }
+                console.log('[ElementInteraction] Applied elementStates from snapshot');
+            }
         },
 
         resetToSnapshot(snapshot) {

@@ -12,14 +12,19 @@
             console.log('[ResetManager] Performing full reset');
             
             this.resetPlayerState(gameState);
-            this.resetVehicles(gameState);
-            this.resetSignalListeners();
+            this.resetMissionState(gameState);
+            this.resetInventory(gameState);
+            
+            if (window.SignalManager) {
+                SignalManager.reset();
+                console.log('[ResetManager] SignalManager.reset() completed');
+            }
+            
             this.resetElements(gameState);
+            this.resetVehicles(gameState);
             this.resetCollectibles(gameState);
             this.resetBuiltElements(gameState);
             this.resetFarmPlots(gameState);
-            this.resetInventory(gameState);
-            this.resetMissionState(gameState);
             this.resetEditor();
             this.resetUI(gameState);
             
@@ -33,8 +38,13 @@
             console.log('[ResetManager] Performing soft reset (Run Code)');
             
             this.resetPlayerPosition(gameState);
+            
+            if (window.SignalManager) {
+                SignalManager.reset();
+            }
+            
+            this.resetElements(gameState);
             this.resetVehicles(gameState);
-            this.resetSignalListeners();
             this.resetFarmPlots(gameState);
             
             if (typeof render === 'function') render();
@@ -65,26 +75,34 @@
         },
 
         resetVehicles(gameState) {
-            if (window.VehicleInteractionManager) {
-                VehicleInteractionManager.reset(gameState);
+            console.log('[ResetManager] resetVehicles called');
+            if (window.VehicleInteractionManager && window.VehicleInteractionManager.resetStates) {
+                VehicleInteractionManager.resetStates(gameState);
+                console.log('[ResetManager] VehicleInteractionManager.resetStates() completed');
             }
         },
         
         resetSignalListeners() {
+            console.log('[ResetManager] resetSignalListeners called');
             if (window.SignalManager) {
                 SignalManager.reset();
+                console.log('[ResetManager] SignalManager.reset() completed');
             }
             if (window.ElementInteractionManager) {
                 ElementInteractionManager.reregisterSignalListeners();
+                console.log('[ResetManager] ElementInteractionManager.reregisterSignalListeners() completed');
             }
             if (window.VehicleInteractionManager) {
                 VehicleInteractionManager.reregisterSignalListeners();
+                console.log('[ResetManager] VehicleInteractionManager.reregisterSignalListeners() completed');
             }
         },
 
         resetElements(gameState) {
+            console.log('[ResetManager] resetElements called');
             if (window.ElementInteractionManager && window.ElementInteractionManager.resetStates) {
                 ElementInteractionManager.resetStates();
+                console.log('[ResetManager] ElementInteractionManager.resetStates() completed');
             }
         },
 

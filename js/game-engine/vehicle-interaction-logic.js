@@ -9,6 +9,7 @@
     const VehicleInteractionManager = {
         vehicles: [],
         vehicleStates: {},
+        currentLevelData: null,
         
         currentVehicle: null,
         originalPlayerSprite: null,
@@ -36,17 +37,13 @@
         },
 
         loadLevelVehicles(levelData) {
+            this.currentLevelData = levelData;
             this.vehicles = [];
             this.vehicleStates = {};
             this.currentVehicle = null;
             this.originalPlayerSprite = null;
             
-            if (!levelData.map || !levelData.map.vehicles) {
-                return this.vehicles;
-            }
-
-            const parsed = this.parseVehicleSection(levelData.map.vehicles);
-            this.vehicles.push(...parsed);
+            this._parseVehiclesFromLevelData(levelData);
             
             this._registerSignalListeners();
             
@@ -54,12 +51,23 @@
             return this.vehicles;
         },
         
+        _parseVehiclesFromLevelData(levelData) {
+            this.vehicles = [];
+            
+            if (!levelData || !levelData.map || !levelData.map.vehicles) {
+                return;
+            }
+
+            const parsed = this.parseVehicleSection(levelData.map.vehicles);
+            this.vehicles.push(...parsed);
+        },
+        
         _registerSignalListeners() {
             if (!window.SignalManager) return;
             
             for (const vehicle of this.vehicles) {
                 if (vehicle.spawn) {
-                    this.vehicleStates[vehicle.id] = { ...this.vehicleStates[vehicle.id], hidden: true };
+                    this.vehicleStates[vehicle.id] = { ...(this.vehicleStates[vehicle.id] || {}), hidden: true };
                     
                     SignalManager.subscribe(vehicle.spawn, () => {
                         console.log('[VehicleInteraction] Spawn triggered for:', vehicle.type, 'at', vehicle.x, vehicle.y);
@@ -303,6 +311,29 @@
                     vehicle.y = vehicle.originalY;
                 }
             }
+        },
+        
+        resetStates(gameState) {
+            if (this.isBoarded() && gameState) {
+                gameState.characterType = 'player';
+                gameState.spriteImage = this.originalPlayerSprite;
+                gameState.spriteFrameWidth = this.originalSpriteFrameWidth;
+                gameState.spriteFrameHeight = this.originalSpriteFrameHeight;
+            }
+            
+            if (this.currentLevelData) {
+                this._parseVehiclesFromLevelData(this.currentLevelData);
+                console.log('[VehicleInteraction] Reloaded', this.vehicles.length, 'vehicles from level data');
+            }
+            
+            this.vehicleStates = {};
+            this.currentVehicle = null;
+            this.originalPlayerSprite = null;
+            this.originalSpriteFrameWidth = 0;
+            this.originalSpriteFrameHeight = 0;
+            
+            this._registerSignalListeners();
+            console.log('[VehicleInteraction] Re-registered signal listeners (set hidden defaults)');
         },
         
         reregisterSignalListeners() {

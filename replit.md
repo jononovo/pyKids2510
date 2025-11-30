@@ -61,7 +61,20 @@ The `LevelLoader` (`js/game-engine/level-loader.js`) centralizes game state init
 A `ResetManager` (`js/game-engine/reset-manager.js`) provides two reset modes:
 -   **Full Reset**: Clears all game state, inventory, code, and UI.
 -   **Soft Reset**: Resets player position and vehicles only, preserving run-lock.
-Both clear and re-register signal listeners to ensure consistent state.
+
+**Reset Flow (Fixed Nov 2025):**
+1. `SignalManager.reset()` clears all signal listeners first
+2. `resetElements()` → `resetStates()`:
+   - Reloads fresh elements from `currentLevelData`
+   - Clears `elementStates` to empty
+   - Calls `_registerSignalListeners()` to set hidden:true for spawn elements
+   - Applies snapshot states on top (for level 2+ carried-over state)
+3. `resetVehicles()` → `resetStates()`:
+   - Reloads fresh vehicles from `currentLevelData`
+   - Clears `vehicleStates` to empty
+   - Calls `_registerSignalListeners()` to set hidden:true for spawn vehicles
+
+**Critical Design Note**: `SignalManager.reset()` must only be called from `ResetManager`, not during `loadLevelElements()`. This ensures spawn-triggered signal listeners survive initial level load and properly gate spawn-only elements/vehicles until their trigger signals fire.
 
 ### Coordinate Utilities
 
