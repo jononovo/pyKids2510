@@ -168,6 +168,17 @@ const MissionState = (function() {
         return { success: true, message: 'Removed ' + item + ' from backpack', item: item };
     }
     
+    function removeFromBackpackAt(index) {
+        if (index < 0 || index >= backpack.length) {
+            return { success: false, message: 'Invalid backpack index: ' + index };
+        }
+        const item = backpack[index];
+        backpack.splice(index, 1);
+        console.log('[MissionState] Removed from backpack at index', index, ':', item, '- Backpack:', [...backpack]);
+        saveToStorage();
+        return { success: true, message: 'Removed ' + item + ' from backpack', item: item };
+    }
+    
     function recordCollectible(x, y, type) {
         if (isCollected(x, y)) return false;
         
@@ -268,6 +279,7 @@ const MissionState = (function() {
         isBackpackFull: isBackpackFull,
         addToBackpack: addToBackpack,
         removeFromBackpack: removeFromBackpack,
+        removeFromBackpackAt: removeFromBackpackAt,
         recordCollectible: recordCollectible,
         isCollected: isCollected,
         filterCollectibles: filterCollectibles,

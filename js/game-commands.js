@@ -655,6 +655,85 @@
         await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
         return result;
     };
+    
+    window.gameCommand_backpack_pop = async function(arg) {
+        var backpack = window.MissionState ? MissionState.getBackpack() : (gameState.backpack || []);
+        
+        if (backpack.length === 0) {
+            if (window.showGameMessage) showGameMessage('Backpack is empty!', 'error');
+            return { success: false, message: 'Backpack is empty' };
+        }
+        
+        var placement = ProximityGuard.getPlacementPosition(1, 1);
+        if (!placement) {
+            if (window.showGameMessage) showGameMessage('Cannot drop item here', 'error');
+            return { success: false, message: 'Cannot drop item here' };
+        }
+        
+        var placeCheck = ProximityGuard.canPlaceAt(placement.x, placement.y, 1, 1);
+        if (!placeCheck.valid) {
+            if (window.showGameMessage) showGameMessage(placeCheck.reason || 'Cannot drop item here', 'error');
+            return { success: false, message: placeCheck.reason || 'Cannot drop item here' };
+        }
+        
+        var itemType = null;
+        var removeIndex = -1;
+        
+        if (arg === undefined || arg === null) {
+            removeIndex = backpack.length - 1;
+            itemType = backpack[removeIndex];
+        } else if (typeof arg === 'number') {
+            removeIndex = arg;
+            if (removeIndex < 0 || removeIndex >= backpack.length) {
+                if (window.showGameMessage) showGameMessage('Invalid backpack index: ' + removeIndex, 'error');
+                return { success: false, message: 'Invalid backpack index' };
+            }
+            itemType = backpack[removeIndex];
+        } else {
+            var searchItem = String(arg).replace(/^["']|["']$/g, '');
+            removeIndex = backpack.indexOf(searchItem);
+            if (removeIndex === -1) {
+                if (window.showGameMessage) showGameMessage(searchItem + ' not found in backpack', 'error');
+                return { success: false, message: searchItem + ' not found in backpack' };
+            }
+            itemType = searchItem;
+        }
+        
+        if (window.MissionState) {
+            if (typeof arg === 'string') {
+                MissionState.removeFromBackpack(itemType);
+            } else {
+                MissionState.removeFromBackpackAt(removeIndex);
+            }
+            gameState.backpack = MissionState.getBackpack();
+        } else {
+            backpack.splice(removeIndex, 1);
+            gameState.backpack = backpack;
+        }
+        
+        var droppedElement = {
+            x: placement.x,
+            y: placement.y,
+            type: itemType,
+            section: 'collectibles',
+            id: 'dropped_' + itemType + '_' + placement.x + '_' + placement.y + '_' + Date.now(),
+            trigger: 'on_step'
+        };
+        
+        if (window.ElementInteractionManager) {
+            ElementInteractionManager.elements.push(droppedElement);
+            if (ElementInteractionManager.elementStates[droppedElement.id]) {
+                delete ElementInteractionManager.elementStates[droppedElement.id];
+            }
+        }
+        
+        updateBackpackDisplay();
+        await render();
+        if (window.showGameMessage) showGameMessage('Dropped ' + itemType, 'success');
+        
+        await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
+        return { success: true, message: 'Dropped ' + itemType, item: itemType };
+    };
 
     // ========== INVENTORY DICTIONARY ACCESS ==========
     
