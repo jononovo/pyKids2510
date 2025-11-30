@@ -73,7 +73,7 @@
         return { line: lineNum, error: errorMsg };
     }
 
-    var CODE_PRELUDE = 'from player import *\nimport player\n';
+    var CODE_PRELUDE = 'from player import *\nimport player\nimport time\n';
 
     async function executePythonCode(code) {
         configureSkulpt();
