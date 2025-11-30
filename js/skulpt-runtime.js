@@ -75,6 +75,12 @@
 
     var CODE_PRELUDE = 'from player import *\nimport player\nimport time\n';
 
+    function sanitizeCode(code) {
+        return code
+            .replace(/[\u201C\u201D]/g, '"')
+            .replace(/[\u2018\u2019]/g, "'");
+    }
+
     async function executePythonCode(code) {
         configureSkulpt();
         
@@ -97,7 +103,7 @@
             }
         }
 
-        var fullCode = CODE_PRELUDE + code;
+        var fullCode = CODE_PRELUDE + sanitizeCode(code);
         var executionError = null;
 
         try {
