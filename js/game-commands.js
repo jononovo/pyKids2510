@@ -280,8 +280,15 @@
 
         water: {
             execute: async function() {
-                var px = Math.floor(gameState.playerPos.x);
-                var py = Math.floor(gameState.playerPos.y);
+                var placement = ProximityGuard.getPlacementPosition(1, 1);
+                if (!placement) {
+                    if (window.showGameMessage) showGameMessage('Nothing to water here', 'info');
+                    await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
+                    return;
+                }
+                
+                var px = placement.x;
+                var py = placement.y;
                 
                 if (gameState.farmPlots) {
                     var plot = gameState.farmPlots.find(function(p) { return p.x === px && p.y === py; });
@@ -462,16 +469,34 @@
             execute: async function(cropName) {
                 cropName = String(cropName || 'wheat').replace(/^["']|["']$/g, '');
                 
-                var px = Math.floor(gameState.playerPos.x);
-                var py = Math.floor(gameState.playerPos.y);
+                var placement = ProximityGuard.getPlacementPosition(1, 1);
+                if (!placement) {
+                    if (window.showGameMessage) showGameMessage('Cannot plant here', 'error');
+                    await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
+                    return;
+                }
+                
+                var px = placement.x;
+                var py = placement.y;
+                
+                var placeCheck = ProximityGuard.canPlaceAt(px, py, 1, 1);
+                if (!placeCheck.valid) {
+                    if (window.showGameMessage) showGameMessage(placeCheck.reason || 'Cannot plant here', 'error');
+                    await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
+                    return;
+                }
                 
                 if (!gameState.farmPlots) gameState.farmPlots = [];
                 
-                var existingPlot = gameState.farmPlots.find(function(p) { return p.x === px && p.y === py; });
-                if (existingPlot) {
-                    if (window.showGameMessage) showGameMessage('Already planted here!', 'error');
-                    await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
-                    return;
+                var existingPlotIndex = gameState.farmPlots.findIndex(function(p) { return p.x === px && p.y === py; });
+                if (existingPlotIndex !== -1) {
+                    var oldPlot = gameState.farmPlots[existingPlotIndex];
+                    oldPlot.cancelled = true;
+                    if (oldPlot.timerId) {
+                        clearTimeout(oldPlot.timerId);
+                        oldPlot.timerId = null;
+                    }
+                    gameState.farmPlots.splice(existingPlotIndex, 1);
                 }
                 
                 var plot = {
@@ -502,8 +527,15 @@
 
         harvest: {
             execute: async function() {
-                var px = Math.floor(gameState.playerPos.x);
-                var py = Math.floor(gameState.playerPos.y);
+                var placement = ProximityGuard.getPlacementPosition(1, 1);
+                if (!placement) {
+                    if (window.showGameMessage) showGameMessage('Nothing to harvest here', 'error');
+                    await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
+                    return;
+                }
+                
+                var px = placement.x;
+                var py = placement.y;
                 
                 if (!gameState.farmPlots) {
                     if (window.showGameMessage) showGameMessage('Nothing to harvest here', 'error');
