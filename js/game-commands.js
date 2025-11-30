@@ -676,47 +676,77 @@
             return { success: false, message: placeCheck.reason || 'Cannot drop item here' };
         }
         
-        var itemType = null;
         var removeIndex = -1;
+        var useIndexRemoval = false;
+        var searchItemName = null;
         
         if (arg === undefined || arg === null) {
             removeIndex = backpack.length - 1;
-            itemType = backpack[removeIndex];
+            useIndexRemoval = true;
         } else if (typeof arg === 'number') {
             removeIndex = arg;
+            if (removeIndex < 0) {
+                removeIndex = backpack.length + removeIndex;
+            }
             if (removeIndex < 0 || removeIndex >= backpack.length) {
-                if (window.showGameMessage) showGameMessage('Invalid backpack index: ' + removeIndex, 'error');
+                if (window.showGameMessage) showGameMessage('Invalid backpack index: ' + arg, 'error');
                 return { success: false, message: 'Invalid backpack index' };
             }
-            itemType = backpack[removeIndex];
+            useIndexRemoval = true;
         } else {
-            var searchItem = String(arg).replace(/^["']|["']$/g, '');
-            removeIndex = backpack.indexOf(searchItem);
-            if (removeIndex === -1) {
-                if (window.showGameMessage) showGameMessage(searchItem + ' not found in backpack', 'error');
-                return { success: false, message: searchItem + ' not found in backpack' };
+            var cleanedArg = String(arg).replace(/^["']|["']$/g, '');
+            
+            if (/^-?\d+$/.test(cleanedArg)) {
+                var numericIndex = parseInt(cleanedArg, 10);
+                if (numericIndex < 0) {
+                    numericIndex = backpack.length + numericIndex;
+                }
+                if (numericIndex >= 0 && numericIndex < backpack.length) {
+                    removeIndex = numericIndex;
+                    useIndexRemoval = true;
+                } else {
+                    if (window.showGameMessage) showGameMessage('Invalid backpack index: ' + arg, 'error');
+                    return { success: false, message: 'Invalid backpack index' };
+                }
+            } else {
+                searchItemName = cleanedArg;
+                removeIndex = backpack.indexOf(searchItemName);
+                if (removeIndex === -1) {
+                    if (window.showGameMessage) showGameMessage(searchItemName + ' not found in backpack', 'error');
+                    return { success: false, message: searchItemName + ' not found in backpack' };
+                }
+                useIndexRemoval = false;
             }
-            itemType = searchItem;
         }
         
+        var removalResult;
         if (window.MissionState) {
-            if (typeof arg === 'string') {
-                MissionState.removeFromBackpack(itemType);
+            if (useIndexRemoval) {
+                removalResult = MissionState.removeFromBackpackAt(removeIndex);
             } else {
-                MissionState.removeFromBackpackAt(removeIndex);
+                removalResult = MissionState.removeFromBackpack(searchItemName);
             }
             gameState.backpack = MissionState.getBackpack();
         } else {
-            backpack.splice(removeIndex, 1);
+            var removedItem = backpack.splice(removeIndex, 1)[0];
+            removalResult = { success: true, item: removedItem };
             gameState.backpack = backpack;
         }
+        
+        if (!removalResult || !removalResult.success) {
+            var errorMsg = (removalResult && removalResult.message) || 'Failed to remove item from backpack';
+            if (window.showGameMessage) showGameMessage(errorMsg, 'error');
+            return { success: false, message: errorMsg };
+        }
+        
+        var droppedItemType = removalResult.item;
         
         var droppedElement = {
             x: placement.x,
             y: placement.y,
-            type: itemType,
+            type: droppedItemType,
             section: 'collectibles',
-            id: 'dropped_' + itemType + '_' + placement.x + '_' + placement.y + '_' + Date.now(),
+            id: 'dropped_' + droppedItemType + '_' + placement.x + '_' + placement.y + '_' + Date.now(),
             trigger: 'on_step'
         };
         
@@ -729,10 +759,10 @@
         
         updateBackpackDisplay();
         await render();
-        if (window.showGameMessage) showGameMessage('Dropped ' + itemType, 'success');
+        if (window.showGameMessage) showGameMessage('Dropped ' + droppedItemType, 'success');
         
         await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
-        return { success: true, message: 'Dropped ' + itemType, item: itemType };
+        return { success: true, message: 'Dropped ' + droppedItemType, item: droppedItemType };
     };
 
     // ========== INVENTORY DICTIONARY ACCESS ==========
