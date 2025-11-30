@@ -190,7 +190,7 @@
         await Promise.all(sceneryPromises);
     }
     
-    function drawCharacterVehicle(x, y, direction) {
+    function drawCharacterVehicle(x, y) {
         if (!window.VehicleInteractionManager) return;
         
         const currentVehicle = VehicleInteractionManager.getCurrentVehicle();
@@ -203,40 +203,21 @@
         if (!ctx) return;
         
         const TILE_SIZE = window.TILE_SIZE || 32;
-        const baseWidth = (vehicleDef.width || 1) * TILE_SIZE;
-        const baseHeight = (vehicleDef.height || 1) * TILE_SIZE;
-        
-        const dir = direction || window.gameState?.playerDirection || 'up';
-        
-        const rotationAngles = {
-            'up': 0,
-            'right': Math.PI / 2,
-            'down': Math.PI,
-            'left': -Math.PI / 2
-        };
-        const angle = rotationAngles[dir] || 0;
-        
-        const cx = x * TILE_SIZE + TILE_SIZE / 2;
-        const cy = y * TILE_SIZE + TILE_SIZE / 2;
+        const px = x * TILE_SIZE;
+        const py = y * TILE_SIZE;
+        const width = (vehicleDef.width || 1) * TILE_SIZE;
+        const height = (vehicleDef.height || 1) * TILE_SIZE;
         
         if (vehicleDef.path) {
             const svgPath = 'assets/map/' + vehicleDef.path;
             const cachedImg = window.getCachedSVG ? window.getCachedSVG(svgPath) : null;
             
             if (cachedImg) {
-                ctx.save();
-                ctx.translate(cx, cy);
-                ctx.rotate(angle);
-                ctx.drawImage(cachedImg, -baseWidth / 2, -baseHeight / 2, baseWidth, baseHeight);
-                ctx.restore();
+                ctx.drawImage(cachedImg, px, py, width, height);
             } else {
                 if (vehicleDef.fallbackColor) {
                     ctx.fillStyle = vehicleDef.fallbackColor;
-                    ctx.save();
-                    ctx.translate(cx, cy);
-                    ctx.rotate(angle);
-                    ctx.fillRect(-baseWidth / 2 + 4, -baseHeight / 2 + 4, baseWidth - 8, baseHeight - 8);
-                    ctx.restore();
+                    ctx.fillRect(px + 4, py + 4, width - 8, height - 8);
                 }
                 if (window.loadSVGImage) {
                     window.loadSVGImage(svgPath);
@@ -244,11 +225,7 @@
             }
         } else if (vehicleDef.fallbackColor) {
             ctx.fillStyle = vehicleDef.fallbackColor;
-            ctx.save();
-            ctx.translate(cx, cy);
-            ctx.rotate(angle);
-            ctx.fillRect(-baseWidth / 2 + 4, -baseHeight / 2 + 4, baseWidth - 8, baseHeight - 8);
-            ctx.restore();
+            ctx.fillRect(px + 4, py + 4, width - 8, height - 8);
         }
     }
     
