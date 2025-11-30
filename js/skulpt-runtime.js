@@ -77,8 +77,11 @@
 
     function sanitizeCode(code) {
         return code
-            .replace(/[\u201C\u201D]/g, '"')
-            .replace(/[\u2018\u2019]/g, "'");
+            .replace(/[\u201C\u201D\u201E\u201F\u2033\u2036]/g, '"')
+            .replace(/[\u2018\u2019\u201A\u201B\u2032\u2035]/g, "'")
+            .replace(/\u00A0/g, ' ')
+            .replace(/[\u2028\u2029]/g, '\n')
+            .replace(/[\u200B-\u200D\uFEFF]/g, '');
     }
 
     async function executePythonCode(code) {
@@ -154,7 +157,9 @@
         setButtonToStop(runBtn);
         
         var code;
-        if (window.BlocklyModeSwitcher && window.BlocklyModeSwitcher.isBlockMode()) {
+        var isBlockMode = window.BlocklyModeSwitcher && window.BlocklyModeSwitcher.isBlockMode();
+        
+        if (isBlockMode) {
             code = window.BlocklyModeSwitcher.getCode();
         } else if (window.EditorManager && window.EditorManager.isInitialized()) {
             code = window.EditorManager.getCode();
@@ -163,6 +168,12 @@
             gameState.isRunning = false;
             setButtonToRun(runBtn);
             return;
+        }
+
+        var sanitizedCode = sanitizeCode(code);
+        if (sanitizedCode !== code && !isBlockMode) {
+            window.EditorManager.updateCode(sanitizedCode);
+            code = sanitizedCode;
         }
 
         var result = await executePythonCode(code);
