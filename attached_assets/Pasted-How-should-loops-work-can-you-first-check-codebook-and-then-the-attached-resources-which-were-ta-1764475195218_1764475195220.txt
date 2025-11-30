@@ -1,0 +1,93 @@
+How should loops work?  can you first check “codebook” and then the attached resources which were taken from coding for kids:   
+while Loop	Collect eggs in barn using only 6 lines of code by repeating movement with while loop.	Level 1: Collect all eggs in barn with code limit of 6 lines. Set up variable count and use while loop:
+
+```python
+count = 0
+while count < [number_of_cycles]:
+    player.move_forward()
+    player.collect()
+    count = count + 1
+```
+
+The variable `count` is set to `0` and determines how many cycles the loop runs. The while loop uses `count` to test if loop cycle should execute. Indented movement code repeats as long as while condition returns `True`.
+
+The variable `count` increases by `1` each cycle to meet the condition for loop finalization.
+
+**Key Teaching Point**: Must indent code after loop code for it to be part of loop, otherwise code won't loop.
+
+**Caution**: While loops can fall into infinite loop (code repeated forever causing program to crash). Always set up cap or stopping point. Use `count` variable to cap number of cycles to prevent infinite loop.
+
+**Code Constraint**: Complete with only 6 lines - forces efficient loop usage instead of repeated individual commands.
+for Loop with range()	Navigate hedge maze by repeating movement pattern to reach exit.	Level 2: Use for loop to reach exit. The for loop repeats same code a set number of times:
+
+```python
+for x in range(4):
+    player.move_forward()
+    player.turn_right()
+    player.move_forward()
+    player.turn_left()
+```
+
+The `range()` determines how many times looping code runs (in this example it is four).
+
+Remember must indent code after loop code for it to be part of loop, otherwise code won't loop.
+
+Loop movements across hedge maze and reach exit to complete level.
+
+**Key Teaching Point**: For loop is simpler when you know exact number of iterations. No counter variable needed - range() handles it automatically.
+
+**Comparison to while loop**:
+- `while`: Good when condition-based (until something happens)
+- `for`: Good when count-based (do this N times)
+Integrating Functions in Loops	Traverse field, water crops, and reach exit using either for or while loop with functions.	Level 3: Use for loop or while loop to traverse field, water crops, and reach exit.
+
+**For while loop approach**:
+```python
+count = 0
+while count < 4:
+    player.move_forward()
+    player.water()  # Function called inside loop
+    count = count + 1
+```
+
+Variable `count` set to `0`, used to determine loop cycles. While loop uses `count` to test execution. Tabbed code repeats as long as while condition returns true. Count increased by `1` to meet finalization condition.
+
+**For loop approach**:
+```python
+for x in range(4):
+    player.move_forward()
+    player.water()  # Function called inside loop
+```
+
+The for loop repeats same code set number of times. The `range()` determines iterations (in this case four).
+
+Must tab code after loop for it to be part of loop, otherwise code won't loop.
+
+Loop movements across field, water crops, reach exit to complete level.
+
+**Caution**: While loops can fall into infinite loop. Always set up cap/stopping point using count variable.
+
+**Key Teaching Point**: Both loop types can call functions. Students choose appropriate loop type based on problem structure. This level introduces decision-making: "Which loop is better for this task?"
+Dynamic Loop Variables	Navigate maze and collect grains using dynamic movement based on loop variable - complete in under 4 lines.	Level 4: Make full use of for loop's variable to navigate maze and collect all grains in under 4 lines of code.
+
+The variable (usually named `x` but can be named anything) starts at `0` and increments by `1` each loop cycle:
+
+```python
+for x in range([number]):
+    player.move_forward(x + 1)
+    player.collect()
+```
+
+By adding variable to function `move_forward()`, you increase number of steps each cycle. By adding `+1`, movement code starts at `1` instead of `0`.
+
+**Example progression**:
+- Cycle 0: `x = 0`, so `move_forward(0 + 1)` = move 1 step
+- Cycle 1: `x = 1`, so `move_forward(1 + 1)` = move 2 steps
+- Cycle 2: `x = 2`, so `move_forward(2 + 1)` = move 3 steps
+- And so on...
+
+By executing loop with correct cycle count, collect all grains and complete level.
+
+**Key Teaching Point**: Loop variables aren't just counters - they're dynamic values that can control behavior. This creates patterns: 1, 2, 3, 4... steps. Demonstrates how loops enable code that would be impossible to write manually (imagine writing 100 increasing movements!).
+
+**Optimization Focus**: 4-line limit teaches that loops dramatically reduce code. Without loops, this level would require dozens of lines.
