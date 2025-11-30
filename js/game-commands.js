@@ -298,7 +298,7 @@
                                 if (window.showGameMessage) showGameMessage(plot.crop + ' is ready to harvest!', 'success');
                                 render();
                             }
-                        }, 10000);
+                        }, 5000);
                         
                         await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
                         return;
@@ -494,7 +494,7 @@
                         if (window.showGameMessage) showGameMessage('Sprout appeared!', 'info');
                         render();
                     }
-                }, 10000);
+                }, 5000);
                 
                 await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
             }
