@@ -2,6 +2,8 @@
 
 This comprehensive guide covers everything you need to know about creating lessons, missions, and quests for the Python Learning Platform. It includes the lesson template structure, map design, collectibles, available commands, and technical implementation details.
 
+
+Editlenir mi?
 ---
 
 ## Table of Contents
