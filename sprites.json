@@ -1,0 +1,6 @@
+[
+  {"name": "Calf", "file": "Calf.png", "path": "/assets/sprites/Calf.png"},
+  {"name": "Chick", "file": "Chick.png", "path": "/assets/sprites/Chick.png"},
+  {"name": "Chicken", "file": "Chicken.png", "path": "/assets/sprites/Chicken.png"},
+  {"name": "Cow", "file": "Cow.png", "path": "/assets/sprites/Cow.png"}
+]

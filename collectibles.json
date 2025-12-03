@@ -1,0 +1,9 @@
+{
+  "apple": "assets/map/elements/collectibles/apple.svg",
+  "coin": "assets/map/elements/collectibles/collectible-coin.svg",
+  "gem": "assets/map/elements/collectibles/collectible-gem.svg",
+  "heart": "assets/map/elements/collectibles/heart.svg",
+  "key": "assets/map/elements/collectibles/key.svg",
+  "star": "assets/map/elements/collectibles/star.svg",
+  "wood": "assets/map/elements/collectibles/wood.svg"
+}
