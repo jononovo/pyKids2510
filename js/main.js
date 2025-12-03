@@ -469,7 +469,7 @@ function loadSpriteFromPath(spritePath, spriteName) {
 
 function loadAvailableSprites() {
     // Fetch list of sprites from server
-    fetch('/sprites.json')
+    fetch('sprites.json')
         .then(response => response.json())
         .then(sprites => {
             const menu = document.getElementById('sprite-menu');
@@ -530,7 +530,7 @@ function loadAvailableSprites() {
 // ============================================
 
 // Load OpenAI API key from server
-fetch('/api/config')
+fetch('api/config')
     .then(response => response.json())
     .then(config => {
         if (config.apiKey) {
@@ -645,7 +645,7 @@ async function loadMarkdownFilesList() {
     if (!menu) return;
     
     try {
-        const response = await fetch('/markdown-files.json');
+        const response = await fetch('markdown-files.json');
         let files = [];
         
         if (response.ok) {

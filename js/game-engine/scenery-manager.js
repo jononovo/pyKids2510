@@ -20,7 +20,7 @@
 
         async loadManifest() {
             try {
-                const response = await fetch('/assets/map/scenery.json');
+                const response = await fetch('assets/map/scenery.json');
                 this.manifest = await response.json();
                 console.log('[Scenery] Manifest loaded:', 
                     Object.keys(this.manifest.scenery || {}).length, 'scenery items');

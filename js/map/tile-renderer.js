@@ -18,7 +18,7 @@
     
     async function loadTilesManifest() {
         try {
-            const response = await fetch('/assets/map/tiles.json');
+            const response = await fetch('assets/map/tiles.json');
             tileManifest = await response.json();
             
             TILES = {};
@@ -42,7 +42,7 @@
     
     async function loadCollectiblesManifest() {
         try {
-            const response = await fetch('/collectibles.json');
+            const response = await fetch('collectibles.json');
             COLLECTIBLE_SVGS = await response.json();
             window.COLLECTIBLE_SVGS = COLLECTIBLE_SVGS;
             console.log('Collectibles loaded:', Object.keys(COLLECTIBLE_SVGS));

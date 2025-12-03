@@ -19,7 +19,7 @@
 
         async loadManifest() {
             try {
-                const response = await fetch('/assets/map/elements.json');
+                const response = await fetch('assets/map/elements.json');
                 this.manifest = await response.json();
                 console.log('[ElementInteraction] Manifest loaded:', 
                     Object.keys(this.manifest.elements || {}).length, 'elements');
