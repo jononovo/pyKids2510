@@ -212,7 +212,7 @@ function applyTutorRecommendation() {
     
     console.log('Applying recommendation:', currentRecommendation);
     
-    const code = jar.toString();
+    const code = window.jar.toString();
     const lines = code.split('\n');
     
     // Apply based on recommendation type
@@ -277,7 +277,7 @@ function applyTutorRecommendation() {
     }
     
     // Update the editor
-    jar.updateCode(lines.join('\n'));
+    window.jar.updateCode(lines.join('\n'));
     
     // Close dialog
     closeTutorDialog();
