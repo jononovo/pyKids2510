@@ -380,7 +380,14 @@ function previousLevel() {
 function continueToNext() {
     document.getElementById('victory-modal').classList.remove('show');
     gameState.levelCompleted[currentLevel] = true;
-    nextLevel();
+    
+    if (courseData && currentLevel >= courseData.levels.length - 1) {
+        if (window.parent !== window) {
+            window.parent.postMessage({ type: 'nextSlide', skip: true }, '*');
+        }
+    } else {
+        nextLevel();
+    }
 }
 
 function replayLevel() {
