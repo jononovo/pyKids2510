@@ -1020,15 +1020,13 @@ window.parent.postMessage({
 ```
 
 #### 3. `checker-validation`
-Sent when a student successfully completes a level.
+Sent for each named test every time the level's tests are checked: after each step, and when a program ends. Tests have names when the LMS sends them with `load-lesson` (below). `valid` is `true` when the test passed and `false` when it didn't.
 
 ```javascript
 window.parent.postMessage({
     type: 'checker-validation',
-    checkerId: 'level 3',
-    valid: true,
-    // Included for mission/quest levels:
-    chapterState: { ... }
+    checkerId: 'Reach the star',
+    valid: true
 }, '*');
 ```
 
@@ -1079,6 +1077,28 @@ iframe.contentWindow.postMessage({
 }, '*');
 ```
 
+
+#### 3. `load-lesson`
+Sends the chapter to play, and optionally its tests. Send it after `app-ready`. Without it, an embedded game loads its demo chapter after 1.5 seconds.
+
+```javascript
+iframe.contentWindow.postMessage({
+    type: 'load-lesson',
+    body: JSON.stringify({
+        content: '# Python Adventure - First Steps\n## CHAPTER 1\n--- <!-- Level 1 Start -->\n...',
+        tests: [
+            { name: 'Reach the star', rule: 'type: position\ntarget: goal' },
+            { name: 'Use a for loop', rule: 'type: code_regex\npattern: for .* in range' }
+        ]
+    })
+}, '*');
+```
+
+**Behavior:**
+- Builds the levels from `content`
+- When `tests` has any, every level gets those tests in place of its `<!-- Tests -->` block, and all of them must pass. Each `rule` is one test written as in a Tests block, with or without the leading `- `
+- Each named test's result is then sent back as `checker-validation`
+
 ---
 
 ### Recommended LMS Integration Flow
@@ -1091,7 +1111,7 @@ iframe.contentWindow.postMessage({
 │  2. Listen for 'app-ready' message                              │
 │  3. On 'app-ready': Send 'load-progress' with saved data        │
 │  4. Listen for 'save-progress' → Store to database              │
-│  5. Listen for 'checker-validation' → Mark level complete       │
+│  5. Listen for 'checker-validation' → Mark each test            │
 │                                                                  │
 └──────────────────────────┬──────────────────────────────────────┘
                            │ postMessage
@@ -1103,7 +1123,7 @@ iframe.contentWindow.postMessage({
 │  2. Send 'app-ready' to parent                                  │
 │  3. Receive 'load-progress' → Restore code & state              │
 │  4. On code change → Send 'save-progress'                       │
-│  5. On level complete → Send 'checker-validation'               │
+│  5. After each test check → Send 'checker-validation'           │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -1144,11 +1164,8 @@ window.addEventListener('message', (event) => {
             break;
             
         case 'checker-validation':
-            // Mark level as complete
-            await markLevelComplete(userId, data.checkerId);
-            if (data.chapterState) {
-                await saveChapterState(userId, data.chapterState);
-            }
+            // Mark the named test as passed or failed
+            await saveTestResult(userId, data.checkerId, data.valid);
             break;
     }
 });
@@ -1162,8 +1179,8 @@ window.addEventListener('message', (event) => {
 |------------|-------------|--------------|
 | `levelId` | Unique level identifier (e.g., `chapter1-level3`) | Always |
 | `code` | Student's Python code in the editor | On every `save-progress` |
-| `completed` | Whether level was successfully completed | On `checker-validation` |
-| `chapterState` | Full mission state (inventory, collected items, etc.) | On `save-progress` and `checker-validation` for mission/quest levels |
+| `completed` | Whether level was successfully completed | On `save-progress` with `completed: true` |
+| `chapterState` | Full mission state (inventory, collected items, etc.) | On `save-progress` for mission/quest levels |
 
 ### Level ID Format
 

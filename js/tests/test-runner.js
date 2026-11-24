@@ -22,6 +22,10 @@ const TestRunner = (function() {
         const context = TestContext.snapshot();
         const results = _runTests(tests, context);
         
+        if (window.UserProgressManager) {
+            UserProgressManager.reportTestResults(results.items);
+        }
+        
         console.log('[TestRunner] Test results:', results);
         
         if (results.passed) {
@@ -45,14 +49,14 @@ const TestRunner = (function() {
                 console.warn('[TestRunner] Unknown test type:', testType);
                 results.items.push({
                     type: testType,
+                    name: test.name,
                     passed: false,
                     message: `Unknown test type: ${testType}`
                 });
                 continue;
             }
             
-            const result = TestTypes[testType](test, context);
-            results.items.push(result);
+            results.items.push({ ...TestTypes[testType](test, context), name: test.name });
         }
         
         if (results.pass_all) {

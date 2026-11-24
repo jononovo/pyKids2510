@@ -12,7 +12,7 @@ function parseTestsYaml(yamlStr) {
         
         if (trimmedLine.match(/^pass_all:\s*(true|false)/i)) {
             tests.pass_all = trimmedLine.toLowerCase().includes('true');
-        } else if (trimmedLine.match(/^-\s*type:/)) {
+        } else if (trimmedLine.match(/^(-\s*)?type:/)) {
             if (currentTest) tests.items.push(currentTest);
             const typeMatch = trimmedLine.match(/type:\s*["']?(\w+)["']?/);
             currentTest = { type: typeMatch ? typeMatch[1] : 'unknown' };
@@ -45,6 +45,13 @@ function parseTestsYaml(yamlStr) {
     
     console.log('[LessonParser] Parsed tests:', tests);
     return tests;
+}
+
+function parseHostTests(hostTests) {
+    return {
+        pass_all: true,
+        items: hostTests.map(hostTest => ({ ...parseTestsYaml(hostTest.rule || '').items[0], name: hostTest.name }))
+    };
 }
 
 function parseCourseLevels(markdown) {
