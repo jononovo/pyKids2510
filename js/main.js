@@ -73,25 +73,22 @@ ctx.imageSmoothingEnabled = false;
 
 // Note: loadBackgroundGraphic is now in js/game-engine/level-loader.js
 
+function startChapter(markdown) {
+    courseData = parseCourseLevels(markdown);
+    if (!courseData || courseData.levels.length === 0) return false;
+    document.getElementById('header-info').style.display = 'block';
+    updateNavigationButtons();
+    loadLevel(0);
+    return true;
+}
+
 function loadMarkdownFile(event) {
     const file = event.target.files[0];
     if (!file) return;
     
     const reader = new FileReader();
     reader.onload = function(e) {
-        const markdown = e.target.result;
-        courseData = parseCourseLevels(markdown);
-        
-        if (courseData && courseData.levels.length > 0) {
-            // Show header info
-            document.getElementById('header-info').style.display = 'block';
-            
-            // Enable navigation buttons
-            updateNavigationButtons();
-            
-            // Load first level
-            loadLevel(0);
-        } else {
+        if (!startChapter(e.target.result)) {
             alert('Could not parse the markdown file. Please check the format.');
         }
     };
@@ -552,20 +549,33 @@ fetch('api/config')
 // Load available sprites on startup
 loadAvailableSprites();
 
-// Auto-load the default chapter on startup
-fetch('assets/chapter1-elements-demo.md')
-    .then(response => response.text())
-    .then(markdown => {
-        courseData = parseCourseLevels(markdown);
-        if (courseData && courseData.levels.length > 0) {
-            document.getElementById('header-info').style.display = 'block';
-            updateNavigationButtons();
-            loadLevel(0);
-        }
-    })
-    .catch(error => {
-        console.log('Default chapter not found, waiting for user to load one');
-    });
+const HOST_CHAPTER_WAIT_MS = 1500;
+let chapterFromHost = false;
+
+window.addEventListener('message', (event) => {
+    const message = event.data;
+    if (event.source !== window.parent || !message || message.type !== 'load-lesson' || typeof message.body !== 'string') return;
+    chapterFromHost = true;
+    try {
+        startChapter(JSON.parse(message.body).content || '');
+    } catch (error) {
+        console.log('Could not read the chapter sent by the host', error);
+    }
+});
+
+function loadDefaultChapter() {
+    if (chapterFromHost) return;
+    fetch('assets/chapter1-elements-demo.md')
+        .then(response => response.text())
+        .then(markdown => {
+            if (!chapterFromHost) startChapter(markdown);
+        })
+        .catch(() => {
+            console.log('Default chapter not found, waiting for user to load one');
+        });
+}
+
+setTimeout(loadDefaultChapter, window.parent === window ? 0 : HOST_CHAPTER_WAIT_MS);
 
 // Preload SVG tiles and initialize element system before starting
 if (typeof preloadSVGTiles === 'function') {
