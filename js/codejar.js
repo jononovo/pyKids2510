@@ -219,8 +219,8 @@
             },
             updateCode(code) {
                 editor.textContent = code;
+                prev = code;
                 doHighlight(editor);
-                onUpdate(code);
                 recordHistory();
             },
             onUpdate(cb) {

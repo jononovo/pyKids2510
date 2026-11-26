@@ -81,11 +81,6 @@ const TestRunner = (function() {
     
     function _triggerWin() {
         gameState.levelCompleted[currentLevel] = true;
-        
-        if (window.UserProgressManager) {
-            UserProgressManager.markCompletion();
-        }
-        
         updateProgressIndicators();
         document.getElementById('victory-modal').classList.add('show');
     }

@@ -407,11 +407,6 @@ function checkWinCondition() {
     
     if (px === gx && py === gy) {
         gameState.levelCompleted[currentLevel] = true;
-        
-        if (window.UserProgressManager) {
-            UserProgressManager.markCompletion();
-        }
-        
         updateProgressIndicators();
         document.getElementById('victory-modal').classList.add('show');
     }

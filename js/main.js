@@ -115,10 +115,7 @@ async function loadLevel(levelIndex) {
     const level = courseData.levels[levelIndex];
     
     // Set current level in UserProgressManager
-    if (window.UserProgressManager) {
-        UserProgressManager.setCurrentLevel(level);
-        UserProgressManager.resetLevelSession();
-    }
+    UserProgressManager.setCurrentLevel(level);
     
     // Store the current level's starter code globally for Blockly to access
     window.currentLessonStarterCode = level.starterCode;
@@ -195,8 +192,7 @@ async function loadLevel(levelIndex) {
         
         if (isFirstLoad) {
             EditorManager.init();
-            const savedCode = window.UserProgressManager ? UserProgressManager.getSavedCode() : null;
-            const codeToLoad = savedCode || level.starterCode;
+            const codeToLoad = UserProgressManager.codeForLevel(level);
             EditorManager.updateCode(codeToLoad);
             window.currentLessonStarterCode = codeToLoad;
 
@@ -257,8 +253,7 @@ async function loadLevel(levelIndex) {
                 }
             }
         } else {
-            const savedCode = window.UserProgressManager ? UserProgressManager.getSavedCode() : null;
-            const codeToLoad = savedCode || level.starterCode;
+            const codeToLoad = UserProgressManager.codeForLevel(level);
             EditorManager.updateCode(codeToLoad);
             window.currentLessonStarterCode = codeToLoad;
 

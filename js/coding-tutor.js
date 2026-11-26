@@ -240,7 +240,9 @@ function applyTutorRecommendation() {
     }
     
     // Update the editor
-    EditorManager.updateCode(lines.join('\n'));
+    const appliedCode = lines.join('\n');
+    EditorManager.updateCode(appliedCode);
+    UserProgressManager.saveCode(appliedCode);
     
     // Close dialog
     closeTutorDialog();

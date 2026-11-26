@@ -881,6 +881,7 @@
 
         var starterCode = courseData.levels[currentLevel].starterCode || '';
         EditorManager.updateCode(starterCode);
+        UserProgressManager.saveCode('');
 
         if (window.BlocklyModeSwitcher && window.BlocklyModeSwitcher.isBlockMode()) {
             if (window.BlocklyIntegration) {
