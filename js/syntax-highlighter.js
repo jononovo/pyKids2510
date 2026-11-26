@@ -20,12 +20,7 @@ const PythonHighlighter = {
         'lambda', 'yield', 'global', 'nonlocal', 'assert', 'del'
     ],
     
-    gameFunctions: [
-        'move_forward', 'turn_left', 'turn_right', 'push', 'build',
-        'collect', 'jump', 'wait', 'check', 'scan'
-    ],
-    
-    gameObjects: ['player', 'world', 'game'],
+    gameObjects: ['player'],
     
     highlight: function(code) {
         // First, escape HTML characters
@@ -71,7 +66,7 @@ const PythonHighlighter = {
                 `<span style="color: ${this.colors.number};">$1</span>`);
             
             // Highlight game functions
-            const functionRegex = new RegExp(`\\b(${this.gameFunctions.join('|')})\\b`, 'g');
+            const functionRegex = new RegExp(`\\b(${Object.keys(GameCommands).join('|')})\\b`, 'g');
             highlighted = this.replaceOutsideSpans(highlighted, functionRegex,
                 `<span style="color: ${this.colors.function};">$1</span>`);
             
