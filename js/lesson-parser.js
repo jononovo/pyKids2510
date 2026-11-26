@@ -203,15 +203,6 @@ function parseCourseLevels(markdown) {
         
         level.markdown = markdownContent.trim();
 
-        // Parse Tests section
-        const testsMatch = section.match(/<!--\s*Tests\s*-->\s*\n*```(?:yaml|yml)?\s*([\s\S]*?)```/);
-        if (testsMatch) {
-            level.tests = parseTestsYaml(testsMatch[1].trim());
-        }
-        
-        // Remove tests section from markdown content
-        level.markdown = level.markdown.replace(/<!--\s*Tests\s*-->\s*\n*```(?:yaml|yml)?[\s\S]*?```/g, '');
-
         // Detect mission type and generate slug
         if (window.MissionDetector) {
             level.type = window.MissionDetector.getLevelType(level.title);

@@ -5,14 +5,9 @@ const UserProgressManager = (function() {
     let debounceTimer = null;
     let completedThisSession = {};
     let currentLevelId = null;
-    let isEmbedded = false;
     
     function init() {
-        isEmbedded = window.parent !== window;
-        
-        if (isEmbedded) {
-            window.addEventListener('message', handleParentMessage);
-        }
+        window.addEventListener('message', handleParentMessage);
         
         if (!localStorage.getItem(STORAGE_KEY)) {
             localStorage.setItem(STORAGE_KEY, JSON.stringify({}));
@@ -93,12 +88,10 @@ const UserProgressManager = (function() {
     }
     
     function sendReady() {
-        if (isEmbedded) {
-            window.parent.postMessage({
-                type: 'app-ready',
-                currentLevelId: currentLevelId
-            }, '*');
-        }
+        window.parent.postMessage({
+            type: 'app-ready',
+            currentLevelId: currentLevelId
+        }, '*');
     }
     
     function setCurrentLevel(level) {
@@ -144,24 +137,22 @@ const UserProgressManager = (function() {
         all[levelId] = { ...all[levelId], ...data };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
         
-        if (isEmbedded) {
-            const message = {
-                type: 'save-progress',
-                levelId: levelId,
-                data: data
-            };
-            
-            // Include chapter state for mission levels
-            if (window.MissionState && MissionState.isInitialized()) {
-                const currentLevelData = window.courseData && window.courseData.levels && 
-                                        window.courseData.levels[window.currentLevel];
-                if (currentLevelData && (currentLevelData.type === 'mission' || currentLevelData.type === 'quest')) {
-                    message.chapterState = MissionState.getState();
-                }
+        const message = {
+            type: 'save-progress',
+            levelId: levelId,
+            data: data
+        };
+        
+        // Include chapter state for mission levels
+        if (window.MissionState && MissionState.isInitialized()) {
+            const currentLevelData = window.courseData && window.courseData.levels && 
+                                    window.courseData.levels[window.currentLevel];
+            if (currentLevelData && (currentLevelData.type === 'mission' || currentLevelData.type === 'quest')) {
+                message.chapterState = MissionState.getState();
             }
-            
-            window.parent.postMessage(message, '*');
         }
+        
+        window.parent.postMessage(message, '*');
     }
     
     function saveCode(code, levelId) {
@@ -190,7 +181,6 @@ const UserProgressManager = (function() {
     }
     
     function reportTestResults(testResults) {
-        if (!isEmbedded) return;
         testResults
             .filter(testResult => testResult.name)
             .forEach(testResult => {
