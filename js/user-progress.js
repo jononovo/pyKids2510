@@ -5,7 +5,6 @@ const UserProgressManager = (function() {
     let debounceTimer = null;
     let completedThisSession = {};
     let currentLevelId = null;
-    let currentLevelIndex = 0;
     let isEmbedded = false;
     
     function init() {
@@ -116,7 +115,6 @@ const UserProgressManager = (function() {
         }
         
         currentLevelId = generateLevelId(chapterNumber, levelIndex, levelSlug);
-        currentLevelIndex = levelIndex;
         completedThisSession[currentLevelId] = false;
         return currentLevelId;
     }
@@ -196,25 +194,15 @@ const UserProgressManager = (function() {
         
         completedThisSession[id] = true;
         saveProgress(id, { completed: true });
-        
-        if (isEmbedded) {
-            const message = {
-                type: 'checker-validation',
-                checkerId: `level ${currentLevelIndex + 1}`,
-                valid: true
-            };
-            
-            // Include chapter state for mission levels
-            if (window.MissionState && MissionState.isInitialized()) {
-                const currentLevelData = window.courseData && window.courseData.levels && 
-                                        window.courseData.levels[window.currentLevel];
-                if (currentLevelData && (currentLevelData.type === 'mission' || currentLevelData.type === 'quest')) {
-                    message.chapterState = MissionState.getState();
-                }
-            }
-            
-            window.parent.postMessage(message, '*');
-        }
+    }
+    
+    function reportTestResults(testResults) {
+        if (!isEmbedded) return;
+        testResults
+            .filter(testResult => testResult.name)
+            .forEach(testResult => {
+                window.parent.postMessage({ type: 'checker-validation', checkerId: testResult.name, valid: testResult.passed }, '*');
+            });
     }
     
     function resetLevelSession(levelId) {
@@ -256,6 +244,7 @@ const UserProgressManager = (function() {
         isLevelCompleted: isLevelCompleted,
         saveCode: saveCode,
         markCompletion: markCompletion,
+        reportTestResults: reportTestResults,
         resetLevelSession: resetLevelSession,
         clearProgress: clearProgress,
         registerLessonType: registerLessonType,

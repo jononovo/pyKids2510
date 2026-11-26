@@ -73,9 +73,13 @@ ctx.imageSmoothingEnabled = false;
 
 // Note: loadBackgroundGraphic is now in js/game-engine/level-loader.js
 
-function startChapter(markdown) {
+function startChapter(markdown, hostTests = []) {
     courseData = parseCourseLevels(markdown);
     if (!courseData || courseData.levels.length === 0) return false;
+    if (hostTests.length > 0) {
+        const testsFromHost = parseHostTests(hostTests);
+        courseData.levels.forEach(level => { level.tests = testsFromHost; });
+    }
     document.getElementById('header-info').style.display = 'block';
     updateNavigationButtons();
     loadLevel(0);
@@ -557,7 +561,8 @@ window.addEventListener('message', (event) => {
     if (event.source !== window.parent || !message || message.type !== 'load-lesson' || typeof message.body !== 'string') return;
     chapterFromHost = true;
     try {
-        startChapter(JSON.parse(message.body).content || '');
+        const slide = JSON.parse(message.body);
+        startChapter(slide.content || '', slide.tests || []);
     } catch (error) {
         console.log('Could not read the chapter sent by the host', error);
     }

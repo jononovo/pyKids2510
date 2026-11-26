@@ -1429,6 +1429,13 @@ Check if an interactive element has been transformed.
 
 **If no `<!-- Tests -->` section is defined**, the level uses the default behavior: the player wins by reaching the `goalPos` position. This maintains backward compatibility with existing lessons.
 
+### Tests From an LMS (CodeTribe)
+
+When the game runs inside an LMS that sends tests with `load-lesson`, as CodeTribe does from each slide's Tests dialog, those tests take the place of the level's `<!-- Tests -->` block:
+- Each test has a name, which students see in the LMS's test list, and a rule: one test written as above, with or without the leading `- `. For example `type: position`, then `target: goal` on the next line.
+- All of them must pass.
+- The tests are checked after each step and when the program ends, and each result is sent to the LMS by name (`checker-validation`, see [technical.md](technical.md)).
+
 ### Complete Example
 
 ```markdown

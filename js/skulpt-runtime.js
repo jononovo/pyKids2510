@@ -198,6 +198,10 @@
         var wasStopped = window.shouldStopExecution;
         window.shouldStopExecution = false;
         
+        if (!wasStopped && window.TestRunner) {
+            TestRunner.evaluate();
+        }
+        
         var reachedGoal = typeof checkVictory === 'function' ? checkVictory() : false;
         
         if (!wasStopped && window.tutorEnabled && !reachedGoal && typeof analyzeCodeAndProvideHelp === 'function') {
