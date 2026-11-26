@@ -170,7 +170,7 @@ async function loadLevel(levelIndex) {
                         <button type="button" class="btn secondary-btn" id="reset-btn">
                             <span class="btn-icon">↺</span> <span class="btn-text">RESET</span>
                         </button>
-                        <button class="btn secondary-btn">
+                        <button type="button" class="btn secondary-btn" id="help-btn">
                             <span class="btn-icon">?</span> <span class="btn-text">HELP</span>
                         </button>
                         <button class="tutor-toggle" id="tutor-toggle">
@@ -240,6 +240,7 @@ async function loadLevel(levelIndex) {
             
             document.getElementById('run-btn').addEventListener('click', runCode);
             document.getElementById('reset-btn').addEventListener('click', resetGame);
+            document.getElementById('help-btn').addEventListener('click', showLevelAdvice);
             
             // Add keyboard shortcut: Cmd+Enter (macOS) / Ctrl+Enter (Windows) to run code
             document.addEventListener('keydown', function(e) {

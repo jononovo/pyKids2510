@@ -499,30 +499,6 @@ body {
     color: #7fc542;  /* Turn text green on hover */
 }
 
-/* Help button active state */
-#help-btn.active {
-    background: #7fc542 !important;
-    color: white !important;
-    border-color: #5f9332 !important;
-}
-
-/* Make help button HTML character icon larger */
-#help-btn {
-    font-size: 22px !important;
-    cursor: default !important;  /* Remove pointer cursor */
-    pointer-events: none !important;  /* Disable all mouse events */
-}
-
-/* Remove hover effect for help button */
-#help-btn:hover {
-    background: transparent !important;  /* No background change on hover */
-}
-
-/* But keep help button text at normal size */
-#help-btn .btn-text {
-    font-size: 11px !important;
-}
-
 /* ========================================
    RESPONSIVE BUTTON STYLES
    ======================================== */

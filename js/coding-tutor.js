@@ -131,43 +131,6 @@ window.addEventListener('DOMContentLoaded', function() {
     if (avatarImg) {
         avatarImg.src = generateTutorAvatar();
     }
-    
-    // Initialize help button (now static, not clickable)
-    const helpBtn = document.getElementById('help-btn');
-    if (helpBtn) {
-        // Remove any click functionality - help button is now static
-        // It will later open a modal with level-specific advice
-        helpBtn.innerHTML = '? <span class="btn-text">HELP</span>';
-        helpBtn.classList.remove('active'); // Ensure it doesn't have active state
-    }
-    
-    // Initialize tutor toggle button
-    const tutorToggle = document.getElementById('tutor-toggle');
-    if (tutorToggle) {
-        tutorToggle.addEventListener('click', toggleTutor);
-        const toggleText = tutorToggle.querySelector('.toggle-text');
-        // Ensure the dog emoji icon is present
-        const toggleIcon = tutorToggle.querySelector('.toggle-icon');
-        if (!toggleIcon) {
-            const icon = document.createElement('span');
-            icon.className = 'toggle-icon';
-            icon.textContent = '🐶';
-            tutorToggle.appendChild(icon);  // Add after the text
-        }
-        if (tutorEnabled) {
-            tutorToggle.classList.remove('off');
-            if (toggleText) toggleText.textContent = 'ON';
-        } else {
-            tutorToggle.classList.add('off');
-            if (toggleText) toggleText.textContent = 'OFF';
-        }
-    }
-    
-    // Comment out auto-test for now
-    // setTimeout(() => {
-    //     console.log('Auto-testing tutor dialog...');
-    //     testTutorDialog();
-    // }, 2000);
 });
 
 // Show tutor dialog
@@ -361,37 +324,37 @@ Respond in JSON format:
     }
 }
 
-// Analyze code and provide help based on execution results
+const GENERAL_TIP = {
+    message: 'Try adding more movement commands to reach the goal.',
+    code: 'player.move_forward()',
+    type: 'tip'
+};
+
+async function recommendationFor(studentCode, executionError) {
+    const solutionCode = courseData.levels[currentLevel].solutionCode || '';
+    const recommendation = generateRecommendation(normalizeCode(studentCode), normalizeCode(solutionCode), executionError);
+    if (recommendation && recommendation.needsAI) {
+        const aiRec = await getAIRecommendation(
+            recommendation.studentCode,
+            recommendation.solutionCode,
+            courseData.levels[currentLevel].objective
+        );
+        recommendation.message = aiRec.message;
+        recommendation.code = aiRec.code;
+    }
+    return recommendation;
+}
+
 async function analyzeCodeAndProvideHelp(studentCode, executionError, executedCommands) {
     console.log('Tutor: Analyzing code...', { studentCode, executionError, executedCommands });
-    
-    // Get the solution code for current level
-    const solutionCode = courseData.levels[currentLevel].solutionCode || '';
-    
-    // Parse codes to normalize them
-    const studentLines = normalizeCode(studentCode);
-    const solutionLines = normalizeCode(solutionCode);
-    
-    console.log('Comparing:', { studentLines, solutionLines });
-    
-    // Compare and generate recommendation
-    const recommendation = generateRecommendation(studentLines, solutionLines, executionError);
-    
-    // Show the tutor dialog with recommendation
+    const recommendation = await recommendationFor(studentCode, executionError);
     if (recommendation) {
-        // Check if AI analysis is needed for complex cases
-        if (recommendation.needsAI) {
-            const aiRec = await getAIRecommendation(
-                recommendation.studentCode,
-                recommendation.solutionCode,
-                courseData.levels[currentLevel].objective
-            );
-            recommendation.message = aiRec.message;
-            recommendation.code = aiRec.code;
-        }
-        
         showTutorDialog(recommendation);
     }
+}
+
+async function showLevelAdvice() {
+    showTutorDialog(await recommendationFor(EditorManager.getCode(), null) || GENERAL_TIP);
 }
 
 // Normalize code for comparison (remove comments, blank lines, normalize spacing)
@@ -411,6 +374,10 @@ function generateRecommendation(studentLines, solutionLines, executionError) {
             code: solutionLines[0] || 'player.move_forward()',
             type: 'error'
         };
+    }
+
+    if (solutionLines.length === 0) {
+        return GENERAL_TIP;
     }
     
     // Count how many of the user's existing lines are incorrect (not counting missing lines)
@@ -507,3 +474,4 @@ window.showTutorDialog = showTutorDialog;
 window.closeTutorDialog = closeTutorDialog;
 window.applyTutorRecommendation = applyTutorRecommendation;
 window.analyzeCodeAndProvideHelp = analyzeCodeAndProvideHelp;
+window.showLevelAdvice = showLevelAdvice;
