@@ -961,6 +961,7 @@ Questions read the world. They answer at once: nothing animates, the character d
 | `path_clear()` | `True` when `move_forward()` could take a step, by the same check | `while path_clear():` |
 | `find("name")` | The nearest `(x, y)` of an item, element, boat or tile with that name, in steps along the grid, or `None` when there is none | `while find("coin"):` |
 | `at_goal()` | `True` when the character stands on the star | `while not at_goal():` |
+| `facing()` | Which way the character faces: `"up"`, `"down"`, `"left"` or `"right"` | `while facing() != "up": turn_left()` |
 
 - `find()` names a tile after what lies on it: its item or element, else its boat, else the tile's own name in `assets/map/tiles.json`. A coin on grass is a `"coin"`.
 - When two are equally near, `find()` gives the one higher up, then the one further left.
@@ -2135,7 +2136,7 @@ All commands work with or without the `player.` prefix (e.g., both `move_forward
 |----------|----------|
 | Movement | `move_forward(n)` (answers the steps taken), `turn_left(n)`, `turn_right(n)` |
 | Aliases | `forward(n)`, `left(n)`, `right(n)` |
-| Questions | `position()`, `path_clear()`, `find("name")`, `at_goal()` |
+| Questions | `position()`, `path_clear()`, `find("name")`, `at_goal()`, `facing()` |
 | Interaction | `collect()`, `interact()`, `push()`, `speak("text")` |
 | Doors | `open()`, `close()` |
 | Building | `build("element")` - requires `cost` in elements.json |

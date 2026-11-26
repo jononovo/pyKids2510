@@ -611,6 +611,7 @@ Defined in `js/game-commands.js`:
 | `path_clear()` | `True` when `move_forward()` could take a step: both use `openTileInFront()` |
 | `find(name)` | The nearest `(x, y)` holding that name, or `None` (`TileContents.findNearest`) |
 | `at_goal()` | `checkVictory()`, the same check that wins a level without tests |
+| `facing()` | `gameState.playerDirection`: `"up"`, `"down"`, `"left"` or `"right"` |
 
 `js/game-engine/tile-contents.js` reads the world:
 - `TileContents.nameAt(x, y)`: the name of what's on top of a tile: its item or element (`ElementInteractionManager`), else its boat (not the one the character is in), else the tile's name in `tiles.json`. Outside the map it's `null`.

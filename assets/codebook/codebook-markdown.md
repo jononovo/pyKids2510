@@ -158,6 +158,26 @@ This code follows the path, turning right at every wall, until the player stands
 
 ---
 
+## facing()
+
+**Syntax**
+
+`player.facing()`
+
+This function answers which way the player is facing: `"up"`, `"down"`, `"left"` or `"right"`. It's a question: it answers at once, and the player doesn't move.
+
+**Example**
+
+```python
+while player.facing() != "up":
+    player.turn_left()
+player.move_forward(3)
+```
+
+This code turns until the player faces up, whatever way it started, then walks 3 steps up.
+
+---
+
 ## speak()
 
 **Syntax**

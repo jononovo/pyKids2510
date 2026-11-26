@@ -580,6 +580,13 @@
             execute: function() {
                 return checkVictory();
             }
+        },
+
+        facing: {
+            isQuestion: true,
+            execute: function() {
+                return gameState.playerDirection;
+            }
         }
     };
 
