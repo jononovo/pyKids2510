@@ -22,7 +22,7 @@ player.move_forward(3)
 
 This code will have player move three steps forward in the map.
 
-![move forward](/assets/codebook/move_forward.png)
+![move forward](assets/codebook/move_forward.png)
 
 ---
 
@@ -43,7 +43,7 @@ player.move_forward()
 
 This code will have player turn towards the left of their current facing direction and move forward in that direction with the follow up code.
 
-![turn left](/assets/codebook/turn_left.png)
+![turn left](assets/codebook/turn_left.png)
 
 ---
 
@@ -64,28 +64,7 @@ player.move_forward()
 
 This code will have player turn towards the right of their current facing direction and move forward in that direction with the follow up code.
 
-![turn right](/assets/codebook/turn_right.png)
-
----
-
-## push()
-
-**Syntax**
-
-`player.push()`
-
-This function is used to have player push an object in the direction he is facing provided there is not a collision blocking object's trajectory.
-
-**Example**
-
-```python
-player.turn_left()
-player.push()
-```
-
-This code will have player turn left and push a movable object in the direction he is facing.
-
-![push](/assets/codebook/push.png)
+![turn right](assets/codebook/turn_right.png)
 
 ---
 
@@ -105,7 +84,7 @@ player.speak("Hello World")
 
 This code will have the phrase "Hello World" displayed over the player's head.
 
-![speak](/assets/codebook/speak.png)
+![speak](assets/codebook/speak.png)
 
 ---
 
@@ -136,7 +115,7 @@ player.build("bridge")
 
 This code will have player build a bridge in front of the player in the direction they are facing.
 
-![build](/assets/codebook/build.png)
+![build](assets/codebook/build.png)
 
 ---
 
@@ -156,7 +135,7 @@ player.water()
 
 Using this code the player can water an object in the direction they are facing.
 
-![water](/assets/codebook/water.png)
+![water](assets/codebook/water.png)
 
 ---
 
@@ -178,7 +157,7 @@ player.water()
 
 This code will have the player collect water from a water source they are facing, then turn left to water an object.
 
-![collect](/assets/codebook/collect.png)
+![collect](assets/codebook/collect.png)
 
 ---
 
@@ -200,7 +179,7 @@ player.move_forward()
 
 This code will have player turn left to open a door and then cross through it.
 
-![open](/assets/codebook/open.png)
+![open](assets/codebook/open.png)
 
 ---
 
@@ -222,56 +201,7 @@ player.close()
 
 This code will have player open a chest, pick up an item and then close the chest afterwards.
 
-![close](/assets/codebook/close.png)
-
----
-
-## place()
-
-**Syntax**
-
-`player.place(object)`
-
-This function is used to place and object, item or variable in a location where objects are allowed to be placed. This is usually used to store items in a container or setting down objects in specified locations.
-
-**Example**
-
-```python
-wheat = 6
-player.place(wheat)
-```
-
-This code illustrates player storing a number inside a variable named wheat and then the place() function being used to place the variable in a designated location.
-
-![place](/assets/codebook/place.png)
-
----
-
-## combine()
-
-**Syntax**
-
-`player.combine(mixture)`
-
-This function is used to have player combine different object together to produce a brand new object. This is usually used to combine ingredients to make food, drink or substances.
-
-| Combination     | Ingredients                                                |
-| --------------- | ---------------------------------------------------------- |
-| Radish Dressing | - 3 milk, 2 cream, 3 lettuce, 5 radish                     |
-| Fruit Juice     | - 1 water, 1 empty jar, 1 orange, 1 peach, 1 pear, 1 apple |
-| Grape Juice     | - 1 grape, 1 empty jar                                     |
-| Berry Milk      | - 1 milk, (1 red berry or 1 strawberry)                    |
-| Salad           | - 2 carrot, 2 tomato, 6 lettuce, 2 cucumber                |
-
-**Example**
-
-```python
-player.combine(jar)
-```
-
-This code will have player take everything in a list named "jar" and combine them to form a new item/object.
-
-![combine](/assets/codebook/combine.png)
+![close](assets/codebook/close.png)
 
 ---
 
@@ -292,91 +222,6 @@ player.water()
 
 In the above code the player plants eggplant seeds in the soil and then waters them.
 
-![plant](/assets/codebook/plant.png)
-
----
-
-## write()
-
-**Syntax**
-
-`await player.write(message)`
-
-Allow a message to be displayed, this is an **async** function that allows a pop up to show a message that is loaded to the function. Program is paused until the message is closed.
-
-**Example**
-
-```python
-await player.write("Hello World")
-```
-
-In the above code a popup message is displayed with the message "Hello World" pausing the program until the player closes the message.
-
-![write](/assets/codebook/write.png)
-
----
-
-## read()
-
-**Syntax**
-
-`await player.read()`
-
-Allow a message to be displayed, this is an **async** function that allows a pop up to show a message that has been pre-recorded in the level. Program is paused until the message is closed.
-
-**Example**
-
-```python
-await player.read()
-```
-
-In the above code a popup message is displayed with a pre-recorded message manually embeded into the level, pausing the program until the player closes the message.
-
-![read](/assets/codebook/read.png)
-
----
-
-## question()
-
-**Syntax**
-
-`await player.question(question)`
-
-Allow a message to be displayed with a **yes** or **no** question, this is an **async** function that allows a pop up to show a message provided and produces a Boolean variable based on input.
-
-**Example**
-
-```python
-async def question_function():
-  answer = await player.question("Question you would like to ask")
-  if answer:
-    # Actions to take if answer is Yes
-  else:
-    # Actions to take if answer is No
-```
-
-In the above code a popup message is displayed with a question with yes and no buttons, pausing the program until the player makes a selection.
-
-![question](/assets/codebook/question.png)
-
----
-
-## display()
-
-**Syntax**
-
-`await player.display("message")`
-
-Allow a message to be displayed, this is an async function that allows a pop up to show a message that has no pre-recoded data. This is meant to be used to display raw data that can't properly scripted. Program is paused until the message is closed. When set up internally, no scripted content can be included as to allow it to display anything.
-
-**Example**
-
-```python
-await player.display("Whatever I want to put here")
-```
-
-In the above code a popup message is displayed with whatever message you put in regardless of what it is. In this case it displays "Whatever I want to put here".
-
-![display](/assets/codebook/display.png)
+![plant](assets/codebook/plant.png)
 
 ---
