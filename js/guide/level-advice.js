@@ -42,7 +42,7 @@
     }
 
     function generalTip(line) {
-        return { line: line, hint: GENERAL_TIP.hint, fix: { pieces: [{ add: GENERAL_TIP.code }], words: ['For example.'] } };
+        return { line: line, hint: GENERAL_TIP.hint, addsLine: true, fix: { pieces: [{ add: GENERAL_TIP.code }], words: ['For example.'] } };
     }
 
     function levelAdvice(code) {
@@ -53,7 +53,7 @@
         const wrong = student.map((entry, index) => ({ entry: entry, right: solution[index] })).filter(pair => !linesAreEquivalent(pair.entry.text, pair.right || ''));
         if (wrong.length > 2) return generalTip(lastLine);
         if (!wrong.length && student.length < solution.length) {
-            return { line: lastLine, hint: 'Good start! You need more commands to reach the goal.', fix: { pieces: [{ add: solution[student.length] }], words: ['Add this on the next line.'] } };
+            return { line: lastLine, hint: 'Good start! You need more commands to reach the goal.', addsLine: true, fix: { pieces: [{ add: solution[student.length] }], words: ['Add this on the next line.'] } };
         }
         if (wrong.length && wrong[0].right !== undefined) {
             const entry = wrong[0].entry;

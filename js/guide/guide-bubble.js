@@ -96,8 +96,9 @@ const GuideBubble = (function() {
         const editor = document.getElementById('editor');
         const aboveTop = position.top - bubble.offsetHeight - GAP;
         const fitsAbove = aboveTop >= editor.offsetTop;
+        const nextLineRoom = state.mistakes.some(mistake => mistake.addsLine) ? parseFloat(getComputedStyle(editor).lineHeight) : 0;
         bubble.classList.toggle('below', !fitsAbove);
-        bubble.style.top = (fitsAbove ? aboveTop : position.bottom + GAP) + 'px';
+        bubble.style.top = (fitsAbove ? aboveTop : position.bottom + nextLineRoom + GAP) + 'px';
         bubble.style.left = editor.offsetLeft + LEFT + 'px';
     }
 
