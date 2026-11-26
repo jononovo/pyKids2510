@@ -128,18 +128,6 @@
             return `${type}_${x}_${y}`;
         },
 
-        _getTargetX(x, direction) {
-            if (direction === 'left') return x - 1;
-            if (direction === 'right') return x + 1;
-            return x;
-        },
-
-        _getTargetY(y, direction) {
-            if (direction === 'up') return y - 1;
-            if (direction === 'down') return y + 1;
-            return y;
-        },
-
         loadLevelElements(levelData) {
             this.currentLevelData = levelData;
             this.resetStates({});
@@ -264,9 +252,8 @@
                     return VehicleInteractionManager.handleInteract(x, y, gameState);
                 }
                 
-                const targetX = this._getTargetX(x, gameState.playerDirection);
-                const targetY = this._getTargetY(y, gameState.playerDirection);
-                const vehicle = VehicleInteractionManager.getVehicleAt(targetX, targetY);
+                const front = ProximityGuard.getForwardPosition();
+                const vehicle = VehicleInteractionManager.getVehicleAt(front.x, front.y);
                 if (vehicle) {
                     return VehicleInteractionManager.handleBoard(vehicle, gameState);
                 }

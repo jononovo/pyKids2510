@@ -253,8 +253,6 @@
         },
 
         findAdjacentWalkableTile(x, y, gameState) {
-            if (!window.TileAccess) return null;
-            
             const directions = [
                 { dx: 1, dy: 0 },
                 { dx: 0, dy: -1 },

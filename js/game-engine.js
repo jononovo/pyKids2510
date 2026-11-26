@@ -396,35 +396,7 @@ function animateMove(fromX, fromY, toX, toY, direction) {
 }
 
 function canMoveTo(x, y) {
-    if (window.TileAccess) {
-        return TileAccess.canActorMoveTo(x, y, gameState.characterType, gameState);
-    }
-    
-    if (x < 0 || x >= gameState.mapWidth || y < 0 || y >= gameState.mapHeight) {
-        return false;
-    }
-    
-    if (window.MegaElementManager && MegaElementManager.isTileBlocked(x, y)) {
-        return false;
-    }
-    
-    const tile = gameState.mapData[y][x];
-    const tileInfo = tileDataById[tile];
-    
-    if (!tileInfo) return true;
-    if (!tileInfo.access) return true;
-    if (tileInfo.access === "blocked") return false;
-    
-    if (Array.isArray(tileInfo.access)) {
-        const charType = gameState.characterType || "player";
-        return tileInfo.access.includes(charType);
-    }
-    
-    if (typeof tileInfo.access === "object" && tileInfo.access.requires) {
-        return checkAccessRequirements(tileInfo.access.requires);
-    }
-    
-    return true;
+    return TileAccess.canActorMoveTo(x, y, gameState.characterType, gameState);
 }
 
 function checkWinCondition() {

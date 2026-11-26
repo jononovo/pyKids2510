@@ -22,10 +22,6 @@
         if (window.CommandHelpers) CommandHelpers.updateBackpackDisplay();
     }
 
-    function getTargetPosition() {
-        return window.CommandHelpers ? CommandHelpers.getTargetPosition() : { px: 0, py: 0, targetX: 0, targetY: 0 };
-    }
-
     function getAnimationDuration(fraction) {
         return window.CommandHelpers ? CommandHelpers.getAnimationDuration(fraction) : 300;
     }
@@ -46,19 +42,10 @@
 
                 for (var i = 0; i < steps && !run.stopped; i++) {
                     var pos = gameState.playerPos;
-                    var x = pos.x, y = pos.y;
-                    var newX = Math.floor(x);
-                    var newY = Math.floor(y);
-                    
-                    switch (gameState.playerDirection) {
-                        case 'up': newY--; break;
-                        case 'down': newY++; break;
-                        case 'left': newX--; break;
-                        case 'right': newX++; break;
-                    }
-                    
-                    if (canMoveTo(newX, newY)) {
-                        await animateMove(x, y, newX, newY, gameState.playerDirection);
+                    var front = ProximityGuard.getForwardPosition();
+
+                    if (canMoveTo(front.x, front.y)) {
+                        await animateMove(pos.x, pos.y, front.x, front.y, gameState.playerDirection);
                         moved++;
                     } else {
                         playBumpSound();
@@ -146,21 +133,14 @@
 
         push: {
             execute: async function() {
-                var pos = getTargetPosition();
-                var object = findObjectAt(pos.targetX, pos.targetY, 'pushable');
-                
+                var front = ProximityGuard.getForwardPosition();
+                var object = findObjectAt(front.x, front.y, 'pushable');
+
                 if (object) {
-                    var newX = pos.targetX, newY = pos.targetY;
-                    switch (gameState.playerDirection) {
-                        case 'up': newY--; break;
-                        case 'down': newY++; break;
-                        case 'left': newX--; break;
-                        case 'right': newX++; break;
-                    }
-                    
-                    if (canMoveTo(newX, newY)) {
-                        object.x = newX;
-                        object.y = newY;
+                    var beyond = ProximityGuard.getForwardPosition(2);
+                    if (canMoveTo(beyond.x, beyond.y)) {
+                        object.x = beyond.x;
+                        object.y = beyond.y;
                         await render();
                     }
                 }
@@ -331,8 +311,8 @@
 
         open: {
             execute: async function() {
-                var pos = getTargetPosition();
-                var door = findObjectAt(pos.targetX, pos.targetY, 'door');
+                var front = ProximityGuard.getForwardPosition();
+                var door = findObjectAt(front.x, front.y, 'door');
                 
                 if (door) {
                     door.open = true;
@@ -345,8 +325,8 @@
 
         close: {
             execute: async function() {
-                var pos = getTargetPosition();
-                var door = findObjectAt(pos.targetX, pos.targetY, 'door');
+                var front = ProximityGuard.getForwardPosition();
+                var door = findObjectAt(front.x, front.y, 'door');
                 
                 if (door) {
                     door.open = false;
@@ -362,8 +342,8 @@
             defaults: { item: null },
             execute: async function(item) {
                 if (!item) return;
-                var pos = getTargetPosition();
-                var chest = findObjectAt(pos.targetX, pos.targetY, 'chest');
+                var front = ProximityGuard.getForwardPosition();
+                var chest = findObjectAt(front.x, front.y, 'chest');
                 
                 if (chest) {
                     if (!chest.contents) chest.contents = [];
