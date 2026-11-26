@@ -183,7 +183,7 @@
         var result = await executePythonCode(code);
 
         if (!result.wasStopped) {
-            if (window.TestRunner) TestRunner.evaluate();
+            if (window.TestRunner) TestRunner.evaluate({ allowWin: !result.mistake && window.getCommandCount() > 0 });
             showRunMistakes(code, result.mistake, isBlockMode);
         }
 

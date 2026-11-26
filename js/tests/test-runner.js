@@ -1,7 +1,8 @@
 const TestRunner = (function() {
     let lastRun = null;
     
-    function evaluate() {
+    function evaluate(options) {
+        const allowWin = !options || options.allowWin !== false;
         if (!window.courseData || window.currentLevel === undefined) {
             console.warn('[TestRunner] No course data or level available');
             return;
@@ -16,7 +17,7 @@ const TestRunner = (function() {
         const tests = level.tests;
         
         if (!tests || !tests.items || tests.items.length === 0) {
-            _defaultGoalCheck();
+            _defaultGoalCheck(allowWin);
             return;
         }
         
@@ -30,7 +31,7 @@ const TestRunner = (function() {
         
         console.log('[TestRunner] Test results:', results);
         
-        if (results.passed) {
+        if (results.passed && allowWin) {
             _triggerWin();
         }
         
@@ -71,7 +72,8 @@ const TestRunner = (function() {
         return results;
     }
     
-    function _defaultGoalCheck() {
+    function _defaultGoalCheck(allowWin) {
+        if (!allowWin) return;
         const px = Math.floor(gameState.playerPos.x);
         const py = Math.floor(gameState.playerPos.y);
         const gx = gameState.goalPos.x;
