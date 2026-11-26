@@ -755,9 +755,9 @@ Located in `js/game-engine/reset-manager.js`. There is one restore, `restoreLeve
 
 ### RESET
 
-`resetGame()` in `js/game-commands.js`, after the student confirms:
-1. Stops the program at once (`SkulptRuntime.stopRunningProgram()`)
-2. `restoreLevelStart()`
+`resetGame()` in `js/game-commands.js`:
+1. Stops the program at once (`SkulptRuntime.stopRunningProgram()`), before asking, so nothing moves while the question is open. Cancel leaves the character where it stopped and keeps the code.
+2. After the student confirms: `restoreLevelStart()`
 3. Clears the Console Log (`clearConsoleLog()`, next to `toggleConsoleLog()`)
 4. Puts back the starter code and saves an empty file
 

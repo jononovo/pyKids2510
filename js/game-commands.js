@@ -867,6 +867,7 @@
     };
 
     window.resetGame = async function() {
+        SkulptRuntime.stopRunningProgram();
         var confirmed = await ConfirmDialog.show({
             title: 'Reset Level',
             message: 'Your code and level progress will be cleared.',
@@ -875,7 +876,6 @@
         });
         if (!confirmed) return;
 
-        SkulptRuntime.stopRunningProgram();
         ResetManager.restoreLevelStart(gameState);
         clearConsoleLog();
 
