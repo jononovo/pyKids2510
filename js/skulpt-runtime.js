@@ -85,15 +85,50 @@
             .replace(/[\u200B-\u200D\uFEFF]/g, '');
     }
 
+    var currentProgramRun = { stopped: true };
+    var stopWaitingProgram = null;
+
+    function waitUnlessStopped(suspension) {
+        return new Promise(function(resolve, reject) {
+            var stopped = false;
+            stopWaitingProgram = function() {
+                stopped = true;
+                stopWaitingProgram = null;
+                reject(new Error('__STOP__'));
+            };
+            suspension.data.promise.then(function(result) {
+                suspension.data.result = result;
+            }, function(error) {
+                suspension.data.error = error;
+            }).then(function() {
+                if (stopped) return;
+                stopWaitingProgram = null;
+                try {
+                    resolve(suspension.resume());
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        });
+    }
+
+    function stopRunningProgram() {
+        currentProgramRun.stopped = true;
+        if (stopWaitingProgram) stopWaitingProgram();
+        endMoveAnimationNow();
+    }
+
     async function executePythonCode(code) {
         configureSkulpt();
-        
+
         if (typeof window.resetCommandCounter === 'function') window.resetCommandCounter();
 
         ResetManager.restoreLevelStart(gameState);
 
         var fullCode = CODE_PRELUDE + sanitizeCode(code);
         var executionError = null;
+        var run = { stopped: false };
+        currentProgramRun = run;
 
         try {
             await Sk.misceval.asyncToPromise(
@@ -101,16 +136,15 @@
                     return Sk.importMainWithBody("<stdin>", false, fullCode, true);
                 },
                 {
-                    "*": function() {
-                        if (window.shouldStopExecution) {
-                            throw new Error("__STOP__");
-                        }
+                    "*": function(suspension) {
+                        if (run.stopped) throw new Error('__STOP__');
+                        if (suspension.data.type === 'Sk.promise') return waitUnlessStopped(suspension);
                     }
                 }
             );
         } catch (error) {
             var errorStr = error.toString();
-            if (errorStr.indexOf('__STOP__') !== -1) {
+            if (run.stopped) {
                 console.log('[Skulpt Runtime] Execution stopped by user');
             } else if (errorStr.indexOf('TimeLimitError') !== -1) {
                 console.log('[Skulpt Runtime] Execution timed out (120 second limit)');
@@ -124,7 +158,7 @@
         }
 
         var executedCommands = typeof window.getCommandCount === 'function' ? window.getCommandCount() : 0;
-        return { executionError: executionError, executedCommands: executedCommands };
+        return { executionError: executionError, executedCommands: executedCommands, wasStopped: run.stopped };
     }
 
     function setButtonToRun(btn) {
@@ -147,13 +181,12 @@
         if (typeof gameState === 'undefined') return;
         
         if (gameState.isRunning) {
-            window.shouldStopExecution = true;
+            stopRunningProgram();
             if (runBtn) runBtn.disabled = true;
             return;
         }
-        
+
         gameState.isRunning = true;
-        window.shouldStopExecution = false;
         setButtonToStop(runBtn);
         
         var code;
@@ -179,10 +212,8 @@
         var result = await executePythonCode(code);
         var executionError = result.executionError;
         var executedCommands = result.executedCommands;
-        
-        var wasStopped = window.shouldStopExecution;
-        window.shouldStopExecution = false;
-        
+        var wasStopped = result.wasStopped;
+
         if (!wasStopped && window.TestRunner) {
             TestRunner.evaluate();
         }
@@ -200,6 +231,8 @@
     window.SkulptRuntime = {
         execute: executePythonCode,
         runCode: runCodeWithSkulpt,
+        stopRunningProgram: stopRunningProgram,
+        currentProgramRun: function() { return currentProgramRun; },
         configure: configureSkulpt,
         getCommandCount: function() { return typeof window.getCommandCount === 'function' ? window.getCommandCount() : 0; }
     };

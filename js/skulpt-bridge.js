@@ -54,7 +54,7 @@
             
             lines.push('        return Sk.misceval.promiseToSuspension(');
             lines.push('            (async function() {');
-            lines.push('                if (window.shouldStopExecution) throw new Error("__STOP__");');
+            lines.push('                if (window.SkulptRuntime.currentProgramRun().stopped) throw new Error("__STOP__");');
             lines.push('                var result = await window.gameCommand_' + cmdName + '(' + jsArgsList.join(', ') + ');');
             
             if (countsAsMultiple) {
@@ -77,6 +77,7 @@
         lines.push('        $loc.append = new Sk.builtin.func(function(self) {');
         lines.push('            return Sk.misceval.promiseToSuspension(');
         lines.push('                (async function() {');
+        lines.push('                    if (window.SkulptRuntime.currentProgramRun().stopped) throw new Error("__STOP__");');
         lines.push('                    await window.gameCommand_backpack_append();');
         lines.push('                    incrementCounter(1);');
         lines.push('                    return Sk.builtin.none.none$;');
@@ -88,6 +89,7 @@
         lines.push('            var js_item = item ? Sk.ffi.remapToJs(item) : null;');
         lines.push('            return Sk.misceval.promiseToSuspension(');
         lines.push('                (async function() {');
+        lines.push('                    if (window.SkulptRuntime.currentProgramRun().stopped) throw new Error("__STOP__");');
         lines.push('                    await window.gameCommand_backpack_remove(js_item);');
         lines.push('                    incrementCounter(1);');
         lines.push('                    return Sk.builtin.none.none$;');
@@ -99,6 +101,7 @@
         lines.push('            var js_arg = arg !== undefined ? Sk.ffi.remapToJs(arg) : undefined;');
         lines.push('            return Sk.misceval.promiseToSuspension(');
         lines.push('                (async function() {');
+        lines.push('                    if (window.SkulptRuntime.currentProgramRun().stopped) throw new Error("__STOP__");');
         lines.push('                    await window.gameCommand_backpack_pop(js_arg);');
         lines.push('                    incrementCounter(1);');
         lines.push('                    return Sk.builtin.none.none$;');
@@ -125,6 +128,7 @@
         lines.push('            var js_value = Sk.ffi.remapToJs(value);');
         lines.push('            return Sk.misceval.promiseToSuspension(');
         lines.push('                (async function() {');
+        lines.push('                    if (window.SkulptRuntime.currentProgramRun().stopped) throw new Error("__STOP__");');
         lines.push('                    await window.gameCommand_inventory_set(js_key, js_value);');
         lines.push('                    return Sk.builtin.none.none$;');
         lines.push('                })()');

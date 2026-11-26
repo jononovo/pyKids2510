@@ -40,10 +40,11 @@
             defaults: { steps: 1 },
             countsAsMultiple: true,
             execute: async function(steps) {
+                var run = SkulptRuntime.currentProgramRun();
                 steps = parseInt(steps) || 1;
                 var moved = 0;
-                
-                for (var i = 0; i < steps; i++) {
+
+                for (var i = 0; i < steps && !run.stopped; i++) {
                     var pos = gameState.playerPos;
                     var x = pos.x, y = pos.y;
                     var newX = Math.floor(x);
@@ -64,7 +65,8 @@
                         break;
                     }
                 }
-                
+
+                if (run.stopped) return moved;
                 if (window.TestRunner) {
                     TestRunner.evaluate();
                 } else {
@@ -79,10 +81,11 @@
             defaults: { times: 1 },
             countsAsMultiple: true,
             execute: async function(times) {
+                var run = SkulptRuntime.currentProgramRun();
                 times = parseInt(times) || 1;
                 var directions = ['up', 'left', 'down', 'right'];
-                
-                for (var i = 0; i < times; i++) {
+
+                for (var i = 0; i < times && !run.stopped; i++) {
                     var currentIndex = directions.indexOf(gameState.playerDirection);
                     gameState.playerDirection = directions[(currentIndex + 1) % 4];
                     
@@ -100,10 +103,11 @@
             defaults: { times: 1 },
             countsAsMultiple: true,
             execute: async function(times) {
+                var run = SkulptRuntime.currentProgramRun();
                 times = parseInt(times) || 1;
                 var directions = ['up', 'right', 'down', 'left'];
-                
-                for (var i = 0; i < times; i++) {
+
+                for (var i = 0; i < times && !run.stopped; i++) {
                     var currentIndex = directions.indexOf(gameState.playerDirection);
                     gameState.playerDirection = directions[(currentIndex + 1) % 4];
                     
@@ -889,8 +893,7 @@
         });
         if (!confirmed) return;
 
-        gameState.isRunning = false;
-        document.getElementById('run-btn').disabled = false;
+        SkulptRuntime.stopRunningProgram();
         ResetManager.restoreLevelStart(gameState);
         clearConsoleLog();
 

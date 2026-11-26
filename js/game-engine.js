@@ -270,8 +270,23 @@ async function render() {
     }
 }
 
+let finishMoveNow = null;
+
+function endMoveAnimationNow() {
+    if (finishMoveNow) finishMoveNow();
+}
+
 function animateMove(fromX, fromY, toX, toY, direction) {
     return new Promise(resolve => {
+        let finished = false;
+        function finish() {
+            finished = true;
+            finishMoveNow = null;
+            gameState.playerPos.x = toX;
+            gameState.playerPos.y = toY;
+            resolve();
+        }
+        finishMoveNow = finish;
         gameState.playerDirection = direction;
         const startTime = Date.now();
         
@@ -285,10 +300,11 @@ function animateMove(fromX, fromY, toX, toY, direction) {
         }
         
         async function animate() {
+            if (finished) return;
             const canvas = document.getElementById('game-canvas');
             const visibleCtx = canvas ? canvas.getContext('2d') : null;
             if (!visibleCtx) return;
-            
+
             const elapsed = Date.now() - startTime;
             const progress = Math.min(elapsed / moveDuration, 1);
             const easeProgress = 1 - Math.pow(1 - progress, 3);
@@ -371,7 +387,7 @@ function animateMove(fromX, fromY, toX, toY, direction) {
                 requestAnimationFrame(() => animate());
             } else {
                 await render();
-                resolve();
+                if (!finished) finish();
             }
         }
         
