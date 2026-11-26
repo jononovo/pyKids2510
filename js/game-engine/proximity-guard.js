@@ -18,6 +18,7 @@
         NO_LAND_NEARBY: 'No suitable land nearby to disembark.',
         CANNOT_PUSH: 'Nothing to push here.',
         CANNOT_OPEN: 'Nothing to open here.',
+        CANNOT_CLOSE: 'Nothing to close here.',
         TILE_BLOCKED: 'The way is blocked.'
     };
 

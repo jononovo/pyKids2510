@@ -176,14 +176,8 @@
                     SignalManager.subscribe(element.on, () => {
                         console.log('[ElementInteraction] Transform triggered for:', element.type, 'at', element.x, element.y);
                         if (element.replacement) {
-                            this.elementStates[element.id] = { 
-                                removed: false, 
-                                transformed: true,
-                                newType: element.replacement 
-                            };
-                            element.type = element.replacement;
-                            element.replacement = null;
-                            
+                            this.setElementType(element, element.replacement);
+
                             if (element.emit && window.SignalManager) {
                                 SignalManager.emit(element.emit);
                             }
@@ -218,6 +212,13 @@
 
         getElementState(elementId) {
             return this.elementStates[elementId] || null;
+        },
+
+        setElementType(element, type) {
+            this.elementStates[element.id] = { removed: false, transformed: true, newType: type };
+            if (element.type === type) return;
+            element.replacement = element.type;
+            element.type = type;
         },
 
         handlePlayerStep(x, y, gameState) {
@@ -298,15 +299,7 @@
                 if (element.replacement) {
                     result.action = 'transformed';
                     result.message = `${element.type} transformed to ${element.replacement}`;
-                    
-                    this.elementStates[element.id] = { 
-                        removed: false, 
-                        transformed: true,
-                        newType: element.replacement 
-                    };
-                    
-                    element.type = element.replacement;
-                    element.replacement = null;
+                    this.setElementType(element, element.replacement);
                 } else {
                     result.action = 'removed';
                     result.message = `${element.type} disappeared`;
@@ -349,8 +342,7 @@
                 this.elementStates[id] = { ...state };
                 const element = this.elements.find(e => e.id === id);
                 if (element && state.transformed && state.newType) {
-                    element.type = state.newType;
-                    element.replacement = null;
+                    this.setElementType(element, state.newType);
                 }
             }
         }

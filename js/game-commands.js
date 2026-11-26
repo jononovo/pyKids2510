@@ -26,6 +26,22 @@
         return window.CommandHelpers ? CommandHelpers.getAnimationDuration(fraction) : 300;
     }
 
+    async function switchDoorInFront(fromType, toType, doneMessage, nothingMessage) {
+        var front = ProximityGuard.getForwardPosition();
+        var door = ElementInteractionManager.getElementAt(front.x, front.y);
+        if (door && door.type === fromType) {
+            ElementInteractionManager.setElementType(door, toType);
+            ElementInteractionManager.persistStates();
+            playInteractSound();
+            animateInteractPop(front.x, front.y);
+            if (window.showGameMessage) showGameMessage(doneMessage, 'success');
+            await render();
+        } else if (window.showGameMessage) {
+            showGameMessage(nothingMessage, 'info');
+        }
+        await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
+    }
+
     // ========== COMMAND DEFINITIONS ==========
     // Single source of truth: metadata + execute function
     // Both JS callers and Skulpt use these definitions
@@ -47,6 +63,13 @@
                     if (canMoveTo(front.x, front.y)) {
                         await animateMove(pos.x, pos.y, front.x, front.y, gameState.playerDirection);
                         moved++;
+                        if (run.stopped) break;
+                        var stepResult = ElementInteractionManager.handlePlayerStep(front.x, front.y, gameState);
+                        if (stepResult) {
+                            if (window.showGameMessage) showGameMessage(stepResult.message, 'success');
+                            updateInventoryDisplay();
+                            await render();
+                        }
                     } else {
                         playBumpSound();
                         break;
@@ -311,29 +334,13 @@
 
         open: {
             execute: async function() {
-                var front = ProximityGuard.getForwardPosition();
-                var door = findObjectAt(front.x, front.y, 'door');
-                
-                if (door) {
-                    door.open = true;
-                    await render();
-                }
-                
-                await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
+                await switchDoorInFront('door', 'door-open', 'Opened the door', ProximityGuard.Messages.CANNOT_OPEN);
             }
         },
 
         close: {
             execute: async function() {
-                var front = ProximityGuard.getForwardPosition();
-                var door = findObjectAt(front.x, front.y, 'door');
-                
-                if (door) {
-                    door.open = false;
-                    await render();
-                }
-                
-                await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
+                await switchDoorInFront('door-open', 'door', 'Closed the door', ProximityGuard.Messages.CANNOT_CLOSE);
             }
         },
 
@@ -730,7 +737,7 @@
             type: droppedItemType,
             section: 'collectibles',
             id: 'dropped_' + droppedItemType + '_' + placement.x + '_' + placement.y + '_' + Date.now(),
-            trigger: 'on_step'
+            trigger: 'on_collect'
         };
         
         if (window.ElementInteractionManager) {
