@@ -1,6 +1,15 @@
 (function() {
     'use strict';
 
+    const PLAYER_OBJECTS = {
+        backpack: PythonBackpackInventory.createBackpack,
+        inventory: PythonBackpackInventory.createInventory
+    };
+
+    function playerModuleNames() {
+        return Object.keys(GameCommands).concat(Object.keys(PLAYER_OBJECTS));
+    }
+
     function buildPlayerModule() {
         const mod = {};
         let commandCount = 0;
@@ -27,12 +36,14 @@
             });
         });
 
-        mod.backpack = PythonBackpackInventory.createBackpack(mod, runGameCommand);
-        mod.inventory = PythonBackpackInventory.createInventory(mod, runGameCommand);
+        Object.keys(PLAYER_OBJECTS).forEach(name => {
+            mod[name] = PLAYER_OBJECTS[name](mod, runGameCommand);
+        });
         return mod;
     }
 
     window.buildPlayerModule = buildPlayerModule;
+    window.playerModuleNames = playerModuleNames;
 
     console.log('[Skulpt Bridge] Module loaded');
 })();

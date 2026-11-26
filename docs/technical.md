@@ -118,7 +118,12 @@ project/
 │   ├── syntax-highlighter.js     # Python syntax highlighting
 │   ├── user-progress.js          # Progress persistence
 │   ├── code-book.js              # Code reference panel
-│   ├── coding-tutor.js           # Tutor hints and HELP
+│   │
+│   ├── guide/
+│   │   ├── mistake-finder.js     # Finds the mistakes in the code (no page code)
+│   │   ├── mistake-lines.js      # The red lines and their icon
+│   │   ├── guide-bubble.js       # The guide's bubble and Show me
+│   │   └── level-advice.js       # HELP: the level's advice
 │   │
 │   ├── game-engine/
 │   │   ├── level-loader.js       # Level initialization
@@ -177,7 +182,7 @@ project/
 ├── css/
 │   ├── styles.css                # Main styles
 │   ├── editor.css                # Editor styles
-│   └── tutor.css                 # Tutor panel styles
+│   └── guide.css                 # The red lines, the icon and the guide's bubble
 │
 └── docs/
     ├── technical.md                  # This file
@@ -598,9 +603,10 @@ Defined in `js/game-commands.js`:
 
 ### Mistakes
 
-- `explainPythonError(error, hiddenLineCount)` (`js/python-error-explainer.js`) gives `{line, text}`, with the line counted from the student's first line (the 3 hidden lines are taken off).
+- `explainPythonError(error, hiddenLineCount)` (`js/python-error-explainer.js`) gives `{line, text, syntaxError}`, with the line counted from the student's first line (the 3 hidden lines are taken off).
 - Plain words for NameError, SyntaxError and indentation (this Skulpt build reports most indentation mistakes as `SyntaxError: bad input`; "unindent does not match any outer indentation level" gets the indentation wording); TypeError and IndexError keep Python's message with what it means; any other error keeps Python's message. The error's name stays at the end, as in "(NameError)". A game command's own error (backpack full, nothing in front) shows the game's message.
-- The runtime writes "Line N: ..." in red in the Console Log, tutor on or off, marks the line in the editor and gives the tutor the same line. A line past the end of the code (an unclosed bracket) is capped at the last line with code.
+- `executePythonCode` gives the mistake back (`{mistake, wasStopped}`) instead of writing it. A line past the end of the code (an unclosed bracket) is capped at the last line with code.
+- `runCodeWithSkulpt` decides where it shows. After a finished run whose code is still in the editor, the editor's red lines get the finder's mistakes and Python's ([The Guide](#the-guide)). In Blocks mode, or for a mistake with no line, the Console Log writes "Line N: ..." in red. A stopped run shows nothing.
 - The 2-minute limit (Skulpt's `TimeoutError`) shows "Code stopped - ran too long (2 minute limit)".
 
 ### Stopping
@@ -639,12 +645,32 @@ Custom Python highlighting via `js/syntax-highlighter.js`:
 ### Saving the Code
 
 - `EditorManager` saves from CodeJar's update hook, which fires only when the student edits (typing, paste, undo, redo). CodeJar's `updateCode()` doesn't call it, so code the game sets itself (the level's code, the clean-up before a run) is never saved.
-- APPLY in the tutor and RESET save on purpose; RESET saves an empty file, which means the level's starter code.
+- RESET saves on purpose: an empty file, which means the level's starter code. Nothing else writes code into the editor; the guide only shows a fix, and the student types it.
 - `UserProgressManager.saveCode(code)` waits 500 ms, then keeps a browser copy and sends `save-progress {content}` to CodeTribe ([User Progress Management](#user-progress-management)).
 
-### The Error Line Mark
+### Where Lines Are
 
-`EditorManager.markErrorLine(lineNumber)` draws a red bar behind the line, outside the editor's text (which is redrawn on every key), and `clearErrorLine()` takes it away. It clears on the next edit or Run.
+- `EditorManager.linePosition(lineNumber)` measures a line on the page with a range over the editor's text (CodeJar shares its `getNodeAndOffset`), since long lines wrap: its first row's top, its last row's top and bottom, and where its text ends, in the editor box's coordinates.
+- `EditorManager.cursorLine()` reads the cursor's line (`null` when the editor isn't focused), and `placeCursorAtLineEnd(lineNumber)` puts the cursor at the end of a line.
+- The editor's update hook calls `MistakeLines.codeChanged`, and `updateCode` (code the game sets) calls `MistakeLines.clear`. The guide is placed again after each edit and when the editor changes size or scrolls.
+
+### The Guide
+
+Mistakes have their own spot in the editor: red lines, an icon and the guide's bubble (`js/guide/`, `css/guide.css`). Nothing pops up by itself.
+
+- **The mistake finder** (`MistakeFinder.find(code)`): rules, no AI and no page code. It gives `{mistakes, unknownWordLines}`. Each mistake is `{line, kind, hint, fix}`; `fix` is `{pieces, words}`: the line as pieces to keep, add, take out or swap, and the words with the important part at the odd places (the bubble makes it bold).
+  - Kinds: spelling, capital letters, a space in a name, no colon, a bracket missing or one too many, a missing or mismatched quote, `=` to compare, a command without `()`, a value without brackets, `else if`, and a missing or extra indent.
+  - It reads the names it knows from where they're defined: Skulpt's keywords and built-ins, the player module (`playerModuleNames()` in the bridge), the backpack's and inventory's methods (`PythonBackpackInventory.backpackMethods`, `inventoryMethods`), the hidden first lines' imports (`SkulptRuntime.preludeImports`) and the student's own names.
+  - A typo is a word close to a command, `backpack` or `inventory` and their methods, the student's names, a keyword or a common built-in: 1 edit step for words up to 4 letters, 2 up to 10, 3 beyond, with two swapped letters as one step.
+  - It never marks a word that isn't close to anything, words of 1 or 2 letters, what follows a dot (except `player.`, `backpack.` and `inventory.`), a name before `=`, text in quotes, comments, or values in brackets that go on over several lines.
+- **Red lines** (`MistakeLines`):
+  - `show(code, pythonMistake)`, after a finished Run: every line the finder marks, plus the line Python stopped on. On Python's line the finder's words win, since they come with a Show me. Python's SyntaxError line is left out when the finder found a grammar mistake, because after a missing bracket Python names a later line.
+  - `clear()` at every Run and whenever the game sets the code (a new level, RESET, CodeTribe's saved code).
+  - `codeChanged(code)`, while the student types: red lines move with their code. A line the finder marked stays red until it has no mistake and every word on it is one Python knows; part-way through a fix it keeps its hint, and Show me comes back when the finder sees the mistake again. A line red only from Python clears once it changes. Typing never adds a red line.
+- **The icon:** the code panel's comment icon, two characters after the end of the red line the mouse rests on, otherwise the red line the cursor is on (read on the page's `selectionchange`). Clicking it opens the bubble without taking the editor's focus; on a hovered line it also puts the cursor at the end of that line. Its name for screen readers is "Open the guide for line N".
+- **The bubble** (`GuideBubble`): the guide's face, the hint, then a "Show me ›" link that shows the fixed line with the change marked (green to add, red to take out, amber for two swapped letters, dots for spaces) and in words. It sits above its line when it fits inside the editor, otherwise below. HELP's advice to add a line leaves that next line free when it sits below, so the student can type there. A red line's bubble follows its line and closes when the cursor moves to another line or the line is fixed. Every bubble closes with ×, Escape, a click anywhere outside it, Run, RESET and a new level. Typing doesn't close it.
+- **HELP** (`showLevelAdvice`, `js/guide/level-advice.js`): with red lines, it puts the cursor at the end of the first one and opens its bubble. Otherwise it opens the level's advice in the bubble, worked out from the level's written solution: the next line to add (pointing at the last line of code), a line that differs, or a general tip. The hint never holds the answer; the code is only under Show me. When a test with a description failed in the last run, that description is the hint.
+- **Blocks mode** has no guide: its mistakes stay in the Console Log.
 
 ---
 
@@ -791,7 +817,7 @@ The key is the level's title (as a slug) plus a short fingerprint of its text, s
 
 ## Testing System
 
-Tests come only from CodeTribe: each slide's Tests dialog, sent with `load-lesson` as `[{name, rule}]`. `parseHostTests()` reads each rule with `parseTestsYaml()` and keeps its name. A level with no tests is won at the star (`_defaultGoalCheck`).
+Tests come only from CodeTribe: each slide's Tests dialog, sent with `load-lesson` as `[{name, rule, description}]`. `parseHostTests()` reads each rule with `parseTestsYaml()` and keeps its name and description. A level with no tests is won at the star (`_defaultGoalCheck`).
 
 ### Test Types
 
@@ -808,7 +834,7 @@ Defined in `js/tests/test-types.js`:
 
 ### Test Execution
 
-`TestRunner` (`js/tests/test-runner.js`) checks the tests at the end of each `move_forward()` and when a program ends without being stopped. All tests must pass. Each named test's result is sent to CodeTribe as `checker-validation`.
+`TestRunner` (`js/tests/test-runner.js`) checks the tests at the end of each `move_forward()` and when a program ends without being stopped. All tests must pass. Each named test's result is sent to CodeTribe as `checker-validation`. `lastFailedTests()` gives the current level's failed tests from the last check, which HELP reads for a description.
 
 ---
 
@@ -973,9 +999,9 @@ The game runs only inside CodeTribe, in a frame on the app's own address (under 
 | Message | Direction | Shape |
 |---------|-----------|-------|
 | `app-ready` | game → CodeTribe | `{type: 'app-ready', currentLevelId: null}`, once the game is ready |
-| `load-lesson` | CodeTribe → game | `{type: 'load-lesson', body: JSON.stringify({content, tests})}`: the slide's Markdown and its tests as `[{name, rule}]` |
+| `load-lesson` | CodeTribe → game | `{type: 'load-lesson', body: JSON.stringify({content, tests})}`: the slide's Markdown and its tests as `[{name, rule, description}]` |
 | `load-progress` | CodeTribe → game | `{type: 'load-progress', content}`: the slide's saved code, or `''` for none (the level's starter code) |
-| `save-progress` | game → CodeTribe | `{type: 'save-progress', content}`: the editor's code, 500 ms after the student edits it, and after APPLY and RESET |
+| `save-progress` | game → CodeTribe | `{type: 'save-progress', content}`: the editor's code, 500 ms after the student edits it, and after RESET |
 | `checker-validation` | game → CodeTribe | `{type: 'checker-validation', checkerId: <test name>, valid}`, for each named test after every check |
 | `nextSlide` | game → CodeTribe | `{type: 'nextSlide', skip: true}`, after the last level |
 
@@ -989,7 +1015,7 @@ iframe.contentWindow.postMessage({
     body: JSON.stringify({
         content: '# Python Adventure - First Steps\n## CHAPTER 1\n--- <!-- Level 1 Start -->\n...',
         tests: [
-            { name: 'Reach the star', rule: 'type: position\ntarget: goal' },
+            { name: 'Reach the star', rule: 'type: position\ntarget: goal', description: 'Walk all the way to the star.' },
             { name: 'Use a for loop', rule: 'type: code_regex\npattern: for .* in range' }
         ]
     })

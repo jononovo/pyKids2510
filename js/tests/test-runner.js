@@ -1,4 +1,5 @@
 const TestRunner = (function() {
+    let lastRun = null;
     
     function evaluate() {
         if (!window.courseData || window.currentLevel === undefined) {
@@ -21,6 +22,7 @@ const TestRunner = (function() {
         
         const context = TestContext.snapshot();
         const results = _runTests(tests, context);
+        lastRun = { level: level, items: results.items };
         
         if (window.UserProgressManager) {
             UserProgressManager.reportTestResults(results.items);
@@ -50,13 +52,14 @@ const TestRunner = (function() {
                 results.items.push({
                     type: testType,
                     name: test.name,
+                    description: test.description,
                     passed: false,
                     message: `Unknown test type: ${testType}`
                 });
                 continue;
             }
             
-            results.items.push({ ...TestTypes[testType](test, context), name: test.name });
+            results.items.push({ ...TestTypes[testType](test, context), name: test.name, description: test.description });
         }
         
         if (results.pass_all) {
@@ -97,11 +100,17 @@ const TestRunner = (function() {
     function runManualCheck() {
         return evaluate();
     }
+
+    function lastFailedTests() {
+        const level = window.courseData ? courseData.levels[currentLevel] : null;
+        return lastRun && lastRun.level === level ? lastRun.items.filter(item => !item.passed) : [];
+    }
     
     return {
         evaluate: evaluate,
         getTestDefinitions: getTestDefinitions,
-        runManualCheck: runManualCheck
+        runManualCheck: runManualCheck,
+        lastFailedTests: lastFailedTests
     };
 })();
 

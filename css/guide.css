@@ -1,0 +1,181 @@
+.mistake-lines {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    pointer-events: none;
+}
+
+.mistake-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    background: rgba(255, 90, 90, 0.18);
+    box-shadow: inset 3px 0 0 #ff8a80;
+}
+
+.mistake-icon {
+    position: absolute;
+    z-index: 2;
+    width: 20px;
+    height: 20px;
+    padding: 2px;
+    border: 0;
+    background: none;
+    color: #ff8a80;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mistake-icon svg {
+    width: 16px;
+    height: 16px;
+}
+
+.mistake-icon:hover {
+    color: #ffffff;
+}
+
+.mistake-icon:focus-visible {
+    color: #ffffff;
+}
+
+.mistake-icon[hidden],
+.guide-bubble[hidden] {
+    display: none;
+}
+
+.guide-bubble {
+    position: absolute;
+    z-index: 3;
+    width: max-content;
+    max-width: calc(100% - 52px);
+    padding: 10px 30px 10px 12px;
+    background: #ffffff;
+    color: #161616;
+    border: 3px solid #161616;
+    border-radius: 12px;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
+    font: 500 13px/1.45 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    letter-spacing: normal;
+    text-transform: none;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: start;
+    gap: 9px;
+}
+
+.guide-bubble::after {
+    content: '';
+    position: absolute;
+    left: 22px;
+    bottom: -13px;
+    border-style: solid;
+    border-width: 12px 9px 0 9px;
+    border-color: #161616 transparent transparent transparent;
+}
+
+.guide-bubble.below::after {
+    bottom: auto;
+    top: -13px;
+    border-width: 0 9px 12px 9px;
+    border-color: transparent transparent #161616 transparent;
+}
+
+.guide-bubble .guide-face {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #f4e3c3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+}
+
+.guide-bubble .guide-say {
+    display: grid;
+    justify-items: start;
+    gap: 7px;
+    min-width: 0;
+    max-width: 300px;
+}
+
+.guide-bubble .guide-hint,
+.guide-bubble .guide-words {
+    margin: 0;
+}
+
+.guide-bubble .guide-close {
+    position: absolute;
+    top: 3px;
+    right: 6px;
+    padding: 2px 4px;
+    border: 0;
+    background: none;
+    color: #666666;
+    font: 700 17px/1 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    cursor: pointer;
+}
+
+.guide-bubble .guide-show-me {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: #1e6b34;
+    font: 600 13px/1.45 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+}
+
+.guide-bubble .guide-fix {
+    justify-self: stretch;
+    display: grid;
+    gap: 4px;
+    padding: 8px;
+    background: #f3f6f3;
+    border-radius: 8px;
+}
+
+.guide-bubble .guide-fixed-line {
+    padding: 0;
+    background: none;
+    color: #161616;
+    font: 14px/1.4 'Courier New', monospace;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.guide-bubble .guide-words {
+    font-size: 12.5px;
+    color: #333333;
+}
+
+.guide-bubble .guide-add,
+.guide-bubble .guide-swap {
+    text-decoration: none;
+    border-radius: 3px;
+    padding: 0 1px;
+}
+
+.guide-bubble .guide-add {
+    background: #c9f2d0;
+    color: #0b6b1f;
+    border-bottom: 2px solid #2f9e44;
+}
+
+.guide-bubble .guide-swap {
+    background: #ffe8b3;
+    color: #7a4b00;
+    border-bottom: 2px solid #e8a000;
+}
+
+.guide-bubble .guide-remove {
+    background: #ffd6d6;
+    color: #a61b1b;
+    border-radius: 3px;
+}

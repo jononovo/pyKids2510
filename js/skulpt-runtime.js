@@ -18,20 +18,7 @@
         Sk.configure({
             output: function(text) {
                 console.log('[Python]', text);
-                if (text.trim()) {
-                    if (window.showGameMessage) {
-                        window.showGameMessage(text.trim(), 'player');
-                    } else {
-                        var messagePanel = document.getElementById('message-panel');
-                        if (messagePanel) {
-                            var msgDiv = document.createElement('div');
-                            msgDiv.className = 'message-item message-player';
-                            msgDiv.textContent = text.trim();
-                            messagePanel.appendChild(msgDiv);
-                            messagePanel.scrollTop = messagePanel.scrollHeight;
-                        }
-                    }
-                }
+                if (text.trim()) showGameMessage(text.trim(), 'player');
             },
             read: builtinRead,
             __future__: Sk.python3,
@@ -42,19 +29,24 @@
         });
     }
 
-    var CODE_PRELUDE = 'from player import *\nimport player\nimport time\n';
+    var PRELUDE_IMPORTS = ['player', 'time'];
+    var CODE_PRELUDE = 'from player import *\n' + PRELUDE_IMPORTS.map(function(name) { return 'import ' + name + '\n'; }).join('');
     var CODE_PRELUDE_LINE_COUNT = CODE_PRELUDE.split('\n').length - 1;
 
-    function showPythonMistake(error, code) {
+    function pythonMistake(error, code) {
         var mistake = explainPythonError(error, CODE_PRELUDE_LINE_COUNT);
-        if (!mistake.line) {
-            showGameMessage(mistake.text, 'error');
-            return mistake;
-        }
-        mistake.line = Math.min(mistake.line, code.replace(/\s+$/, '').split('\n').length);
-        showGameMessage('Line ' + mistake.line + ': ' + mistake.text, 'error');
-        EditorManager.markErrorLine(mistake.line);
+        if (mistake.line) mistake.line = Math.min(mistake.line, code.replace(/\s+$/, '').split('\n').length);
         return mistake;
+    }
+
+    function showMistakeInConsoleLog(mistake) {
+        showGameMessage(mistake.line ? 'Line ' + mistake.line + ': ' + mistake.text : mistake.text, 'error');
+    }
+
+    function showRunMistakes(code, mistake, isBlockMode) {
+        if (mistake && (isBlockMode || !mistake.line)) showMistakeInConsoleLog(mistake);
+        if (isBlockMode || EditorManager.getCode() !== code) return;
+        MistakeLines.show(code, mistake && mistake.line ? mistake : null);
     }
 
     function sanitizeCode(code) {
@@ -104,12 +96,12 @@
 
         if (typeof window.resetCommandCounter === 'function') window.resetCommandCounter();
 
-        EditorManager.clearErrorLine();
+        MistakeLines.clear();
         ResetManager.restoreLevelStart(gameState);
 
         var studentCode = sanitizeCode(code);
         var fullCode = CODE_PRELUDE + studentCode;
-        var executionError = null;
+        var mistake = null;
         var run = { stopped: false };
         currentProgramRun = run;
 
@@ -132,13 +124,12 @@
                 console.log('[Skulpt Runtime] Execution timed out (120 second limit)');
                 showGameMessage('Code stopped - ran too long (2 minute limit)', 'error');
             } else {
-                executionError = showPythonMistake(error, studentCode);
-                console.error('[Skulpt Error]', executionError.text);
+                mistake = pythonMistake(error, studentCode);
+                console.error('[Skulpt Error]', mistake.text);
             }
         }
 
-        var executedCommands = typeof window.getCommandCount === 'function' ? window.getCommandCount() : 0;
-        return { executionError: executionError, executedCommands: executedCommands, wasStopped: run.stopped };
+        return { mistake: mistake, wasStopped: run.stopped };
     }
 
     function setButtonToRun(btn) {
@@ -190,20 +181,12 @@
         }
 
         var result = await executePythonCode(code);
-        var executionError = result.executionError;
-        var executedCommands = result.executedCommands;
-        var wasStopped = result.wasStopped;
 
-        if (!wasStopped && window.TestRunner) {
-            TestRunner.evaluate();
+        if (!result.wasStopped) {
+            if (window.TestRunner) TestRunner.evaluate();
+            showRunMistakes(code, result.mistake, isBlockMode);
         }
-        
-        var reachedGoal = typeof checkVictory === 'function' ? checkVictory() : false;
-        
-        if (!wasStopped && window.tutorEnabled && !reachedGoal && typeof analyzeCodeAndProvideHelp === 'function') {
-            analyzeCodeAndProvideHelp(code, executionError, executedCommands);
-        }
-        
+
         gameState.isRunning = false;
         setButtonToRun(runBtn);
     }
@@ -214,7 +197,8 @@
         stopRunningProgram: stopRunningProgram,
         currentProgramRun: function() { return currentProgramRun; },
         configure: configureSkulpt,
-        getCommandCount: function() { return typeof window.getCommandCount === 'function' ? window.getCommandCount() : 0; }
+        getCommandCount: function() { return typeof window.getCommandCount === 'function' ? window.getCommandCount() : 0; },
+        preludeImports: PRELUDE_IMPORTS
     };
 
     window.pythonExecutor = {
@@ -226,15 +210,8 @@
             if (runBtn) runBtn.disabled = true;
             
             var result = await executePythonCode(code);
-            var executionError = result.executionError;
-            var executedCommands = result.executedCommands;
-            
-            var reachedGoal = typeof checkVictory === 'function' ? checkVictory() : false;
-            
-            if (window.tutorEnabled && !reachedGoal && typeof analyzeCodeAndProvideHelp === 'function') {
-                analyzeCodeAndProvideHelp(code, executionError, executedCommands);
-            }
-            
+            if (result.mistake) showMistakeInConsoleLog(result.mistake);
+
             gameState.isRunning = false;
             if (runBtn) runBtn.disabled = false;
         }

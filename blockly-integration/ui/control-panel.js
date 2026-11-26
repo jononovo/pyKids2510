@@ -148,23 +148,6 @@ window.BlocklyControlPanel = {
             };
         }
         
-        // Tutor toggle
-        const tutorToggle = document.getElementById('blockly-tutor-toggle');
-        if (tutorToggle) {
-            tutorToggle.onclick = () => {
-                const currentState = tutorToggle.getAttribute('data-state');
-                const newState = currentState === 'on' ? 'off' : 'on';
-                tutorToggle.setAttribute('data-state', newState);
-                tutorToggle.textContent = newState.toUpperCase();
-                
-                // Toggle tutor state
-                if (window.codingTutor) {
-                    window.codingTutor.enabled = (newState === 'on');
-                    localStorage.setItem('tutorEnabled', newState === 'on');
-                }
-            };
-        }
-        
         // Loop button (not implemented yet)
         const loopBtn = document.getElementById('blockly-loop-btn');
         if (loopBtn) {

@@ -199,7 +199,7 @@
 }
 
 .coin-display {
-    margin-left: 8px;  /* Close to tutor toggle */
+    margin-left: auto;
     display: flex;
     align-items: center;
     gap: 5px;
@@ -254,15 +254,6 @@
     white-space: pre;
     position: relative;
     z-index: 1;
-}
-
-.error-line-mark {
-    position: absolute;
-    left: 0;
-    right: 0;
-    background: rgba(255, 90, 90, 0.18);
-    box-shadow: inset 3px 0 0 #ff8a80;
-    pointer-events: none;
 }
 
 /* ========================================

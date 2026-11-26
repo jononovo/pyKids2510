@@ -156,10 +156,6 @@ async function loadLevel(levelIndex) {
                         <button type="button" class="btn secondary-btn" id="help-btn">
                             <span class="btn-icon">?</span> <span class="btn-text">HELP</span>
                         </button>
-                        <button class="tutor-toggle" id="tutor-toggle">
-                            <span class="toggle-text">ON</span>
-                            <span class="toggle-icon">🐶</span>
-                        </button>
                         <div class="coin-display">
                             <span>💰</span>
                             <span id="coin-count">5/5</span>
@@ -231,27 +227,6 @@ async function loadLevel(levelIndex) {
                     runCode();
                 }
             });
-            
-            // Initialize tutor toggle button
-            const tutorToggle = document.getElementById('tutor-toggle');
-            if (tutorToggle && window.toggleTutor) {
-                tutorToggle.addEventListener('click', window.toggleTutor);
-                const toggleText = tutorToggle.querySelector('.toggle-text');
-                const toggleIcon = tutorToggle.querySelector('.toggle-icon');
-                if (!toggleIcon) {
-                    const icon = document.createElement('span');
-                    icon.className = 'toggle-icon';
-                    icon.textContent = '🐶';
-                    tutorToggle.appendChild(icon);
-                }
-                if (window.tutorEnabled) {
-                    tutorToggle.classList.remove('off');
-                    if (toggleText) toggleText.textContent = 'ON';
-                } else {
-                    tutorToggle.classList.add('off');
-                    if (toggleText) toggleText.textContent = 'OFF';
-                }
-            }
         } else {
             const codeToLoad = UserProgressManager.codeForLevel(level);
             EditorManager.updateCode(codeToLoad);
