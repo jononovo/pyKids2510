@@ -757,15 +757,20 @@
 
     // ========== INVENTORY DICTIONARY ACCESS ==========
     
+    function currentInventory() {
+        return MissionState.isMissionLevel ? MissionState.getInventory() : gameState.inventory;
+    }
+
     window.gameCommand_inventory_get = function(key) {
-        if (window.MissionState && MissionState.isMissionLevel) {
-            return MissionState.getInventoryCount(key);
-        }
-        if (!gameState.inventory) {
-            gameState.inventory = {};
-        }
-        var value = gameState.inventory[key];
-        return (value !== undefined) ? value : 0;
+        return currentInventory()[key] || 0;
+    };
+
+    window.gameCommand_inventory_counts = function() {
+        return { ...currentInventory() };
+    };
+
+    window.gameCommand_backpack_items = function() {
+        return MissionState.getBackpack();
     };
     
     window.gameCommand_inventory_set = async function(key, value) {

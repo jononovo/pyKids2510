@@ -13,17 +13,7 @@
     }
 
     function configureSkulpt() {
-        // Ensure Sk.builtinFiles exists (required for custom modules)
-        if (!Sk.builtinFiles) Sk.builtinFiles = {};
-        if (!Sk.builtinFiles.files) Sk.builtinFiles.files = {};
-
-        // Inject the player module into Skulpt's virtual file system
-        // Uses pre-generated self-contained module source from game-commands.js
-        if (window.playerModuleSource) {
-            Sk.builtinFiles.files['src/lib/player.js'] = window.playerModuleSource;
-        } else {
-            console.error('[Skulpt Runtime] Player module source not found - ensure game-commands.js loads first');
-        }
+        Sk.builtinFiles.files['src/lib/player.js'] = 'var $builtinmodule = window.buildPlayerModule;';
 
         Sk.configure({
             output: function(text) {
