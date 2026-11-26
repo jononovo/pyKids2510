@@ -170,7 +170,7 @@ collectibles: [[6,4,"wood"]]
 | `### SUCCESS CRITERIA` | No | List of completion requirements |
 | `### REWARDS` | No | What the player earns |
 | `<!-- Starter Code -->` | Yes | Initial code in editor |
-| `<!-- Solution -->` | No | Reference solution |
+| `<!-- Solution -->` | No | Reference solution. HELP's advice is worked out from it: the next line to add, or a line that differs |
 | `<!-- Map -->` | Yes | Map layout and configuration |
 | Tests | No | Set in the slide's Tests dialog in CodeTribe, not in the level text (see Tests System below) |
 
@@ -1322,7 +1322,8 @@ Tests set what a level needs beyond reaching the star. They live in CodeTribe, i
 
 Each test in the Tests dialog has:
 - a **name**, which students see in CodeTribe's test list;
-- a **rule**: one test in the YAML form below, with or without the leading `- `. For example `type: position`, then `target: goal` on the next line.
+- a **rule**: one test in the YAML form below, with or without the leading `- `. For example `type: position`, then `target: goal` on the next line;
+- a **description** (optional): when the test fails in a run, HELP shows it as the guide's hint, and Show me still shows the line from the solution.
 
 All of a slide's tests must pass. They are checked after each step and when the program ends, and each result is sent to CodeTribe by name (`checker-validation`, see [technical.md](technical.md)).
 
@@ -1502,7 +1503,7 @@ Each `/` is a new line in the rule.
 
 1. **Starter Code:** Include partial solution to reduce frustration
 2. **Comments:** Guide students with helpful comments
-3. **Solution Code:** Provide optimal/reference solution
+3. **Solution Code:** Provide optimal/reference solution. HELP's advice comes from it, so it should reach the goal
 
 ### Collectibles
 
@@ -1937,7 +1938,7 @@ A comprehensive summary of every feature available for lesson authoring.
 | `### SUCCESS CRITERIA` | No | Completion requirements |
 | `### REWARDS` | No | What player earns |
 | `<!-- Starter Code -->` | Yes | Initial editor code |
-| `<!-- Solution -->` | No | Reference solution |
+| `<!-- Solution -->` | No | Reference solution, which feeds HELP |
 | `<!-- Map -->` | Yes | Map layout + config |
 | Tests | No | In the slide's Tests dialog |
 
