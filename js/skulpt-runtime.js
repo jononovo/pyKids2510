@@ -52,29 +52,20 @@
         });
     }
 
-    function formatSkulptError(error) {
-        var lineNum = null;
-        var errorMsg = '';
-        
-        if (error.traceback && error.traceback.length > 0) {
-            lineNum = error.traceback[0].lineno;
-        }
-        
-        if (error.args && error.args.v && error.args.v.length > 0) {
-            errorMsg = Sk.ffi.remapToJs(error.args.v[0]);
-        } else {
-            errorMsg = error.toString();
-        }
-        
-        if (errorMsg.indexOf('SyntaxError') !== -1) {
-            var match = errorMsg.match(/line (\d+)/);
-            if (match) lineNum = parseInt(match[1]);
-        }
-        
-        return { line: lineNum, error: errorMsg };
-    }
-
     var CODE_PRELUDE = 'from player import *\nimport player\nimport time\n';
+    var CODE_PRELUDE_LINE_COUNT = CODE_PRELUDE.split('\n').length - 1;
+
+    function showPythonMistake(error, code) {
+        var mistake = explainPythonError(error, CODE_PRELUDE_LINE_COUNT);
+        if (!mistake.line) {
+            showGameMessage(mistake.text, 'error');
+            return mistake;
+        }
+        mistake.line = Math.min(mistake.line, code.replace(/\s+$/, '').split('\n').length);
+        showGameMessage('Line ' + mistake.line + ': ' + mistake.text, 'error');
+        EditorManager.markErrorLine(mistake.line);
+        return mistake;
+    }
 
     function sanitizeCode(code) {
         return code
@@ -123,9 +114,11 @@
 
         if (typeof window.resetCommandCounter === 'function') window.resetCommandCounter();
 
+        EditorManager.clearErrorLine();
         ResetManager.restoreLevelStart(gameState);
 
-        var fullCode = CODE_PRELUDE + sanitizeCode(code);
+        var studentCode = sanitizeCode(code);
+        var fullCode = CODE_PRELUDE + studentCode;
         var executionError = null;
         var run = { stopped: false };
         currentProgramRun = run;
@@ -143,17 +136,14 @@
                 }
             );
         } catch (error) {
-            var errorStr = error.toString();
             if (run.stopped) {
                 console.log('[Skulpt Runtime] Execution stopped by user');
-            } else if (errorStr.indexOf('TimeLimitError') !== -1) {
+            } else if (error.tp$name === 'TimeoutError') {
                 console.log('[Skulpt Runtime] Execution timed out (120 second limit)');
-                if (window.showGameMessage) {
-                    showGameMessage('Code stopped - ran too long (2 minute limit)', 'error');
-                }
+                showGameMessage('Code stopped - ran too long (2 minute limit)', 'error');
             } else {
-                executionError = formatSkulptError(error);
-                console.error('[Skulpt Error]', executionError.error);
+                executionError = showPythonMistake(error, studentCode);
+                console.error('[Skulpt Error]', executionError.text);
             }
         }
 

@@ -610,7 +610,6 @@
         var element = guardResult.element;
         
         if (window.MissionState && MissionState.isBackpackFull()) {
-            if (window.showGameMessage) showGameMessage('Backpack is full!', 'error');
             throw new Error('Backpack is full! Remove an item first.');
         }
         

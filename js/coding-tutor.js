@@ -407,7 +407,7 @@ function generateRecommendation(studentLines, solutionLines, executionError) {
     // If there was an execution error, provide error-specific help
     if (executionError) {
         return {
-            message: `I see you're having trouble with the line: "${executionError.line}". ${executionError.error}`,
+            message: `I see you're having trouble with ${executionError.line ? 'line ' + executionError.line : 'your code'}. ${executionError.text}`,
             code: solutionLines[0] || 'player.move_forward()',
             type: 'error'
         };

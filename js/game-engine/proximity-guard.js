@@ -309,7 +309,6 @@
         
         if (!result.success) {
             const errorMsg = config.errorMessage || result.message || Messages.NOTHING_HERE;
-            if (window.showGameMessage) window.showGameMessage(errorMsg, 'error');
             throw new Error(errorMsg);
         }
         
