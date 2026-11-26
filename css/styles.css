@@ -833,10 +833,10 @@ body {
 
 #storage-row {
     display: flex;
-    flex-direction: row;
-    gap: 10px;
+    flex-direction: column;
+    gap: 6px;
     margin-bottom: 6px;
-    align-items: flex-start;
+    align-items: stretch;
 }
 
 #game-info-panel .info-section {
