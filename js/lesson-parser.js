@@ -4,6 +4,14 @@
 
 const MAP_ELEMENT_KEYS = ['collectibles', 'transforms', 'vehicles', 'megaElements', 'scenery'];
 
+function fingerprintText(text) {
+    let hash = 2166136261;
+    for (let i = 0; i < text.length; i++) {
+        hash = Math.imul(hash ^ text.charCodeAt(i), 16777619);
+    }
+    return (hash >>> 0).toString(36);
+}
+
 function parseTestsYaml(yamlStr) {
     const tests = { pass_all: true, items: [] };
     const lines = yamlStr.split('\n');
@@ -212,7 +220,8 @@ function parseCourseLevels(markdown) {
             level.type = 'exercise';
             level.slug = 'level-' + (courseData.levels.length + 1);
         }
-        
+        level.textFingerprint = fingerprintText(section);
+
         // Mark if map was explicitly defined (for inheritance logic)
         level.hasOwnMap = level.map.layout.length > 0;
 

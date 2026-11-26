@@ -101,20 +101,13 @@ const UserProgressManager = (function() {
         }
     }
     
-    function generateLevelId(chapterNumber, levelIndex, levelSlug) {
-        if (levelSlug) {
-            return levelSlug;
-        }
-        return `chapter${chapterNumber || 1}-level${levelIndex + 1}`;
-    }
-    
-    function setCurrentLevel(chapterNumber, levelIndex, levelSlug) {
+    function setCurrentLevel(level) {
         if (debounceTimer) {
             clearTimeout(debounceTimer);
             debounceTimer = null;
         }
-        
-        currentLevelId = generateLevelId(chapterNumber, levelIndex, levelSlug);
+
+        currentLevelId = level.slug + '-' + level.textFingerprint;
         completedThisSession[currentLevelId] = false;
         return currentLevelId;
     }

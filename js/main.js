@@ -129,8 +129,7 @@ async function loadLevel(levelIndex) {
     
     // Set current level in UserProgressManager
     if (window.UserProgressManager) {
-        const levelSlug = level.slug || null;
-        UserProgressManager.setCurrentLevel(courseData.chapterNumber, levelIndex, levelSlug);
+        UserProgressManager.setCurrentLevel(level);
         UserProgressManager.resetLevelSession();
     }
     
