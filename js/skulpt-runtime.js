@@ -13,17 +13,7 @@
     }
 
     function configureSkulpt() {
-        // Ensure Sk.builtinFiles exists (required for custom modules)
-        if (!Sk.builtinFiles) Sk.builtinFiles = {};
-        if (!Sk.builtinFiles.files) Sk.builtinFiles.files = {};
-
-        // Inject the player module into Skulpt's virtual file system
-        // Uses pre-generated self-contained module source from game-commands.js
-        if (window.playerModuleSource) {
-            Sk.builtinFiles.files['src/lib/player.js'] = window.playerModuleSource;
-        } else {
-            console.error('[Skulpt Runtime] Player module source not found - ensure game-commands.js loads first');
-        }
+        Sk.builtinFiles.files['src/lib/player.js'] = 'var $builtinmodule = window.buildPlayerModule;';
 
         Sk.configure({
             output: function(text) {
@@ -52,29 +42,20 @@
         });
     }
 
-    function formatSkulptError(error) {
-        var lineNum = null;
-        var errorMsg = '';
-        
-        if (error.traceback && error.traceback.length > 0) {
-            lineNum = error.traceback[0].lineno;
-        }
-        
-        if (error.args && error.args.v && error.args.v.length > 0) {
-            errorMsg = Sk.ffi.remapToJs(error.args.v[0]);
-        } else {
-            errorMsg = error.toString();
-        }
-        
-        if (errorMsg.indexOf('SyntaxError') !== -1) {
-            var match = errorMsg.match(/line (\d+)/);
-            if (match) lineNum = parseInt(match[1]);
-        }
-        
-        return { line: lineNum, error: errorMsg };
-    }
-
     var CODE_PRELUDE = 'from player import *\nimport player\nimport time\n';
+    var CODE_PRELUDE_LINE_COUNT = CODE_PRELUDE.split('\n').length - 1;
+
+    function showPythonMistake(error, code) {
+        var mistake = explainPythonError(error, CODE_PRELUDE_LINE_COUNT);
+        if (!mistake.line) {
+            showGameMessage(mistake.text, 'error');
+            return mistake;
+        }
+        mistake.line = Math.min(mistake.line, code.replace(/\s+$/, '').split('\n').length);
+        showGameMessage('Line ' + mistake.line + ': ' + mistake.text, 'error');
+        EditorManager.markErrorLine(mistake.line);
+        return mistake;
+    }
 
     function sanitizeCode(code) {
         return code
@@ -85,30 +66,52 @@
             .replace(/[\u200B-\u200D\uFEFF]/g, '');
     }
 
+    var currentProgramRun = { stopped: true };
+    var stopWaitingProgram = null;
+
+    function waitUnlessStopped(suspension) {
+        return new Promise(function(resolve, reject) {
+            var stopped = false;
+            stopWaitingProgram = function() {
+                stopped = true;
+                stopWaitingProgram = null;
+                reject(new Error('__STOP__'));
+            };
+            suspension.data.promise.then(function(result) {
+                suspension.data.result = result;
+            }, function(error) {
+                suspension.data.error = error;
+            }).then(function() {
+                if (stopped) return;
+                stopWaitingProgram = null;
+                try {
+                    resolve(suspension.resume());
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        });
+    }
+
+    function stopRunningProgram() {
+        currentProgramRun.stopped = true;
+        if (stopWaitingProgram) stopWaitingProgram();
+        endMoveAnimationNow();
+    }
+
     async function executePythonCode(code) {
         configureSkulpt();
-        
-        if (typeof window.resetCommandCounter === 'function') window.resetCommandCounter();
-        
-        if (typeof gameState !== 'undefined') {
-            if (window.ResetManager) {
-                ResetManager.softReset(gameState);
-            } else {
-                gameState.playerPos = {...gameState.startPos};
-                gameState.playerDirection = 'right';
-                gameState.characterType = 'player';
-                
-                if (window.VehicleInteractionManager) {
-                    VehicleInteractionManager.reset(gameState);
-                }
-                
-                if (typeof render === 'function') render();
-                if (typeof updateViewport === 'function') updateViewport();
-            }
-        }
 
-        var fullCode = CODE_PRELUDE + sanitizeCode(code);
+        if (typeof window.resetCommandCounter === 'function') window.resetCommandCounter();
+
+        EditorManager.clearErrorLine();
+        ResetManager.restoreLevelStart(gameState);
+
+        var studentCode = sanitizeCode(code);
+        var fullCode = CODE_PRELUDE + studentCode;
         var executionError = null;
+        var run = { stopped: false };
+        currentProgramRun = run;
 
         try {
             await Sk.misceval.asyncToPromise(
@@ -116,30 +119,26 @@
                     return Sk.importMainWithBody("<stdin>", false, fullCode, true);
                 },
                 {
-                    "*": function() {
-                        if (window.shouldStopExecution) {
-                            throw new Error("__STOP__");
-                        }
+                    "*": function(suspension) {
+                        if (run.stopped) throw new Error('__STOP__');
+                        if (suspension.data.type === 'Sk.promise') return waitUnlessStopped(suspension);
                     }
                 }
             );
         } catch (error) {
-            var errorStr = error.toString();
-            if (errorStr.indexOf('__STOP__') !== -1) {
+            if (run.stopped) {
                 console.log('[Skulpt Runtime] Execution stopped by user');
-            } else if (errorStr.indexOf('TimeLimitError') !== -1) {
+            } else if (error.tp$name === 'TimeoutError') {
                 console.log('[Skulpt Runtime] Execution timed out (120 second limit)');
-                if (window.showGameMessage) {
-                    showGameMessage('Code stopped - ran too long (2 minute limit)', 'error');
-                }
+                showGameMessage('Code stopped - ran too long (2 minute limit)', 'error');
             } else {
-                executionError = formatSkulptError(error);
-                console.error('[Skulpt Error]', executionError.error);
+                executionError = showPythonMistake(error, studentCode);
+                console.error('[Skulpt Error]', executionError.text);
             }
         }
 
         var executedCommands = typeof window.getCommandCount === 'function' ? window.getCommandCount() : 0;
-        return { executionError: executionError, executedCommands: executedCommands };
+        return { executionError: executionError, executedCommands: executedCommands, wasStopped: run.stopped };
     }
 
     function setButtonToRun(btn) {
@@ -162,13 +161,12 @@
         if (typeof gameState === 'undefined') return;
         
         if (gameState.isRunning) {
-            window.shouldStopExecution = true;
+            stopRunningProgram();
             if (runBtn) runBtn.disabled = true;
             return;
         }
-        
+
         gameState.isRunning = true;
-        window.shouldStopExecution = false;
         setButtonToStop(runBtn);
         
         var code;
@@ -194,10 +192,8 @@
         var result = await executePythonCode(code);
         var executionError = result.executionError;
         var executedCommands = result.executedCommands;
-        
-        var wasStopped = window.shouldStopExecution;
-        window.shouldStopExecution = false;
-        
+        var wasStopped = result.wasStopped;
+
         if (!wasStopped && window.TestRunner) {
             TestRunner.evaluate();
         }
@@ -215,6 +211,8 @@
     window.SkulptRuntime = {
         execute: executePythonCode,
         runCode: runCodeWithSkulpt,
+        stopRunningProgram: stopRunningProgram,
+        currentProgramRun: function() { return currentProgramRun; },
         configure: configureSkulpt,
         getCommandCount: function() { return typeof window.getCommandCount === 'function' ? window.getCommandCount() : 0; }
     };

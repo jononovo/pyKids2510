@@ -18,6 +18,7 @@
         NO_LAND_NEARBY: 'No suitable land nearby to disembark.',
         CANNOT_PUSH: 'Nothing to push here.',
         CANNOT_OPEN: 'Nothing to open here.',
+        CANNOT_CLOSE: 'Nothing to close here.',
         TILE_BLOCKED: 'The way is blocked.'
     };
 
@@ -31,19 +32,19 @@
         };
     }
 
-    function getForwardPosition() {
-        if (typeof gameState === 'undefined') return null;
+    function getForwardPosition(distance) {
         const pos = getPlayerPosition();
         if (!pos) return null;
+        const steps = distance || 1;
         
         let targetX = pos.x;
         let targetY = pos.y;
         
         switch (gameState.playerDirection) {
-            case 'up': targetY--; break;
-            case 'down': targetY++; break;
-            case 'left': targetX--; break;
-            case 'right': targetX++; break;
+            case 'up': targetY -= steps; break;
+            case 'down': targetY += steps; break;
+            case 'left': targetX -= steps; break;
+            case 'right': targetX += steps; break;
         }
         
         return { x: targetX, y: targetY };
@@ -90,77 +91,7 @@
     }
 
     function canPlaceAt(x, y, width, height, elementAccess) {
-        if (window.TileAccess) {
-            return TileAccess.canPlaceElement(x, y, width, height, elementAccess, gameState);
-        }
-        
-        width = width || 1;
-        height = height || 1;
-        
-        if (typeof gameState === 'undefined') {
-            return { valid: false, reason: 'Game not ready' };
-        }
-        
-        for (let dx = 0; dx < width; dx++) {
-            for (let dy = 0; dy < height; dy++) {
-                const tx = x + dx;
-                const ty = y + dy;
-                
-                if (tx < 0 || tx >= gameState.mapWidth || ty < 0 || ty >= gameState.mapHeight) {
-                    return { valid: false, reason: 'Outside map boundaries' };
-                }
-                
-                if (window.MegaElementManager && MegaElementManager.isTileBlocked(tx, ty)) {
-                    return { valid: false, reason: 'Blocked by existing structure' };
-                }
-                
-                if (gameState.builtElements && window.ElementInteractionManager) {
-                    for (const built of gameState.builtElements) {
-                        const builtDef = ElementInteractionManager.getElementDefinition(built.type);
-                        const bw = (builtDef && builtDef.width) || 1;
-                        const bh = (builtDef && builtDef.height) || 1;
-                        if (tx >= built.x && tx < built.x + bw && ty >= built.y && ty < built.y + bh) {
-                            return { valid: false, reason: 'Something already built here' };
-                        }
-                    }
-                }
-                
-                const tileId = gameState.mapData[ty] ? gameState.mapData[ty][tx] : undefined;
-                if (tileId === undefined) {
-                    return { valid: false, reason: 'Invalid tile' };
-                }
-                
-                if (elementAccess) {
-                    if (!isTileOfType(tileId, elementAccess)) {
-                        return { valid: false, reason: 'Must be placed on ' + elementAccess };
-                    }
-                } else {
-                    if (typeof canMoveTo === 'function' && !canMoveTo(tx, ty)) {
-                        return { valid: false, reason: 'Cannot build on this terrain' };
-                    }
-                }
-            }
-        }
-        
-        return { valid: true };
-    }
-    
-    const ACCESS_TILE_MAP = {
-        'water': [5, 8]
-    };
-    
-    function isTileOfType(tileId, accessType) {
-        const allowedTiles = ACCESS_TILE_MAP[accessType.toLowerCase()];
-        if (allowedTiles) {
-            return allowedTiles.includes(tileId);
-        }
-        
-        if (!window.tileDataById) return false;
-        const tileInfo = window.tileDataById[tileId];
-        if (!tileInfo) return false;
-        
-        const tileName = (tileInfo.name || '').toLowerCase();
-        return tileName.indexOf(accessType.toLowerCase()) !== -1;
+        return TileAccess.canPlaceElement(x, y, width, height, elementAccess, gameState);
     }
 
     function getPositionsForMode(mode) {
@@ -309,7 +240,6 @@
         
         if (!result.success) {
             const errorMsg = config.errorMessage || result.message || Messages.NOTHING_HERE;
-            if (window.showGameMessage) window.showGameMessage(errorMsg, 'error');
             throw new Error(errorMsg);
         }
         

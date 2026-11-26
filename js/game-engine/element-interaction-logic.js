@@ -96,7 +96,7 @@
                     trigger: opts.trigger || defaultTrigger,
                     section: sectionName,
                     replacement: replacement,
-                    id: this._generateId(elementType, coord.x, coord.y),
+                    id: this.generateElementId(elementType, coord.x, coord.y),
                     emit: opts.emit || null,
                     spawn: opts.spawn || null,
                     remove: opts.remove || null,
@@ -124,37 +124,13 @@
             return defaults[sectionName] || 'on_interact';
         },
 
-        _generateId(type, x, y) {
+        generateElementId(type, x, y) {
             return `${type}_${x}_${y}`;
-        },
-
-        _getTargetX(x, direction) {
-            if (direction === 'left') return x - 1;
-            if (direction === 'right') return x + 1;
-            return x;
-        },
-
-        _getTargetY(y, direction) {
-            if (direction === 'up') return y - 1;
-            if (direction === 'down') return y + 1;
-            return y;
         },
 
         loadLevelElements(levelData) {
             this.currentLevelData = levelData;
-            this.elements = [];
-            this.elementStates = {};
-            
-            this._parseElementsFromLevelData(levelData);
-
-            if (window.VehicleInteractionManager) {
-                VehicleInteractionManager.loadLevelVehicles(levelData);
-            }
-
-            this._registerSignalListeners();
-
-            this.restoreStates();
-            
+            this.resetStates({});
             console.log('[ElementInteraction] Loaded', this.elements.length, 'elements for level');
             return this.elements;
         },
@@ -200,14 +176,8 @@
                     SignalManager.subscribe(element.on, () => {
                         console.log('[ElementInteraction] Transform triggered for:', element.type, 'at', element.x, element.y);
                         if (element.replacement) {
-                            this.elementStates[element.id] = { 
-                                removed: false, 
-                                transformed: true,
-                                newType: element.replacement 
-                            };
-                            element.type = element.replacement;
-                            element.replacement = null;
-                            
+                            this.setElementType(element, element.replacement);
+
                             if (element.emit && window.SignalManager) {
                                 SignalManager.emit(element.emit);
                             }
@@ -244,6 +214,13 @@
             return this.elementStates[elementId] || null;
         },
 
+        setElementType(element, type) {
+            this.elementStates[element.id] = { removed: false, transformed: true, newType: type };
+            if (element.type === type) return;
+            element.replacement = element.type;
+            element.type = type;
+        },
+
         handlePlayerStep(x, y, gameState) {
             const element = this.getElementAt(x, y);
             if (!element) return null;
@@ -276,9 +253,8 @@
                     return VehicleInteractionManager.handleInteract(x, y, gameState);
                 }
                 
-                const targetX = this._getTargetX(x, gameState.playerDirection);
-                const targetY = this._getTargetY(y, gameState.playerDirection);
-                const vehicle = VehicleInteractionManager.getVehicleAt(targetX, targetY);
+                const front = ProximityGuard.getForwardPosition();
+                const vehicle = VehicleInteractionManager.getVehicleAt(front.x, front.y);
                 if (vehicle) {
                     return VehicleInteractionManager.handleBoard(vehicle, gameState);
                 }
@@ -323,15 +299,7 @@
                 if (element.replacement) {
                     result.action = 'transformed';
                     result.message = `${element.type} transformed to ${element.replacement}`;
-                    
-                    this.elementStates[element.id] = { 
-                        removed: false, 
-                        transformed: true,
-                        newType: element.replacement 
-                    };
-                    
-                    element.type = element.replacement;
-                    element.replacement = null;
+                    this.setElementType(element, element.replacement);
                 } else {
                     result.action = 'removed';
                     result.message = `${element.type} disappeared`;
@@ -356,25 +324,6 @@
             }
         },
 
-        restoreStates() {
-            if (window.MissionState && window.MissionState.isMissionLevel) {
-                const savedStates = window.MissionState.getElementStates();
-                if (savedStates) {
-                    this.elementStates = { ...savedStates };
-                    
-                    for (const [id, state] of Object.entries(this.elementStates)) {
-                        if (state.transformed && state.newType) {
-                            const element = this.elements.find(e => e.id === id);
-                            if (element) {
-                                element.type = state.newType;
-                                element.replacement = null;
-                            }
-                        }
-                    }
-                }
-            }
-        },
-
         reset(gameState) {
             this.elements = [];
             this.elementStates = {};
@@ -384,43 +333,18 @@
             }
         },
         
-        reregisterSignalListeners() {
-            this._registerSignalListeners();
-        },
-
-        resetStates() {
-            if (this.currentLevelData) {
-                this._parseElementsFromLevelData(this.currentLevelData);
-                console.log('[ElementInteraction] Reloaded', this.elements.length, 'elements from level data');
-            }
-            
+        resetStates(savedStates) {
+            this._parseElementsFromLevelData(this.currentLevelData);
             this.elementStates = {};
-            
             this._registerSignalListeners();
-            console.log('[ElementInteraction] Re-registered signal listeners (set hidden defaults)');
-            
-            if (window.levelEntrySnapshot && window.levelEntrySnapshot.missionState && 
-                window.levelEntrySnapshot.missionState.elementStates) {
-                const snapshotStates = window.levelEntrySnapshot.missionState.elementStates;
-                for (const key in snapshotStates) {
-                    this.elementStates[key] = { ...(this.elementStates[key] || {}), ...snapshotStates[key] };
+
+            for (const [id, state] of Object.entries(savedStates)) {
+                this.elementStates[id] = { ...state };
+                const element = this.elements.find(e => e.id === id);
+                if (element && state.transformed && state.newType) {
+                    this.setElementType(element, state.newType);
                 }
-                console.log('[ElementInteraction] Applied elementStates from snapshot');
             }
-        },
-
-        resetToSnapshot(snapshot) {
-            if (snapshot && snapshot.elementStates) {
-                this.elementStates = JSON.parse(JSON.stringify(snapshot.elementStates));
-            } else {
-                this.elementStates = {};
-            }
-        },
-
-        getSnapshot() {
-            return {
-                elementStates: JSON.parse(JSON.stringify(this.elementStates))
-            };
         }
     };
 

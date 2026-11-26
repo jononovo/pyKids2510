@@ -2,7 +2,10 @@ const EditorManager = (function() {
     let jar = null;
     let initialized = false;
     let currentEditorElement = null;
-    
+    let markedErrorLine = null;
+    const errorLineMark = document.createElement('div');
+    errorLineMark.className = 'error-line-mark';
+
     function init() {
         const editorElement = document.getElementById('editor');
         if (!editorElement) return false;
@@ -39,11 +42,13 @@ const EditorManager = (function() {
         
         jar.onUpdate(() => {
             updateLineNumbers();
+            clearErrorLine();
             if (window.UserProgressManager) {
                 UserProgressManager.saveCode(jar.toString());
             }
         });
-        
+        editorElement.addEventListener('scroll', positionErrorLineMark);
+
         currentEditorElement = editorElement;
         initialized = true;
         console.log('[EditorManager] Initialized successfully');
@@ -72,6 +77,7 @@ const EditorManager = (function() {
         
         jar.updateCode(code);
         updateLineNumbers();
+        clearErrorLine();
         return true;
     }
     
@@ -101,17 +107,27 @@ const EditorManager = (function() {
         const editorElement = document.getElementById('editor');
         return initialized && jar !== null && currentEditorElement === editorElement;
     }
-    
-    function resetToSnapshot() {
-        if (window.levelEntrySnapshot && window.levelEntrySnapshot.starterCode) {
-            updateCode(window.levelEntrySnapshot.starterCode);
-            console.log('[EditorManager] Reset to snapshot code');
-            return true;
-        }
-        console.warn('[EditorManager] No snapshot starterCode available');
-        return false;
+
+    function positionErrorLineMark() {
+        if (!markedErrorLine) return;
+        const editorElement = document.getElementById('editor');
+        const style = getComputedStyle(editorElement);
+        const lineHeight = parseFloat(style.lineHeight);
+        errorLineMark.style.height = lineHeight + 'px';
+        errorLineMark.style.top = (editorElement.offsetTop + parseFloat(style.paddingTop) + (markedErrorLine - 1) * lineHeight - editorElement.scrollTop) + 'px';
     }
-    
+
+    function markErrorLine(lineNumber) {
+        markedErrorLine = lineNumber;
+        document.getElementById('editor').parentNode.appendChild(errorLineMark);
+        positionErrorLineMark();
+    }
+
+    function clearErrorLine() {
+        markedErrorLine = null;
+        errorLineMark.remove();
+    }
+
     return {
         init: init,
         reinitialize: reinitialize,
@@ -119,7 +135,8 @@ const EditorManager = (function() {
         getCode: getCode,
         updateLineNumbers: updateLineNumbers,
         isInitialized: isInitialized,
-        resetToSnapshot: resetToSnapshot
+        markErrorLine: markErrorLine,
+        clearErrorLine: clearErrorLine
     };
 })();
 

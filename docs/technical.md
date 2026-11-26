@@ -12,7 +12,7 @@ Comprehensive technical documentation for the Python Learning Platform game engi
 4. [Game Engine State Management](#game-engine-state-management)
    - [gameState - Runtime State](#gamestate---runtime-state)
    - [MissionState - Persistent Chapter State](#missionstate---persistent-chapter-state)
-   - [levelEntrySnapshot - Reset Reference Point](#levelentrysnapshot---reset-reference-point)
+   - [The Level Start - What Every Run Goes Back To](#the-level-start---what-every-run-goes-back-to)
 5. [Level Types](#level-types)
 6. [Lesson System](#lesson-system)
 7. [Map System](#map-system)
@@ -25,6 +25,8 @@ Comprehensive technical documentation for the Python Learning Platform game engi
 14. [Testing System](#testing-system)
 15. [Rendering Pipeline](#rendering-pipeline)
 16. [Game Message Display System](#game-message-display-system)
+17. [Engine Notes](#engine-notes)
+18. [CodeTribe Integration](#codetribe-integration)
 
 ---
 
@@ -51,8 +53,8 @@ The Python Learning Platform is an interactive educational tool designed to teac
 | Code Editor | CodeJar with custom syntax highlighting |
 | Python Runtime | Skulpt (browser-based Python interpreter) |
 | Visual Coding | Google Blockly |
-| Persistence | localStorage |
-| Deployment | Standalone HTML (minimal dependencies) |
+| Persistence | CodeTribe keeps each student's code per slide; the browser keeps a copy and the mission state |
+| Hosting | Runs only inside CodeTribe. Skulpt (`/assets/js/skulpt.2c08b3e.min.js`, `skulpt-stdlib.2c08b3e.js`) and marked (`/assets/js/marked.15.0.12.min.js`) come from CodeTribe's own site; Blockly comes from unpkg, pinned to 11.0.0 |
 
 ---
 
@@ -102,23 +104,25 @@ The Python Learning Platform is an interactive educational tool designed to teac
 ```
 project/
 ├── index.html                    # Main application entry point
-├── server.py                     # Development server
 │
 ├── js/
 │   ├── main.js                   # Application initialization, gameState
 │   ├── game-engine.js            # Rendering, character drawing
 │   ├── game-commands.js          # Python command definitions
 │   ├── lesson-parser.js          # Markdown lesson parsing
-│   ├── skulpt-runtime.js         # Python code execution
+│   ├── skulpt-runtime.js         # Python code execution, mistakes, stopping
+│   ├── skulpt-bridge.js          # Builds the player module from GameCommands
+│   ├── python-error-explainer.js # Python mistakes in plain words
+│   ├── python-backpack-inventory.js # The Python backpack (list) and inventory (dictionary)
 │   ├── editor-manager.js         # CodeJar editor management
 │   ├── syntax-highlighter.js     # Python syntax highlighting
 │   ├── user-progress.js          # Progress persistence
 │   ├── code-book.js              # Code reference panel
-│   ├── coding-tutor.js           # AI tutor integration
+│   ├── coding-tutor.js           # Tutor hints and HELP
 │   │
 │   ├── game-engine/
 │   │   ├── level-loader.js       # Level initialization
-│   │   ├── reset-manager.js      # Full/soft reset logic
+│   │   ├── reset-manager.js      # The level start, restored by every Run and RESET
 │   │   ├── signal-manager.js     # Pub/sub event system
 │   │   ├── element-interaction-logic.js
 │   │   ├── vehicle-interaction-logic.js
@@ -144,7 +148,8 @@ project/
 │   │   └── test-context.js       # Test context utilities
 │   │
 │   └── ui/
-│       └── confirm-dialog.js     # Modal dialogs
+│       ├── confirm-dialog.js     # Modal dialogs
+│       └── backpack-inventory-panels.js # Draws both panels the way Python prints them
 │
 ├── blockly-integration/
 │   ├── index.js                  # Blockly initialization
@@ -175,8 +180,8 @@ project/
 │   └── tutor.css                 # Tutor panel styles
 │
 └── docs/
-    ├── TECHNICAL_DOCUMENTATION.md    # This file
-    ├── LESSON_AUTHORING_GUIDE.md     # How to create lessons
+    ├── technical.md                  # This file
+    ├── authoring.md                  # How to create lessons
     ├── map-creation-guide.md         # Map creation guide
     └── map-quick-reference.md        # Quick reference
 ```
@@ -191,7 +196,7 @@ The game engine uses three distinct state management systems:
 |--------------|---------|-------------|----------|
 | `gameState` | Runtime state for current level | In-memory only | `js/main.js` |
 | `MissionState` | Persistent progress within a chapter | localStorage | `js/mission/mission-state.js` |
-| `levelEntrySnapshot` | Reset reference point | In-memory | `js/main.js` |
+| Level start | What every Run and RESET go back to | In-memory | `js/game-engine/reset-manager.js` |
 
 ---
 
@@ -240,7 +245,6 @@ let gameState = {
     hoveredTile: {x: -1, y: -1},
     
     // Items & Objects
-    collectibles: [],
     objects: [],
     inventory: {},
     
@@ -259,7 +263,7 @@ let gameState = {
 | **Progress** | `levelCompleted` | Array tracking completed levels |
 | **Animation** | `idleAnimation`, `idlePhase`, `spriteImage`, etc. | Sprite animation state |
 | **Visual** | `backgroundImage`, `hoveredTile` | Background graphic, mouse hover state |
-| **Items** | `collectibles`, `objects`, `inventory` | Map items and player inventory |
+| **Items** | `objects`, `inventory`, `backpack`, `builtElements`, `farmPlots` | Pushable objects (unfinished), the inventory and backpack, what was built or planted |
 | **UI** | `messageLog` | In-game messages |
 
 #### Relationship to MissionState
@@ -322,8 +326,8 @@ Things the player has constructed persist across levels.
 States of interactive elements like doors, switches, levers.
 ```javascript
 {
-    'door_5_3': 'open',
-    'switch_2_8': 'activated'
+    'door_5_3': { removed: false, transformed: true, newType: 'door-open' },
+    'coin_2_8': { removed: true }
 }
 ```
 If you unlock a door or flip a switch, it stays that way.
@@ -340,6 +344,7 @@ If you unlock a door or flip a switch, it stays that way.
 - State persists **within a chapter** (stored in localStorage under `missionChapterState.chapter{N}`)
 - Starting a **new chapter** resets everything
 - Calling `MissionState.clearChapter()` wipes the saved state
+- Only mission levels write it to the browser. A normal level empties it in memory, so its backpack starts empty, and never writes it, so the chapter's mission progress stays for the next mission level
 
 #### Key Methods
 
@@ -360,19 +365,22 @@ If you unlock a door or flip a switch, it stays that way.
 
 ---
 
-### levelEntrySnapshot - Reset Reference Point
+### The Level Start - What Every Run Goes Back To
 
-Defined in `js/main.js`, this captures the state when a level is first entered, allowing the reset system to restore to that point.
+`ResetManager` (`js/game-engine/reset-manager.js`) keeps one snapshot per level, the **level start**:
 
 ```javascript
-window.levelEntrySnapshot = {
-    starterCode: '',        // Code when entering level
-    missionState: null,     // MissionState snapshot for reset
-    levelIndex: -1          // Which level this is for
+levelStart = {
+    missionState: MissionState.getState(),   // empty on normal levels
+    builtElements: [...],                    // a copy
+    tiles: [[...], ...]                      // a copy of the level's tiles
 };
 ```
 
-The snapshot is captured by `LevelLoader._captureResetSnapshot()` when a level loads.
+- `LevelLoader.initialize()` takes it with `ResetManager.captureLevelStart(gameState)` at every level start, then calls `restoreLevelStart()`, so the level's first run and every later one start the same way.
+- `ResetManager.restoreLevelStart(gameState)` puts back the mission state (inventory, backpack, collected items, element states), the signals, the elements, the boats, the farm, the built things, the tiles and the character, then redraws the panels and the map.
+- **Run** calls it before every program. **RESET** calls it too, after stopping the program, then clears the Console Log, puts back the starter code and saves an empty file (see [Reset System](#reset-system)).
+- **Missions** start from what they carry in: the chapter's mission state from the browser. A mission level that reuses the map (no tile rows) also keeps the tiles and built things of the mission level before it. Every other level starts with no built things and its own copy of its tiles, so a bridge never rewrites the lesson.
 
 ---
 
@@ -398,13 +406,13 @@ function getLevelType(title) {
 }
 ```
 
-### Important: MissionState Persists Through Exercise Levels
+### Normal Levels and the Mission State
 
-MissionState remains in memory even during exercise levels - they just don't read from it or write to it.
+A normal (exercise) level empties `MissionState` in memory at its start, so its inventory and backpack start empty, and it never writes it to the browser. A mission level loads the chapter's mission state from the browser at its start.
 
 Example flow:
 - **Level 1 (mission)** - Player collects 5 coins, saved to MissionState
-- **Level 2 (exercise)** - Player starts with empty inventory (MissionState still exists)
+- **Level 2 (exercise)** - Player starts with an empty inventory and backpack; the saved mission state is untouched
 - **Level 3 (mission)** - Player loads from MissionState, has 5 coins
 
 ---
@@ -449,11 +457,6 @@ startPos: 0,1
 goalPos: 4,1
 ```
 
-<!-- Tests -->
-```
-position: 4,1
-```
-
 --- <!-- Level 2 -->
 ## MISSION 1: Collect Items
 ...
@@ -479,15 +482,19 @@ position: 4,1
         scenery: [],
         graphic: null
     },
-    tests: [...]
+    slug: 'lesson-1-getting-started',
+    textFingerprint: '1k2b3c',  // a short fingerprint of the level's text
+    tests: {...}                // only from CodeTribe's Tests dialog (load-lesson)
 }
 ```
 
+Repeated `collectibles:`, `transforms:`, `vehicles:`, `megaElements:` and `scenery:` lines add up. The level text has no Tests block: tests come only from CodeTribe.
+
 ### Map Inheritance
 
-Levels can omit their own map to inherit from the previous level. The `LevelLoader` maintains two caches:
-- `lastMapCache` - Last map from any level
-- `lastMissionMapCache` - Last map specifically from mission/quest levels
+Levels can omit their own map to inherit from the previous level. The `LevelLoader` keeps:
+- `lastMapRows` - the tile rows of the last level that had its own; a level without rows gets its own copy of them
+- `lastMissionMap` - the tiles and built things of the last mission level; a mission level without rows keeps them, so bridges and buildings carry over
 
 ---
 
@@ -567,24 +574,40 @@ User Code (Editor)
 └──────────────────┘
 ```
 
+### The Player Module
+
+- `js/skulpt-bridge.js` builds the `player` module from plain functions (`window.buildPlayerModule`): one Python function for each `GameCommands` entry, plus `backpack` and `inventory` from `js/python-backpack-inventory.js`. Skulpt gets a one-line stub: `var $builtinmodule = window.buildPlayerModule;`.
+- The module is built again for every run, since Skulpt imports it again.
+- Each command runs as a Skulpt suspension, so Python waits for its animation. Commands give back `None`.
+
 ### Available Python Commands
 
 Defined in `js/game-commands.js`:
 
 | Command | Description |
 |---------|-------------|
-| `move_forward(steps)` | Move forward (default 1 step) |
-| `turn_left(times)` | Turn left (default 1 time) |
-| `turn_right(times)` | Turn right (default 1 time) |
-| `collect()` | Collect item at current position |
-| `interact()` | Interact with element (lever, button, vehicle) |
-| `build(type)` | Build a structure |
-| `push()` | Push an object |
-| `open()` | Open a door/chest |
-| `speak(message)` | Display a message |
-| `read()` | Read a sign |
-| `plant()` | Plant a seed |
-| `water()` | Water a plant |
+| `move_forward(steps)`, `forward(steps)` | Move forward (default 1 step); a closed door or other blocked tile stops it. Each step can fire an `on_step` element |
+| `turn_left(times)`, `left(times)`, `turn_right(times)`, `right(times)` | Turn (default 1 time) |
+| `collect()` | Collect the item on your tile, or else the one in front |
+| `interact()` | Board or leave a boat, or swap or remove an element next to you |
+| `open()`, `close()` | Open or close the door in front |
+| `build(type)` | Build a structure in front, paid from the inventory |
+| `plant(crop)`, `water()`, `harvest()` | Farming, on the tile in front |
+| `speak(message)` | Write a message in the Console Log |
+| `push()`, `place(item)` | Unfinished: no pushable things or containers exist yet |
+
+### Mistakes
+
+- `explainPythonError(error, hiddenLineCount)` (`js/python-error-explainer.js`) gives `{line, text}`, with the line counted from the student's first line (the 3 hidden lines are taken off).
+- Plain words for NameError, SyntaxError and indentation (this Skulpt build reports most indentation mistakes as `SyntaxError: bad input`; "unindent does not match any outer indentation level" gets the indentation wording); TypeError and IndexError keep Python's message with what it means; any other error keeps Python's message. The error's name stays at the end, as in "(NameError)". A game command's own error (backpack full, nothing in front) shows the game's message.
+- The runtime writes "Line N: ..." in red in the Console Log, tutor on or off, marks the line in the editor and gives the tutor the same line. A line past the end of the code (an unclosed bracket) is capped at the last line with code.
+- The 2-minute limit (Skulpt's `TimeoutError`) shows "Code stopped - ran too long (2 minute limit)".
+
+### Stopping
+
+- STOP, ⌘/Ctrl + Enter while running, and RESET call `SkulptRuntime.stopRunningProgram()`.
+- Every run has its own stop token (`SkulptRuntime.currentProgramRun()`). Stopping marks it stopped, ends a program that is waiting on a command or `time.sleep` at once (the runtime's suspension handler never resumes it), and ends a move animation under way at the end of its step.
+- `move_forward()` and the turns stop their loops when their run is stopped, and a new command of a stopped run throws `__STOP__`. A stopped program can't move anything again, even if a new run starts.
 
 ---
 
@@ -610,17 +633,18 @@ Custom Python highlighting via `js/syntax-highlighter.js`:
 - Strings
 - Numbers
 - Comments
-- Function calls
+- Game commands, read from `GameCommands` each time it colours, so every real command is coloured
+- The `player` object
 
-### Auto-Save
+### Saving the Code
 
-Code changes are automatically saved via `UserProgressManager`:
+- `EditorManager` saves from CodeJar's update hook, which fires only when the student edits (typing, paste, undo, redo). CodeJar's `updateCode()` doesn't call it, so code the game sets itself (the level's code, the clean-up before a run) is never saved.
+- APPLY in the tutor and RESET save on purpose; RESET saves an empty file, which means the level's starter code.
+- `UserProgressManager.saveCode(code)` waits 500 ms, then keeps a browser copy and sends `save-progress {content}` to CodeTribe ([User Progress Management](#user-progress-management)).
 
-```javascript
-jar.onUpdate(() => {
-    UserProgressManager.saveCode(jar.toString());
-});
-```
+### The Error Line Mark
+
+`EditorManager.markErrorLine(lineNumber)` draws a red bar behind the line, outside the editor's text (which is redrawn on every key), and `clearErrorLine()` takes it away. It clears on the next edit or Run.
 
 ---
 
@@ -723,104 +747,68 @@ blockToCode: function(block) {
 
 ## Reset System
 
-Located in `js/game-engine/reset-manager.js`.
+Located in `js/game-engine/reset-manager.js`. There is one restore, `restoreLevelStart(gameState)`, for every Run and RESET ([The Level Start](#the-level-start---what-every-run-goes-back-to)).
 
-### Full Reset (Reset Button)
+### Run
 
-Restores everything to level entry state:
+`SkulptRuntime` calls `restoreLevelStart()` before every program, so every Run starts from the level's start: the same inventory, backpack, items, doors, boats, farm, built things and tiles.
 
-1. `resetPlayerState()` - Position, direction, `isRunning`
-2. `resetVehicles()` - Via `VehicleInteractionManager.reset()`
-3. `resetSignalListeners()` - Via `SignalManager.reset()`
-4. `resetElements()` - Via `ElementInteractionManager.resetStates()`
-5. `resetCollectibles()` - Set all to `collected = false`
-6. `resetInventory()` - Restore from `levelEntrySnapshot.missionState`
-7. `resetMissionState()` - Restore MissionState from snapshot
-8. `resetEditor()` - Reset to starter code
-9. `resetUI()` - Clear message log, update inventory panel
+### RESET
 
-### Soft Reset (Run Code)
-
-Minimal reset before running code:
-
-1. `resetPlayerPosition()` - Position and direction only
-2. `resetVehicles()` - Reset vehicle states
-3. `resetSignalListeners()` - Re-register listeners
-
-Does **not** reset: collectibles, inventory, editor code, MissionState
+`resetGame()` in `js/game-commands.js`, after the student confirms:
+1. Stops the program at once (`SkulptRuntime.stopRunningProgram()`)
+2. `restoreLevelStart()`
+3. Clears the Console Log (`clearConsoleLog()`, next to `toggleConsoleLog()`)
+4. Puts back the starter code and saves an empty file
 
 ---
 
 ## User Progress Management
 
-`UserProgressManager` (`js/user-progress.js`) handles persistence of:
+`UserProgressManager` (`js/user-progress.js`) loads and saves the student's code. CodeTribe keeps each student's code per slide (a game lesson is an Exercises lesson with an empty `main.py` on each slide); the browser keeps a copy for guests.
 
-- User's code per level
-- Level completion status
-- Chapter state (for embedded scenarios)
+### Which Code a Level Shows
 
-### Storage Structure
+When a level loads, `codeForLevel(level)` gives, in order:
+1. the code CodeTribe sent with `load-progress {content}` (kept until the level loads, since it can arrive first); an empty `content` means the level's starter code;
+2. the browser copy;
+3. the level's starter code.
+
+A `load-progress` that arrives after the level loaded is shown at once.
+
+### Browser Copy
 
 ```javascript
 // In localStorage under 'userProgress'
 {
-    "chapter1-level-1": {
-        code: "import player\nplayer.move_forward()",
-        completed: true
-    },
-    "chapter1-mission-1": {
-        code: "...",
-        completed: false
-    }
+    "lesson-1-getting-started-1k2b3c": { code: "import player\nplayer.move_forward()" }
 }
 ```
 
-### Embedded Mode
-
-When embedded in a parent application, progress is synced via `postMessage`:
-
-```javascript
-window.parent.postMessage({
-    type: 'save-progress',
-    levelId: currentLevelId,
-    code: code,
-    completed: false
-}, '*');
-```
+The key is the level's title (as a slug) plus a short fingerprint of its text, so two different levels with one title don't share code.
 
 ---
 
 ## Testing System
 
+Tests come only from CodeTribe: each slide's Tests dialog, sent with `load-lesson` as `[{name, rule}]`. `parseHostTests()` reads each rule with `parseTestsYaml()` and keeps its name. A level with no tests is won at the star (`_defaultGoalCheck`).
+
 ### Test Types
 
 Defined in `js/tests/test-types.js`:
 
-| Test Type | Syntax | Description |
-|-----------|--------|-------------|
-| Position | `position: x,y` | Player must be at position |
-| Inventory | `inventory: item >= N` | Must have N or more of item |
-| Collected | `collected: >= N` | Must collect N items |
-| Command Count | `commands: <= N` | Must use N or fewer commands |
+| Test Type | Rule | Passes when |
+|-----------|------|-------------|
+| `position` | `target: goal`, `target: [x, y]`, or `x` and `y` | The player is there |
+| `direction` | `facing: up` (down, left, right) | The player faces that way |
+| `inventory` | `item`, plus `min`, `max` or `exact` | The count fits |
+| `collectibles` | `all: true`, `count: N` or `types: [...]` | Enough of the level's items are collected (the element manager marks them) |
+| `code_regex` | `pattern` (single backslashes), `message`, `flags` | The code matches |
+| `element_state` | `element`, `position: [x, y]`, `state` | The element placed there now has that type, or `removed` |
 
 ### Test Execution
 
-`TestRunner` (`js/tests/test-runner.js`) evaluates tests after code execution:
-
-```javascript
-TestRunner.evaluate();  // Called after each command
-```
-
-### Test Syntax Example
-
-```
-<!-- Tests -->
-```
-position: 4,1
-inventory: coin >= 3
-commands: <= 10
-```
-```
+`TestRunner` (`js/tests/test-runner.js`) checks the tests at the end of each `move_forward()` and when a program ends without being stopped. All tests must pass. Each named test's result is sent to CodeTribe as `checker-validation`.
 
 ---
 
@@ -905,16 +893,16 @@ async function render() {
 ┌─────────────────────────────────────────────────────────┐
 │                     gameState                            │
 │  (Runtime - current level only)                          │
-│  • playerPos, mapData, collectibles                      │
+│  • playerPos, mapData, objects                           │
 │  • inventory (working copy), objects                     │
 └─────────────────────────────────────────────────────────┘
                           ▲
                           │ captured on level load
                           ▼
 ┌─────────────────────────────────────────────────────────┐
-│                 levelEntrySnapshot                       │
-│  (Reset reference point)                                 │
-│  • starterCode, missionState snapshot                    │
+│               Level start (ResetManager)                 │
+│  (What every Run and RESET go back to)                   │
+│  • mission state, built things, tiles                    │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -955,131 +943,45 @@ showGameMessage('Hello world', 'player');
 |---------|-------------|
 | `gameState` | "What's happening right now" (volatile, in-memory) |
 | `MissionState` | "What should be remembered" (persistent, localStorage) |
-| `levelEntrySnapshot` | "Where to go back to on reset" |
+| Level start | "Where every Run and RESET go back to" |
 | Mission Level | Progress carries forward within chapter |
 | Exercise Level | Fresh start, practice mode |
 | SignalManager | Event system for element interactions |
 | LevelLoader | Initializes levels and captures snapshots |
-| ResetManager | Handles full and soft resets |
+| ResetManager | Takes the level start and restores it for every Run and RESET |
 
 ---
 
-## LMS Integration (Embedded Mode)
+## Engine Notes
 
-The platform is designed to be embedded within a Learning Management System (LMS) via an iframe. When embedded, it communicates with the parent LMS through a bidirectional `postMessage` API.
-
-### Detecting Embedded Mode
-
-The platform automatically detects if it's running inside an iframe:
-
-```javascript
-isEmbedded = window.parent !== window;
-```
-
-When embedded, the platform:
-- Registers a message listener for incoming LMS commands
-- Sends progress updates to the parent LMS
-- Uses localStorage as a local cache, with the LMS as the source of truth
+- **Farming** (`plant()`, `water()`, `harvest()`) works on the tile in front of the player. Crops go dirt, sprout (5 s), grown (5 s after watering).
+- **Building** (`build()`) needs a `cost` in `elements.json`, builds in front, adds to `gameState.builtElements`, and records mission structures. A bridge turns its tile into path.
+- **Tile access** (`js/game-engine/tile-access.js`) is the one rule for walking and building: the tile's `access`, big elements' `blockedTiles`, and single elements whose definition has `"blockedTiles": "all"` (a closed door).
+- **The tile in front** is worked out in one place, `ProximityGuard.getForwardPosition(distance)`.
+- **Element swaps** go through `ElementInteractionManager.setElementType(element, type)`, used by `interact()`, signals, `open()` and `close()`. A swap goes both ways: the element's replacement becomes its old type.
+- **Signals** are cleared before elements and boats register their listeners again, at every level start and every Run.
+- **Rendering** is double-buffered: frames are drawn offscreen and copied to the canvas in one step.
 
 ---
 
-### Outbound Messages (Platform → LMS)
+## CodeTribe Integration
 
-The platform sends these message types to the parent LMS:
+The game runs only inside CodeTribe, in a frame on the app's own address (under `/student/code-panel/iframe/...`). It talks to CodeTribe only through `postMessage`.
 
-#### 1. `app-ready`
-Sent when the platform has initialized and is ready to receive data.
+### Messages
 
-```javascript
-window.parent.postMessage({
-    type: 'app-ready',
-    currentLevelId: 'chapter1-level3'
-}, '*');
-```
+| Message | Direction | Shape |
+|---------|-----------|-------|
+| `app-ready` | game → CodeTribe | `{type: 'app-ready', currentLevelId: null}`, once the game is ready |
+| `load-lesson` | CodeTribe → game | `{type: 'load-lesson', body: JSON.stringify({content, tests})}`: the slide's Markdown and its tests as `[{name, rule}]` |
+| `load-progress` | CodeTribe → game | `{type: 'load-progress', content}`: the slide's saved code, or `''` for none (the level's starter code) |
+| `save-progress` | game → CodeTribe | `{type: 'save-progress', content}`: the editor's code, 500 ms after the student edits it, and after APPLY and RESET |
+| `checker-validation` | game → CodeTribe | `{type: 'checker-validation', checkerId: <test name>, valid}`, for each named test after every check |
+| `nextSlide` | game → CodeTribe | `{type: 'nextSlide', skip: true}`, after the last level |
 
-#### 2. `save-progress`
-Sent when student code changes (debounced by 500ms) or other progress updates occur.
+The game accepts `load-lesson` and `load-progress` only from `window.parent`.
 
-```javascript
-window.parent.postMessage({
-    type: 'save-progress',
-    levelId: 'chapter1-level3',
-    data: {
-        code: 'move_forward()\nturn_left()'
-    },
-    // Included for mission/quest levels:
-    chapterState: {
-        chapter: 1,
-        inventory: { coin: 5, key: 2 },
-        backpack: ['sword', 'potion'],
-        collectedItems: [{ x: 5, y: 3, type: 'coin' }],
-        structures: [{ x: 4, y: 6, type: 'bridge' }],
-        elementStates: { 'door_5_3': 'open' }
-    }
-}, '*');
-```
-
-#### 3. `checker-validation`
-Sent for each named test every time the level's tests are checked: after each step, and when a program ends. Tests have names when the LMS sends them with `load-lesson` (below). `valid` is `true` when the test passed and `false` when it didn't.
-
-```javascript
-window.parent.postMessage({
-    type: 'checker-validation',
-    checkerId: 'Reach the star',
-    valid: true
-}, '*');
-```
-
----
-
-### Inbound Messages (LMS → Platform)
-
-The LMS sends these message types to restore student progress:
-
-#### 1. `load-progress`
-Loads progress for a specific level. Send this after receiving `app-ready`.
-
-```javascript
-// LMS sends to iframe:
-iframe.contentWindow.postMessage({
-    type: 'load-progress',
-    levelId: 'chapter1-level3',
-    code: 'move_forward()\nturn_left()',
-    completed: false,
-    // For mission/quest levels, include full chapter state:
-    chapterState: {
-        chapter: 1,
-        inventory: { coin: 5, key: 2 },
-        backpack: ['sword', 'potion'],
-        collectedItems: [{ x: 5, y: 3, type: 'coin' }],
-        structures: [],
-        elementStates: {}
-    }
-}, '*');
-```
-
-**Behavior:**
-- Updates localStorage cache
-- If `levelId` matches current level, updates the code editor immediately
-- If `chapterState` provided, loads it into `MissionState`
-
-#### 2. `load-all-progress`
-Bulk loads all progress data (useful for initial page load).
-
-```javascript
-iframe.contentWindow.postMessage({
-    type: 'load-all-progress',
-    progress: {
-        'chapter1-level1': { code: '...', completed: true },
-        'chapter1-level2': { code: '...', completed: true },
-        'chapter1-level3': { code: '...', completed: false }
-    }
-}, '*');
-```
-
-
-#### 3. `load-lesson`
-Sends the chapter to play, and optionally its tests. Send it after `app-ready`. Without it, an embedded game loads its demo chapter after 1.5 seconds.
+### Example
 
 ```javascript
 iframe.contentWindow.postMessage({
@@ -1092,118 +994,6 @@ iframe.contentWindow.postMessage({
         ]
     })
 }, '*');
+
+iframe.contentWindow.postMessage({ type: 'load-progress', content: 'move_forward()' }, '*');
 ```
-
-**Behavior:**
-- Builds the levels from `content`
-- When `tests` has any, every level gets those tests in place of its `<!-- Tests -->` block, and all of them must pass. Each `rule` is one test written as in a Tests block, with or without the leading `- `
-- Each named test's result is then sent back as `checker-validation`
-
----
-
-### Recommended LMS Integration Flow
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                         LMS (Parent)                             │
-│                                                                  │
-│  1. Embed platform in iframe                                     │
-│  2. Listen for 'app-ready' message                              │
-│  3. On 'app-ready': Send 'load-progress' with saved data        │
-│  4. Listen for 'save-progress' → Store to database              │
-│  5. Listen for 'checker-validation' → Mark each test            │
-│                                                                  │
-└──────────────────────────┬──────────────────────────────────────┘
-                           │ postMessage
-                           ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    Python Learning Platform                      │
-│                                                                  │
-│  1. Initialize and detect embedded mode                         │
-│  2. Send 'app-ready' to parent                                  │
-│  3. Receive 'load-progress' → Restore code & state              │
-│  4. On code change → Send 'save-progress'                       │
-│  5. After each test check → Send 'checker-validation'           │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
-```
-
----
-
-### LMS Implementation Example
-
-```javascript
-// In your LMS code:
-const iframe = document.getElementById('python-learning-iframe');
-
-// Listen for messages from the platform
-window.addEventListener('message', (event) => {
-    const data = event.data;
-    if (!data || !data.type) return;
-    
-    switch (data.type) {
-        case 'app-ready':
-            // Platform is ready - send saved progress
-            const savedProgress = await fetchFromDatabase(userId, data.currentLevelId);
-            iframe.contentWindow.postMessage({
-                type: 'load-progress',
-                levelId: savedProgress.levelId,
-                code: savedProgress.code,
-                completed: savedProgress.completed,
-                chapterState: savedProgress.chapterState
-            }, '*');
-            break;
-            
-        case 'save-progress':
-            // Save student code to database
-            await saveToDatabase(userId, {
-                levelId: data.levelId,
-                code: data.data.code,
-                chapterState: data.chapterState
-            });
-            break;
-            
-        case 'checker-validation':
-            // Mark the named test as passed or failed
-            await saveTestResult(userId, data.checkerId, data.valid);
-            break;
-    }
-});
-```
-
----
-
-### Data to Store Per User Per Level
-
-| Data Field | Description | When to Save |
-|------------|-------------|--------------|
-| `levelId` | Unique level identifier (e.g., `chapter1-level3`) | Always |
-| `code` | Student's Python code in the editor | On every `save-progress` |
-| `completed` | Whether level was successfully completed | On `save-progress` with `completed: true` |
-| `chapterState` | Full mission state (inventory, collected items, etc.) | On `save-progress` for mission/quest levels |
-
-### Level ID Format
-
-Level IDs follow the format: `chapter{N}-level{M}` or a custom slug if provided in the lesson markdown.
-
-Examples:
-- `chapter1-level1`
-- `chapter1-level2`
-- `mission-collect-coins` (if slug specified in lesson file)
-
----
-
-### Notes for LMS Developers
-
-1. **Wait for `app-ready`**: Don't send progress data until the platform signals it's ready.
-
-2. **Handle `chapterState` carefully**: Mission levels share state. When loading a mission level, include the latest `chapterState` so inventory and collected items persist.
-
-3. **Debounced saves**: The platform debounces code saves by 500ms. Your database won't be flooded with updates.
-
-4. **Local cache**: The platform uses `localStorage` as a cache. The LMS database should be the authoritative source; send `load-progress` on each session start.
-
-5. **Security**: In production, validate the message origin instead of using `'*'`:
-   ```javascript
-   if (event.origin !== 'https://your-lms-domain.com') return;
-   ```

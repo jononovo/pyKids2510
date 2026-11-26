@@ -8,13 +8,6 @@ var currentLevel = 0;
 
 // Note: Map inheritance caches are now managed by js/game-engine/level-loader.js
 
-// Level entry snapshot for reset functionality (exposed globally for game-commands.js)
-window.levelEntrySnapshot = {
-    starterCode: '',             // Code loaded when entering the level (saved code or starter code)
-    missionState: null,          // MissionState when entering the level
-    levelIndex: -1               // Track which level the snapshot is for
-};
-
 const TILE_SIZE = 32; // Standard tile size (image will stretch to fit)
 window.TILE_SIZE = TILE_SIZE; // Expose globally for map modules
 const MOVE_DURATION = 400;
@@ -53,7 +46,6 @@ let gameState = {
     spriteAnimationCounter: 0,
     backgroundImage: null,
     hoveredTile: {x: -1, y: -1},
-    collectibles: [],
     objects: [],
     inventory: {},
     messageLog: []
@@ -84,19 +76,6 @@ function startChapter(markdown, hostTests = []) {
     updateNavigationButtons();
     loadLevel(0);
     return true;
-}
-
-function loadMarkdownFile(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        if (!startChapter(e.target.result)) {
-            alert('Could not parse the markdown file. Please check the format.');
-        }
-    };
-    reader.readAsText(file);
 }
 
 function loadSpriteFile(event) {
@@ -136,11 +115,7 @@ async function loadLevel(levelIndex) {
     const level = courseData.levels[levelIndex];
     
     // Set current level in UserProgressManager
-    if (window.UserProgressManager) {
-        const levelSlug = level.slug || null;
-        UserProgressManager.setCurrentLevel(courseData.chapterNumber, levelIndex, levelSlug);
-        UserProgressManager.resetLevelSession();
-    }
+    UserProgressManager.setCurrentLevel(level);
     
     // Store the current level's starter code globally for Blockly to access
     window.currentLessonStarterCode = level.starterCode;
@@ -153,12 +128,8 @@ async function loadLevel(levelIndex) {
     updateNavigationButtons();
     updateProgressIndicators();
     
-    // Initialize game state using LevelLoader
-    if (window.LevelLoader) {
-        await LevelLoader.initialize(level, levelIndex, courseData);
-        LevelLoader.updateInventoryUI();
-    }
-    
+    await LevelLoader.initialize(level, courseData);
+
     // Handle UI/Editor setup
     const contentContainer = document.getElementById('content');
     const hasEditorInfrastructure = document.querySelector('.embedded-editor-container');
@@ -182,7 +153,7 @@ async function loadLevel(levelIndex) {
                         <button type="button" class="btn secondary-btn" id="reset-btn">
                             <span class="btn-icon">↺</span> <span class="btn-text">RESET</span>
                         </button>
-                        <button class="btn secondary-btn">
+                        <button type="button" class="btn secondary-btn" id="help-btn">
                             <span class="btn-icon">?</span> <span class="btn-text">HELP</span>
                         </button>
                         <button class="tutor-toggle" id="tutor-toggle">
@@ -221,14 +192,10 @@ async function loadLevel(levelIndex) {
         
         if (isFirstLoad) {
             EditorManager.init();
-            const savedCode = window.UserProgressManager ? UserProgressManager.getSavedCode() : null;
-            const codeToLoad = savedCode || level.starterCode;
+            const codeToLoad = UserProgressManager.codeForLevel(level);
             EditorManager.updateCode(codeToLoad);
-            
-            window.levelEntrySnapshot.starterCode = level.starterCode;
-            console.log('[loadLevel] Saved starterCode snapshot for level', currentLevel + 1);
             window.currentLessonStarterCode = codeToLoad;
-            
+
             // Load Blockly CSS if needed
             if (window.BlocklyModeSwitcher) {
                 if (!document.querySelector('link[href*="blockly-integration/ui/styles.css"]')) {
@@ -255,6 +222,7 @@ async function loadLevel(levelIndex) {
             
             document.getElementById('run-btn').addEventListener('click', runCode);
             document.getElementById('reset-btn').addEventListener('click', resetGame);
+            document.getElementById('help-btn').addEventListener('click', showLevelAdvice);
             
             // Add keyboard shortcut: Cmd+Enter (macOS) / Ctrl+Enter (Windows) to run code
             document.addEventListener('keydown', function(e) {
@@ -285,14 +253,10 @@ async function loadLevel(levelIndex) {
                 }
             }
         } else {
-            const savedCode = window.UserProgressManager ? UserProgressManager.getSavedCode() : null;
-            const codeToLoad = savedCode || level.starterCode;
+            const codeToLoad = UserProgressManager.codeForLevel(level);
             EditorManager.updateCode(codeToLoad);
-            
-            window.levelEntrySnapshot.starterCode = level.starterCode;
-            console.log('[loadLevel] Saved starterCode snapshot for level', currentLevel + 1);
             window.currentLessonStarterCode = codeToLoad;
-            
+
             if (window.BlocklyModeSwitcher) {
                 const wasInBlockMode = window.BlocklyModeSwitcher.isBlockMode();
                 if (wasInBlockMode) {
@@ -537,29 +501,12 @@ function loadAvailableSprites() {
 // INITIALIZATION
 // ============================================
 
-// Load OpenAI API key from server
-fetch('api/config')
-    .then(response => response.json())
-    .then(config => {
-        if (config.apiKey) {
-            window.OPENAI_API_KEY = config.apiKey;
-            console.log('AI tutor capabilities enabled');
-        }
-    })
-    .catch(error => {
-        console.log('AI tutor running without OpenAI integration');
-    });
-
 // Load available sprites on startup
 loadAvailableSprites();
-
-const HOST_CHAPTER_WAIT_MS = 1500;
-let chapterFromHost = false;
 
 window.addEventListener('message', (event) => {
     const message = event.data;
     if (event.source !== window.parent || !message || message.type !== 'load-lesson' || typeof message.body !== 'string') return;
-    chapterFromHost = true;
     try {
         const slide = JSON.parse(message.body);
         startChapter(slide.content || '', slide.tests || []);
@@ -567,20 +514,6 @@ window.addEventListener('message', (event) => {
         console.log('Could not read the chapter sent by the host', error);
     }
 });
-
-function loadDefaultChapter() {
-    if (chapterFromHost) return;
-    fetch('assets/chapter1-elements-demo.md')
-        .then(response => response.text())
-        .then(markdown => {
-            if (!chapterFromHost) startChapter(markdown);
-        })
-        .catch(() => {
-            console.log('Default chapter not found, waiting for user to load one');
-        });
-}
-
-setTimeout(loadDefaultChapter, window.parent === window ? 0 : HOST_CHAPTER_WAIT_MS);
 
 // Preload SVG tiles and initialize element system before starting
 if (typeof preloadSVGTiles === 'function') {
@@ -623,129 +556,3 @@ if (typeof preloadSVGTiles === 'function') {
 requestAnimationFrame(animationLoop);
 
 // Note: Tile hover tracking is now in js/map/tile-hover.js
-
-// ============================================
-// CHAPTER DROPDOWN FUNCTIONALITY
-// ============================================
-
-let currentLoadedFile = null;
-let chapterDropdownOpen = false;
-
-function toggleChapterDropdown() {
-    const menu = document.getElementById('chapter-dropdown-menu');
-    const button = document.getElementById('chapter-dropdown-btn');
-    
-    if (!menu || !button) return;
-    
-    chapterDropdownOpen = !chapterDropdownOpen;
-    
-    if (chapterDropdownOpen) {
-        menu.classList.add('show');
-        button.classList.add('active');
-        loadMarkdownFilesList();
-    } else {
-        menu.classList.remove('show');
-        button.classList.remove('active');
-    }
-}
-
-document.addEventListener('click', function(event) {
-    const container = document.querySelector('.chapter-dropdown-container');
-    if (container && !container.contains(event.target)) {
-        const menu = document.getElementById('chapter-dropdown-menu');
-        const button = document.getElementById('chapter-dropdown-btn');
-        if (menu && button) {
-            menu.classList.remove('show');
-            button.classList.remove('active');
-            chapterDropdownOpen = false;
-        }
-    }
-});
-
-async function loadMarkdownFilesList() {
-    const menu = document.getElementById('chapter-dropdown-menu');
-    if (!menu) return;
-    
-    try {
-        const response = await fetch('markdown-files.json');
-        let files = [];
-        
-        if (response.ok) {
-            files = await response.json();
-        } else {
-            files = [
-                'python-course-chapter1.md',
-                'chapter1-master-map.md'
-            ];
-        }
-        
-        menu.innerHTML = '';
-        
-        files.forEach(file => {
-            const item = document.createElement('div');
-            item.className = 'chapter-dropdown-item';
-            if (currentLoadedFile === file) {
-                item.classList.add('current');
-            }
-            
-            item.innerHTML = `<span class="file-icon">📄</span>${file}`;
-            
-            item.addEventListener('click', function() {
-                loadMarkdownFromDropdown(file);
-                // Close dropdown directly without re-fetching
-                const menu = document.getElementById('chapter-dropdown-menu');
-                const button = document.getElementById('chapter-dropdown-btn');
-                if (menu && button) {
-                    menu.classList.remove('show');
-                    button.classList.remove('active');
-                    chapterDropdownOpen = false;
-                }
-            });
-            
-            menu.appendChild(item);
-        });
-        
-        if (files.length === 0) {
-            const item = document.createElement('div');
-            item.className = 'chapter-dropdown-item';
-            item.style.color = '#666';
-            item.style.pointerEvents = 'none';
-            item.innerHTML = 'No markdown files found in assets folder';
-            menu.appendChild(item);
-        }
-    } catch (error) {
-        console.error('Error loading markdown files list:', error);
-        menu.innerHTML = '<div class="chapter-dropdown-item" style="color: #666; pointer-events: none;">Error loading files</div>';
-    }
-}
-
-async function loadMarkdownFromDropdown(filename) {
-    try {
-        const response = await fetch(`/assets/${filename}`);
-        if (!response.ok) {
-            throw new Error(`Failed to load ${filename}`);
-        }
-        
-        const content = await response.text();
-        
-        const blob = new Blob([content], { type: 'text/markdown' });
-        const file = new File([blob], filename, { type: 'text/markdown' });
-        
-        const fakeEvent = {
-            target: {
-                files: [file]
-            }
-        };
-        
-        currentLoadedFile = filename;
-        
-        loadMarkdownFile(fakeEvent);
-        
-    } catch (error) {
-        console.error(`Error loading ${filename}:`, error);
-        alert(`Failed to load ${filename}: ${error.message}`);
-    }
-}
-
-window.toggleChapterDropdown = toggleChapterDropdown;
-window.loadMarkdownFromDropdown = loadMarkdownFromDropdown;

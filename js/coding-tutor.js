@@ -131,43 +131,6 @@ window.addEventListener('DOMContentLoaded', function() {
     if (avatarImg) {
         avatarImg.src = generateTutorAvatar();
     }
-    
-    // Initialize help button (now static, not clickable)
-    const helpBtn = document.getElementById('help-btn');
-    if (helpBtn) {
-        // Remove any click functionality - help button is now static
-        // It will later open a modal with level-specific advice
-        helpBtn.innerHTML = '? <span class="btn-text">HELP</span>';
-        helpBtn.classList.remove('active'); // Ensure it doesn't have active state
-    }
-    
-    // Initialize tutor toggle button
-    const tutorToggle = document.getElementById('tutor-toggle');
-    if (tutorToggle) {
-        tutorToggle.addEventListener('click', toggleTutor);
-        const toggleText = tutorToggle.querySelector('.toggle-text');
-        // Ensure the dog emoji icon is present
-        const toggleIcon = tutorToggle.querySelector('.toggle-icon');
-        if (!toggleIcon) {
-            const icon = document.createElement('span');
-            icon.className = 'toggle-icon';
-            icon.textContent = '🐶';
-            tutorToggle.appendChild(icon);  // Add after the text
-        }
-        if (tutorEnabled) {
-            tutorToggle.classList.remove('off');
-            if (toggleText) toggleText.textContent = 'ON';
-        } else {
-            tutorToggle.classList.add('off');
-            if (toggleText) toggleText.textContent = 'OFF';
-        }
-    }
-    
-    // Comment out auto-test for now
-    // setTimeout(() => {
-    //     console.log('Auto-testing tutor dialog...');
-    //     testTutorDialog();
-    // }, 2000);
 });
 
 // Show tutor dialog
@@ -277,121 +240,35 @@ function applyTutorRecommendation() {
     }
     
     // Update the editor
-    EditorManager.updateCode(lines.join('\n'));
+    const appliedCode = lines.join('\n');
+    EditorManager.updateCode(appliedCode);
+    UserProgressManager.saveCode(appliedCode);
     
     // Close dialog
     closeTutorDialog();
 }
 
-// Get AI-powered recommendation for complex code issues
-async function getAIRecommendation(studentCode, solutionCode, objective) {
-    try {
-        const apiKey = window.OPENAI_API_KEY;
-        if (!apiKey) {
-            console.error('OpenAI API key not available');
-            return {
-                message: 'Try adding more movement commands to reach the goal.',
-                code: 'player.move_forward()'
-            };
-        }
+const GENERAL_TIP = {
+    message: 'Try adding more movement commands to reach the goal.',
+    code: 'player.move_forward()',
+    type: 'tip'
+};
 
-        const prompt = `You are a coding tutor helping kids learn Python through a game.
+function recommendationFor(studentCode, executionError) {
+    const solutionCode = courseData.levels[currentLevel].solutionCode || '';
+    return generateRecommendation(normalizeCode(studentCode), normalizeCode(solutionCode), executionError);
+}
 
-The solution code below shows exactly what's available at this level:
-${solutionCode}
-
-Student's current code:
-${studentCode}
-
-Level objective: ${objective || 'Guide the character to reach the star'}
-
-Analyze what the student needs to fix or add by comparing to the solution.
-IMPORTANT: Only suggest commands and syntax that appear in the solution code above.
-If the solution uses loops, you can suggest loops. If it only uses basic commands, stick to those.
-
-Provide ONE specific, encouraging suggestion.
-
-Respond in JSON format:
-{
-    "message": "encouraging explanation in 1-2 sentences",
-    "code": "the exact line they should add or fix"
-}`;
-
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`
-            },
-            body: JSON.stringify({
-                model: 'gpt-3.5-turbo',
-                messages: [
-                    { role: 'system', content: 'You are a friendly coding tutor helping children learn programming through a game. Always analyze the solution code to understand what commands and syntax are available at this level, then only suggest what appears in that solution. Be encouraging and keep explanations simple for young learners.' },
-                    { role: 'user', content: prompt }
-                ],
-                temperature: 0.7,
-                max_tokens: 150
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error('AI service unavailable');
-        }
-
-        const data = await response.json();
-        const content = data.choices[0].message.content;
-        
-        // Try to parse JSON response
-        try {
-            return JSON.parse(content);
-        } catch {
-            // Fallback if JSON parsing fails
-            return {
-                message: content,
-                code: 'player.move_forward()'
-            };
-        }
-    } catch (error) {
-        console.error('AI analysis error:', error);
-        // Fallback to basic suggestion
-        return {
-            message: 'Keep going! Try adding another move command to get closer to the goal.',
-            code: 'player.move_forward()'
-        };
+function analyzeCodeAndProvideHelp(studentCode, executionError, executedCommands) {
+    console.log('Tutor: Analyzing code...', { studentCode, executionError, executedCommands });
+    const recommendation = recommendationFor(studentCode, executionError);
+    if (recommendation) {
+        showTutorDialog(recommendation);
     }
 }
 
-// Analyze code and provide help based on execution results
-async function analyzeCodeAndProvideHelp(studentCode, executionError, executedCommands) {
-    console.log('Tutor: Analyzing code...', { studentCode, executionError, executedCommands });
-    
-    // Get the solution code for current level
-    const solutionCode = courseData.levels[currentLevel].solutionCode || '';
-    
-    // Parse codes to normalize them
-    const studentLines = normalizeCode(studentCode);
-    const solutionLines = normalizeCode(solutionCode);
-    
-    console.log('Comparing:', { studentLines, solutionLines });
-    
-    // Compare and generate recommendation
-    const recommendation = generateRecommendation(studentLines, solutionLines, executionError);
-    
-    // Show the tutor dialog with recommendation
-    if (recommendation) {
-        // Check if AI analysis is needed for complex cases
-        if (recommendation.needsAI) {
-            const aiRec = await getAIRecommendation(
-                recommendation.studentCode,
-                recommendation.solutionCode,
-                courseData.levels[currentLevel].objective
-            );
-            recommendation.message = aiRec.message;
-            recommendation.code = aiRec.code;
-        }
-        
-        showTutorDialog(recommendation);
-    }
+function showLevelAdvice() {
+    showTutorDialog(recommendationFor(EditorManager.getCode(), null) || GENERAL_TIP);
 }
 
 // Normalize code for comparison (remove comments, blank lines, normalize spacing)
@@ -407,10 +284,14 @@ function generateRecommendation(studentLines, solutionLines, executionError) {
     // If there was an execution error, provide error-specific help
     if (executionError) {
         return {
-            message: `I see you're having trouble with the line: "${executionError.line}". ${executionError.error}`,
+            message: `I see you're having trouble with ${executionError.line ? 'line ' + executionError.line : 'your code'}. ${executionError.text}`,
             code: solutionLines[0] || 'player.move_forward()',
             type: 'error'
         };
+    }
+
+    if (solutionLines.length === 0) {
+        return GENERAL_TIP;
     }
     
     // Count how many of the user's existing lines are incorrect (not counting missing lines)
@@ -430,16 +311,8 @@ function generateRecommendation(studentLines, solutionLines, executionError) {
         }
     }
     
-    // If more than 2 of the user's typed lines are incorrect, use AI for complex analysis
     if (incorrectCount > 2) {
-        return {
-            message: `Let me analyze your code more carefully...`,
-            code: '',  // Will be filled by AI
-            type: 'complex',
-            needsAI: true,
-            studentCode: studentLines.join('\n'),
-            solutionCode: solutionLines.join('\n')
-        };
+        return GENERAL_TIP;
     }
     
     // Simple cases: 2 or fewer incorrect lines in what user typed - use rules-based help
@@ -507,3 +380,4 @@ window.showTutorDialog = showTutorDialog;
 window.closeTutorDialog = closeTutorDialog;
 window.applyTutorRecommendation = applyTutorRecommendation;
 window.analyzeCodeAndProvideHelp = analyzeCodeAndProvideHelp;
+window.showLevelAdvice = showLevelAdvice;

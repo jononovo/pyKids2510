@@ -15,23 +15,22 @@ const TestContext = (function() {
             collectibles: [],
             code: '',
             missionState: null,
-            elementStates: {},
             levelType: gameState.levelType || 'exercise'
         };
-        
+
         if (gameState.inventory) {
             context.inventory = { ...gameState.inventory };
         }
-        
-        if (gameState.collectibles) {
-            context.collectibles = gameState.collectibles.map(c => ({
-                x: c.x,
-                y: c.y,
-                type: c.type || 'gem',
-                collected: !!c.collected
+
+        context.collectibles = ElementInteractionManager.elements
+            .filter(element => element.section === 'collectibles')
+            .map(element => ({
+                x: element.x,
+                y: element.y,
+                type: element.type,
+                collected: !!ElementInteractionManager.isElementRemoved(element.id)
             }));
-        }
-        
+
         if (window.EditorManager && EditorManager.isInitialized()) {
             context.code = EditorManager.getCode() || '';
         }
@@ -42,12 +41,7 @@ const TestContext = (function() {
                 context.inventory = { ...context.missionState.inventory, ...context.inventory };
             }
         }
-        
-        if (window.ElementInteractionManager) {
-            context.elementStates = ElementInteractionManager.getElementStates ? 
-                ElementInteractionManager.getElementStates() : {};
-        }
-        
+
         return context;
     }
     

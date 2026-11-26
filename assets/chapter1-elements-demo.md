@@ -148,7 +148,7 @@ tests:
     item: coin
     min: 5
   - type: code_regex
-    pattern: "collect\\(\\)"
+    pattern: "collect\(\)"
     message: "Use collect() to pick up items"
 ```
 ---
@@ -233,7 +233,7 @@ tests:
   - type: position
     target: goal
   - type: code_regex
-    pattern: "plant\\("
+    pattern: "plant\("
     message: "Use plant() to plant a crop"
 ```
 ---

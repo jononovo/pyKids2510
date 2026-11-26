@@ -14,20 +14,24 @@
         return window.CommandHelpers ? CommandHelpers.findObjectAt(x, y, type) : null;
     }
 
-    function updateInventoryDisplay() {
-        if (window.CommandHelpers) CommandHelpers.updateInventoryDisplay();
-    }
-    
-    function updateBackpackDisplay() {
-        if (window.CommandHelpers) CommandHelpers.updateBackpackDisplay();
-    }
-
-    function getTargetPosition() {
-        return window.CommandHelpers ? CommandHelpers.getTargetPosition() : { px: 0, py: 0, targetX: 0, targetY: 0 };
-    }
-
     function getAnimationDuration(fraction) {
         return window.CommandHelpers ? CommandHelpers.getAnimationDuration(fraction) : 300;
+    }
+
+    async function switchDoorInFront(fromType, toType, doneMessage, nothingMessage) {
+        var front = ProximityGuard.getForwardPosition();
+        var door = ElementInteractionManager.getElementAt(front.x, front.y);
+        if (door && door.type === fromType) {
+            ElementInteractionManager.setElementType(door, toType);
+            ElementInteractionManager.persistStates();
+            playInteractSound();
+            animateInteractPop(front.x, front.y);
+            if (window.showGameMessage) showGameMessage(doneMessage, 'success');
+            await render();
+        } else if (window.showGameMessage) {
+            showGameMessage(nothingMessage, 'info');
+        }
+        await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
     }
 
     // ========== COMMAND DEFINITIONS ==========
@@ -40,31 +44,31 @@
             defaults: { steps: 1 },
             countsAsMultiple: true,
             execute: async function(steps) {
+                var run = SkulptRuntime.currentProgramRun();
                 steps = parseInt(steps) || 1;
                 var moved = 0;
-                
-                for (var i = 0; i < steps; i++) {
+
+                for (var i = 0; i < steps && !run.stopped; i++) {
                     var pos = gameState.playerPos;
-                    var x = pos.x, y = pos.y;
-                    var newX = Math.floor(x);
-                    var newY = Math.floor(y);
-                    
-                    switch (gameState.playerDirection) {
-                        case 'up': newY--; break;
-                        case 'down': newY++; break;
-                        case 'left': newX--; break;
-                        case 'right': newX++; break;
-                    }
-                    
-                    if (canMoveTo(newX, newY)) {
-                        await animateMove(x, y, newX, newY, gameState.playerDirection);
+                    var front = ProximityGuard.getForwardPosition();
+
+                    if (canMoveTo(front.x, front.y)) {
+                        await animateMove(pos.x, pos.y, front.x, front.y, gameState.playerDirection);
                         moved++;
+                        if (run.stopped) break;
+                        var stepResult = ElementInteractionManager.handlePlayerStep(front.x, front.y, gameState);
+                        if (stepResult) {
+                            if (window.showGameMessage) showGameMessage(stepResult.message, 'success');
+                            renderBackpackInventoryPanels();
+                            await render();
+                        }
                     } else {
                         playBumpSound();
                         break;
                     }
                 }
-                
+
+                if (run.stopped) return moved;
                 if (window.TestRunner) {
                     TestRunner.evaluate();
                 } else {
@@ -79,10 +83,11 @@
             defaults: { times: 1 },
             countsAsMultiple: true,
             execute: async function(times) {
+                var run = SkulptRuntime.currentProgramRun();
                 times = parseInt(times) || 1;
                 var directions = ['up', 'left', 'down', 'right'];
-                
-                for (var i = 0; i < times; i++) {
+
+                for (var i = 0; i < times && !run.stopped; i++) {
                     var currentIndex = directions.indexOf(gameState.playerDirection);
                     gameState.playerDirection = directions[(currentIndex + 1) % 4];
                     
@@ -100,10 +105,11 @@
             defaults: { times: 1 },
             countsAsMultiple: true,
             execute: async function(times) {
+                var run = SkulptRuntime.currentProgramRun();
                 times = parseInt(times) || 1;
                 var directions = ['up', 'right', 'down', 'left'];
-                
-                for (var i = 0; i < times; i++) {
+
+                for (var i = 0; i < times && !run.stopped; i++) {
                     var currentIndex = directions.indexOf(gameState.playerDirection);
                     gameState.playerDirection = directions[(currentIndex + 1) % 4];
                     
@@ -142,21 +148,14 @@
 
         push: {
             execute: async function() {
-                var pos = getTargetPosition();
-                var object = findObjectAt(pos.targetX, pos.targetY, 'pushable');
-                
+                var front = ProximityGuard.getForwardPosition();
+                var object = findObjectAt(front.x, front.y, 'pushable');
+
                 if (object) {
-                    var newX = pos.targetX, newY = pos.targetY;
-                    switch (gameState.playerDirection) {
-                        case 'up': newY--; break;
-                        case 'down': newY++; break;
-                        case 'left': newX--; break;
-                        case 'right': newX++; break;
-                    }
-                    
-                    if (canMoveTo(newX, newY)) {
-                        object.x = newX;
-                        object.y = newY;
+                    var beyond = ProximityGuard.getForwardPosition(2);
+                    if (canMoveTo(beyond.x, beyond.y)) {
+                        object.x = beyond.x;
+                        object.y = beyond.y;
                         await render();
                     }
                 }
@@ -210,7 +209,7 @@
                         playCollectSound();
                         animateCollectSparkle(guardResult.position.x, guardResult.position.y);
                         if (window.showGameMessage) showGameMessage(consumeResult.message, 'success');
-                        updateInventoryDisplay();
+                        renderBackpackInventoryPanels();
                         await render();
                     }
                 }
@@ -327,29 +326,13 @@
 
         open: {
             execute: async function() {
-                var pos = getTargetPosition();
-                var door = findObjectAt(pos.targetX, pos.targetY, 'door');
-                
-                if (door) {
-                    door.open = true;
-                    await render();
-                }
-                
-                await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
+                await switchDoorInFront('door', 'door-open', 'Opened the door', ProximityGuard.Messages.CANNOT_OPEN);
             }
         },
 
         close: {
             execute: async function() {
-                var pos = getTargetPosition();
-                var door = findObjectAt(pos.targetX, pos.targetY, 'door');
-                
-                if (door) {
-                    door.open = false;
-                    await render();
-                }
-                
-                await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
+                await switchDoorInFront('door-open', 'door', 'Closed the door', ProximityGuard.Messages.CANNOT_CLOSE);
             }
         },
 
@@ -358,8 +341,8 @@
             defaults: { item: null },
             execute: async function(item) {
                 if (!item) return;
-                var pos = getTargetPosition();
-                var chest = findObjectAt(pos.targetX, pos.targetY, 'chest');
+                var front = ProximityGuard.getForwardPosition();
+                var chest = findObjectAt(front.x, front.y, 'chest');
                 
                 if (chest) {
                     if (!chest.contents) chest.contents = [];
@@ -449,8 +432,7 @@
                     gameState.mapData[placement.y][placement.x] = getTileIdByName('path');
                 }
                 
-                updateInventoryDisplay();
-                updateBackpackDisplay();
+                renderBackpackInventoryPanels();
                 
                 if (window.MissionState && MissionState.isMissionLevel) {
                     MissionState.addStructure(placement.x, placement.y, elementName);
@@ -571,7 +553,7 @@
                 
                 playCollectSound();
                 animateCollectSparkle(px, py);
-                updateInventoryDisplay();
+                renderBackpackInventoryPanels();
                 if (window.showGameMessage) showGameMessage('Harvested ' + cropName + '!', 'success');
                 await render();
                 
@@ -606,7 +588,6 @@
         var element = guardResult.element;
         
         if (window.MissionState && MissionState.isBackpackFull()) {
-            if (window.showGameMessage) showGameMessage('Backpack is full!', 'error');
             throw new Error('Backpack is full! Remove an item first.');
         }
         
@@ -623,7 +604,7 @@
             
             playCollectSound();
             animateCollectSparkle(element.x, element.y);
-            updateBackpackDisplay();
+            renderBackpackInventoryPanels();
             await render();
             if (window.showGameMessage) showGameMessage(result.message, 'success');
         }
@@ -645,7 +626,7 @@
         var result = MissionState.removeFromBackpack(itemType);
         if (result.success) {
             gameState.backpack = MissionState.getBackpack();
-            updateBackpackDisplay();
+            renderBackpackInventoryPanels();
             await render();
             if (window.showGameMessage) showGameMessage(result.message, 'success');
         } else {
@@ -747,7 +728,7 @@
             type: droppedItemType,
             section: 'collectibles',
             id: 'dropped_' + droppedItemType + '_' + placement.x + '_' + placement.y + '_' + Date.now(),
-            trigger: 'on_step'
+            trigger: 'on_collect'
         };
         
         if (window.ElementInteractionManager) {
@@ -757,7 +738,7 @@
             }
         }
         
-        updateBackpackDisplay();
+        renderBackpackInventoryPanels();
         await render();
         if (window.showGameMessage) showGameMessage('Dropped ' + droppedItemType, 'success');
         
@@ -767,15 +748,20 @@
 
     // ========== INVENTORY DICTIONARY ACCESS ==========
     
+    function currentInventory() {
+        return MissionState.isMissionLevel ? MissionState.getInventory() : gameState.inventory;
+    }
+
     window.gameCommand_inventory_get = function(key) {
-        if (window.MissionState && MissionState.isMissionLevel) {
-            return MissionState.getInventoryCount(key);
-        }
-        if (!gameState.inventory) {
-            gameState.inventory = {};
-        }
-        var value = gameState.inventory[key];
-        return (value !== undefined) ? value : 0;
+        return currentInventory()[key] || 0;
+    };
+
+    window.gameCommand_inventory_counts = function() {
+        return { ...currentInventory() };
+    };
+
+    window.gameCommand_backpack_items = function() {
+        return MissionState.getBackpack();
     };
     
     window.gameCommand_inventory_set = async function(key, value) {
@@ -820,7 +806,7 @@
             
             playCollectSound();
             animateCollectSparkle(element.x, element.y);
-            updateInventoryDisplay();
+            renderBackpackInventoryPanels();
             await render();
             
             var newValue = gameState.inventory[key] || 0;
@@ -843,7 +829,7 @@
                 }
             }
             
-            updateInventoryDisplay();
+            renderBackpackInventoryPanels();
             await render();
         }
         
@@ -881,31 +867,22 @@
     };
 
     window.resetGame = async function() {
-        if (window.ConfirmDialog) {
-            var confirmed = await ConfirmDialog.show({
-                title: 'Reset Level',
-                message: 'Your code and level progress will be cleared.',
-                okText: 'Reset',
-                cancelText: 'Cancel'
-            });
-            if (!confirmed) return;
-        }
-        
-        if (window.ResetManager) {
-            ResetManager.fullReset(gameState);
-        } else {
-            console.error('[resetGame] ResetManager not available');
-        }
-        
-        var starterCode = '';
-        if (window.courseData && window.courseData.levels && typeof currentLevel !== 'undefined') {
-            starterCode = window.courseData.levels[currentLevel].starterCode || '';
-        }
-        
-        if (window.EditorManager) {
-            EditorManager.updateCode(starterCode);
-        }
-        
+        var confirmed = await ConfirmDialog.show({
+            title: 'Reset Level',
+            message: 'Your code and level progress will be cleared.',
+            okText: 'Reset',
+            cancelText: 'Cancel'
+        });
+        if (!confirmed) return;
+
+        SkulptRuntime.stopRunningProgram();
+        ResetManager.restoreLevelStart(gameState);
+        clearConsoleLog();
+
+        var starterCode = courseData.levels[currentLevel].starterCode || '';
+        EditorManager.updateCode(starterCode);
+        UserProgressManager.saveCode('');
+
         if (window.BlocklyModeSwitcher && window.BlocklyModeSwitcher.isBlockMode()) {
             if (window.BlocklyIntegration) {
                 window.BlocklyIntegration.convertFromText(starterCode);

@@ -4,6 +4,7 @@
       "name": "door",
       "path": "elements/interactive/door.svg",
       "fallbackColor": "#8B4513",
+      "blockedTiles": "all",
       "description": "A closed door that can be opened"
     },
     "door-open": {

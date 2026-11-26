@@ -253,8 +253,6 @@
         },
 
         findAdjacentWalkableTile(x, y, gameState) {
-            if (!window.TileAccess) return null;
-            
             const directions = [
                 { dx: 1, dy: 0 },
                 { dx: 0, dy: -1 },
@@ -334,25 +332,6 @@
             
             this._registerSignalListeners();
             console.log('[VehicleInteraction] Re-registered signal listeners (set hidden defaults)');
-        },
-        
-        reregisterSignalListeners() {
-            this._registerSignalListeners();
-        },
-
-        resetToSnapshot(snapshot, gameState) {
-            this.reset(gameState);
-            
-            if (snapshot && snapshot.vehicleStates) {
-                this.vehicleStates = JSON.parse(JSON.stringify(snapshot.vehicleStates));
-            }
-        },
-
-        getSnapshot() {
-            return {
-                vehicleStates: JSON.parse(JSON.stringify(this.vehicleStates)),
-                currentVehicleId: this.currentVehicle ? this.currentVehicle.id : null
-            };
         }
     };
 

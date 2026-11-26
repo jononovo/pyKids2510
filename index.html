@@ -30,15 +30,6 @@
                             <div class="level-progress" id="level-progress">
                                 <!-- Progress boxes will be generated dynamically -->
                             </div>
-                            <!-- Chapter dropdown button -->
-                            <div class="chapter-dropdown-container">
-                                <button class="chapter-dropdown-btn" id="chapter-dropdown-btn" onclick="toggleChapterDropdown()">
-                                    <span class="chevron-down">&#9660;</span>
-                                </button>
-                                <div class="chapter-dropdown-menu" id="chapter-dropdown-menu">
-                                    <!-- Populated dynamically with markdown files -->
-                                </div>
-                            </div>
                         </div>
 
                     </div>
@@ -47,18 +38,7 @@
             </div>
 
             <div class="content-scroll">
-                <div class="content" id="content">
-                    <div class="load-chapter-container">
-                        <div class="load-info">
-                            Welcome to the Python Development Course!<br><br>
-                            Load a chapter markdown file to begin learning Python through interactive gameplay.
-                        </div>
-                        <button class="load-chapter-btn" onclick="document.getElementById('file-input').click()">
-                            📁 LOAD CHAPTER FILE
-                        </button>
-                        <input type="file" id="file-input" accept=".md" onchange="loadMarkdownFile(event)">
-                    </div>
-                </div>
+                <div class="content" id="content"></div>
             </div>
         </div>
 
@@ -226,7 +206,7 @@
                 <!-- Markdown-rendered message goes here -->
             </div>
             <div class="tutor-interaction">
-                <img class="tutor-avatar" src="assets/sprites/tutor-avatar.png" alt="Tutor">
+                <img class="tutor-avatar" alt="Tutor">
                 <div class="tutor-code-box" id="tutorCodeBox">
                     <!-- Recommended code with syntax highlighting -->
                 </div>
@@ -237,8 +217,8 @@
 
     <!-- Scripts -->
     <!-- Skulpt Python Interpreter -->
-    <script src="https://skulpt.org/js/skulpt.min.js"></script>
-    <script src="https://skulpt.org/js/skulpt-stdlib.js"></script>
+    <script src="/assets/js/skulpt.2c08b3e.min.js"></script>
+    <script src="/assets/js/skulpt-stdlib.2c08b3e.js"></script>
     
     <script src="js/user-progress.js"></script>
     <!-- Mission system modules -->
@@ -260,6 +240,7 @@
     <script src="js/tests/test-types.js"></script>
     <script src="js/tests/test-runner.js"></script>
     <script src="js/ui/confirm-dialog.js"></script>
+    <script src="js/ui/backpack-inventory-panels.js"></script>
     <!-- Map/Camera modules (order matters: tile-renderer first, then others) -->
     <script src="js/map/tile-renderer.js"></script>
     <script src="js/map/element-renderer.js"></script>
@@ -267,13 +248,15 @@
     <script src="js/map/camera-controls.js"></script>
     <script src="js/map/tile-hover.js"></script>
     <script src="js/codejar.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="/assets/js/marked.15.0.12.min.js"></script>
     <script src="js/syntax-highlighter.js"></script>
     <script src="js/editor-manager.js"></script>
     <script src="js/lesson-parser.js"></script>
     <script src="js/game-engine/command-helpers.js"></script>
     <script src="js/game-commands.js"></script>
+    <script src="js/python-backpack-inventory.js"></script>
     <script src="js/skulpt-bridge.js"></script>
+    <script src="js/python-error-explainer.js"></script>
     <script src="js/skulpt-runtime.js"></script>
     <script src="js/game-engine.js"></script>
     <script src="js/coding-tutor.js"></script>

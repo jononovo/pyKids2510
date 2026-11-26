@@ -34,8 +34,8 @@ window.getRenderContext = getRenderContext;
 function getTileIdByName(name) {
     const tileManifest = window.tileManifest;
     if (!tileManifest) return 0;
-    for (const [id, tile] of Object.entries(tileManifest.tiles)) {
-        if (tile.name === name) return parseInt(id);
+    for (const tile of Object.values(tileManifest.tiles)) {
+        if (tile.name === name) return tile.id;
     }
     return 0;
 }
@@ -270,8 +270,23 @@ async function render() {
     }
 }
 
+let finishMoveNow = null;
+
+function endMoveAnimationNow() {
+    if (finishMoveNow) finishMoveNow();
+}
+
 function animateMove(fromX, fromY, toX, toY, direction) {
     return new Promise(resolve => {
+        let finished = false;
+        function finish() {
+            finished = true;
+            finishMoveNow = null;
+            gameState.playerPos.x = toX;
+            gameState.playerPos.y = toY;
+            resolve();
+        }
+        finishMoveNow = finish;
         gameState.playerDirection = direction;
         const startTime = Date.now();
         
@@ -285,10 +300,11 @@ function animateMove(fromX, fromY, toX, toY, direction) {
         }
         
         async function animate() {
+            if (finished) return;
             const canvas = document.getElementById('game-canvas');
             const visibleCtx = canvas ? canvas.getContext('2d') : null;
             if (!visibleCtx) return;
-            
+
             const elapsed = Date.now() - startTime;
             const progress = Math.min(elapsed / moveDuration, 1);
             const easeProgress = 1 - Math.pow(1 - progress, 3);
@@ -371,7 +387,7 @@ function animateMove(fromX, fromY, toX, toY, direction) {
                 requestAnimationFrame(() => animate());
             } else {
                 await render();
-                resolve();
+                if (!finished) finish();
             }
         }
         
@@ -380,35 +396,7 @@ function animateMove(fromX, fromY, toX, toY, direction) {
 }
 
 function canMoveTo(x, y) {
-    if (window.TileAccess) {
-        return TileAccess.canActorMoveTo(x, y, gameState.characterType, gameState);
-    }
-    
-    if (x < 0 || x >= gameState.mapWidth || y < 0 || y >= gameState.mapHeight) {
-        return false;
-    }
-    
-    if (window.MegaElementManager && MegaElementManager.isTileBlocked(x, y)) {
-        return false;
-    }
-    
-    const tile = gameState.mapData[y][x];
-    const tileInfo = tileDataById[tile];
-    
-    if (!tileInfo) return true;
-    if (!tileInfo.access) return true;
-    if (tileInfo.access === "blocked") return false;
-    
-    if (Array.isArray(tileInfo.access)) {
-        const charType = gameState.characterType || "player";
-        return tileInfo.access.includes(charType);
-    }
-    
-    if (typeof tileInfo.access === "object" && tileInfo.access.requires) {
-        return checkAccessRequirements(tileInfo.access.requires);
-    }
-    
-    return true;
+    return TileAccess.canActorMoveTo(x, y, gameState.characterType, gameState);
 }
 
 function checkWinCondition() {
@@ -419,11 +407,6 @@ function checkWinCondition() {
     
     if (px === gx && py === gy) {
         gameState.levelCompleted[currentLevel] = true;
-        
-        if (window.UserProgressManager) {
-            UserProgressManager.markCompletion();
-        }
-        
         updateProgressIndicators();
         document.getElementById('victory-modal').classList.add('show');
     }

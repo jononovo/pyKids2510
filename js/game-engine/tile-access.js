@@ -26,7 +26,14 @@
     function isBlockedByMegaElement(x, y) {
         return window.MegaElementManager && MegaElementManager.isTileBlocked(x, y);
     }
-    
+
+    function isBlockedByElement(x, y) {
+        const element = ElementInteractionManager.getElementAt(x, y);
+        if (!element) return false;
+        const definition = ElementInteractionManager.getElementDefinition(element.type);
+        return !!definition && definition.blockedTiles === 'all';
+    }
+
     function isBlockedByBuiltElement(x, y, gameState) {
         if (gameState.builtElements && window.ElementInteractionManager) {
             for (const built of gameState.builtElements) {
@@ -73,10 +80,10 @@
             return { available: false, reason: 'Outside map boundaries' };
         }
         
-        if (isBlockedByMegaElement(x, y)) {
+        if (isBlockedByMegaElement(x, y) || isBlockedByElement(x, y)) {
             return { available: false, reason: 'Blocked by structure' };
         }
-        
+
         if (forPlacement && isBlockedByBuiltElement(x, y, gs)) {
             return { available: false, reason: 'Something already built here' };
         }

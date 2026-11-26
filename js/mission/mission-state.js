@@ -55,6 +55,7 @@ const MissionState = (function() {
     }
     
     function saveToStorage() {
+        if (!isMissionLevel) return;
         try {
             const all = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
             all['chapter' + currentChapter] = getState();

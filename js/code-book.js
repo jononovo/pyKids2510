@@ -9,9 +9,9 @@ const loadedTabs = {};
 
 // Tab content sources
 const TAB_SOURCES = {
-    commands: '/assets/codebook/codebook-markdown.md',
-    authoring: '/docs/authoring.md',
-    tech: '/docs/technical.md'
+    commands: 'assets/codebook/codebook-markdown.md',
+    authoring: 'docs/authoring.md',
+    tech: 'docs/technical.md'
 };
 
 // Open Code Book
