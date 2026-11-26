@@ -760,58 +760,6 @@ body {
 ::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
-/* Tutor toggle - moved to bottom controls */
-
-.tutor-toggle {
-    background: transparent;  /* No background */
-    color: #7fc542;  /* Green text when ON */
-    border: 1px solid #666 !important;  /* Always gray border - never changes */
-    padding: 6px 14px;
-    border-radius: 20px;  /* Pill shape */
-    cursor: pointer;
-    font-family: 'Courier New', monospace;  /* Match other button fonts */
-    font-weight: normal;  /* Match other button labels */
-    font-size: 13px;  /* Match other button sizes */
-    text-transform: uppercase;  /* Match other button text style */
-    letter-spacing: 1px;  /* Match other button spacing */
-    transition: all 0.2s ease;
-    min-width: 70px;  /* Slightly wider to accommodate emoji + text */
-    margin-left: auto;  /* Push to the right side */
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;  /* Space between emoji and text */
-}
-
-.tutor-toggle:hover {
-    background: rgba(127, 197, 66, 0.1);  /* Very subtle green tint on hover */
-    border-color: #666 !important;  /* Keep gray border on hover */
-}
-
-.tutor-toggle.off {
-    color: #666;  /* Gray text when OFF */
-    border-color: #666 !important;  /* Ensure gray border when OFF */
-}
-
-.tutor-toggle.off:hover {
-    background: rgba(255, 255, 255, 0.05);  /* Very subtle white tint on hover */
-    border-color: #666 !important;  /* Keep gray border on hover when OFF */
-}
-
-.tutor-toggle:focus,
-.tutor-toggle:active {
-    border-color: #666 !important;  /* Keep gray border on focus/active */
-    outline: none;
-}
-
-.tutor-toggle .toggle-text {
-    display: inline-block;
-}
-
-.tutor-toggle .toggle-icon {
-    font-size: 16px;  /* Emoji size */
-    display: inline-block;
-}
-
 /* ========================================
    GAME INFO PANEL (Inventory & Messages)
    ======================================== */

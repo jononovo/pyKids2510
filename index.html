@@ -8,7 +8,7 @@
     <!-- External CSS -->
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/editor.css">
-    <link rel="stylesheet" href="css/tutor.css">
+    <link rel="stylesheet" href="css/guide.css">
     <link rel="stylesheet" href="css/code-book.css">
     <link rel="stylesheet" href="css/confirm-dialog.css">
     
@@ -198,23 +198,6 @@
         </div>
     </div>
 
-    <!-- Coding Tutor Dialog (moved to end of body) -->
-    <div class="tutor-overlay" id="tutorOverlay">
-        <div class="tutor-dialog">
-            <button class="tutor-close" onclick="closeTutorDialog()">✕</button>
-            <div class="tutor-message" id="tutorMessage">
-                <!-- Markdown-rendered message goes here -->
-            </div>
-            <div class="tutor-interaction">
-                <img class="tutor-avatar" alt="Tutor">
-                <div class="tutor-code-box" id="tutorCodeBox">
-                    <!-- Recommended code with syntax highlighting -->
-                </div>
-                <button class="tutor-apply-btn" onclick="applyTutorRecommendation()">APPLY</button>
-            </div>
-        </div>
-    </div>
-
     <!-- Scripts -->
     <!-- Skulpt Python Interpreter -->
     <script src="/assets/js/skulpt.2c08b3e.min.js"></script>
@@ -259,7 +242,10 @@
     <script src="js/python-error-explainer.js"></script>
     <script src="js/skulpt-runtime.js"></script>
     <script src="js/game-engine.js"></script>
-    <script src="js/coding-tutor.js"></script>
+    <script src="js/guide/mistake-finder.js"></script>
+    <script src="js/guide/guide-bubble.js"></script>
+    <script src="js/guide/mistake-lines.js"></script>
+    <script src="js/guide/level-advice.js"></script>
     <script src="js/code-book.js"></script>
     <!-- Blockly integration - single entry point, loads everything else on demand -->
     <script src="blockly-integration/index.js"></script>

@@ -1,6 +1,9 @@
 (function() {
     'use strict';
 
+    const BACKPACK_METHODS = ['append', 'remove', 'pop'];
+    const INVENTORY_METHODS = ['keys', 'values', 'items', 'get'];
+
     function backpackList() {
         return new Sk.builtin.list(window.gameCommand_backpack_items().map(item => new Sk.builtin.str(item)));
     }
@@ -14,16 +17,11 @@
 
     function createBackpack(module, runGameCommand) {
         const Backpack = Sk.misceval.buildClass(module, function($gbl, $loc) {
-            $loc.append = new Sk.builtin.func(function(self) {
-                return runGameCommand(() => window.gameCommand_backpack_append());
-            });
-            $loc.remove = new Sk.builtin.func(function(self, item) {
-                const jsItem = item ? Sk.ffi.remapToJs(item) : null;
-                return runGameCommand(() => window.gameCommand_backpack_remove(jsItem));
-            });
-            $loc.pop = new Sk.builtin.func(function(self, position) {
-                const jsPosition = position !== undefined ? Sk.ffi.remapToJs(position) : undefined;
-                return runGameCommand(() => window.gameCommand_backpack_pop(jsPosition));
+            BACKPACK_METHODS.forEach(methodName => {
+                $loc[methodName] = new Sk.builtin.func(function(self, value) {
+                    const jsValue = value !== undefined ? Sk.ffi.remapToJs(value) : undefined;
+                    return runGameCommand(() => window['gameCommand_backpack_' + methodName](jsValue));
+                });
             });
             $loc.__len__ = new Sk.builtin.func(function(self) {
                 return new Sk.builtin.int_(window.gameCommand_backpack_items().length);
@@ -66,7 +64,7 @@
             $loc.__repr__ = new Sk.builtin.func(function(self) {
                 return Sk.builtin.repr(inventoryDict());
             });
-            ['keys', 'values', 'items', 'get'].forEach(methodName => {
+            INVENTORY_METHODS.forEach(methodName => {
                 $loc[methodName] = new Sk.builtin.func(function(self, ...pythonArgs) {
                     return Sk.misceval.callsimArray(Sk.abstr.gattr(inventoryDict(), new Sk.builtin.str(methodName)), pythonArgs);
                 });
@@ -77,6 +75,8 @@
 
     window.PythonBackpackInventory = {
         createBackpack: createBackpack,
-        createInventory: createInventory
+        createInventory: createInventory,
+        backpackMethods: BACKPACK_METHODS,
+        inventoryMethods: INVENTORY_METHODS
     };
 })();

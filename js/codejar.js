@@ -235,6 +235,9 @@
             restore(pos) {
                 restore(pos);
             },
+            getNodeAndOffset(pos) {
+                return getNodeAndOffset(editor, pos);
+            },
             recordHistory,
             destroy() {
                 editor.removeEventListener('keydown', handleKeydown);

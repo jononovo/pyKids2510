@@ -60,7 +60,7 @@ function parseTestsYaml(yamlStr) {
 function parseHostTests(hostTests) {
     return {
         pass_all: true,
-        items: hostTests.map(hostTest => ({ ...parseTestsYaml(hostTest.rule || '').items[0], name: hostTest.name }))
+        items: hostTests.map(hostTest => ({ ...parseTestsYaml(hostTest.rule || '').items[0], name: hostTest.name, description: hostTest.description }))
     };
 }
 

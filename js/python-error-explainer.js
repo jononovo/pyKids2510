@@ -40,7 +40,8 @@
         const firstFrame = error.traceback && error.traceback[0];
         return {
             line: firstFrame ? Math.max(1, firstFrame.lineno - hiddenLineCount) : null,
-            text: errorText(error)
+            text: errorText(error),
+            syntaxError: error.tp$name === 'SyntaxError'
         };
     }
 
