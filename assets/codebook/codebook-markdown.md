@@ -14,6 +14,8 @@ This function is used to have player move forward in the direction they're facin
 
 If the function is not provided with any arguments, then it will move the player forward by one step.
 
+It answers with the number of steps the player really took. That's fewer than you asked for when something blocks the way, and 0 when the tile in front is blocked.
+
 **Example**
 
 ```python
@@ -21,6 +23,14 @@ player.move_forward(3)
 ```
 
 This code will have player move three steps forward in the map.
+
+```python
+steps = player.move_forward(5)
+if steps < 5:
+    print("Something is in the way")
+```
+
+This code tries to walk five steps and prints a warning when something stopped the player sooner.
 
 ![move forward](assets/codebook/move_forward.png)
 
@@ -65,6 +75,106 @@ player.move_forward()
 This code will have player turn towards the right of their current facing direction and move forward in that direction with the follow up code.
 
 ![turn right](assets/codebook/turn_right.png)
+
+---
+
+## position()
+
+**Syntax**
+
+`player.position()`
+
+This function answers where the player stands, as `(x, y)`. x counts the tiles from the left edge of the map and y from the top, both starting at 0. It's a question: it answers at once, and the player doesn't move.
+
+**Example**
+
+```python
+x, y = player.position()
+print(x, y)
+```
+
+This code puts the player's place in two variables and prints it, for example `3 1`.
+
+---
+
+## path_clear()
+
+**Syntax**
+
+`player.path_clear()`
+
+This function answers `True` when the player can take a step forward, and `False` when the tile in front is blocked: a tree, a rock, water, a closed door or the edge of the map. It uses the same check as `move_forward()`, so the two always agree. It's a question: it answers at once, and the player doesn't move.
+
+**Example**
+
+```python
+while player.path_clear():
+    player.move_forward()
+```
+
+This code walks forward until something is in the way, however far that is.
+
+---
+
+## find()
+
+**Syntax**
+
+`player.find(name)`
+
+This function answers where the nearest thing with that name is, as `(x, y)`: an item such as `"coin"`, an element such as `"door"`, a `"boat"`, or a kind of tile such as `"water"` or `"tree"`. Nearest means the fewest steps along the grid. A tile is named after what lies on it, so a coin on grass is a `"coin"`. When there is none, it answers `None`, so `while player.find("coin"):` keeps going until every coin is collected. It's a question: it answers at once, and the player doesn't move.
+
+**Example**
+
+```python
+coin_x, coin_y = player.find("coin")
+x, y = player.position()
+print(coin_x - x, coin_y - y)
+```
+
+This code prints how far the nearest coin is across and down from the player.
+
+---
+
+## at_goal()
+
+**Syntax**
+
+`player.at_goal()`
+
+This function answers `True` when the player stands on the star, and `False` when they don't. It's the game's own check for reaching the star. It's a question: it answers at once, and the player doesn't move.
+
+**Example**
+
+```python
+while not player.at_goal():
+    if player.path_clear():
+        player.move_forward()
+    else:
+        player.turn_right()
+```
+
+This code follows the path, turning right at every wall, until the player stands on the star.
+
+---
+
+## facing()
+
+**Syntax**
+
+`player.facing()`
+
+This function answers which way the player is facing: `"up"`, `"down"`, `"left"` or `"right"`. It's a question: it answers at once, and the player doesn't move.
+
+**Example**
+
+```python
+while player.facing() != "up":
+    player.turn_left()
+player.move_forward(3)
+```
+
+This code turns until the player faces up, whatever way it started, then walks 3 steps up.
 
 ---
 

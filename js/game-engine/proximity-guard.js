@@ -127,30 +127,6 @@
         return [];
     }
 
-    // ========== LOOKUP HELPERS ==========
-
-    function findElementAt(x, y, sections, typeMatch) {
-        if (!window.ElementInteractionManager) return null;
-        
-        const element = ElementInteractionManager.getElementAt(x, y);
-        if (!element) return null;
-        
-        if (sections && sections.length > 0) {
-            if (!sections.includes(element.section)) return null;
-        }
-        
-        if (typeMatch && element.type !== typeMatch) {
-            return { element, mismatch: true, actualType: element.type };
-        }
-        
-        return { element, mismatch: false };
-    }
-
-    function findVehicleAt(x, y) {
-        if (!window.VehicleInteractionManager) return null;
-        return VehicleInteractionManager.getVehicleAt(x, y);
-    }
-
     // ========== ERROR FORMATTING ==========
 
     function formatMessage(template, context) {
@@ -198,29 +174,26 @@
         
         for (const pos of positions) {
             if (sections.length > 0) {
-                const elementResult = findElementAt(pos.x, pos.y, sections, typeMatch);
+                const element = TileContents.findElementAt(pos.x, pos.y, sections);
                 
-                if (elementResult) {
-                    if (elementResult.mismatch) {
+                if (element) {
+                    result.element = element;
+                    result.position = pos;
+                    if (typeMatch && element.type !== typeMatch) {
                         result.message = formatMessage(Messages.WRONG_TYPE, {
-                            actual: elementResult.actualType,
+                            actual: element.type,
                             expected: typeMatch
                         });
                         result.errorCode = 'WRONG_TYPE';
-                        result.element = elementResult.element;
-                        result.position = pos;
-                        return result;
+                    } else {
+                        result.success = true;
                     }
-                    
-                    result.success = true;
-                    result.element = elementResult.element;
-                    result.position = pos;
                     return result;
                 }
             }
             
             if (includeVehicles) {
-                const vehicle = findVehicleAt(pos.x, pos.y);
+                const vehicle = TileContents.findVehicleAt(pos.x, pos.y);
                 if (vehicle) {
                     result.success = true;
                     result.vehicle = vehicle;

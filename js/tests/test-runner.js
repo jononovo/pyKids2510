@@ -73,15 +73,7 @@ const TestRunner = (function() {
     }
     
     function _defaultGoalCheck(allowWin) {
-        if (!allowWin) return;
-        const px = Math.floor(gameState.playerPos.x);
-        const py = Math.floor(gameState.playerPos.y);
-        const gx = gameState.goalPos.x;
-        const gy = gameState.goalPos.y;
-        
-        if (px === gx && py === gy) {
-            _triggerWin();
-        }
+        if (allowWin && checkVictory()) _triggerWin();
     }
     
     function _triggerWin() {
