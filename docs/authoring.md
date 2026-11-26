@@ -939,15 +939,32 @@ Students write Python code using these commands:
 | `player.turn_right()` | Turn 90° right | `player.turn_right()` |
 | `player.turn_right(n)` | Turn right n times | `player.turn_right(2)` |
 
+`move_forward()` answers with the steps it really took: `steps = move_forward(5)` gives fewer than 5 when something is in the way, and 0 when the tile in front is blocked. The other commands answer `None`.
+
 ### Shorthand Aliases
 
 | Alias | Equivalent |
 |-------|------------|
-| `forward()` or `forward(n)` | `move_forward(n)` |
+| `forward()` or `forward(n)` | `move_forward(n)`, with the same answer |
 | `left()` or `left(n)` | `turn_left(n)` |
 | `right()` or `right(n)` | `turn_right(n)` |
 
 **Note:** All commands work with or without the `player.` prefix.
+
+### Questions
+
+Questions read the world. They answer at once: nothing animates, the character doesn't move, and they don't count as commands.
+
+| Question | Answers | Example |
+|----------|---------|---------|
+| `position()` | Where the character stands, `(x, y)`, counted from the top-left tile `(0, 0)` | `x, y = position()` |
+| `path_clear()` | `True` when `move_forward()` could take a step, by the same check | `while path_clear():` |
+| `find("name")` | The nearest `(x, y)` of an item, element, boat or tile with that name, in steps along the grid, or `None` when there is none | `while find("coin"):` |
+| `at_goal()` | `True` when the character stands on the star | `while not at_goal():` |
+
+- `find()` names a tile after what lies on it: its item or element, else its boat, else the tile's own name in `assets/map/tiles.json`. A coin on grass is a `"coin"`.
+- When two are equally near, `find()` gives the one higher up, then the one further left.
+- `find()` doesn't look for big elements, scenery or built things.
 
 ### Interaction Commands
 
@@ -1111,6 +1128,15 @@ while count < 3:
     forward()
     collect()
     count = count + 1
+```
+
+**While loop with a question** - the same code fits any map:
+```python
+while not at_goal():
+    if path_clear():
+        forward()
+    else:
+        right()
 ```
 
 **Dynamic loop variable** - use the loop variable to control behavior:
@@ -1866,7 +1892,8 @@ js/
 ├── game-commands.js           # Python command implementations
 ├── main.js                    # Main app logic, map inheritance
 ├── game-engine/
-│   └── element-interaction-logic.js  # Element interaction system
+│   ├── element-interaction-logic.js  # Element interaction system
+│   └── tile-contents.js       # What is on a tile, and the nearest thing by name (find())
 ├── mission/
 │   ├── mission-detector.js    # Detects level types
 │   └── mission-state.js       # Manages persistent state
@@ -2106,8 +2133,9 @@ All commands work with or without the `player.` prefix (e.g., both `move_forward
 
 | Category | Commands |
 |----------|----------|
-| Movement | `move_forward(n)`, `turn_left(n)`, `turn_right(n)` |
+| Movement | `move_forward(n)` (answers the steps taken), `turn_left(n)`, `turn_right(n)` |
 | Aliases | `forward(n)`, `left(n)`, `right(n)` |
+| Questions | `position()`, `path_clear()`, `find("name")`, `at_goal()` |
 | Interaction | `collect()`, `interact()`, `push()`, `speak("text")` |
 | Doors | `open()`, `close()` |
 | Building | `build("element")` - requires `cost` in elements.json |

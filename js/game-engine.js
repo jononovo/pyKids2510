@@ -399,19 +399,6 @@ function canMoveTo(x, y) {
     return TileAccess.canActorMoveTo(x, y, gameState.characterType, gameState);
 }
 
-function checkWinCondition() {
-    const px = Math.floor(gameState.playerPos.x);
-    const py = Math.floor(gameState.playerPos.y);
-    const gx = gameState.goalPos.x;
-    const gy = gameState.goalPos.y;
-    
-    if (px === gx && py === gy) {
-        gameState.levelCompleted[currentLevel] = true;
-        updateProgressIndicators();
-        document.getElementById('victory-modal').classList.add('show');
-    }
-}
-
 function checkVictory() {
     const px = Math.floor(gameState.playerPos.x);
     const py = Math.floor(gameState.playerPos.y);

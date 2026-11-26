@@ -34,6 +34,11 @@
         await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
     }
 
+    function openTileInFront() {
+        var front = ProximityGuard.getForwardPosition();
+        return canMoveTo(front.x, front.y) ? front : null;
+    }
+
     // ========== COMMAND DEFINITIONS ==========
     // Single source of truth: metadata + execute function
     // Both JS callers and Skulpt use these definitions
@@ -43,6 +48,7 @@
             args: ['steps'],
             defaults: { steps: 1 },
             countsAsMultiple: true,
+            returnsResult: true,
             execute: async function(steps) {
                 var run = SkulptRuntime.currentProgramRun();
                 steps = parseInt(steps) || 1;
@@ -50,9 +56,9 @@
 
                 for (var i = 0; i < steps && !run.stopped; i++) {
                     var pos = gameState.playerPos;
-                    var front = ProximityGuard.getForwardPosition();
+                    var front = openTileInFront();
 
-                    if (canMoveTo(front.x, front.y)) {
+                    if (front) {
                         await animateMove(pos.x, pos.y, front.x, front.y, gameState.playerDirection);
                         moved++;
                         if (run.stopped) break;
@@ -68,12 +74,7 @@
                     }
                 }
 
-                if (run.stopped) return moved;
-                if (window.TestRunner) {
-                    TestRunner.evaluate();
-                } else {
-                    checkWinCondition();
-                }
+                if (!run.stopped) TestRunner.evaluate();
                 return moved;
             }
         },
@@ -125,26 +126,11 @@
         // ========== SIMPLIFIED ALIASES ==========
         // Short command names for beginners
         
-        forward: {
-            args: ['steps'],
-            defaults: { steps: 1 },
-            countsAsMultiple: true,
-            aliasOf: 'move_forward'
-        },
+        forward: { aliasOf: 'move_forward' },
 
-        left: {
-            args: ['times'],
-            defaults: { times: 1 },
-            countsAsMultiple: true,
-            aliasOf: 'turn_left'
-        },
+        left: { aliasOf: 'turn_left' },
 
-        right: {
-            args: ['times'],
-            defaults: { times: 1 },
-            countsAsMultiple: true,
-            aliasOf: 'turn_right'
-        },
+        right: { aliasOf: 'turn_right' },
 
         push: {
             execute: async function() {
@@ -559,23 +545,41 @@
                 
                 await new Promise(function(r) { setTimeout(r, getAnimationDuration(0.5)); });
             }
+        },
+
+        position: {
+            isQuestion: true,
+            execute: function() {
+                var here = ProximityGuard.getPlayerPosition();
+                return [here.x, here.y];
+            }
+        },
+
+        path_clear: {
+            isQuestion: true,
+            execute: function() {
+                return openTileInFront() !== null;
+            }
+        },
+
+        find: {
+            args: ['name'],
+            isQuestion: true,
+            execute: function(name) {
+                var here = ProximityGuard.getPlayerPosition();
+                var place = TileContents.findNearest(name, here.x, here.y);
+                return place ? [place.x, place.y] : null;
+            }
+        },
+
+        at_goal: {
+            isQuestion: true,
+            execute: function() {
+                return checkVictory();
+            }
         }
     };
 
-    // ========== EXPOSE COMMAND EXECUTORS AS GLOBALS ==========
-    
-    for (var cmdName in GameCommands) {
-        (function(name, cmd) {
-            var targetCmd = cmd;
-            if (cmd.aliasOf) {
-                targetCmd = GameCommands[cmd.aliasOf];
-            }
-            window['gameCommand_' + name] = function() {
-                return targetCmd.execute.apply(null, arguments);
-            };
-        })(cmdName, GameCommands[cmdName]);
-    }
-    
     // ========== BACKPACK COMMANDS ==========
     
     window.gameCommand_backpack_append = async function(itemType) {

@@ -132,6 +132,7 @@ project/
 │   │   ├── element-interaction-logic.js
 │   │   ├── vehicle-interaction-logic.js
 │   │   ├── proximity-guard.js    # Collectible detection
+│   │   ├── tile-contents.js      # What is on a tile, and the nearest thing by name
 │   │   ├── mega-element-manager.js
 │   │   ├── scenery-manager.js    # Multi-tile walkable scenery
 │   │   └── feedback-effects.js   # Audio/visual effects
@@ -583,7 +584,10 @@ User Code (Editor)
 
 - `js/skulpt-bridge.js` builds the `player` module from plain functions (`window.buildPlayerModule`): one Python function for each `GameCommands` entry, plus `backpack` and `inventory` from `js/python-backpack-inventory.js`. Skulpt gets a one-line stub: `var $builtinmodule = window.buildPlayerModule;`.
 - The module is built again for every run, since Skulpt imports it again.
-- Each command runs as a Skulpt suspension, so Python waits for its animation. Commands give back `None`.
+- An alias (`aliasOf`) takes everything from its target: arguments, defaults, flags and `execute`.
+- **Actions** run as a Skulpt suspension, so Python waits for their animation, and they count for the command counter. They give back `None`, except an entry flagged `returnsResult`, which gives back what its `execute` returns: `move_forward()` the steps it took.
+- **Questions** are entries flagged `isQuestion`. Their `execute` is a plain function, called at once: no suspension, no animation, and not counted as a command, so a run of questions alone never wins. A stopped run's question throws `__STOP__`, like a command's.
+- Answers become Python values: a JavaScript array is a tuple, `null` is `None`, a boolean is `True` or `False`.
 
 ### Available Python Commands
 
@@ -591,7 +595,7 @@ Defined in `js/game-commands.js`:
 
 | Command | Description |
 |---------|-------------|
-| `move_forward(steps)`, `forward(steps)` | Move forward (default 1 step); a closed door or other blocked tile stops it. Each step can fire an `on_step` element |
+| `move_forward(steps)`, `forward(steps)` | Move forward (default 1 step); a closed door or other blocked tile stops it. Each step can fire an `on_step` element. Gives back the steps it took |
 | `turn_left(times)`, `left(times)`, `turn_right(times)`, `right(times)` | Turn (default 1 time) |
 | `collect()` | Collect the item on your tile, or else the one in front |
 | `interact()` | Board or leave a boat, or swap or remove an element next to you |
@@ -600,6 +604,18 @@ Defined in `js/game-commands.js`:
 | `plant(crop)`, `water()`, `harvest()` | Farming, on the tile in front |
 | `speak(message)` | Write a message in the Console Log |
 | `push()`, `place(item)` | Unfinished: no pushable things or containers exist yet |
+
+| Question | Answers |
+|----------|---------|
+| `position()` | `(x, y)`, the character's tile (`ProximityGuard.getPlayerPosition()`) |
+| `path_clear()` | `True` when `move_forward()` could take a step: both use `openTileInFront()` |
+| `find(name)` | The nearest `(x, y)` holding that name, or `None` (`TileContents.findNearest`) |
+| `at_goal()` | `checkVictory()`, the same check that wins a level without tests |
+
+`js/game-engine/tile-contents.js` reads the world:
+- `TileContents.nameAt(x, y)`: the name of what's on top of a tile: its item or element (`ElementInteractionManager`), else its boat (not the one the character is in), else the tile's name in `tiles.json`. Outside the map it's `null`.
+- `TileContents.findNearest(name, x, y)`: the nearest tile whose `nameAt` is that name, counted in steps along the grid; a tie goes to the tile higher up, then further left. Big elements, scenery and built things aren't looked at.
+- `findElementAt(x, y, sections)` and `findVehicleAt(x, y)` are the one lookup for what's on a tile; `ProximityGuard.check` uses them too.
 
 ### Mistakes
 
