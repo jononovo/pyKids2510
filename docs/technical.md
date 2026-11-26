@@ -819,6 +819,8 @@ The key is the level's title (as a slug) plus a short fingerprint of its text, s
 
 Tests come only from CodeTribe: each slide's Tests dialog, sent with `load-lesson` as `[{name, rule, description}]`. `parseHostTests()` reads each rule with `parseTestsYaml()` and keeps its name and description. A level with no tests is won at the star (`_defaultGoalCheck`).
 
+The check after a Run awards a win only when the run finished without a Python mistake and ran at least one game command. So running nothing, or a program that stops on its first line, never wins, even in a level whose star is on the start square (a mission that ends back at base). A win can still come during a run, the moment a move reaches the star or the tests pass.
+
 ### Test Types
 
 Defined in `js/tests/test-types.js`:
