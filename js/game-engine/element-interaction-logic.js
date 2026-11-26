@@ -142,19 +142,7 @@
 
         loadLevelElements(levelData) {
             this.currentLevelData = levelData;
-            this.elements = [];
-            this.elementStates = {};
-            
-            this._parseElementsFromLevelData(levelData);
-
-            if (window.VehicleInteractionManager) {
-                VehicleInteractionManager.loadLevelVehicles(levelData);
-            }
-
-            this._registerSignalListeners();
-
-            this.restoreStates();
-            
+            this.resetStates({});
             console.log('[ElementInteraction] Loaded', this.elements.length, 'elements for level');
             return this.elements;
         },
@@ -356,25 +344,6 @@
             }
         },
 
-        restoreStates() {
-            if (window.MissionState && window.MissionState.isMissionLevel) {
-                const savedStates = window.MissionState.getElementStates();
-                if (savedStates) {
-                    this.elementStates = { ...savedStates };
-                    
-                    for (const [id, state] of Object.entries(this.elementStates)) {
-                        if (state.transformed && state.newType) {
-                            const element = this.elements.find(e => e.id === id);
-                            if (element) {
-                                element.type = state.newType;
-                                element.replacement = null;
-                            }
-                        }
-                    }
-                }
-            }
-        },
-
         reset(gameState) {
             this.elements = [];
             this.elementStates = {};
@@ -384,43 +353,19 @@
             }
         },
         
-        reregisterSignalListeners() {
-            this._registerSignalListeners();
-        },
-
-        resetStates() {
-            if (this.currentLevelData) {
-                this._parseElementsFromLevelData(this.currentLevelData);
-                console.log('[ElementInteraction] Reloaded', this.elements.length, 'elements from level data');
-            }
-            
+        resetStates(savedStates) {
+            this._parseElementsFromLevelData(this.currentLevelData);
             this.elementStates = {};
-            
             this._registerSignalListeners();
-            console.log('[ElementInteraction] Re-registered signal listeners (set hidden defaults)');
-            
-            if (window.levelEntrySnapshot && window.levelEntrySnapshot.missionState && 
-                window.levelEntrySnapshot.missionState.elementStates) {
-                const snapshotStates = window.levelEntrySnapshot.missionState.elementStates;
-                for (const key in snapshotStates) {
-                    this.elementStates[key] = { ...(this.elementStates[key] || {}), ...snapshotStates[key] };
+
+            for (const [id, state] of Object.entries(savedStates)) {
+                this.elementStates[id] = { ...state };
+                const element = this.elements.find(e => e.id === id);
+                if (element && state.transformed && state.newType) {
+                    element.type = state.newType;
+                    element.replacement = null;
                 }
-                console.log('[ElementInteraction] Applied elementStates from snapshot');
             }
-        },
-
-        resetToSnapshot(snapshot) {
-            if (snapshot && snapshot.elementStates) {
-                this.elementStates = JSON.parse(JSON.stringify(snapshot.elementStates));
-            } else {
-                this.elementStates = {};
-            }
-        },
-
-        getSnapshot() {
-            return {
-                elementStates: JSON.parse(JSON.stringify(this.elementStates))
-            };
         }
     };
 

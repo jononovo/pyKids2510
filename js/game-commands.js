@@ -881,31 +881,22 @@
     };
 
     window.resetGame = async function() {
-        if (window.ConfirmDialog) {
-            var confirmed = await ConfirmDialog.show({
-                title: 'Reset Level',
-                message: 'Your code and level progress will be cleared.',
-                okText: 'Reset',
-                cancelText: 'Cancel'
-            });
-            if (!confirmed) return;
-        }
-        
-        if (window.ResetManager) {
-            ResetManager.fullReset(gameState);
-        } else {
-            console.error('[resetGame] ResetManager not available');
-        }
-        
-        var starterCode = '';
-        if (window.courseData && window.courseData.levels && typeof currentLevel !== 'undefined') {
-            starterCode = window.courseData.levels[currentLevel].starterCode || '';
-        }
-        
-        if (window.EditorManager) {
-            EditorManager.updateCode(starterCode);
-        }
-        
+        var confirmed = await ConfirmDialog.show({
+            title: 'Reset Level',
+            message: 'Your code and level progress will be cleared.',
+            okText: 'Reset',
+            cancelText: 'Cancel'
+        });
+        if (!confirmed) return;
+
+        gameState.isRunning = false;
+        document.getElementById('run-btn').disabled = false;
+        ResetManager.restoreLevelStart(gameState);
+        clearConsoleLog();
+
+        var starterCode = courseData.levels[currentLevel].starterCode || '';
+        EditorManager.updateCode(starterCode);
+
         if (window.BlocklyModeSwitcher && window.BlocklyModeSwitcher.isBlockMode()) {
             if (window.BlocklyIntegration) {
                 window.BlocklyIntegration.convertFromText(starterCode);

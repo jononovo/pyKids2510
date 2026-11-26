@@ -262,7 +262,12 @@
             toggleBtn.title = isMinimized ? 'Expand' : 'Collapse';
         }
     }
-    
+
+    function clearConsoleLog() {
+        document.querySelector('#message-panel .console-messages').innerHTML = '';
+        gameState.messageLog = [];
+    }
+
     window.playStepSound = playStepSound;
     window.playBumpSound = playBumpSound;
     window.playCollectSound = playCollectSound;
@@ -271,6 +276,7 @@
     window.animateCollectSparkle = animateCollectSparkle;
     window.showGameMessage = showGameMessage;
     window.toggleConsoleLog = toggleConsoleLog;
+    window.clearConsoleLog = clearConsoleLog;
     
     console.log('[FeedbackEffects] Module loaded');
 })();

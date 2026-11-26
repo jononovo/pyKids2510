@@ -102,24 +102,13 @@ const EditorManager = (function() {
         return initialized && jar !== null && currentEditorElement === editorElement;
     }
     
-    function resetToSnapshot() {
-        if (window.levelEntrySnapshot && window.levelEntrySnapshot.starterCode) {
-            updateCode(window.levelEntrySnapshot.starterCode);
-            console.log('[EditorManager] Reset to snapshot code');
-            return true;
-        }
-        console.warn('[EditorManager] No snapshot starterCode available');
-        return false;
-    }
-    
     return {
         init: init,
         reinitialize: reinitialize,
         updateCode: updateCode,
         getCode: getCode,
         updateLineNumbers: updateLineNumbers,
-        isInitialized: isInitialized,
-        resetToSnapshot: resetToSnapshot
+        isInitialized: isInitialized
     };
 })();
 

@@ -8,13 +8,6 @@ var currentLevel = 0;
 
 // Note: Map inheritance caches are now managed by js/game-engine/level-loader.js
 
-// Level entry snapshot for reset functionality (exposed globally for game-commands.js)
-window.levelEntrySnapshot = {
-    starterCode: '',             // Code loaded when entering the level (saved code or starter code)
-    missionState: null,          // MissionState when entering the level
-    levelIndex: -1               // Track which level the snapshot is for
-};
-
 const TILE_SIZE = 32; // Standard tile size (image will stretch to fit)
 window.TILE_SIZE = TILE_SIZE; // Expose globally for map modules
 const MOVE_DURATION = 400;
@@ -153,12 +146,8 @@ async function loadLevel(levelIndex) {
     updateNavigationButtons();
     updateProgressIndicators();
     
-    // Initialize game state using LevelLoader
-    if (window.LevelLoader) {
-        await LevelLoader.initialize(level, levelIndex, courseData);
-        LevelLoader.updateInventoryUI();
-    }
-    
+    await LevelLoader.initialize(level, courseData);
+
     // Handle UI/Editor setup
     const contentContainer = document.getElementById('content');
     const hasEditorInfrastructure = document.querySelector('.embedded-editor-container');
@@ -224,11 +213,8 @@ async function loadLevel(levelIndex) {
             const savedCode = window.UserProgressManager ? UserProgressManager.getSavedCode() : null;
             const codeToLoad = savedCode || level.starterCode;
             EditorManager.updateCode(codeToLoad);
-            
-            window.levelEntrySnapshot.starterCode = level.starterCode;
-            console.log('[loadLevel] Saved starterCode snapshot for level', currentLevel + 1);
             window.currentLessonStarterCode = codeToLoad;
-            
+
             // Load Blockly CSS if needed
             if (window.BlocklyModeSwitcher) {
                 if (!document.querySelector('link[href*="blockly-integration/ui/styles.css"]')) {
@@ -288,11 +274,8 @@ async function loadLevel(levelIndex) {
             const savedCode = window.UserProgressManager ? UserProgressManager.getSavedCode() : null;
             const codeToLoad = savedCode || level.starterCode;
             EditorManager.updateCode(codeToLoad);
-            
-            window.levelEntrySnapshot.starterCode = level.starterCode;
-            console.log('[loadLevel] Saved starterCode snapshot for level', currentLevel + 1);
             window.currentLessonStarterCode = codeToLoad;
-            
+
             if (window.BlocklyModeSwitcher) {
                 const wasInBlockMode = window.BlocklyModeSwitcher.isBlockMode();
                 if (wasInBlockMode) {

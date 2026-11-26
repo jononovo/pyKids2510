@@ -34,8 +34,8 @@ window.getRenderContext = getRenderContext;
 function getTileIdByName(name) {
     const tileManifest = window.tileManifest;
     if (!tileManifest) return 0;
-    for (const [id, tile] of Object.entries(tileManifest.tiles)) {
-        if (tile.name === name) return parseInt(id);
+    for (const tile of Object.values(tileManifest.tiles)) {
+        if (tile.name === name) return tile.id;
     }
     return 0;
 }

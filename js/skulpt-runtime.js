@@ -89,23 +89,8 @@
         configureSkulpt();
         
         if (typeof window.resetCommandCounter === 'function') window.resetCommandCounter();
-        
-        if (typeof gameState !== 'undefined') {
-            if (window.ResetManager) {
-                ResetManager.softReset(gameState);
-            } else {
-                gameState.playerPos = {...gameState.startPos};
-                gameState.playerDirection = 'right';
-                gameState.characterType = 'player';
-                
-                if (window.VehicleInteractionManager) {
-                    VehicleInteractionManager.reset(gameState);
-                }
-                
-                if (typeof render === 'function') render();
-                if (typeof updateViewport === 'function') updateViewport();
-            }
-        }
+
+        ResetManager.restoreLevelStart(gameState);
 
         var fullCode = CODE_PRELUDE + sanitizeCode(code);
         var executionError = null;
