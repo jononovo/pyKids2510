@@ -157,17 +157,6 @@ startPos: 2,3
 goalPos: 6,4
 collectibles: [[6,4,"wood"]]
 ```
-
-<!-- Tests -->
-```yaml
-pass_all: true
-tests:
-  - type: position
-    target: goal
-  - type: inventory
-    item: wood
-    min: 1
-```
 ---
 ```
 
@@ -183,7 +172,7 @@ tests:
 | `<!-- Starter Code -->` | Yes | Initial code in editor |
 | `<!-- Solution -->` | No | Reference solution |
 | `<!-- Map -->` | Yes | Map layout and configuration |
-| `<!-- Tests -->` | No | Custom level completion tests (see Tests System below) |
+| Tests | No | Set in the slide's Tests dialog in CodeTribe, not in the level text (see Tests System below) |
 
 ---
 
@@ -326,6 +315,7 @@ collectibles: [["gem", [[3,2],[6,2]]]]
 - Mission 2's `<!-- Map -->` block has NO `[...]` rows, only metadata
 - The startPos and goalPos can be the same or different from the inherited map
 - Collectibles are specific to each level (not inherited)
+- A mission level that reuses the map keeps the tiles and the built things of the mission level before it, so a bridge built there is still there
 - The `hasOwnMap` flag is `false` when `layout.length === 0`
 
 ### When to Use Map Inheritance
@@ -435,7 +425,7 @@ Elements are interactive items placed over tiles. They can be collectibles, tran
 | Section | Default Trigger | Behavior |
 |---------|-----------------|----------|
 | `collectibles:` | `on_collect` | Disappears + adds to inventory |
-| `transforms:` | `on_interact` | Disappears or swaps to replacement |
+| `transforms:` | `on_interact` | Disappears, or swaps with its replacement (both ways) |
 
 ### Collectibles
 
@@ -470,10 +460,13 @@ transforms: [["door", [[6,6],[8,9]]]]
 transforms: [["door", "door-open", [[4,4],[7,7]]]]
 ```
 
-**With on_step trigger (auto-trigger when stepped on):**
+A swap goes both ways: `interact()` on the open door closes it again.
+
+**Doors:** a closed `door` blocks the way (`"blockedTiles": "all"` in `elements.json`), and `door-open` doesn't. Open a door with `open()` while facing it, with `interact()` next to it, or with a signal:
 ```
-transforms: [["door", "door-open", {"trigger": "on_step", "at": [[7,7]]}]]
+transforms: [["door", "door-open", {"on": "lever_pulled", "at": [[7,7]]}]]
 ```
+`close()` closes the open door in front again.
 
 **Multiple transform types:**
 ```
@@ -623,8 +616,7 @@ When `gameState.characterType === "boat"`, the player can traverse any tile wher
 
 ### Reset Behavior
 
-- **Full Reset:** Vehicles return to original positions; player disembarks
-- **Soft Reset:** Same behavior (vehicles reset before code execution)
+- **Every Run and RESET:** vehicles go back to their places and the player gets off
 
 ### Example: Island-Hopping Mission
 
@@ -908,12 +900,11 @@ transforms: [["door", "door-open", {"on": "lever_pulled", "at": [[8,8]]}]]
 ```
 Player interacts with lever → emits `lever_pulled` → door transforms to open.
 
-**Stepping on plate removes barrier:**
+**Stepping on a button opens a door:**
 ```
-transforms: [["plate", "plate-down", {"trigger": "on_step", "at": [[5,5]], "on_step": "plate_pressed"}]]
-collectibles: [["barrier", {"remove": "plate_pressed", "at": [[10,5]]}]]
+transforms: [["button", {"trigger": "on_step", "at": [[5,5]], "on_step": "button_pressed"}], ["door", "door-open", {"on": "button_pressed", "at": [[10,5]]}]]
 ```
-Player steps on plate → emits `plate_pressed` → barrier disappears.
+Player steps on the button → it disappears and emits `button_pressed` → the door opens.
 
 **Chain reaction:**
 ```
@@ -968,8 +959,8 @@ Students write Python code using these commands:
 | `player.speak("text")` | Display speech bubble |
 | `player.build("structure")` | Build a structure |
 | `player.place("item")` | Place an item |
-| `player.open()` | Open door/container |
-| `player.close()` | Close door/container |
+| `player.open()` | Open the closed door in front |
+| `player.close()` | Close the open door in front |
 | `player.water()` | Water a sprout (farming) |
 
 ### Farming Commands
@@ -1004,7 +995,7 @@ harvest()
 - Growth timers run in real-time (not affected by game speed settings)
 - Harvested crops are added to the player's inventory
 - Farm plots are cleared after harvesting
-- Resetting the level clears all farm plots
+- Every Run and RESET clear all farm plots
 
 ### Build Command
 
@@ -1062,11 +1053,16 @@ The backpack is a 4-item capacity list for teaching list methods.
 
 | Command | Description |
 |---------|-------------|
-| `collect()` | Add item at current position to backpack |
-| `backpack.append("item")` | Add item to backpack |
-| `backpack.remove("item")` | Remove specific item from backpack |
-| `len(backpack)` | Check number of items |
-| `"item" in backpack` | Check if item exists |
+| `backpack.append()` | Pick up the item in front into the backpack (a name in the brackets is ignored) |
+| `backpack.remove("item")` | Remove the first item with that name; it's gone |
+| `backpack.pop()`, `pop(1)`, `pop("key")` | Take an item out (the last one, one by position, or one by name) and put it on the tile in front |
+| `len(backpack)` | Number of items |
+| `backpack[0]`, `backpack[-1]` | The item at a position (from 0; negative counts from the end) |
+| `"item" in backpack` | Whether the backpack holds that item |
+| `for item in backpack:` | Go through the items |
+| `print(backpack)` | Prints like a list: `['key', 'apple']` |
+
+`collect()` puts items in the inventory, not in the backpack.
 
 ### Inventory Commands (Python Dictionaries)
 
@@ -1074,10 +1070,15 @@ The inventory tracks item counts using dictionary syntax.
 
 | Command | Description |
 |---------|-------------|
-| `inventory["item"] += 1` | Increment item count |
-| `inventory["item"] -= 1` | Decrement item count (clamps to 0) |
-| `count = inventory["item"]` | Read item count (returns 0 if missing) |
-| `inventory["item"] = 5` | Set item count directly |
+| `inventory["item"] += 1` | Pick up one item of that type from the tile in front |
+| `inventory["item"] -= 1` | Lower the count (never below 0) |
+| `count = inventory["item"]` | Read a count (0 if missing) |
+| `"coin" in inventory` | Whether the inventory has any of that item |
+| `for item in inventory:` | Go through the item names |
+| `len(inventory)` | Number of item names |
+| `inventory.keys()`, `values()`, `items()` | The names, the counts, or both, as in a dictionary |
+| `inventory.get("coin")` | A count, or `None` if missing (`get("coin", 0)` gives 0) |
+| `print(inventory)` | Prints like a dictionary: `{'coin': 2}` |
 
 ### Code Structure
 
@@ -1155,7 +1156,7 @@ For mission and quest levels, state persists across levels within a chapter.
 2. **Collect Action:** Items added to MissionState inventory
 3. **Interact Action:** Element transformations recorded in elementStates
 4. **Level Complete:** State saved and carries to next level
-5. **Reset Button:** Returns to state when level was first entered
+5. **Run and RESET:** Every Run and RESET start from the level's start: what the mission carried in
 
 ### Technical Details
 
@@ -1189,19 +1190,23 @@ The platform provides two data structure systems for teaching Python fundamental
 
 A 4-item capacity list for teaching `append()` and `remove()` methods.
 
-#### Simplified Method: `collect()`
+#### Picking Up: `backpack.append()`
 ```python
-player.collect()  # Adds item at current position to backpack
+backpack.append()            # Picks up the item in front
 ```
-- Item auto-added if backpack has space
-- Silently fails if backpack is full
+- The item must be on the tile in front; the program stops with a mistake if nothing is there or the backpack is full
+- `collect()` doesn't fill the backpack: it adds to the inventory
 
 #### Real Python Syntax
 ```python
-backpack.append("apple")     # Add item
-backpack.remove("apple")     # Remove specific item
-len(backpack)                # Check count
+backpack.remove("apple")     # Remove an item by name
+backpack.pop()               # Put the last item down in front
+len(backpack)                # Number of items
+backpack[0]                  # The first item
 "apple" in backpack          # Check membership
+for item in backpack:        # Go through the items
+    print(item)
+print(backpack)              # ['key', 'apple']
 ```
 
 #### Persistence
@@ -1209,7 +1214,7 @@ len(backpack)                # Check count
 - Exercise levels: Resets each run
 
 #### UI Display
-Green-bordered panel showing backpack contents (max 4 items).
+The Backpack panel shows the 4 numbered slots the way Python prints a list: `['key', 'apple', _, _]`. It's hidden while the backpack is empty.
 
 ---
 
@@ -1222,7 +1227,7 @@ A key-value store for teaching dictionary operations with numeric counts.
 player.collect()  # Increments inventory[itemType] by 1
 ```
 - Automatically initializes missing keys to 0
-- Item type determined by collectible at player position
+- Collects the item on the player's tile, or else the one in front
 
 #### Real Python Dictionary Syntax
 ```python
@@ -1230,6 +1235,10 @@ inventory["coin"] += 1       # Increment count
 inventory["coin"] -= 2       # Decrement (clamps to 0)
 count = inventory["gem"]     # Read value (returns 0 if missing)
 inventory["key"] = 5         # Direct assignment
+"coin" in inventory          # Check membership
+for item in inventory:       # Go through the item names
+    print(item, inventory[item])
+print(inventory)             # {'coin': 2}
 ```
 
 **Key behaviors:**
@@ -1238,8 +1247,8 @@ inventory["key"] = 5         # Direct assignment
 - Changes sync immediately to UI
 
 **Position-based collection (forgiving):**
-- `inventory["key"] += 1` requires the player to be standing on a matching collectible
-- If no collectible is found at the player's position, the command logs a message but **continues execution** (does not stop the program)
+- `inventory["key"] += 1` picks up one key from the tile in front, whatever the number
+- If no matching item is in front, the command logs a message but **continues execution** (does not stop the program)
 - This "forgiving" behavior matches movement commands—the action doesn't happen, but subsequent code still runs
 - Students see feedback in the console: `[inventory] Nothing to collect here! Move to an item first.`
 
@@ -1248,7 +1257,7 @@ inventory["key"] = 5         # Direct assignment
 - Exercise levels: Stored in `gameState.inventory`, resets each run
 
 #### UI Display
-"Inventory:" panel showing item counts (e.g., `coin: 5`).
+The Inventory panel prints like a dictionary: `{'coin': 5, 'wood': 3}`.
 
 ---
 
@@ -1258,8 +1267,8 @@ Design curriculum to progress from simplified commands to real Python syntax:
 
 | Stage | Backpack (Lists) | Inventory (Dicts) |
 |-------|------------------|-------------------|
-| **Intro** | `collect()` adds items | `collect()` increments counts |
-| **Intermediate** | `backpack.append("item")` | `inventory["item"] += 1` |
+| **Intro** | `backpack.append()` picks up the item in front | `collect()` increments counts |
+| **Intermediate** | `len(backpack)`, `backpack[0]` | `inventory["item"] += 1` |
 | **Advanced** | `backpack.remove("item")`, loops | `inventory["item"] -= n`, conditionals |
 
 #### Example Lesson Progression
@@ -1273,9 +1282,10 @@ player.collect()
 
 **Level 5: List Methods**
 ```python
-# Manage your backpack inventory
-backpack.append("torch")
-backpack.append("rope")
+# Manage your backpack: a torch is in front, then a rope
+backpack.append()
+player.move_forward()
+backpack.append()
 if "torch" in backpack:
     player.move_forward()
 ```
@@ -1296,40 +1306,25 @@ if inventory["coin"] >= 10:
 | File | Purpose |
 |------|---------|
 | `js/game-commands.js` | `gameCommand_inventory_get/set`, backpack commands |
-| `js/skulpt-runtime.js` | Skulpt `InventoryClass` with `__getitem__`/`__setitem__` |
+| `js/python-backpack-inventory.js` | The Python `backpack` (a list) and `inventory` (a dictionary) |
+| `js/ui/backpack-inventory-panels.js` | Draws both panels the way Python prints them |
 | `js/mission/mission-state.js` | Persistent storage for mission levels |
-| `js/game-engine/level-loader.js` | Loads backpack/inventory from MissionState on level init |
-| `js/game-engine/reset-manager.js` | Handles reset behavior for both systems |
+| `js/game-engine/level-loader.js` | Sets up the mission state at each level start |
+| `js/game-engine/reset-manager.js` | Takes the level start and restores it for every Run and RESET |
 
 ---
 
 ## Tests System
 
-The tests system allows you to define custom completion criteria for levels beyond just reaching the goal position. If no tests are defined, the level defaults to the standard goal position check.
+Tests set what a level needs beyond reaching the star. They live in CodeTribe, in each slide's **Tests dialog**, not in the level text. A slide with no tests is won by reaching the `goalPos` star.
 
-### Basic Syntax
+### Writing a Test
 
-Tests are defined in a YAML code block after `<!-- Tests -->`:
+Each test in the Tests dialog has:
+- a **name**, which students see in CodeTribe's test list;
+- a **rule**: one test in the YAML form below, with or without the leading `- `. For example `type: position`, then `target: goal` on the next line.
 
-```markdown
-<!-- Tests -->
-```yaml
-pass_all: true
-tests:
-  - type: position
-    target: goal
-  - type: inventory
-    item: wood
-    min: 3
-```
-```
-
-### Configuration Options
-
-| Property | Description |
-|----------|-------------|
-| `pass_all: true` | All tests must pass (default). Set to `false` if any test passing is sufficient. |
-| `tests:` | Array of test definitions |
+All of a slide's tests must pass. They are checked after each step and when the program ends, and each result is sent to CodeTribe by name (`checker-validation`, see [technical.md](technical.md)).
 
 ### Available Test Types
 
@@ -1374,7 +1369,7 @@ Check if the player has collected specific items.
 ```
 
 #### Collectibles Test
-Check the state of collectible items on the map.
+Check the items placed by the level's `collectibles:` lines (every line counts). An item counts as collected once it's picked up.
 
 ```yaml
 - type: collectibles
@@ -1420,21 +1415,12 @@ Check if an interactive element has been transformed.
 
 ```yaml
 - type: element_state
-  x: 4
-  y: 4
-  state: door-open      # Check if door at (4,4) is open
+  element: door
+  position: [4, 4]
+  state: door-open      # Check if the door placed at (4,4) is open now
 ```
 
-### Fallback Behavior
-
-**If no `<!-- Tests -->` section is defined**, the level uses the default behavior: the player wins by reaching the `goalPos` position. This maintains backward compatibility with existing lessons.
-
-### Tests From an LMS (CodeTribe)
-
-When the game runs inside an LMS that sends tests with `load-lesson`, as CodeTribe does from each slide's Tests dialog, those tests take the place of the level's `<!-- Tests -->` block:
-- Each test has a name, which students see in the LMS's test list, and a rule: one test written as above, with or without the leading `- `. For example `type: position`, then `target: goal` on the next line.
-- All of them must pass.
-- The tests are checked after each step and when the program ends, and each result is sent to the LMS by name (`checker-validation`, see [technical.md](technical.md)).
+`element` and `position` name the element as the map places it; `state` is the type it should have now, or `removed` if it should be gone.
 
 ### Complete Example
 
@@ -1480,21 +1466,18 @@ startPos: 1,2
 goalPos: 1,2
 collectibles: [["gem", [[3,1],[3,2],[3,3]]]]
 ```
-
-<!-- Tests -->
-```yaml
-pass_all: true
-tests:
-  - type: position
-    target: goal
-  - type: collectibles
-    all: true
-  - type: code_regex
-    pattern: "for .* in range"
-    message: "Try using a for loop to repeat your commands"
-```
 ---
 ```
+
+Its tests, in the slide's Tests dialog:
+
+| Name | Rule |
+|------|------|
+| Back home | `type: position` / `target: goal` |
+| All the gems | `type: collectibles` / `all: true` |
+| A for loop | `type: code_regex` / `pattern: "for .* in range"` / `message: "Try using a for loop to repeat your commands"` |
+
+Each `/` is a new line in the rule.
 
 ---
 
@@ -1770,33 +1753,32 @@ player.collect()
 [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3]
 startPos: 7,8
 goalPos: 10,2
-collectibles: ["key", [[10,2]]]
-transforms: ["door", "door-open", [[10,4]]]
+collectibles: [["key", [[10,2]]]]
+transforms: [["door", "door-open", [[10,4]]]]
 ```
 ---
 ```
 
-### Example 5: Magic Stepping Stones (on_step trigger)
+### Example 5: Doors on the Path (open())
 
 ```markdown
 --- <!-- Mission 3 -->
-## MISSION 3: THE MAGIC BRIDGE
+## MISSION 3: THE TWO DOORS
 
 ### OBJECTIVE
-> Cross the enchanted bridge where doors open automatically as you step on them!
+> Open both doors and reach the star
 
-The ancient bridge has magical tiles that transform as you walk on them!
+Closed doors block the way. Face a door and use `player.open()` to open it.
 
 ### SUCCESS CRITERIA
-- Cross the magical bridge
-- Collect the star at the end
+- Open both doors
+- Reach the star
 
 <!-- Starter Code -->
 ```
 import player
 
-# Walk across the magic bridge!
-# The doors will open automatically when you step on them
+# Walk up to the first door, then open it
 player.move_forward()
 ```
 
@@ -1804,29 +1786,21 @@ player.move_forward()
 ```
 import player
 
-# Cross the magical bridge - doors open as you step!
-player.move_forward(2)  # Step on first magic tile
-player.move_forward(2)  # Step on second magic tile
-player.turn_left()
-player.move_forward(2)
-player.collect()
+player.move_forward()   # Face the first door
+player.open()
+player.move_forward(2)  # Through it, up to the second door
+player.open()
+player.move_forward(2)  # Through it, to the star
 ```
 
 <!-- Map -->
 ```
-[3,3,3,3,3,3,3,3,3,3],
-[3,5,5,5,5,5,5,5,5,3],
-[3,5,5,5,5,0,0,0,5,3],
-[3,5,5,5,5,0,0,0,5,3],
-[3,5,5,5,5,5,5,0,5,3],
-[3,0,0,0,0,0,5,0,5,3],
-[3,0,0,5,5,5,5,5,5,3],
-[3,5,5,5,5,5,5,5,5,3],
-[3,3,3,3,3,3,3,3,3,3]
-startPos: 1,5
-goalPos: 5,2
-collectibles: ["star", [[5,2]]]
-transforms: ["door", "door-open", {"trigger": "on_step", "at": [[3,5],[5,5],[7,4],[7,3]]}]
+[3,3,3,3,3,3,3,3],
+[3,0,0,0,0,0,0,3],
+[3,3,3,3,3,3,3,3]
+startPos: 1,1
+goalPos: 6,1
+transforms: [["door", "door-open", [[3,1],[5,1]]]]
 ```
 ---
 ```
@@ -1849,7 +1823,7 @@ transforms: ["door", "door-open", {"trigger": "on_step", "at": [[3,5],[5,5],[7,4
 | Door not rendering | Missing element definition | Check `assets/map/elements.json` has the element type |
 | Map not inheriting | Map block has layout rows | Remove `[...]` rows to trigger inheritance |
 | Inherited map shows wrong collectibles | Collectibles from previous level | Each level needs its own `collectibles:` line |
-| Tests not running | Missing YAML block | Wrap tests in ` ```yaml ` code block |
+| Tests not running | Tests written in the level text | Add each test in the slide's Tests dialog |
 | Test failing unexpectedly | Wrong test configuration | Check test type syntax and property names |
 
 ### Validation Checklist
@@ -1863,7 +1837,7 @@ transforms: ["door", "door-open", {"trigger": "on_step", "at": [[3,5],[5,5],[7,4
 - [ ] Trigger objects use double-quoted keys (valid JSON)
 - [ ] Starter code includes `import player`
 - [ ] Solution code actually solves the level
-- [ ] Tests section uses valid YAML syntax
+- [ ] Each test in the slide's Tests dialog is one valid rule
 - [ ] Test types match available options (position, inventory, collectibles, code_regex, direction, element_state)
 - [ ] For inherited maps: Previous mission defines the map layout
 
@@ -1921,8 +1895,6 @@ js/
 // Map data
 /<!--\s*Map\s*-->\s*\n*```([\s\S]*?)```/
 
-// Tests section
-/<!--\s*Tests\s*-->\s*\n*```(?:yaml|yml)?\s*([\s\S]*?)```/
 ```
 
 ### Test System Architecture
@@ -1967,7 +1939,7 @@ A comprehensive summary of every feature available for lesson authoring.
 | `<!-- Starter Code -->` | Yes | Initial editor code |
 | `<!-- Solution -->` | No | Reference solution |
 | `<!-- Map -->` | Yes | Map layout + config |
-| `<!-- Tests -->` | No | Custom completion tests |
+| Tests | No | In the slide's Tests dialog |
 
 ### Tile IDs
 
@@ -2014,7 +1986,7 @@ collectibles: [["gem", {"trigger": "on_step", "at": [[5,3]]}]]
 collectibles: [["gem", {"spawn": "unlocked", "at": [[8,8]]}]]
 
 # Remove-gated (disappears on signal)
-collectibles: [["barrier", {"remove": "button_pressed", "at": [[10,5]]}]]
+collectibles: [["gem", {"remove": "button_pressed", "at": [[10,5]]}]]
 ```
 
 ### Transforms Syntax
@@ -2026,8 +1998,8 @@ transforms: [["door", [[6,6]]]]
 # Replace with another element
 transforms: [["door", "door-open", [[4,4]]]]
 
-# Auto-trigger on step
-transforms: [["plate", "plate-down", {"trigger": "on_step", "at": [[7,7]]}]]
+# Auto-trigger on step (a pressure plate)
+transforms: [["button", {"trigger": "on_step", "at": [[7,7]]}]]
 
 # Signal-triggered transform
 transforms: [["door", "door-open", {"on": "lever_pulled", "at": [[8,8]]}]]
@@ -2036,7 +2008,7 @@ transforms: [["door", "door-open", {"on": "lever_pulled", "at": [[8,8]]}]]
 transforms: [["lever", "lever-on", {"at": [[3,3]], "on_interact": "lever_pulled"}]]
 
 # Emit signal on step
-transforms: [["plate", "plate-down", {"trigger": "on_step", "at": [[5,5]], "on_step": "plate_pressed"}]]
+transforms: [["button", {"trigger": "on_step", "at": [[5,5]], "on_step": "button_pressed"}]]
 ```
 
 ### Vehicles Syntax
@@ -2139,8 +2111,8 @@ All commands work with or without the `player.` prefix (e.g., both `move_forward
 | Doors | `open()`, `close()` |
 | Building | `build("element")` - requires `cost` in elements.json |
 | Farming | `plant("crop")`, `water()`, `harvest()` |
-| Backpack | `backpack.append("item")`, `backpack.remove("item")` |
-| Inventory | `inventory["item"]`, `inventory["item"] += 1` |
+| Backpack | `backpack.append()`, `backpack.remove("item")`, `backpack.pop()`, `len(backpack)`, `backpack[0]`, `"item" in backpack` |
+| Inventory | `inventory["item"]`, `inventory["item"] += 1`, `"item" in inventory`, `inventory.items()`, `print(inventory)` |
 
 **Farming Growth Cycle:** `plant()` → 10 sec → sprout → `water()` → 10 sec → grown → `harvest()`
 
