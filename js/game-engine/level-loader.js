@@ -22,8 +22,6 @@
             this._useLevelMap(gameState, levelData, isMission);
             this._initializeGameState(gameState, levelData);
 
-            gameState.collectibles = this._processCollectibles(levelData, gameState.levelType);
-
             VehicleInteractionManager.loadLevelVehicles(levelData);
             ElementInteractionManager.loadLevelElements(levelData);
             await MegaElementManager.loadLevelMegaElements(levelData);
@@ -103,27 +101,6 @@
             gameState.goalPos = {...levelData.map.goalPos};
             gameState.levelType = levelData.type || 'exercise';
             gameState.objects = [];
-        },
-
-        _processCollectibles(levelData, levelType) {
-            let collectibles = (levelData.map.collectibles || []).map(c => ({
-                x: c.x !== undefined ? c.x : c[0],
-                y: c.y !== undefined ? c.y : c[1],
-                type: c.type || 'gem',
-                collected: false
-            }));
-
-            const isMission = levelType === 'mission' || levelType === 'quest';
-            if (isMission && window.MissionState && MissionState.isInitialized()) {
-                collectibles = collectibles.map(c => {
-                    if (MissionState.isCollected(c.x, c.y)) {
-                        return { ...c, collected: true };
-                    }
-                    return c;
-                });
-            }
-
-            return collectibles;
         },
 
         _resizeCanvas(mapWidth, mapHeight, TILE_SIZE) {

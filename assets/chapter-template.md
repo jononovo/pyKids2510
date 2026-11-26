@@ -249,7 +249,7 @@ tests:
   
   # Check player used collect() command
   - type: code_regex
-    pattern: "collect\\(\\)"
+    pattern: "collect\(\)"
     message: "Use collect() to pick up items"
   
   # Check door was opened

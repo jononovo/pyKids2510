@@ -1402,7 +1402,7 @@ Check if the student's code matches a pattern.
 
 ```yaml
 - type: code_regex
-  pattern: "move_forward\\(\\d+\\)"
+  pattern: "move_forward\(\d+\)"
   flags: "i"            # Case insensitive
   success_message: "Great use of move_forward with an argument!"
 ```

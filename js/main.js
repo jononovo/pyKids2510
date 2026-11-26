@@ -46,7 +46,6 @@ let gameState = {
     spriteAnimationCounter: 0,
     backgroundImage: null,
     hoveredTile: {x: -1, y: -1},
-    collectibles: [],
     objects: [],
     inventory: {},
     messageLog: []

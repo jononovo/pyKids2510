@@ -96,7 +96,7 @@
                     trigger: opts.trigger || defaultTrigger,
                     section: sectionName,
                     replacement: replacement,
-                    id: this._generateId(elementType, coord.x, coord.y),
+                    id: this.generateElementId(elementType, coord.x, coord.y),
                     emit: opts.emit || null,
                     spawn: opts.spawn || null,
                     remove: opts.remove || null,
@@ -124,7 +124,7 @@
             return defaults[sectionName] || 'on_interact';
         },
 
-        _generateId(type, x, y) {
+        generateElementId(type, x, y) {
             return `${type}_${x}_${y}`;
         },
 

@@ -138,20 +138,19 @@ const TestTypes = (function() {
     }
     
     function element_state(test, ctx) {
-        const key = `${test.x},${test.y}`;
-        const state = ctx.elementStates[key];
-        const expectedState = test.state;
-        
-        const passed = state && state.type === expectedState;
-        
+        const [x, y] = test.position || [];
+        const state = ElementInteractionManager.getElementState(ElementInteractionManager.generateElementId(test.element, x, y));
+        const actual = !state ? test.element : state.removed ? 'removed' : (state.newType || test.element);
+        const passed = actual === test.state;
+
         return {
             type: 'element_state',
             passed: passed,
-            position: { x: test.x, y: test.y },
-            expected: expectedState,
-            actual: state ? state.type : 'unchanged',
-            message: passed ? `Element at (${test.x}, ${test.y}) is ${expectedState}` :
-                `Expected element at (${test.x}, ${test.y}) to be ${expectedState}`
+            position: { x: x, y: y },
+            expected: test.state,
+            actual: actual,
+            message: passed ? `The ${test.element} at (${x}, ${y}) is ${test.state}` :
+                `Expected the ${test.element} at (${x}, ${y}) to be ${test.state}, but it is ${actual}`
         };
     }
     
