@@ -51,7 +51,8 @@
             returnsResult: true,
             execute: async function(steps) {
                 var run = SkulptRuntime.currentProgramRun();
-                steps = parseInt(steps) || 1;
+                steps = parseInt(steps);
+                if (isNaN(steps)) steps = 1;
                 var moved = 0;
 
                 for (var i = 0; i < steps && !run.stopped; i++) {
@@ -85,7 +86,8 @@
             countsAsMultiple: true,
             execute: async function(times) {
                 var run = SkulptRuntime.currentProgramRun();
-                times = parseInt(times) || 1;
+                times = parseInt(times);
+                if (isNaN(times)) times = 1;
                 var directions = ['up', 'left', 'down', 'right'];
 
                 for (var i = 0; i < times && !run.stopped; i++) {
@@ -107,7 +109,8 @@
             countsAsMultiple: true,
             execute: async function(times) {
                 var run = SkulptRuntime.currentProgramRun();
-                times = parseInt(times) || 1;
+                times = parseInt(times);
+                if (isNaN(times)) times = 1;
                 var directions = ['up', 'right', 'down', 'left'];
 
                 for (var i = 0; i < times && !run.stopped; i++) {

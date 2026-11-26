@@ -595,7 +595,7 @@ Defined in `js/game-commands.js`:
 
 | Command | Description |
 |---------|-------------|
-| `move_forward(steps)`, `forward(steps)` | Move forward (default 1 step); a closed door or other blocked tile stops it. Each step can fire an `on_step` element. Gives back the steps it took |
+| `move_forward(steps)`, `forward(steps)` | Move forward (default 1 step; 0 or less doesn't move); a closed door or other blocked tile stops it. Each step can fire an `on_step` element. Gives back the steps it took |
 | `turn_left(times)`, `left(times)`, `turn_right(times)`, `right(times)` | Turn (default 1 time) |
 | `collect()` | Collect the item on your tile, or else the one in front |
 | `interact()` | Board or leave a boat, or swap or remove an element next to you |
