@@ -963,10 +963,18 @@ body {
     border-radius: 6px;
 }
 
-#game-info-panel #backpack-panel .backpack-list {
+#game-info-panel #backpack-panel .backpack-slots {
     display: block;
     padding: 2px 0;
     font-weight: normal;
     word-wrap: break-word;
     color: #c0c0c0;
+}
+
+#game-info-panel #backpack-panel .backpack-slot::after {
+    content: attr(data-slot);
+    font-size: 9px;
+    vertical-align: sub;
+    margin-left: 1px;
+    color: #7fc542;
 }

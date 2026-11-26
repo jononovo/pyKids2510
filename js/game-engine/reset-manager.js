@@ -34,7 +34,7 @@
             gameState.mapData = copyTiles(levelStart.tiles);
             this.resetPlayerPosition(gameState);
 
-            LevelLoader.updateInventoryUI();
+            renderBackpackInventoryPanels();
             render();
             updateViewport();
         },

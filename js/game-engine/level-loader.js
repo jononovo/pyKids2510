@@ -134,48 +134,6 @@
             img.src = graphicUrl;
         },
 
-        updateInventoryUI() {
-            const gameState = window.gameState;
-            if (!gameState) return;
-
-            const inventoryPanel = document.getElementById('inventory-panel');
-            if (inventoryPanel) {
-                inventoryPanel.innerHTML = '<strong>📦 Inventory:</strong>';
-                for (const [type, count] of Object.entries(gameState.inventory)) {
-                    if (count > 0) {
-                        const itemSpan = document.createElement('span');
-                        itemSpan.className = 'inventory-item';
-                        itemSpan.textContent = ` ${type}: ${count}`;
-                        inventoryPanel.appendChild(itemSpan);
-                    }
-                }
-            }
-
-            this.updateBackpackUI();
-        },
-
-        updateBackpackUI() {
-            const gameState = window.gameState;
-            if (!gameState) return;
-
-            const backpackPanel = document.getElementById('backpack-panel');
-            if (!backpackPanel) return;
-
-            const backpack = gameState.backpack || [];
-            const capacity = window.MissionState ? MissionState.getBackpackCapacity() : 4;
-
-            if (backpack.length === 0) {
-                backpackPanel.style.display = 'none';
-            } else {
-                backpackPanel.style.display = 'block';
-                backpackPanel.innerHTML = `<strong>🎒 Backpack</strong> (${backpack.length}/${capacity}):`;
-                const listSpan = document.createElement('span');
-                listSpan.className = 'backpack-list';
-                listSpan.textContent = JSON.stringify(backpack);
-                backpackPanel.appendChild(listSpan);
-            }
-        },
-
         clearCaches() {
             lastMapRows = null;
             lastMissionMap = null;

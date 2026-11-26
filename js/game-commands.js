@@ -14,14 +14,6 @@
         return window.CommandHelpers ? CommandHelpers.findObjectAt(x, y, type) : null;
     }
 
-    function updateInventoryDisplay() {
-        if (window.CommandHelpers) CommandHelpers.updateInventoryDisplay();
-    }
-    
-    function updateBackpackDisplay() {
-        if (window.CommandHelpers) CommandHelpers.updateBackpackDisplay();
-    }
-
     function getAnimationDuration(fraction) {
         return window.CommandHelpers ? CommandHelpers.getAnimationDuration(fraction) : 300;
     }
@@ -67,7 +59,7 @@
                         var stepResult = ElementInteractionManager.handlePlayerStep(front.x, front.y, gameState);
                         if (stepResult) {
                             if (window.showGameMessage) showGameMessage(stepResult.message, 'success');
-                            updateInventoryDisplay();
+                            renderBackpackInventoryPanels();
                             await render();
                         }
                     } else {
@@ -217,7 +209,7 @@
                         playCollectSound();
                         animateCollectSparkle(guardResult.position.x, guardResult.position.y);
                         if (window.showGameMessage) showGameMessage(consumeResult.message, 'success');
-                        updateInventoryDisplay();
+                        renderBackpackInventoryPanels();
                         await render();
                     }
                 }
@@ -440,8 +432,7 @@
                     gameState.mapData[placement.y][placement.x] = getTileIdByName('path');
                 }
                 
-                updateInventoryDisplay();
-                updateBackpackDisplay();
+                renderBackpackInventoryPanels();
                 
                 if (window.MissionState && MissionState.isMissionLevel) {
                     MissionState.addStructure(placement.x, placement.y, elementName);
@@ -562,7 +553,7 @@
                 
                 playCollectSound();
                 animateCollectSparkle(px, py);
-                updateInventoryDisplay();
+                renderBackpackInventoryPanels();
                 if (window.showGameMessage) showGameMessage('Harvested ' + cropName + '!', 'success');
                 await render();
                 
@@ -613,7 +604,7 @@
             
             playCollectSound();
             animateCollectSparkle(element.x, element.y);
-            updateBackpackDisplay();
+            renderBackpackInventoryPanels();
             await render();
             if (window.showGameMessage) showGameMessage(result.message, 'success');
         }
@@ -635,7 +626,7 @@
         var result = MissionState.removeFromBackpack(itemType);
         if (result.success) {
             gameState.backpack = MissionState.getBackpack();
-            updateBackpackDisplay();
+            renderBackpackInventoryPanels();
             await render();
             if (window.showGameMessage) showGameMessage(result.message, 'success');
         } else {
@@ -747,7 +738,7 @@
             }
         }
         
-        updateBackpackDisplay();
+        renderBackpackInventoryPanels();
         await render();
         if (window.showGameMessage) showGameMessage('Dropped ' + droppedItemType, 'success');
         
@@ -815,7 +806,7 @@
             
             playCollectSound();
             animateCollectSparkle(element.x, element.y);
-            updateInventoryDisplay();
+            renderBackpackInventoryPanels();
             await render();
             
             var newValue = gameState.inventory[key] || 0;
@@ -838,7 +829,7 @@
                 }
             }
             
-            updateInventoryDisplay();
+            renderBackpackInventoryPanels();
             await render();
         }
         
