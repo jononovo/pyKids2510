@@ -110,6 +110,11 @@ const GuideBubble = (function() {
         if (event.key === 'Escape' && state) close();
     });
 
+    document.addEventListener('pointerdown', event => {
+        if (!state || !bubble || bubble.contains(event.target) || event.target.closest('.mistake-icon')) return;
+        close();
+    }, true);
+
     return {
         open: open,
         update: update,
