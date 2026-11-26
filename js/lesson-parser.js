@@ -2,6 +2,8 @@
 // LESSON PARSER MODULE
 // ============================================
 
+const MAP_ELEMENT_KEYS = ['collectibles', 'transforms', 'vehicles', 'megaElements', 'scenery'];
+
 function parseTestsYaml(yamlStr) {
     const tests = { pass_all: true, items: [] };
     const lines = yamlStr.split('\n');
@@ -124,6 +126,7 @@ function parseCourseLevels(markdown) {
             const mapLines = mapData.split('\n');
             
             for (let line of mapLines) {
+                const elementKey = MAP_ELEMENT_KEYS.find(key => line.includes(key + ':'));
                 if (line.startsWith('[')) {
                     // Parse array row, handling tile annotations like 1* for interactive objects
                     try {
@@ -164,46 +167,11 @@ function parseCourseLevels(markdown) {
                         x: parseInt(coords[0]), 
                         y: parseInt(coords[1])
                     };
-                } else if (line.includes('collectibles:')) {
+                } else if (elementKey) {
                     try {
-                        const collectiblesStr = line.split('collectibles:')[1].trim();
-                        const collectiblesArray = JSON.parse(collectiblesStr);
-                        // New format only: ["type", [[x,y],[x,y]]]
-                        level.map.collectibles = collectiblesArray;
+                        level.map[elementKey].push(...JSON.parse(line.split(elementKey + ':')[1].trim()));
                     } catch (e) {
-                        console.log('Could not parse collectibles:', line);
-                    }
-                } else if (line.includes('transforms:')) {
-                    try {
-                        const transformsStr = line.split('transforms:')[1].trim();
-                        const transformsArray = JSON.parse(transformsStr);
-                        level.map.transforms = transformsArray;
-                    } catch (e) {
-                        console.log('Could not parse transforms:', line);
-                    }
-                } else if (line.includes('vehicles:')) {
-                    try {
-                        const vehiclesStr = line.split('vehicles:')[1].trim();
-                        const vehiclesArray = JSON.parse(vehiclesStr);
-                        level.map.vehicles = vehiclesArray;
-                    } catch (e) {
-                        console.log('Could not parse vehicles:', line);
-                    }
-                } else if (line.includes('megaElements:')) {
-                    try {
-                        const megaElementsStr = line.split('megaElements:')[1].trim();
-                        const megaElementsArray = JSON.parse(megaElementsStr);
-                        level.map.megaElements = megaElementsArray;
-                    } catch (e) {
-                        console.log('Could not parse megaElements:', line);
-                    }
-                } else if (line.includes('scenery:')) {
-                    try {
-                        const sceneryStr = line.split('scenery:')[1].trim();
-                        const sceneryArray = JSON.parse(sceneryStr);
-                        level.map.scenery = sceneryArray;
-                    } catch (e) {
-                        console.log('Could not parse scenery:', line);
+                        console.log('Could not parse ' + elementKey + ':', line);
                     }
                 } else if (line.includes('graphic:')) {
                     // Extract the graphic URL
