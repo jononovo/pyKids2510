@@ -531,14 +531,14 @@ Traditional grid system using numeric tile codes:
 | Code | Tile Type |
 |------|-----------|
 | 0 | Grass (walkable) |
-| 1 | Tree (obstacle) |
+| 1 | Dark grass (walkable) |
 | 2 | Path (walkable) |
-| 3 | Bush (obstacle) |
-| 4 | Rock (obstacle) |
-| 5 | Water (obstacle) |
-| 6 | Flower (walkable) |
-| 7 | Invisible (for graphic maps) |
-| 8 | Sand (walkable) |
+| 3 | Tree (obstacle) |
+| 4 | Bush (obstacle) |
+| 5 | Water (boats only) |
+| 6 | Rock (obstacle) |
+| 7 | Flower (walkable) |
+| 8 | Dark water (boats only) |
 
 ### Graphic Maps
 
