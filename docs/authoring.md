@@ -377,7 +377,7 @@ def turn_around():
 |---|---|
 | The tabs | `main.py` (selected) and `helpers.py`, only on levels with helpers |
 | `helpers.py` | Read-only, highlighted like the editor, with line numbers. Typing there does nothing, and nothing from it is saved |
-| RUN | Always runs `main.py`, whichever tab is open. Back on `main.py`, the code, the cursor and undo are as they were |
+| RUN and HELP | RUN always runs `main.py`. Pressed while `helpers.py` is open, RUN and HELP bring `main.py` back to the front first, so its red lines and the guide's bubble show. Back on `main.py`, the code, the cursor and undo are as they were |
 | A helper called without the first line | Its line turns red: "go_to() is in helpers.py, but this program doesn't bring it in." Show me: "Put this on line 1: from helpers import *" |
 | A mistake inside a helper, like `go_to("home")` | The `main.py` line that called it turns red: "This line calls go_to() from helpers.py, and it stopped inside go_to(). Check what you gave it." |
 | A typo of a helper's name, like `go_t()` | The usual typo hint, and Show me gives `go_to()` |

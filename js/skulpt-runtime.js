@@ -173,6 +173,7 @@
         if (isBlockMode) {
             code = window.BlocklyModeSwitcher.getCode();
         } else if (window.EditorManager && window.EditorManager.isInitialized()) {
+            FileTabs.openMain();
             code = window.EditorManager.getCode();
         } else {
             console.error('[Skulpt Runtime] No code source available');

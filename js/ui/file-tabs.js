@@ -59,8 +59,13 @@ const FileTabs = (function() {
         helpersView.querySelector('.editor').innerHTML = PythonHighlighter.highlight(text);
     }
 
+    function openMain() {
+        if (tabs) open('main');
+    }
+
     return {
-        showLevelFiles: showLevelFiles
+        showLevelFiles: showLevelFiles,
+        openMain: openMain
     };
 })();
 

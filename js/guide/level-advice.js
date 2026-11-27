@@ -69,6 +69,7 @@
     }
 
     function showLevelAdvice() {
+        FileTabs.openMain();
         if (MistakeLines.openFirst()) return;
         const advice = levelAdvice(EditorManager.getCode());
         const description = failedTestDescription();
