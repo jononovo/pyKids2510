@@ -14,21 +14,22 @@ Editlenir mi?
 4. [Lesson Template](#lesson-template)
 5. [Map System](#map-system)
 6. [Map Inheritance](#map-inheritance)
-7. [Tile Reference](#tile-reference)
-8. [Elements System](#elements-system)
-9. [Vehicles System](#vehicles-system)
-10. [Mega-Elements System](#mega-elements-system)
-11. [Scenery System](#scenery-system)
-12. [Signal System](#signal-system)
-13. [Available Python Commands](#available-python-commands)
-14. [Mission State System](#mission-state-system)
-15. [Backpack and Inventory Systems](#backpack-and-inventory-systems)
-16. [Tests System](#tests-system)
-17. [Best Practices](#best-practices)
-18. [Complete Examples](#complete-examples)
-19. [Troubleshooting](#troubleshooting)
-20. [Technical Reference](#technical-reference)
-21. [Quick Reference: All Features](#quick-reference-all-features)
+7. [Helpers (helpers.py)](#helpers-helperspy)
+8. [Tile Reference](#tile-reference)
+9. [Elements System](#elements-system)
+10. [Vehicles System](#vehicles-system)
+11. [Mega-Elements System](#mega-elements-system)
+12. [Scenery System](#scenery-system)
+13. [Signal System](#signal-system)
+14. [Available Python Commands](#available-python-commands)
+15. [Mission State System](#mission-state-system)
+16. [Backpack and Inventory Systems](#backpack-and-inventory-systems)
+17. [Tests System](#tests-system)
+18. [Best Practices](#best-practices)
+19. [Complete Examples](#complete-examples)
+20. [Troubleshooting](#troubleshooting)
+21. [Technical Reference](#technical-reference)
+22. [Quick Reference: All Features](#quick-reference-all-features)
 
 ---
 
@@ -172,6 +173,7 @@ collectibles: [[6,4,"wood"]]
 | `<!-- Starter Code -->` | Yes | Initial code in editor |
 | `<!-- Solution -->` | No | Reference solution. HELP's advice is worked out from it: the next line to add, or a line that differs |
 | `<!-- Map -->` | Yes | Map layout and configuration |
+| `<!-- helpers.py [read-only] -->` | No | Ready-made functions in a read-only `helpers.py` tab. Later levels in the file keep them (see [Helpers](#helpers-helperspy)) |
 | Tests | No | Set in the slide's Tests dialog in CodeTribe, not in the level text (see Tests System below) |
 
 ---
@@ -333,6 +335,54 @@ collectibles: [["gem", [[3,2],[6,2]]]]
 ### Chapter Reset
 
 Map caches reset when the chapter changes. Each new chapter starts fresh without inheriting from the previous chapter.
+
+---
+
+## Helpers (helpers.py)
+
+A level can give students ready-made functions in a second file, `helpers.py`. Students see two tabs above the code, `main.py` and `helpers.py`. `helpers.py` is read-only, and `main.py` brings its functions in with `from helpers import *`.
+
+Write the file in a section beside the starter code, with a plain fence like the starter code's:
+
+````markdown
+<!-- Starter Code -->
+```
+from helpers import *
+
+move_forward(3)
+turn_around()
+move_forward(3)
+```
+
+<!-- helpers.py [read-only] -->
+```
+def turn_around():
+    turn_left()
+    turn_left()
+```
+````
+
+### Rules
+
+- **Only `helpers.py [read-only]`** is read, written exactly like that. The section never shows in the level's text.
+- **Like the map:** a level without the section keeps the last level's helpers in the same file, so a chapter writes it once. An empty section turns them off from that level on.
+- **The first line:** the starter code and the solution both start with `from helpers import *`. Students see it and can delete it.
+- **The game writes the file's first line,** `# Read-only: this lesson's helpers`, so the section doesn't.
+- **Each function gets what it needs from its call,** such as `go_to(home)`, uses only the game's commands and questions, and holds no setup. Short setup, like `home = (12, 4)`, stays in `main.py`.
+- **Functions only,** each `def` at the start of its line: the guide reads the functions' names from those lines.
+
+### What Students See
+
+| What | How |
+|---|---|
+| The tabs | `main.py` (selected) and `helpers.py`, only on levels with helpers |
+| `helpers.py` | Read-only, highlighted like the editor, with line numbers. Typing there does nothing, and nothing from it is saved |
+| RUN | Always runs `main.py`, whichever tab is open. Back on `main.py`, the code, the cursor and undo are as they were |
+| A helper called without the first line | Its line turns red: "go_to() is in helpers.py, but this program doesn't bring it in." Show me: "Put this on line 1: from helpers import *" |
+| A mistake inside a helper, like `go_to("home")` | The `main.py` line that called it turns red: "This line calls go_to() from helpers.py, and it stopped inside go_to(). Check what you gave it." |
+| A typo of a helper's name, like `go_t()` | The usual typo hint, and Show me gives `go_to()` |
+
+Agents that write lessons copy the functions a lesson needs from the small library in CodeTribe's lesson-building skill: `turn_around()`, `face(direction)`, `walk(steps, direction)`, `walk_until_blocked()` and `go_to(place)`.
 
 ---
 
@@ -1852,6 +1902,7 @@ transforms: [["door", "door-open", [[3,1],[5,1]]]]
 | Map not inheriting | Map block has layout rows | Remove `[...]` rows to trigger inheritance |
 | Inherited map shows wrong collectibles | Collectibles from previous level | Each level needs its own `collectibles:` line |
 | Tests not running | Tests written in the level text | Add each test in the slide's Tests dialog |
+| "go_to() is in helpers.py, but this program doesn't bring it in" | The code has no `from helpers import *` | Start the starter code and the solution with it |
 | Test failing unexpectedly | Wrong test configuration | Check test type syntax and property names |
 
 ### Validation Checklist
@@ -1865,6 +1916,7 @@ transforms: [["door", "door-open", [[3,1],[5,1]]]]
 - [ ] Trigger objects use double-quoted keys (valid JSON)
 - [ ] Starter code includes `import player`
 - [ ] Solution code actually solves the level
+- [ ] Levels with helpers start their starter code and solution with `from helpers import *`
 - [ ] Each test in the slide's Tests dialog is one valid rule
 - [ ] Test types match available options (position, inventory, collectibles, code_regex, direction, element_state)
 - [ ] For inherited maps: Previous mission defines the map layout
@@ -1890,6 +1942,7 @@ assets/
 
 js/
 ├── lesson-parser.js           # Parses markdown to game data
+├── level-helpers.js           # The level's helpers.py
 ├── game-commands.js           # Python command implementations
 ├── main.js                    # Main app logic, map inheritance
 ├── game-engine/
@@ -1903,7 +1956,8 @@ js/
 │   ├── test-types.js          # Test type implementations
 │   └── test-context.js        # Snapshots game state for tests
 └── ui/
-    └── confirm-dialog.js      # Custom modal dialogs
+    ├── confirm-dialog.js      # Custom modal dialogs
+    └── file-tabs.js           # The main.py and helpers.py tabs
 ```
 
 ### Parser Regex Patterns
@@ -1923,6 +1977,9 @@ js/
 
 // Map data
 /<!--\s*Map\s*-->\s*\n*```([\s\S]*?)```/
+
+// helpers.py
+/<!--\s*helpers\.py\s*\[read-only\]\s*-->\s*\n*```([\s\S]*?)```/
 
 ```
 
@@ -1968,6 +2025,7 @@ A comprehensive summary of every feature available for lesson authoring.
 | `<!-- Starter Code -->` | Yes | Initial editor code |
 | `<!-- Solution -->` | No | Reference solution, which feeds HELP |
 | `<!-- Map -->` | Yes | Map layout + config |
+| `<!-- helpers.py [read-only] -->` | No | Ready-made functions, kept by later levels |
 | Tests | No | In the slide's Tests dialog |
 
 ### Tile IDs
