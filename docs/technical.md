@@ -110,6 +110,7 @@ project/
 │   ├── game-engine.js            # Rendering, character drawing
 │   ├── game-commands.js          # Python command definitions
 │   ├── lesson-parser.js          # Markdown lesson parsing
+│   ├── level-helpers.js          # The level's helpers.py: its text and its functions' names
 │   ├── skulpt-runtime.js         # Python code execution, mistakes, stopping
 │   ├── skulpt-bridge.js          # Builds the player module from GameCommands
 │   ├── python-error-explainer.js # Python mistakes in plain words
@@ -155,6 +156,7 @@ project/
 │   │
 │   └── ui/
 │       ├── confirm-dialog.js     # Modal dialogs
+│       ├── file-tabs.js          # The main.py and helpers.py tabs, and the read-only view
 │       └── backpack-inventory-panels.js # Draws both panels the way Python prints them
 │
 ├── blockly-integration/
@@ -477,6 +479,7 @@ goalPos: 4,1
     markdown: '...',            // Full markdown content
     starterCode: '...',
     solutionCode: '...',
+    helpers: '...',             // the helpers.py section's code, or the previous level's
     map: {
         layout: [[0,0,0,0,0], ...],
         startPos: {x: 0, y: 1},
@@ -501,6 +504,19 @@ Repeated `collectibles:`, `transforms:`, `vehicles:`, `megaElements:` and `scene
 Levels can omit their own map to inherit from the previous level. The `LevelLoader` keeps:
 - `lastMapRows` - the tile rows of the last level that had its own; a level without rows gets its own copy of them
 - `lastMissionMap` - the tiles and built things of the last mission level; a mission level without rows keeps them, so bridges and buildings carry over
+
+### helpers.py
+
+A level's `<!-- helpers.py [read-only] -->` section gives students ready-made functions in a second, read-only file. The rules for lessons are in `docs/authoring.md` ([Helpers](authoring.md#helpers-helperspy)).
+
+- **Reading:** `parseCourseLevels` puts the section's code in `level.helpers`. A level without the section takes the previous level's in the same file, like the map. The section is taken out of the level's text.
+- **Holding:** `LevelHelpers` (`js/level-helpers.js`) holds the current level's helpers; `LevelLoader.initialize` calls `setLevel(level)`. `fileText()` is the file as students see it, `# Read-only: this lesson's helpers` and then the code. `names()` gives the names of its top-level `def` lines, and `functionAt(line)` the function a line of the file belongs to.
+- **Showing:** `FileTabs.showLevelFiles()` (`js/ui/file-tabs.js`), called by `loadLevel`, puts the `main.py` and `helpers.py` tabs above the code and a read-only view after the editor when the level has helpers, and hides them when it hasn't. The view uses `PythonHighlighter` and the editor's line numbers (`EditorManager.lineNumbersFor`).
+- **Switching** only hides and shows, so the CodeJar editor is never touched and nothing from `helpers.py` is saved. Leaving `main.py` keeps its cursor (`EditorManager.savedCursor()`) and takes the focus off the editor; coming back puts the cursor back (`restoreCursor()`) and places the red lines again.
+- **RUN and HELP bring `main.py` to the front first:** `runCodeWithSkulpt` and `showLevelAdvice` call `FileTabs.openMain()`, so the red lines, the guide's bubble and HELP's advice always show.
+- **Running:** before each Run, `SkulptRuntime` sets `Sk.builtinFiles.files['src/lib/helpers.py']` to the hidden first lines plus `fileText()`, or removes it when the level has none. `Sk.importMainWithBody` clears `Sk.sysmodules` on every Run, so each Run imports it fresh. RUN always runs `main.py`, whichever tab is open.
+- **Mistakes:** Skulpt's traceback goes from where the error happened outwards, and the main program's frames are `<stdin>.py`. The line comes from the first `main.py` frame. When the frame that line called into is in `helpers.py`, the words name the helper: "This line calls go_to() from helpers.py, and it stopped inside go_to(). Check what you gave it."
+- **The guide:** `helpers` is a known name on a level with helpers, and the helpers' names join once the program has `from helpers import *`. Without that line, a call to a helper is the `not-brought-in` mistake ([The Guide](#the-guide)).
 
 ---
 
@@ -620,7 +636,7 @@ Defined in `js/game-commands.js`:
 
 ### Mistakes
 
-- `explainPythonError(error, hiddenLineCount)` (`js/python-error-explainer.js`) gives `{line, text, syntaxError}`, with the line counted from the student's first line (the 3 hidden lines are taken off).
+- `explainPythonError(error, hiddenLineCount, helpersFile)` (`js/python-error-explainer.js`) gives `{line, text, syntaxError}`, with the line taken from the traceback's first `main.py` frame and counted from the student's first line (the 3 hidden lines are taken off). A mistake inside a helper gets the helper's words ([helpers.py](#helperspy)).
 - Plain words for NameError, SyntaxError and indentation (this Skulpt build reports most indentation mistakes as `SyntaxError: bad input`; "unindent does not match any outer indentation level" gets the indentation wording); TypeError and IndexError keep Python's message with what it means; any other error keeps Python's message. The error's name stays at the end, as in "(NameError)". A game command's own error (backpack full, nothing in front) shows the game's message.
 - `executePythonCode` gives the mistake back (`{mistake, wasStopped}`) instead of writing it. A line past the end of the code (an unclosed bracket) is capped at the last line with code.
 - `runCodeWithSkulpt` decides where it shows. After a finished run whose code is still in the editor, the editor's red lines get the finder's mistakes and Python's ([The Guide](#the-guide)). In Blocks mode, or for a mistake with no line, the Console Log writes "Line N: ..." in red. A stopped run shows nothing.
@@ -668,7 +684,7 @@ Custom Python highlighting via `js/syntax-highlighter.js`:
 ### Where Lines Are
 
 - `EditorManager.linePosition(lineNumber)` measures a line on the page with a range over the editor's text (CodeJar shares its `getNodeAndOffset`), since long lines wrap: its first row's top, its last row's top and bottom, and where its text ends, in the editor box's coordinates.
-- `EditorManager.cursorLine()` reads the cursor's line (`null` when the editor isn't focused), and `placeCursorAtLineEnd(lineNumber)` puts the cursor at the end of a line.
+- `EditorManager.cursorLine()` reads the cursor's line (`null` when the editor isn't focused), and `placeCursorAtLineEnd(lineNumber)` puts the cursor at the end of a line. Both use `savedCursor()` and `restoreCursor(cursor)`, which also keep the cursor while `helpers.py` is open.
 - The editor's update hook calls `MistakeLines.codeChanged`, and `updateCode` (code the game sets) calls `MistakeLines.clear`. The guide is placed again after each edit and when the editor changes size or scrolls.
 
 ### The Guide
@@ -676,8 +692,8 @@ Custom Python highlighting via `js/syntax-highlighter.js`:
 Mistakes have their own spot in the editor: red lines, an icon and the guide's bubble (`js/guide/`, `css/guide.css`). Nothing pops up by itself.
 
 - **The mistake finder** (`MistakeFinder.find(code)`): rules, no AI and no page code. It gives `{mistakes, unknownWordLines}`. Each mistake is `{line, kind, hint, fix}`; `fix` is `{pieces, words}`: the line as pieces to keep, add, take out or swap, and the words with the important part at the odd places (the bubble makes it bold).
-  - Kinds: spelling, capital letters, a space in a name, no colon, a bracket missing or one too many, a missing or mismatched quote, `=` to compare, a command without `()`, a value without brackets, `else if`, and a missing or extra indent.
-  - It reads the names it knows from where they're defined: Skulpt's keywords and built-ins, the player module (`playerModuleNames()` in the bridge), the backpack's and inventory's methods (`PythonBackpackInventory.backpackMethods`, `inventoryMethods`), the hidden first lines' imports (`SkulptRuntime.preludeImports`) and the student's own names.
+  - Kinds: spelling, capital letters, a space in a name, no colon, a bracket missing or one too many, a missing or mismatched quote, `=` to compare, a command without `()`, a value without brackets, `else if`, a missing or extra indent, and a helper called without `from helpers import *` (`not-brought-in`: "go_to() is in helpers.py, but this program doesn't bring it in.", with Show me "Put this on line 1: from helpers import *").
+  - It reads the names it knows from where they're defined: Skulpt's keywords and built-ins, the player module (`playerModuleNames()` in the bridge), the backpack's and inventory's methods (`PythonBackpackInventory.backpackMethods`, `inventoryMethods`), the hidden first lines' imports (`SkulptRuntime.preludeImports`), the level's helpers (`LevelHelpers.names()`, once the program brings them in) and the student's own names.
   - A typo is a word close to a command, `backpack` or `inventory` and their methods, the student's names, a keyword or a common built-in: 1 edit step for words up to 4 letters, 2 up to 10, 3 beyond, with two swapped letters as one step.
   - It never marks a word that isn't close to anything, words of 1 or 2 letters, what follows a dot (except `player.`, `backpack.` and `inventory.`), a name before `=`, text in quotes, comments, or values in brackets that go on over several lines.
 - **Red lines** (`MistakeLines`):

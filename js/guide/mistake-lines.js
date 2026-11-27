@@ -3,7 +3,7 @@ const MistakeLines = (function() {
 
     const ICON_PATH = 'M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z';
     const ICON_SIZE = 20;
-    const KINDS_PYTHON_CAN_READ = ['spelling', 'capitals', 'call'];
+    const KINDS_PYTHON_CAN_READ = ['spelling', 'capitals', 'call', 'not-brought-in'];
 
     let red = new Map();
     let lines = [];

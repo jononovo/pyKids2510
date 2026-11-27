@@ -36,12 +36,21 @@
         return plainWords(name, message) + ' (' + name + ')';
     }
 
-    function explainPythonError(error, hiddenLineCount) {
-        const firstFrame = error.traceback && error.traceback[0];
+    function helperText(name) {
+        return 'This line calls ' + name + '() from helpers.py, and it stopped inside ' + name + '(). Check what you gave it.';
+    }
+
+    function explainPythonError(error, hiddenLineCount, helpersFile) {
+        const frames = error.traceback || [];
+        const mainFile = frames.length ? frames[frames.length - 1].filename : null;
+        const mainAt = frames.findIndex(frame => frame.filename === mainFile);
+        const calledFrame = mainAt > 0 ? frames[mainAt - 1] : null;
+        const syntaxError = error.tp$name === 'SyntaxError';
+        const helper = !syntaxError && calledFrame && calledFrame.filename === helpersFile ? LevelHelpers.functionAt(calledFrame.lineno - hiddenLineCount) : null;
         return {
-            line: firstFrame ? Math.max(1, firstFrame.lineno - hiddenLineCount) : null,
-            text: errorText(error),
-            syntaxError: error.tp$name === 'SyntaxError'
+            line: mainAt >= 0 ? Math.max(1, frames[mainAt].lineno - hiddenLineCount) : null,
+            text: helper ? helperText(helper) : errorText(error),
+            syntaxError: syntaxError
         };
     }
 

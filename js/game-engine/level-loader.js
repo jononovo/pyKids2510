@@ -21,6 +21,7 @@
             this._startMissionState(isMission, chapterData.chapterNumber);
             this._useLevelMap(gameState, levelData, isMission);
             this._initializeGameState(gameState, levelData);
+            LevelHelpers.setLevel(levelData);
 
             VehicleInteractionManager.loadLevelVehicles(levelData);
             ElementInteractionManager.loadLevelElements(levelData);

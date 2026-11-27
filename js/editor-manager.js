@@ -78,17 +78,15 @@ const EditorManager = (function() {
         return jar.toString();
     }
     
+    function lineNumbersFor(code) {
+        return code.split('\n').map((_, index) => index + 1).join('\n');
+    }
+
     function updateLineNumbers() {
         const editor = document.getElementById('editor');
         const lineNumbers = document.getElementById('line-numbers');
         if (!editor || !lineNumbers) return;
-        
-        const lines = editor.textContent.split('\n');
-        const numbers = [];
-        for (let i = 1; i <= lines.length; i++) {
-            numbers.push(i);
-        }
-        lineNumbers.textContent = numbers.join('\n');
+        lineNumbers.textContent = lineNumbersFor(editor.textContent);
     }
     
     function isInitialized() {
@@ -100,9 +98,19 @@ const EditorManager = (function() {
         return lines.slice(0, lineNumber - 1).reduce((total, line) => total + line.length + 1, 0);
     }
 
+    function savedCursor() {
+        return isInitialized() && document.activeElement === currentEditorElement ? jar.save() : null;
+    }
+
+    function restoreCursor(cursor) {
+        if (!isInitialized()) return;
+        currentEditorElement.focus({ preventScroll: true });
+        jar.restore(cursor);
+    }
+
     function cursorLine() {
-        if (!isInitialized() || document.activeElement !== currentEditorElement) return null;
-        const selection = jar.save();
+        const selection = savedCursor();
+        if (!selection) return null;
         const cursor = selection.dir === 'backward' ? selection.start : selection.end;
         return getCode().slice(0, cursor).split('\n').length;
     }
@@ -112,8 +120,7 @@ const EditorManager = (function() {
         const lines = getCode().split('\n');
         const line = Math.min(Math.max(lineNumber, 1), lines.length);
         const end = lineStart(lines, line) + lines[line - 1].length;
-        currentEditorElement.focus({ preventScroll: true });
-        jar.restore({ start: end, end: end });
+        restoreCursor({ start: end, end: end });
     }
 
     function linePosition(lineNumber) {
@@ -152,7 +159,10 @@ const EditorManager = (function() {
         updateCode: updateCode,
         getCode: getCode,
         updateLineNumbers: updateLineNumbers,
+        lineNumbersFor: lineNumbersFor,
         isInitialized: isInitialized,
+        savedCursor: savedCursor,
+        restoreCursor: restoreCursor,
         cursorLine: cursorLine,
         placeCursorAtLineEnd: placeCursorAtLineEnd,
         linePosition: linePosition

@@ -9,6 +9,8 @@ const MistakeFinder = (function() {
     const CLOSERS = { ')': '(', ']': '[', '}': '{' };
     const STRING_PREFIX = /^(?:[rRbBuUfF]|[rR][bBfF]|[bBfF][rR])$/;
     const COMMON_PYTHON = ['print', 'len', 'range', 'int', 'str', 'float', 'list', 'dict', 'input', 'abs', 'min', 'max', 'sum', 'sorted', 'round', 'type', 'enumerate', 'zip'];
+    const HELPERS_IMPORT = 'from helpers import *';
+    const BRINGS_IN_HELPERS = /^\s*from\s+helpers\s+import\s+\*\s*$/;
 
     function gameNames() {
         const keywords = Object.keys(Sk.ParseTables.keywords);
@@ -18,6 +20,7 @@ const MistakeFinder = (function() {
             commonPython: COMMON_PYTHON,
             playerModule: window.playerModuleNames(),
             preludeImports: SkulptRuntime.preludeImports,
+            helpers: LevelHelpers.names(),
             backpackMethods: PythonBackpackInventory.backpackMethods,
             inventoryMethods: PythonBackpackInventory.inventoryMethods
         };
@@ -281,8 +284,10 @@ const MistakeFinder = (function() {
         const ownNames = studentNames(statements);
         const keywords = new Set(knownNames.keywords);
         const commandNames = knownNames.playerModule.filter(name => !['backpack', 'inventory'].includes(name));
-        const known = new Set([...knownNames.python, ...knownNames.playerModule, ...knownNames.preludeImports, ...ownNames]);
-        const suggestions = [...new Set([...knownNames.playerModule, ...knownNames.preludeImports, ...knownNames.keywords, ...knownNames.commonPython, ...ownNames])];
+        const helpersBroughtIn = statements.some(statement => BRINGS_IN_HELPERS.test(statement.code));
+        const helperNames = knownNames.helpers.length ? ['helpers', ...(helpersBroughtIn ? knownNames.helpers : [])] : [];
+        const known = new Set([...knownNames.python, ...knownNames.playerModule, ...knownNames.preludeImports, ...helperNames, ...ownNames]);
+        const suggestions = [...new Set([...knownNames.playerModule, ...knownNames.preludeImports, ...helperNames, ...knownNames.keywords, ...knownNames.commonPython, ...ownNames])];
         const memberNames = { player: knownNames.playerModule, backpack: knownNames.backpackMethods, inventory: knownNames.inventoryMethods };
         const skipQuoteChecks = /"""|'''/.test(source);
         const mistakes = [];
@@ -374,6 +379,10 @@ const MistakeFinder = (function() {
                         candidates = memberNames[dot[1]];
                         if (candidates.includes(word)) continue;
                     } else if (/\.\s*$/.test(before) || known.has(word)) {
+                        continue;
+                    }
+                    if (!dot && knownNames.helpers.includes(word)) {
+                        report(number, 'not-brought-in', `${word}() is in helpers.py, but this program doesn't bring it in.`, [{ add: HELPERS_IMPORT }], ['Put this on line 1: ', HELPERS_IMPORT]);
                         continue;
                     }
                     const sameButCapitals = candidates.find(name => name.toLowerCase() === word.toLowerCase());
