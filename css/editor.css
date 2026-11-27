@@ -256,6 +256,42 @@
     z-index: 1;
 }
 
+.file-tabs {
+    display: flex;
+    align-items: flex-end;
+    gap: 18px;
+    padding: 0 12px;
+    border-bottom: 1px solid #1a1f2e;
+    min-height: 32px;
+}
+
+.file-tab {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    color: #6e7681;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 8px 0 6px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.file-tab:hover {
+    color: #9aa4ae;
+}
+
+.file-tab[aria-selected="true"] {
+    color: #e6e6e6;
+    font-weight: bold;
+    border-bottom-color: #7fc542;
+}
+
+.file-tabs[hidden],
+.editor-wrapper[hidden] {
+    display: none;
+}
+
 /* ========================================
    DROPDOWN MENUS (SPRITE & SPEED)
    ======================================== */

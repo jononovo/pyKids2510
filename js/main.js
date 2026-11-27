@@ -181,6 +181,7 @@ async function loadLevel(levelIndex) {
             categoryTitle.textContent = courseData.categoryName;
         }
     }
+    FileTabs.showLevelFiles();
     
     // Update editors and controls (deferred to allow DOM updates)
     setTimeout(() => {

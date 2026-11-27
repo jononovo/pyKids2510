@@ -32,9 +32,15 @@
     var PRELUDE_IMPORTS = ['player', 'time'];
     var CODE_PRELUDE = 'from player import *\n' + PRELUDE_IMPORTS.map(function(name) { return 'import ' + name + '\n'; }).join('');
     var CODE_PRELUDE_LINE_COUNT = CODE_PRELUDE.split('\n').length - 1;
+    var HELPERS_FILE = 'src/lib/helpers.py';
+
+    function registerLevelHelpers() {
+        if (LevelHelpers.hasHelpers()) Sk.builtinFiles.files[HELPERS_FILE] = CODE_PRELUDE + LevelHelpers.fileText();
+        else delete Sk.builtinFiles.files[HELPERS_FILE];
+    }
 
     function pythonMistake(error, code) {
-        var mistake = explainPythonError(error, CODE_PRELUDE_LINE_COUNT);
+        var mistake = explainPythonError(error, CODE_PRELUDE_LINE_COUNT, HELPERS_FILE);
         if (mistake.line) mistake.line = Math.min(mistake.line, code.replace(/\s+$/, '').split('\n').length);
         return mistake;
     }
@@ -93,6 +99,7 @@
 
     async function executePythonCode(code) {
         configureSkulpt();
+        registerLevelHelpers();
 
         if (typeof window.resetCommandCounter === 'function') window.resetCommandCounter();
 

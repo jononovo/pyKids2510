@@ -3,6 +3,7 @@
 // ============================================
 
 const MAP_ELEMENT_KEYS = ['collectibles', 'transforms', 'vehicles', 'megaElements', 'scenery'];
+const HELPERS_SECTION = /<!--\s*helpers\.py\s*\[read-only\]\s*-->\s*\n*```([\s\S]*?)```/;
 
 function fingerprintText(text) {
     let hash = 2166136261;
@@ -90,6 +91,7 @@ function parseCourseLevels(markdown) {
     // Skip the first section if it's just headers
     const startIndex = levelSections[0].match(/^##\s+[A-Z]/m) && 
                        !levelSections[0].match(/###\s+OBJECTIVE/m) ? 1 : 0;
+    let previousHelpers = '';
     
     for (let i = startIndex; i < levelSections.length; i++) {
         const section = levelSections[i].trim();
@@ -127,6 +129,10 @@ function parseCourseLevels(markdown) {
         if (solutionCodeMatch) {
             level.solutionCode = solutionCodeMatch[1].trim();
         }
+
+        const helpersMatch = section.match(HELPERS_SECTION);
+        level.helpers = helpersMatch ? helpersMatch[1].trim() : previousHelpers;
+        previousHelpers = level.helpers;
 
         const mapDataMatch = section.match(/<!--\s*Map\s*-->\s*\n*```([\s\S]*?)```/);
         if (mapDataMatch) {
@@ -198,6 +204,7 @@ function parseCourseLevels(markdown) {
         markdownContent = markdownContent.replace(/<!--\s*Solution\s*-->\s*\n*```[\s\S]*?```/g, '');
         // Remove map code block and comment
         markdownContent = markdownContent.replace(/<!--\s*Map\s*-->\s*\n*```[\s\S]*?```/g, '');
+        markdownContent = markdownContent.replace(HELPERS_SECTION, '');
         // Remove trailing --- separator if present
         markdownContent = markdownContent.replace(/\n---\s*$/, '');
         
