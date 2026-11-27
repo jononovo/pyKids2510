@@ -37,7 +37,13 @@
     }
 
     function helperText(name) {
-        return 'This line calls ' + name + '() from helpers.py, and it stopped inside ' + name + '(). Check what you gave it.';
+        return 'The mistake is in how this line calls ' + name + "(): check what's inside the brackets.";
+    }
+
+    function calledHelper(error, calledFrame, hiddenLineCount, helpersFile) {
+        if (calledFrame) return calledFrame.filename === helpersFile ? LevelHelpers.functionAt(calledFrame.lineno - hiddenLineCount) : null;
+        const called = error.tp$name === 'TypeError' && pythonMessage(error).match(/^(\w+)\(\)/);
+        return called && LevelHelpers.names().includes(called[1]) ? called[1] : null;
     }
 
     function explainPythonError(error, hiddenLineCount, helpersFile) {
@@ -46,10 +52,11 @@
         const mainAt = frames.findIndex(frame => frame.filename === mainFile);
         const calledFrame = mainAt > 0 ? frames[mainAt - 1] : null;
         const syntaxError = error.tp$name === 'SyntaxError';
-        const helper = !syntaxError && calledFrame && calledFrame.filename === helpersFile ? LevelHelpers.functionAt(calledFrame.lineno - hiddenLineCount) : null;
+        const helper = syntaxError ? null : calledHelper(error, calledFrame, hiddenLineCount, helpersFile);
         return {
             line: mainAt >= 0 ? Math.max(1, frames[mainAt].lineno - hiddenLineCount) : null,
             text: helper ? helperText(helper) : errorText(error),
+            helper: helper,
             syntaxError: syntaxError
         };
     }

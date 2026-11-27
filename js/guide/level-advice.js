@@ -63,6 +63,14 @@
         return generalTip(lastLine);
     }
 
+    function helperCallFix(name, lineText) {
+        const call = new RegExp('\\b' + name + '\\(');
+        const example = codeLines(courseData.levels[currentLevel].solutionCode || '').find(entry => call.test(entry.text));
+        if (example) return { pieces: [{ keep: lineText.match(/^\s*/)[0] }, ...changeMarks(lineText.trim().replace(/\s+/g, ' '), example.text)], words: ['Like this: ', example.text, '.'] };
+        const definition = LevelHelpers.fileText().split('\n').find(line => line.startsWith('def ' + name + '('));
+        return { pieces: [{ keep: definition }], words: ['In helpers.py, ', name + '()', ' starts like this.'] };
+    }
+
     function failedTestDescription() {
         const failed = TestRunner.lastFailedTests().find(test => test.description && String(test.description).trim());
         return failed ? String(failed.description).trim() : null;
@@ -79,4 +87,5 @@
     }
 
     window.showLevelAdvice = showLevelAdvice;
+    window.helperCallFix = helperCallFix;
 })();
