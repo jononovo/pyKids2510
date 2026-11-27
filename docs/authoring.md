@@ -2,8 +2,6 @@
 
 This comprehensive guide covers everything you need to know about creating lessons, missions, and quests for the Python Learning Platform. It includes the lesson template structure, map design, collectibles, available commands, and technical implementation details.
 
-
-Editlenir mi?
 ---
 
 ## Table of Contents
@@ -156,7 +154,7 @@ player.collect()
 [3,3,3,3,3,3,3,3,3,3]
 startPos: 2,3
 goalPos: 6,4
-collectibles: [[6,4,"wood"]]
+collectibles: [["wood", [[6,4]]]]
 ```
 ---
 ```
@@ -204,7 +202,7 @@ A 2D array where each number represents a tile type:
 ```
 startPos: X,Y          # Player starting position
 goalPos: X,Y           # Goal/star position
-collectibles: [[X,Y,"type"],[X,Y,"type"]]  # Collectible items
+collectibles: [["type", [[X,Y],[X,Y]]]]  # Collectible items
 graphic: path/to/image.png  # Optional background image
 ```
 
@@ -575,7 +573,7 @@ Located in `assets/map/elements.json`:
 2. Use the filename (without extension) as the type:
 
 ```
-collectibles: ["custom-item", [[5,3]]]
+collectibles: [["custom-item", [[5,3]]]]
 ```
 
 Ensure `assets/map/elements/custom-item.svg` exists.
@@ -1021,12 +1019,12 @@ Questions read the world. They answer at once: nothing animates, the character d
 
 | Command | Description |
 |---------|-------------|
-| `player.collect()` | Collect item at current position |
-| `player.interact()` | Interact with element at current position (transforms) |
-| `player.push()` | Push object in facing direction |
-| `player.speak("text")` | Display speech bubble |
+| `player.collect()` | Collect the item at the current position, or else the one in front |
+| `player.interact()` | Interact with a boat or element on one of the 4 tiles around the player (transforms) |
+| `player.push()` | Unfinished: no pushable things exist yet, so it only pauses |
+| `player.speak("text")` | Write the text in the Console Log |
 | `player.build("structure")` | Build a structure |
-| `player.place("item")` | Place an item |
+| `player.place("item")` | Unfinished: no containers exist yet, so it only pauses |
 | `player.open()` | Open the closed door in front |
 | `player.close()` | Close the open door in front |
 | `player.water()` | Water a sprout (farming) |
@@ -1042,8 +1040,8 @@ The farming system allows players to plant, grow, and harvest crops. Crops progr
 
 | Command | Alternative | Description |
 |---------|-------------|-------------|
-| `plant("cropName")` | `player.plant("cropName")` | Plant a crop at current position (creates dirt plot) |
-| `water()` | `player.water()` | Water a sprout at current position (triggers growth to full crop) |
+| `plant("cropName")` | `player.plant("cropName")` | Plant a crop on the tile in front (creates dirt plot) |
+| `water()` | `player.water()` | Water the sprout in front (triggers growth to full crop) |
 | `harvest()` | `player.harvest()` | Harvest a fully grown crop and add it to inventory |
 
 **Note:** Both forms work - you can use either `plant("corn")` or `player.plant("corn")`.
@@ -1059,7 +1057,7 @@ harvest()
 
 **Notes:**
 - The `time` module is auto-imported (no `import time` needed)
-- Players must be standing on the tile to plant, water, or harvest
+- Players plant, water and harvest the tile in front of them
 - Growth timers run in real-time (not affected by game speed settings)
 - Harvested crops are added to the player's inventory
 - Farm plots are cleared after harvesting
@@ -1150,7 +1148,7 @@ The inventory tracks item counts using dictionary syntax.
 
 ### Code Structure
 
-All student code should start with:
+Student code may start with `import player`, but doesn't need to:
 
 ```python
 import player
@@ -1159,7 +1157,7 @@ import player
 player.move_forward()
 ```
 
-The `import player` is required and automatically handled by the runtime.
+The runtime adds `from player import *`, `import player` and `import time` before every program, so `move_forward()` and `player.move_forward()` both work without an import.
 
 ### Loops and Timing
 
@@ -1646,7 +1644,7 @@ player.collect()
 [3,3,3,3,3,3,3]
 startPos: 1,2
 goalPos: 4,2
-collectibles: [[4,2,"flower"]]
+collectibles: [["flower", [[4,2]]]]
 ```
 ---
 ```
@@ -1763,7 +1761,7 @@ player.collect()
 [3,3,3,3,3,3,3,3,3,3,3,3]
 startPos: 1,4
 goalPos: 5,2
-collectibles: [[3,1,"apple"],[8,1,"apple"],[1,3,"apple"],[9,3,"apple"],[2,6,"apple"]]
+collectibles: [["apple", [[3,1],[8,1],[1,3],[9,3],[2,6]]]]
 ```
 ---
 ```
@@ -1895,7 +1893,6 @@ transforms: [["door", "door-open", [[3,1],[5,1]]]]
 | Map not rendering | Invalid JSON | Check for trailing commas, proper brackets |
 | Collectibles not showing | Wrong coordinates | Verify X,Y match walkable tiles |
 | Wrong level type | Title missing keyword | Include MISSION or QUEST in title |
-| Code not running | Missing import | Ensure `import player` in starter code |
 | Elements not parsing | Invalid JSON in triggers | Use double-quoted keys: `{"trigger": "on_step", "at": [[x,y]]}` |
 | Transforms not working | Wrong section name | Use `transforms:` not `transform:` |
 | Door not rendering | Missing element definition | Check `assets/map/elements.json` has the element type |
@@ -1914,7 +1911,6 @@ transforms: [["door", "door-open", [[3,1],[5,1]]]]
 - [ ] Collectible positions are on walkable tiles
 - [ ] Element/transform positions are on walkable tiles
 - [ ] Trigger objects use double-quoted keys (valid JSON)
-- [ ] Starter code includes `import player`
 - [ ] Solution code actually solves the level
 - [ ] Levels with helpers start their starter code and solution with `from helpers import *`
 - [ ] Each test in the slide's Tests dialog is one valid rule
@@ -2195,14 +2191,14 @@ All commands work with or without the `player.` prefix (e.g., both `move_forward
 | Movement | `move_forward(n)` (answers the steps taken), `turn_left(n)`, `turn_right(n)` |
 | Aliases | `forward(n)`, `left(n)`, `right(n)` |
 | Questions | `position()`, `path_clear()`, `find("name")`, `at_goal()`, `facing()` |
-| Interaction | `collect()`, `interact()`, `push()`, `speak("text")` |
+| Interaction | `collect()`, `interact()`, `speak("text")` |
 | Doors | `open()`, `close()` |
 | Building | `build("element")` - requires `cost` in elements.json |
 | Farming | `plant("crop")`, `water()`, `harvest()` |
 | Backpack | `backpack.append()`, `backpack.remove("item")`, `backpack.pop()`, `len(backpack)`, `backpack[0]`, `"item" in backpack` |
 | Inventory | `inventory["item"]`, `inventory["item"] += 1`, `"item" in inventory`, `inventory.items()`, `print(inventory)` |
 
-**Farming Growth Cycle:** `plant()` → 10 sec → sprout → `water()` → 10 sec → grown → `harvest()`
+**Farming Growth Cycle:** `plant()` → 5 sec → sprout → `water()` → 5 sec → grown → `harvest()`
 
 ### Map Inheritance Example
 

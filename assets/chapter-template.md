@@ -15,7 +15,7 @@
      - Mega-elements (blocking structures)
      - Mega-objects (walkable terrain)
      - Signal system (emit, spawn, remove, on)
-     - All test types
+     - Where tests go (the slide's Tests dialog in CodeTribe)
      - Map inheritance between levels
      
      Level 1: Defines map, demonstrates all features
@@ -180,7 +180,7 @@ collectibles: [["coin", [[2,2],[3,2],[6,9],[6,10],[9,11]]], ["key", {"at": [[7,5
      - on_step: "signal_name" - Emit signal when stepped on
      - on: "signal_name" - Transform when signal received
 ============================================================================ -->
-transforms: [["lever", "lever-on", {"at": [[4,9]], "on_interact": "lever_on"}], ["door", "door-open", {"on": "lever_on", "at": [[6,8]]}], ["plate", "plate-down", {"trigger": "on_step", "at": [[9,10]], "on_step": "plate_down"}]]
+transforms: [["lever", "lever-on", {"at": [[4,9]], "on_interact": "lever_on"}], ["door", "door-open", {"on": "lever_on", "at": [[6,8]]}], ["button", {"trigger": "on_step", "at": [[9,10]], "on_step": "plate_down"}]]
 
 <!-- ============================================================================
      VEHICLES
@@ -213,51 +213,7 @@ megaElements: [["house", [[1,4]]]]
 scenery: [["highland-plateau", [[15,5]]]]
 ```
 
-<!-- ============================================================================
-     TESTS SECTION
-     
-     Defines custom completion criteria. If omitted, defaults to goal position.
-     
-     Available test types:
-     - position: Check player location (target: goal, or [x,y])
-     - inventory: Check item counts (item, min/exact/max)
-     - collectibles: Check collected items (all, count, types)
-     - code_regex: Match code pattern (pattern, message)
-     - direction: Check facing direction (facing: up/down/left/right)
-     - element_state: Check transform state (element, position, state)
-     
-     pass_all: true means ALL tests must pass (default)
-     pass_all: false means ANY test passing is sufficient
-============================================================================ -->
-<!-- Tests -->
-```yaml
-pass_all: true
-tests:
-  # Check player reached the goal
-  - type: position
-    target: goal
-  
-  # Check player collected at least 3 coins
-  - type: inventory
-    item: coin
-    min: 3
-  
-  # Check player has the key
-  - type: inventory
-    item: key
-    min: 1
-  
-  # Check player used collect() command
-  - type: code_regex
-    pattern: "collect\(\)"
-    message: "Use collect() to pick up items"
-  
-  # Check door was opened
-  - type: element_state
-    element: door
-    position: [6, 8]
-    state: door-open
-```
+<!-- TESTS: set in the slide's Tests dialog in CodeTribe, one test each (docs/authoring.md, Tests System). -->
 ---
 
 --- <!-- Mission 2 -->
@@ -337,25 +293,4 @@ goalPos: 2,5
 collectibles: [["gem", [[9,8],[9,5],[4,5]]]]
 ```
 
-<!-- Tests -->
-```yaml
-pass_all: true
-tests:
-  # Position at new goal
-  - type: position
-    target: goal
-  
-  # All gems collected
-  - type: collectibles
-    all: true
-  
-  # Facing north
-  - type: direction
-    facing: up
-  
-  # Verify inventory persistence - still have key from Mission 1
-  - type: inventory
-    item: key
-    min: 1
-```
 ---

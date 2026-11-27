@@ -184,7 +184,7 @@ This code turns until the player faces up, whatever way it started, then walks 3
 
 `player.speak([string to speak])`
 
-This function is used to have player call out a string that is specified in this function's argument. In game this is expressed by the string being drawn on screen over the player's head.
+This function is used to have player call out a string that is specified in this function's argument. In game this is expressed by the string being written in the Console Log.
 
 **Example**
 
@@ -192,7 +192,7 @@ This function is used to have player call out a string that is specified in this
 player.speak("Hello World")
 ```
 
-This code will have the phrase "Hello World" displayed over the player's head.
+This code will have the phrase "Hello World" written in the Console Log.
 
 ![speak](assets/codebook/speak.png)
 
@@ -206,16 +206,13 @@ This code will have the phrase "Hello World" displayed over the player's head.
 
 This function is used to have player build an object that is specified in this function's argument. There is a limited selection of objects that the player can build using this function and there are certain requirements tied to building each object. Objects will be built in front of the player's facing direction provided the area is not occupied by a different object or the object cannot be built in the type of terrain it's being built over.
 
-| Object           | Cost       | Argument            | Description                      |
-| ---------------- | ---------- | ------------------- | -------------------------------- |
-| Bridge           | - 4 logs   | - "bridge"          | - Builds a bridge to move across |
-| Grain Stack      | - 4 grain  | - Class Object Name | - Produces as grain stack        |
-| Wood Road        | - 4 planks | - Class Object Name | - Adds a strip of wooden pathway |
-| Stone Road       | - 4 stone  | - Class Object Name | - Adds a strip of stone pathway  |
-| Big Green house  | - 4 planks | - Class Object Name | - Builds Chicken House           |
-| Small Blue house | - 4 planks | - Class Object Name | - Builds Chicken House           |
-| Big Orange house | - 4 planks | - Class Object Name | - Builds Chicken House           |
-| Small Red house  | - 4 planks | - Class Object Name | - Builds Chicken House           |
+| Object      | Cost                 | Argument        | Description                              |
+| ----------- | -------------------- | --------------- | ---------------------------------------- |
+| Bridge      | - 4 wood             | - "bridge"      | - Builds a bridge to walk across water   |
+| House       | - 6 wood             | - "house"       | - Builds a 3 x 3 house                   |
+| Small house | - 4 wood             | - "house-small" | - Builds a 2 x 2 house                   |
+| Shop        | - 6 wood and 5 coins | - "shop"        | - Builds a 3 x 3 shop stand              |
+| Small shop  | - 4 wood and 3 coins | - "shop-small"  | - Builds a 2 x 2 shop stand              |
 
 **Example**
 
@@ -253,19 +250,18 @@ Using this code the player can water an object in the direction they are facing.
 
 **Syntax**
 
-`player.collect(string)`
+`player.collect()`
 
-This function is used to collect resources that you can't claim as part of your inventory. This is usually used to replenish inventory items that can be exhausted, for example filling a canteen with water.
+This function is used to pick up an item, such as a coin, a gem or a piece of wood, and add it to your inventory. It picks up the item the player is standing on, or else the one in front of them.
 
 **Example**
 
 ```python
-player.collect("water")
-player.turn_left()
-player.water()
+player.move_forward(2)
+player.collect()
 ```
 
-This code will have the player collect water from a water source they are facing, then turn left to water an object.
+This code will have the player walk two steps, then pick up the item there.
 
 ![collect](assets/codebook/collect.png)
 
@@ -319,18 +315,19 @@ This code will have player open a chest, pick up an item and then close the ches
 
 **Syntax**
 
-`player.plant(dictionary,key)`
+`player.plant([crop name])`
 
-This function is used to plant objects in the ground, this is usually reserved for planting crops. This function uses dictionaries, it takes 2 arguments, the name of the dictionary and the dictionary key.
+This function is used to plant objects in the ground, this is usually reserved for planting crops. It takes 1 argument, the name of the crop, and plants it in the soil in front of the player. If you leave it blank, it plants wheat.
 
 **Example**
 
 ```python
-player.plant(seeds, "Eggplant")
+player.plant("eggplant")
+time.sleep(5)
 player.water()
 ```
 
-In the above code the player plants eggplant seeds in the soil and then waters them.
+In the above code the player plants eggplant in the soil in front of them, waits 5 seconds for the sprout, and then waters it.
 
 ![plant](assets/codebook/plant.png)
 
