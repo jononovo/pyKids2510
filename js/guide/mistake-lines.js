@@ -53,7 +53,7 @@ const MistakeLines = (function() {
         red = new Map();
         byLine(found).forEach((mistakes, line) => red.set(line, { mistakes: mistakes, text: lines[line - 1], fromPython: false }));
         if (pythonLineShown) {
-            red.set(pythonMistake.line, { mistakes: [{ line: pythonMistake.line, kind: 'python', hint: pythonMistake.text, fix: null }], text: lines[pythonMistake.line - 1], fromPython: true });
+            red.set(pythonMistake.line, { mistakes: [{ line: pythonMistake.line, kind: 'python', hint: pythonMistake.text, fix: pythonMistake.helper ? helperCallFix(pythonMistake.helper, lines[pythonMistake.line - 1]) : null }], text: lines[pythonMistake.line - 1], fromPython: true });
         }
         GuideBubble.close();
         place();
